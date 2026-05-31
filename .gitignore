@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtualenv
+.venv/
+venv/
+env/
+
+# Secrets / local env
+.env
+.env.local
+
+# Database (local campaign data)
+*.db
+
+# macOS
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+*.swp
