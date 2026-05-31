@@ -53,7 +53,7 @@ The **sidebar list of known things**, the **map markers**, and the **things ment
 
 Ordering favors dependencies and the "local single-user first → auth → hosting → ambitious visuals last" arc the owner asked for. The visibility field is designed in from Phase 1; it is *enforced against players* in Phase 7.
 
-- [ ] **Phase 0 — Scaffold & shell.** Flask app, SQLite bootstrap, base layout with the tab navigation shell (Character / Spells & Actions / Map / Blog) + entity sidebar placeholder. No real data yet.
+- [x] **Phase 0 — Scaffold & shell.** Flask app (`app.py`, port 5002), SQLite bootstrap (`db.py`, `meta`/schema-version table), base layout with the tab navigation shell (Character / Spells & Actions / Map / Blog) + entity sidebar placeholder. No real data yet.
 - [ ] **Phase 1 — Creature engine + character sheets.** Six ability scores + modifiers, HP, AC, resistances. The shared creature model with a `visibility` field. DM-only, local. Character Sheet tab becomes real.
 - [ ] **Phase 2 — Dice roller.** Standalone roller: d4/d6/d8/d10/d12/d20/d100 and expressions like `2d6+3`. Then wire to the sheet: **checks & saving throws** (`d20 + modifier` vs a DC).
 - [ ] **Phase 3 — Spells/abilities + SRD rules reference.** Spells & Actions tab. Pull SRD descriptions; "inspect" a spell/ability to read what it does. Dice in descriptions (e.g. `1d8`) are **clickable → roll**. Respects visibility/permissions.
@@ -79,6 +79,15 @@ dnd-campaign-tracker/
 ├── requirements.txt
 ├── README.md
 └── CLAUDE.md
+```
+
+## Running
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python app.py          # serves at http://127.0.0.1:5002 (init_db runs on startup)
 ```
 
 ## Conventions

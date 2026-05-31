@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }} — Campaign Tracker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">⚔️ Campaign Tracker</div>
+    <nav class="tabs">
+      {% for tab in tabs %}
+        <a href="{{ url_for(tab.endpoint) }}"
+           class="tab {{ 'active' if active == tab.endpoint else '' }}">
+          {{ tab.label }}
+        </a>
+      {% endfor %}
+    </nav>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Known Entities</h2>
+      <p class="muted">
+        NPCs, locations, and factions you've discovered will appear here.
+      </p>
+      <p class="placeholder-note">Coming in a later phase.</p>
+    </aside>
+
+    <main class="content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <footer class="footer">
+    <span class="muted">Rules reference uses the D&amp;D 5e SRD (CC-BY-4.0).</span>
+  </footer>
+</body>
+</html>

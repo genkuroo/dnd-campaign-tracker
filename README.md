@@ -4,7 +4,16 @@ A web app for running a Dungeons & Dragons 5e campaign. The **Dungeon Master** m
 the whole world; **players** log in to track their own characters and look up how their
 spells and abilities work — handy for a table that's new to D&D.
 
-> Status: **Phase 0 (scaffolding)**. See [CLAUDE.md](./CLAUDE.md) for the full architecture and phased plan.
+> Status: **Phase 0 complete** — Flask shell with tab navigation, entity-sidebar placeholder, and SQLite bootstrap. See [CLAUDE.md](./CLAUDE.md) for the full architecture and phased plan.
+
+## Running
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python app.py    # http://127.0.0.1:5002
+```
 
 ## What it does (planned)
 

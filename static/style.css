@@ -1,0 +1,116 @@
+:root {
+  --bg: #1a1614;
+  --panel: #241f1b;
+  --panel-2: #2e2823;
+  --ink: #ece3d4;
+  --muted: #9a8f7d;
+  --accent: #b5452f;       /* dragon red */
+  --accent-2: #c9a14a;     /* worn gold */
+  --border: #3a322b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Georgia", "Iowan Old Style", serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.55;
+}
+
+/* Top bar + tabs */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--panel);
+  border-bottom: 2px solid var(--accent);
+}
+
+.brand {
+  font-weight: bold;
+  font-size: 1.25rem;
+  color: var(--accent-2);
+  white-space: nowrap;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.tab {
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px 6px 0 0;
+  color: var(--muted);
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: background 0.12s, color 0.12s;
+}
+
+.tab:hover { color: var(--ink); background: var(--panel-2); }
+
+.tab.active {
+  color: var(--ink);
+  background: var(--panel-2);
+  border-color: var(--border);
+  border-bottom-color: var(--panel-2);
+}
+
+/* Layout: sidebar + content */
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: calc(100vh - 120px);
+}
+
+.sidebar {
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  padding: 1.25rem;
+}
+
+.sidebar h2 {
+  margin-top: 0;
+  font-size: 1.05rem;
+  color: var(--accent-2);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.4rem;
+}
+
+.content {
+  padding: 1.75rem 2rem;
+}
+
+.content h1 {
+  margin-top: 0;
+  color: var(--accent-2);
+}
+
+/* Helpers */
+.muted { color: var(--muted); }
+
+.placeholder-note {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.85rem;
+  color: var(--accent-2);
+  background: var(--panel-2);
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+}
+
+.footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 720px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+}
