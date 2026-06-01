@@ -1,8 +1,30 @@
 {% extends "base.html" %}
 {% block content %}
-  <h1>Character Sheet</h1>
-  <p class="muted">
-    Ability scores, HP, AC, resistances, and inventory will live here.
-  </p>
-  <p class="placeholder-note">Phase 1 builds the creature engine behind this tab.</p>
+  <div class="page-head">
+    <h1>Characters</h1>
+    <a class="btn" href="{{ url_for('character_new') }}">+ New Character</a>
+  </div>
+
+  {% if characters %}
+    <div class="card-grid">
+      {% for c in characters %}
+        <a class="char-card" href="{{ url_for('character_detail', creature_id=c['id']) }}">
+          <div class="char-card-head">
+            <span class="char-name">{{ c['name'] }}</span>
+            {% if c['visibility'] == 'hidden' %}<span class="badge-dm">DM only</span>{% endif %}
+          </div>
+          <div class="muted">
+            Level {{ c['level'] }}{% if c['player_name'] %} · {{ c['player_name'] }}{% endif %}
+          </div>
+          <div class="char-card-stats">
+            <span title="Hit Points">❤️ {{ c['current_hp'] }}/{{ c['max_hp'] }}</span>
+            <span title="Armor Class">🛡️ {{ c['armor_class'] }}</span>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">No characters yet.</p>
+    <p class="placeholder-note">Create your first one to start the party.</p>
+  {% endif %}
 {% endblock %}

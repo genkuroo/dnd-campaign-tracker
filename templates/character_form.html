@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block content %}
+  {% set c = creature %}
+  <div class="page-head">
+    <h1>{{ title }}</h1>
+    <a class="btn-ghost" href="{{ url_for('character') }}">Cancel</a>
+  </div>
+
+  <form method="post" class="sheet-form">
+    <div class="field-row">
+      <label class="field grow">
+        <span>Name</span>
+        <input type="text" name="name" required value="{{ c['name'] if c else '' }}">
+      </label>
+      <label class="field">
+        <span>Player</span>
+        <input type="text" name="player_name" value="{{ c['player_name'] if c else '' }}">
+      </label>
+      <label class="field narrow">
+        <span>Level</span>
+        <input type="number" name="level" min="1" value="{{ c['level'] if c else 1 }}">
+      </label>
+    </div>
+
+    <fieldset>
+      <legend>Ability Scores</legend>
+      <div class="ability-inputs">
+        {% for col, short in abilities %}
+          <label class="field narrow">
+            <span>{{ short }}</span>
+            <input type="number" name="{{ col }}" value="{{ c[col] if c else 10 }}">
+          </label>
+        {% endfor %}
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Vitals</legend>
+      <div class="field-row">
+        <label class="field narrow"><span>Max HP</span>
+          <input type="number" name="max_hp" min="1" value="{{ c['max_hp'] if c else 1 }}"></label>
+        <label class="field narrow"><span>Current HP</span>
+          <input type="number" name="current_hp" value="{{ c['current_hp'] if c else '' }}" placeholder="full"></label>
+        <label class="field narrow"><span>Armor Class</span>
+          <input type="number" name="armor_class" value="{{ c['armor_class'] if c else 10 }}"></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Defenses <span class="muted">(comma-separated damage types)</span></legend>
+      <label class="field"><span>Resistances</span>
+        <input type="text" name="resistances" value="{{ c['resistances'] if c else '' }}" placeholder="fire, cold"></label>
+      <label class="field"><span>Immunities</span>
+        <input type="text" name="immunities" value="{{ c['immunities'] if c else '' }}" placeholder="poison"></label>
+      <label class="field"><span>Vulnerabilities</span>
+        <input type="text" name="vulnerabilities" value="{{ c['vulnerabilities'] if c else '' }}" placeholder="thunder"></label>
+    </fieldset>
+
+    <label class="field"><span>Notes</span>
+      <textarea name="notes" rows="3">{{ c['notes'] if c else '' }}</textarea></label>
+
+    <label class="checkbox">
+      <input type="checkbox" name="hidden" {{ 'checked' if c and c['visibility'] == 'hidden' else '' }}>
+      <span>Hidden from players (DM only)</span>
+    </label>
+
+    <div class="form-actions">
+      <button type="submit" class="btn">{{ 'Save changes' if c else 'Create character' }}</button>
+      {% if c %}
+        <button type="submit" class="btn-danger" formaction="{{ url_for('character_delete', creature_id=c['id']) }}"
+                formnovalidate onclick="return confirm('Delete {{ c['name'] }}?')">Delete</button>
+      {% endif %}
+    </div>
+  </form>
+{% endblock %}

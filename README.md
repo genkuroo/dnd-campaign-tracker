@@ -4,7 +4,7 @@ A web app for running a Dungeons & Dragons 5e campaign. The **Dungeon Master** m
 the whole world; **players** log in to track their own characters and look up how their
 spells and abilities work — handy for a table that's new to D&D.
 
-> Status: **Phase 0 complete** — Flask shell with tab navigation, entity-sidebar placeholder, and SQLite bootstrap. See [CLAUDE.md](./CLAUDE.md) for the full architecture and phased plan.
+> Status: **Phase 1 complete** — the creature engine + working character sheets (ability scores & modifiers, HP, AC, resistances), built on a migration-driven SQLite schema. See [CLAUDE.md](./CLAUDE.md) for the full architecture and phased plan.
 
 ## Running
 

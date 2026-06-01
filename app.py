@@ -1,19 +1,31 @@
 """D&D Campaign Tracker — Flask entry point.
 
-Phase 0: the application shell. Tab navigation (Character / Spells & Actions /
-Map / Blog) and the known-entity sidebar are in place as placeholders; no real
-campaign data yet. See CLAUDE.md for the full phased plan.
+Phase 1: the creature engine + working character sheets. The Character Sheet tab
+lists, views, creates, and edits player characters (ability scores + modifiers,
+HP, AC, resistances). DM-only for now; player logins arrive in Phase 7.
+See CLAUDE.md for the full phased plan.
 """
-from flask import Flask, redirect, render_template, url_for
+from flask import (
+    Flask, abort, flash, redirect, render_template, request, url_for,
+)
 
 from db import init_db
+from models.creature import (
+    ABILITIES,
+    ability_modifier,
+    create_creature,
+    delete_creature,
+    format_modifier,
+    get_creature,
+    list_characters,
+    update_creature,
+)
 
 app = Flask(__name__)
 app.secret_key = "dnd-campaign-tracker-local-only"  # local dev only; not a secret
 
 # The top-level tabs. `endpoint` is the Flask view name; `label` is what the
-# navigation renders. Kept here as the single source of truth so the nav and the
-# routes can't drift apart.
+# navigation renders. Single source of truth so nav and routes can't drift.
 TABS = [
     {"endpoint": "character", "label": "Character Sheet"},
     {"endpoint": "spells", "label": "Spells & Actions"},
@@ -28,10 +40,24 @@ def inject_nav():
     return {"tabs": TABS}
 
 
+@app.template_filter("mod")
+def _mod_filter(score):
+    """Jinja filter: an ability score -> its formatted modifier (e.g. 14 -> '+2')."""
+    return format_modifier(ability_modifier(score))
+
+
+@app.template_filter("commalist")
+def _commalist_filter(value):
+    """Split a comma-separated field into a clean list for chip rendering."""
+    return [item.strip() for item in (value or "").split(",") if item.strip()]
+
+
 @app.route("/")
 def index():
     return redirect(url_for("character"))
 
+
+# --- Character Sheet tab --------------------------------------------------
 
 @app.route("/character")
 def character():
@@ -39,34 +65,90 @@ def character():
         "character.html",
         active="character",
         title="Character Sheet",
+        characters=list_characters(),
     )
 
+
+@app.route("/character/new", methods=["GET", "POST"])
+def character_new():
+    if request.method == "POST":
+        new_id = create_creature(_form_to_data(request.form))
+        flash("Character created.")
+        return redirect(url_for("character_detail", creature_id=new_id))
+    return render_template(
+        "character_form.html",
+        active="character",
+        title="New Character",
+        abilities=ABILITIES,
+        creature=None,
+    )
+
+
+@app.route("/character/<int:creature_id>")
+def character_detail(creature_id):
+    creature = get_creature(creature_id)
+    if creature is None:
+        abort(404)
+    return render_template(
+        "character_detail.html",
+        active="character",
+        title=creature["name"],
+        abilities=ABILITIES,
+        creature=creature,
+    )
+
+
+@app.route("/character/<int:creature_id>/edit", methods=["GET", "POST"])
+def character_edit(creature_id):
+    creature = get_creature(creature_id)
+    if creature is None:
+        abort(404)
+    if request.method == "POST":
+        update_creature(creature_id, _form_to_data(request.form))
+        flash("Character updated.")
+        return redirect(url_for("character_detail", creature_id=creature_id))
+    return render_template(
+        "character_form.html",
+        active="character",
+        title=f"Edit {creature['name']}",
+        abilities=ABILITIES,
+        creature=creature,
+    )
+
+
+@app.route("/character/<int:creature_id>/delete", methods=["POST"])
+def character_delete(creature_id):
+    delete_creature(creature_id)
+    flash("Character deleted.")
+    return redirect(url_for("character"))
+
+
+def _form_to_data(form):
+    """Normalize a submitted character form into a data dict for the model.
+
+    The `hidden` checkbox maps onto the visibility spine: checked = DM-only.
+    """
+    data = form.to_dict()
+    data["visibility"] = "hidden" if form.get("hidden") else "visible"
+    data["kind"] = "pc"
+    return data
+
+
+# --- Placeholder tabs (filled in later phases) ----------------------------
 
 @app.route("/spells")
 def spells():
-    return render_template(
-        "spells.html",
-        active="spells",
-        title="Spells & Actions",
-    )
+    return render_template("spells.html", active="spells", title="Spells & Actions")
 
 
 @app.route("/map")
 def map():
-    return render_template(
-        "map.html",
-        active="map",
-        title="Map",
-    )
+    return render_template("map.html", active="map", title="Map")
 
 
 @app.route("/blog")
 def blog():
-    return render_template(
-        "blog.html",
-        active="blog",
-        title="Campaign Blog",
-    )
+    return render_template("blog.html", active="blog", title="Campaign Blog")
 
 
 if __name__ == "__main__":

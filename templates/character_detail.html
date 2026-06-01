@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="sheet-name">
+        {{ creature['name'] }}
+        {% if creature['visibility'] == 'hidden' %}<span class="badge-dm">DM only</span>{% endif %}
+      </h1>
+      <p class="muted">
+        Level {{ creature['level'] }}{% if creature['player_name'] %} · played by {{ creature['player_name'] }}{% endif %}
+      </p>
+    </div>
+    <div class="head-actions">
+      <a class="btn" href="{{ url_for('character_edit', creature_id=creature['id']) }}">Edit</a>
+      <a class="btn-ghost" href="{{ url_for('character') }}">← All characters</a>
+    </div>
+  </div>
+
+  <section class="vitals">
+    <div class="vital"><span class="vital-label">Hit Points</span><span class="vital-value">{{ creature['current_hp'] }} / {{ creature['max_hp'] }}</span></div>
+    <div class="vital"><span class="vital-label">Armor Class</span><span class="vital-value">{{ creature['armor_class'] }}</span></div>
+  </section>
+
+  <section class="ability-grid">
+    {% for col, short in abilities %}
+      <div class="ability">
+        <span class="ability-short">{{ short }}</span>
+        <span class="ability-mod">{{ creature[col] | mod }}</span>
+        <span class="ability-score">{{ creature[col] }}</span>
+      </div>
+    {% endfor %}
+  </section>
+
+  {% set res = creature['resistances'] | commalist %}
+  {% set imm = creature['immunities'] | commalist %}
+  {% set vul = creature['vulnerabilities'] | commalist %}
+  {% if res or imm or vul %}
+    <section class="defenses">
+      {% if res %}<div class="defense-row"><span class="defense-label">Resistances</span>{% for d in res %}<span class="chip chip-res">{{ d }}</span>{% endfor %}</div>{% endif %}
+      {% if imm %}<div class="defense-row"><span class="defense-label">Immunities</span>{% for d in imm %}<span class="chip chip-imm">{{ d }}</span>{% endfor %}</div>{% endif %}
+      {% if vul %}<div class="defense-row"><span class="defense-label">Vulnerabilities</span>{% for d in vul %}<span class="chip chip-vul">{{ d }}</span>{% endfor %}</div>{% endif %}
+    </section>
+  {% endif %}
+
+  {% if creature['notes'] %}
+    <section class="notes">
+      <h2>Notes</h2>
+      <p>{{ creature['notes'] }}</p>
+    </section>
+  {% endif %}
+{% endblock %}

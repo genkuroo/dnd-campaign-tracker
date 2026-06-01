@@ -1,15 +1,53 @@
-"""SQLite bootstrap for the campaign tracker.
+"""SQLite bootstrap + migrations for the campaign tracker.
 
-Phase 0 establishes the connection pattern and a schema-version table. The real
-schema (the creature engine + the visibility-aware entity model) arrives in
-Phase 1 — see CLAUDE.md.
+Schema changes are applied as ordered migrations. `init_db()` reads the current
+version from the `meta` table and applies any pending migrations up to
+`SCHEMA_VERSION`, so a fresh clone and an existing DB both converge to the same
+schema. See CLAUDE.md for the architecture (the creature engine + the
+visibility-aware model).
 """
 import sqlite3
 
 DB_PATH = "campaign.db"
 
-# Bumped as migrations are added in later phases.
-SCHEMA_VERSION = 0
+SCHEMA_VERSION = 1
+
+# Each migration brings the schema from version N-1 to N. Keep them append-only:
+# never edit a shipped migration, add a new one.
+MIGRATIONS = {
+    1: """
+    -- The creature engine. A player character and a monster are the same kind
+    -- of thing under the hood (CLAUDE.md "creature/stat-block engine"); `kind`
+    -- distinguishes them. `visibility` is the Phase-1 anticipation of the
+    -- public/private spine: 'visible' = players may see it, 'hidden' = DM-only.
+    CREATE TABLE creatures (
+        id              INTEGER PRIMARY KEY,
+        name            TEXT    NOT NULL,
+        kind            TEXT    NOT NULL DEFAULT 'pc',   -- 'pc' | 'monster'
+        player_name     TEXT    NOT NULL DEFAULT '',     -- who plays this PC (becomes a user FK in Phase 7)
+        level           INTEGER NOT NULL DEFAULT 1,
+
+        strength        INTEGER NOT NULL DEFAULT 10,
+        dexterity       INTEGER NOT NULL DEFAULT 10,
+        constitution    INTEGER NOT NULL DEFAULT 10,
+        intelligence    INTEGER NOT NULL DEFAULT 10,
+        wisdom          INTEGER NOT NULL DEFAULT 10,
+        charisma        INTEGER NOT NULL DEFAULT 10,
+
+        max_hp          INTEGER NOT NULL DEFAULT 1,
+        current_hp      INTEGER NOT NULL DEFAULT 1,
+        armor_class     INTEGER NOT NULL DEFAULT 10,
+
+        resistances     TEXT    NOT NULL DEFAULT '',     -- comma-separated damage types (normalize later if needed)
+        immunities      TEXT    NOT NULL DEFAULT '',
+        vulnerabilities TEXT    NOT NULL DEFAULT '',
+
+        notes           TEXT    NOT NULL DEFAULT '',
+        visibility      TEXT    NOT NULL DEFAULT 'visible',  -- 'visible' | 'hidden'
+        created_at      TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    """,
+}
 
 
 def get_connection():
@@ -20,8 +58,15 @@ def get_connection():
     return conn
 
 
+def _current_version(conn):
+    row = conn.execute(
+        "SELECT value FROM meta WHERE key = 'schema_version'"
+    ).fetchone()
+    return int(row["value"]) if row else 0
+
+
 def init_db():
-    """Create the database file and bootstrap tables if they don't exist."""
+    """Create the DB if needed and apply pending migrations up to SCHEMA_VERSION."""
     conn = get_connection()
     try:
         conn.execute(
@@ -31,10 +76,18 @@ def init_db():
             ")"
         )
         conn.execute(
-            "INSERT INTO meta (key, value) VALUES ('schema_version', ?)"
-            "  ON CONFLICT(key) DO UPDATE SET value = excluded.value",
-            (str(SCHEMA_VERSION),),
+            "INSERT INTO meta (key, value) VALUES ('schema_version', '0')"
+            "  ON CONFLICT(key) DO NOTHING"
         )
         conn.commit()
+
+        current = _current_version(conn)
+        for version in range(current + 1, SCHEMA_VERSION + 1):
+            conn.executescript(MIGRATIONS[version])
+            conn.execute(
+                "UPDATE meta SET value = ? WHERE key = 'schema_version'",
+                (str(version),),
+            )
+            conn.commit()
     finally:
         conn.close()
