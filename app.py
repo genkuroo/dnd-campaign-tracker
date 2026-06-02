@@ -5,6 +5,8 @@ lists, views, creates, and edits player characters (ability scores + modifiers,
 HP, AC, resistances). DM-only for now; player logins arrive in Phase 7.
 See CLAUDE.md for the full phased plan.
 """
+from datetime import datetime, timezone
+
 from flask import (
     Flask, abort, flash, redirect, render_template, request, url_for,
 )
@@ -29,6 +31,9 @@ from models.roll_log import add_roll, clear_rolls, recent_rolls
 
 # Quick-roll die buttons on the dice page.
 DICE_BUTTONS = [4, 6, 8, 10, 12, 20, 100]
+
+# A pause longer than this between rolls starts a new visual group in the log.
+ROLL_GAP_SECONDS = 5 * 60
 
 app = Flask(__name__)
 app.secret_key = "dnd-campaign-tracker-local-only"  # local dev only; not a secret
@@ -170,6 +175,64 @@ def _form_to_data(form):
 
 # --- Dice tab -------------------------------------------------------------
 
+def _humanize_duration(seconds):
+    """A coarse gap label like '12 min' / '3 hr' / '2 days'."""
+    minutes = int(seconds) // 60
+    if minutes < 60:
+        return f"{minutes} min"
+    hours = minutes // 60
+    if hours < 24:
+        return f"{hours} hr"
+    days = hours // 24
+    return f"{days} day" + ("s" if days != 1 else "")
+
+
+def _relative(seconds):
+    """A short 'time ago' label for a single roll."""
+    s = int(seconds)
+    if s < 10:
+        return "just now"
+    if s < 60:
+        return f"{s}s ago"
+    return _humanize_duration(s) + " ago"
+
+
+def _decorate_rolls(rows):
+    """Add display times to rolls and flag where a long pause separates groups.
+
+    Rows arrive newest-first. `break_after` marks a roll whose next (older)
+    neighbour is more than ROLL_GAP_SECONDS earlier, so the template can draw a
+    divider between bursts.
+    """
+    now = datetime.now(timezone.utc)
+    parsed = []
+    for r in rows:
+        try:
+            ts = datetime.strptime(r["created_at"], "%Y-%m-%d %H:%M:%S").replace(
+                tzinfo=timezone.utc
+            )
+        except (ValueError, TypeError):
+            ts = now
+        parsed.append((r, ts))
+
+    items = []
+    for i, (r, ts) in enumerate(parsed):
+        gap_label = None
+        if i + 1 < len(parsed):
+            gap = (ts - parsed[i + 1][1]).total_seconds()
+            if gap > ROLL_GAP_SECONDS:
+                gap_label = _humanize_duration(gap)
+        items.append({
+            "total": r["total"],
+            "detail": r["detail"],
+            "label": r["label"],
+            "clock": ts.astimezone().strftime("%I:%M %p").lstrip("0"),
+            "relative": _relative((now - ts).total_seconds()),
+            "break_after": gap_label,   # truthy gap string, or None
+        })
+    return items
+
+
 @app.route("/dice")
 def dice():
     return render_template(
@@ -177,7 +240,7 @@ def dice():
         active="dice",
         title="Dice",
         die_buttons=DICE_BUTTONS,
-        rolls=recent_rolls(),
+        rolls=_decorate_rolls(recent_rolls()),
     )
 
 

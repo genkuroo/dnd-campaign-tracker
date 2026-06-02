@@ -58,12 +58,16 @@
       <ul class="roll-list">
         {% for r in rolls %}
           <li class="roll-row">
-            <span class="roll-total">{{ r['total'] }}</span>
+            <span class="roll-total">{{ r.total }}</span>
             <span class="roll-detail">
-              {% if r['label'] %}<span class="roll-label">{{ r['label'] }}</span>{% endif %}
-              {{ r['detail'] }}
+              {% if r.label %}<span class="roll-label">{{ r.label }}</span>{% endif %}
+              {{ r.detail }}
             </span>
+            <span class="roll-time" title="{{ r.relative }}">{{ r.clock }}</span>
           </li>
+          {% if r.break_after %}
+            <li class="roll-break"><span>{{ r.break_after }} earlier</span></li>
+          {% endif %}
         {% endfor %}
       </ul>
     {% else %}

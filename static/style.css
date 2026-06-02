@@ -365,8 +365,32 @@ form.inline { display: inline; margin: 0; }
   min-width: 2.4rem;
   text-align: center;
 }
-.roll-detail { font-family: sans-serif; font-size: 0.9rem; color: var(--ink); }
+.roll-detail { flex: 1; font-family: sans-serif; font-size: 0.9rem; color: var(--ink); }
 .roll-label { color: var(--muted); margin-right: 0.4rem; }
+.roll-time {
+  font-family: sans-serif;
+  font-size: 0.75rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* Gap divider between bursts of rolls separated by a long pause */
+.roll-break {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  gap: 0.6rem;
+  margin: 0.5rem 0;
+  color: var(--muted);
+  font-family: sans-serif;
+  font-size: 0.72rem;
+}
+.roll-break::before, .roll-break::after {
+  content: "";
+  flex: 1;
+  border-top: 1px dashed var(--border);
+}
 
 /* Per-ability check button on the sheet */
 .check-btn {
