@@ -4,7 +4,7 @@ A web app for running a Dungeons & Dragons 5e campaign. The **Dungeon Master** m
 the whole world; **players** log in to track their own characters and look up how their
 spells and abilities work — handy for a table that's new to D&D.
 
-> Status: **Phase 2 complete** — creature engine + character sheets (PCs & NPCs, alignment, live disposition), and a dice roller (expressions, advantage/disadvantage, persisted roll log) wired into per-ability checks. See [CLAUDE.md](./CLAUDE.md) for the full architecture and phased plan.
+> Status: **Phase 3 complete** — creature engine + character sheets (PCs & NPCs, alignment, live disposition), a dice roller (expressions, advantage/disadvantage, persisted log with timestamps), and SRD spells: a searchable reference, per-character spellbooks, an Assist/Track mode toggle, and glossary tooltips that teach D&D jargon. See [CLAUDE.md](./CLAUDE.md) for the full architecture and phased plan.
 
 ## Running
 

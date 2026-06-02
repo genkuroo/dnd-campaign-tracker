@@ -32,6 +32,13 @@ from models.dice import DiceError, parse_and_roll
 from models.glossary import define
 from models.roll_log import add_roll, clear_rolls, delete_roll, recent_rolls
 from models.spells import all_spells, get_spell, level_label, search_spells
+from models.spellbook import (
+    add_spell,
+    creature_spell_slugs,
+    creature_spells,
+    remove_spell,
+    set_prepared,
+)
 
 # Quick-roll die buttons on the dice page.
 DICE_BUTTONS = [4, 6, 8, 10, 12, 20, 100]
@@ -175,6 +182,8 @@ def character_detail(creature_id):
     creature = get_creature(creature_id)
     if creature is None:
         abort(404)
+    known = creature_spells(creature_id)
+    known_slugs = {s["slug"] for s in known}
     return render_template(
         "character_detail.html",
         active="character",
@@ -182,6 +191,8 @@ def character_detail(creature_id):
         abilities=ABILITIES,
         dispositions=DISPOSITIONS,
         creature=creature,
+        spells=known,
+        addable_spells=[s for s in all_spells() if s["slug"] not in known_slugs],
     )
 
 
@@ -366,12 +377,51 @@ def spell_detail(slug):
     spell = get_spell(slug)
     if spell is None:
         abort(404)
+    # PCs/NPCs this spell could be added to, flagged with whether they have it.
+    roster = [
+        {"id": c["id"], "name": c["name"],
+         "has": spell["slug"] in creature_spell_slugs(c["id"])}
+        for c in list_roster()
+    ]
     return render_template(
         "spell_detail.html",
         active="spells",
         title=spell["name"],
         spell=spell,
+        roster=roster,
     )
+
+
+# Spellbook mutations work from both the character sheet and the spell page, so
+# creature + slug come from the form and `next` decides where to return.
+
+@app.route("/spellbook/add", methods=["POST"])
+def spellbook_add():
+    cid = request.form.get("creature_id", type=int)
+    slug = request.form.get("slug", "")
+    if cid and get_creature(cid) and get_spell(slug):
+        add_spell(cid, slug)
+        flash("Spell added.")
+    return redirect(_safe_next(request.form.get("next"), url_for("character")))
+
+
+@app.route("/spellbook/remove", methods=["POST"])
+def spellbook_remove():
+    cid = request.form.get("creature_id", type=int)
+    slug = request.form.get("slug", "")
+    if cid:
+        remove_spell(cid, slug)
+        flash("Spell removed.")
+    return redirect(_safe_next(request.form.get("next"), url_for("character")))
+
+
+@app.route("/spellbook/prepared", methods=["POST"])
+def spellbook_prepared():
+    cid = request.form.get("creature_id", type=int)
+    slug = request.form.get("slug", "")
+    if cid:
+        set_prepared(cid, slug, request.form.get("prepared") == "1")
+    return redirect(_safe_next(request.form.get("next"), url_for("character")))
 
 
 @app.route("/map")

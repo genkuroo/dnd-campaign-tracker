@@ -45,4 +45,20 @@
       {% endif %}
     </section>
   {% endif %}
+
+  {% if roster %}
+    <section class="add-to-char">
+      <h2>Add to a spellbook</h2>
+      <form method="post" action="{{ url_for('spellbook_add') }}" class="add-spell">
+        <input type="hidden" name="slug" value="{{ spell['slug'] }}">
+        <input type="hidden" name="next" value="{{ url_for('spell_detail', slug=spell['slug']) }}">
+        <select name="creature_id">
+          {% for c in roster %}
+            <option value="{{ c.id }}" {{ 'disabled' if c.has }}>{{ c.name }}{{ ' — already knows it' if c.has }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn">Add</button>
+      </form>
+    </section>
+  {% endif %}
 {% endblock %}

@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -65,6 +65,19 @@ MIGRATIONS = {
         detail      TEXT    NOT NULL DEFAULT '',
         label       TEXT    NOT NULL DEFAULT '',
         created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    """,
+    4: """
+    -- A creature's spellbook: which SRD spells it knows, and whether each is
+    -- currently prepared. Spells themselves live in data/spells.json (referenced
+    -- by slug), so this table only stores the link. ON DELETE CASCADE clears a
+    -- creature's spells when it's deleted (foreign_keys pragma is ON).
+    CREATE TABLE creature_spells (
+        creature_id INTEGER NOT NULL REFERENCES creatures(id) ON DELETE CASCADE,
+        spell_slug  TEXT    NOT NULL,
+        prepared    INTEGER NOT NULL DEFAULT 1,
+        added_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+        PRIMARY KEY (creature_id, spell_slug)
     );
     """,
 }
