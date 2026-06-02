@@ -191,9 +191,11 @@ body {
   border-radius: 999px;
   border: 1px solid;
 }
-.disp-friendly { color: #8fd0a0; border-color: #3f6b4c; }
-.disp-neutral  { color: #d9c98f; border-color: #6b5f3f; }
-.disp-hostile  { color: #e8918f; border-color: #7a3838; }
+.disp-hostile    { color: #e8918f; border-color: #7a3838; }
+.disp-unfriendly { color: #e8b58f; border-color: #7a5a38; }
+.disp-neutral    { color: #d9c98f; border-color: #6b5f3f; }
+.disp-friendly   { color: #b5d68f; border-color: #5a7b3f; }
+.disp-allied     { color: #8fd0a0; border-color: #3f6b4c; }
 
 /* Disposition toggle (DM live control on the detail page) */
 .disp-toggle { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.6rem; flex-wrap: wrap; }
@@ -213,9 +215,11 @@ body {
 }
 .disp-btn:hover { opacity: 1; }
 .disp-btn.active { opacity: 1; font-weight: bold; }
-.disp-btn.disp-friendly.active { color: #8fd0a0; border-color: #3f6b4c; background: rgba(63,107,76,0.18); }
-.disp-btn.disp-neutral.active  { color: #d9c98f; border-color: #6b5f3f; background: rgba(107,95,63,0.18); }
-.disp-btn.disp-hostile.active  { color: #e8918f; border-color: #7a3838; background: rgba(122,56,56,0.18); }
+.disp-btn.disp-hostile.active    { color: #e8918f; border-color: #7a3838; background: rgba(122,56,56,0.18); }
+.disp-btn.disp-unfriendly.active { color: #e8b58f; border-color: #7a5a38; background: rgba(122,90,56,0.18); }
+.disp-btn.disp-neutral.active    { color: #d9c98f; border-color: #6b5f3f; background: rgba(107,95,63,0.18); }
+.disp-btn.disp-friendly.active   { color: #b5d68f; border-color: #5a7b3f; background: rgba(90,123,63,0.18); }
+.disp-btn.disp-allied.active     { color: #8fd0a0; border-color: #3f6b4c; background: rgba(63,107,76,0.18); }
 
 /* Character cards */
 .card-grid {

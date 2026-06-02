@@ -23,7 +23,7 @@ Everything in this app hangs off two core ideas. Get these right and the feature
 
 A **player character, an NPC, and a monster are the same kind of thing**: a *creature* with a stat block (six ability scores, HP, AC, resistances/immunities, conditions, abilities). Model this **once**. The `kind` column ('pc' | 'npc' | 'monster') is the only thing that distinguishes them — a tavern keeper is just a low-stat NPC. Two world-flavor traits also live on every creature (migration 2):
 
-- **`disposition`** ('friendly' | 'neutral' | 'hostile') — how the creature treats the party. The DM can flip it **live** from the creature's page (a friendly merchant turning hostile mid-scene), not just via the edit form. Surfaced for NPCs/monsters.
+- **`disposition`** — a 5-point spectrum, hate→love: 'hostile' | 'unfriendly' | 'neutral' | 'friendly' | 'allied'. How the creature treats the party. The DM can flip it **live** from the creature's page (a friendly merchant turning hostile mid-scene), not just via the edit form. Surfaced for NPCs/monsters.
 - **`alignment`** ('' | LG..CE) — the creature's moral compass. A separate, more granular axis from disposition; applies to anyone, including PCs.
 
 - A **character sheet** = the full, editable creature view (player-owned).

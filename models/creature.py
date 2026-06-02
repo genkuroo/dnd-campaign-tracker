@@ -19,8 +19,8 @@ ABILITIES = [
 # What a creature *is*. Monsters arrive with the rest of Phase 5.
 KINDS = [("pc", "Player Character"), ("npc", "NPC")]
 
-# How a creature treats the party.
-DISPOSITIONS = ["friendly", "neutral", "hostile"]
+# How a creature treats the party — a 5-point spectrum, ordered hate -> love.
+DISPOSITIONS = ["hostile", "unfriendly", "neutral", "friendly", "allied"]
 
 # A creature's moral compass. '' = unaligned (many beasts/constructs).
 ALIGNMENTS = [
