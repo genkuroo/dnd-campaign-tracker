@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import info %}
 {% block content %}
   <div class="page-head">
     <div>
@@ -32,14 +33,14 @@
   </div>
 
   <section class="vitals">
-    <div class="vital"><span class="vital-label">Hit Points</span><span class="vital-value">{{ creature['current_hp'] }} / {{ creature['max_hp'] }}</span></div>
-    <div class="vital"><span class="vital-label">Armor Class</span><span class="vital-value">{{ creature['armor_class'] }}</span></div>
+    <div class="vital"><span class="vital-label">Hit Points {{ info('hit-points') }}</span><span class="vital-value">{{ creature['current_hp'] }} / {{ creature['max_hp'] }}</span></div>
+    <div class="vital"><span class="vital-label">Armor Class {{ info('armor-class') }}</span><span class="vital-value">{{ creature['armor_class'] }}</span></div>
   </section>
 
   <section class="ability-grid">
     {% for col, short in abilities %}
       <div class="ability">
-        <span class="ability-short">{{ short }}</span>
+        <span class="ability-short">{{ info(col, short) }}</span>
         <span class="ability-mod">{{ creature[col] | mod }}</span>
         <span class="ability-score">{{ creature[col] }}</span>
         <form method="post" action="{{ url_for('dice_roll') }}" class="inline">

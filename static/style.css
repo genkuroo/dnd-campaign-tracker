@@ -442,6 +442,43 @@ form.inline { display: inline; margin: 0; }
 .check-hint { font-size: 0.8rem; margin-top: -0.75rem; }
 code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px; }
 
+/* Info icon + hover/focus tooltip (reusable glossary component) */
+.info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.2rem;
+  font-family: sans-serif;
+  font-size: 0.8em;
+  color: var(--accent-2);
+  cursor: help;
+  outline: none;
+}
+.info .tip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  width: max-content;
+  max-width: 240px;
+  padding: 0.5rem 0.65rem;
+  background: var(--panel-2);
+  color: var(--ink);
+  border: 1px solid var(--accent-2);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  text-align: left;
+  white-space: normal;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: opacity 0.12s;
+  pointer-events: none;
+}
+.info:hover .tip, .info:focus .tip { visibility: visible; opacity: 1; }
+
 /* --- Phase 3: spells --- */
 .mode-hint { font-size: 0.85rem; }
 .spell-search { display: flex; gap: 0.5rem; max-width: 460px; margin-bottom: 1.5rem; }

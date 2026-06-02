@@ -29,6 +29,7 @@ from models.creature import (
     update_creature,
 )
 from models.dice import DiceError, parse_and_roll
+from models.glossary import define
 from models.roll_log import add_roll, clear_rolls, delete_roll, recent_rolls
 from models.spells import all_spells, get_spell, level_label, search_spells
 
@@ -40,6 +41,10 @@ ROLL_GAP_SECONDS = 5 * 60
 
 app = Flask(__name__)
 app.secret_key = "dnd-campaign-tracker-local-only"  # local dev only; not a secret
+
+# Exposed as a Jinja global (not a context processor) so imported macros — which
+# don't receive template context — can still look up glossary terms.
+app.jinja_env.globals["define"] = define
 
 # The top-level tabs. `endpoint` is the Flask view name; `label` is what the
 # navigation renders. Single source of truth so nav and routes can't drift.

@@ -1,0 +1,10 @@
+{# Reusable UI macros. Import with: {% from "macros.html" import info %} #}
+
+{# Render `display` text followed by an ⓘ icon whose hover/focus tooltip is the
+   glossary definition for `key`. If we have no definition, just the text shows
+   (no icon), so it's always safe to wrap a term. #}
+{% macro info(key, display='') -%}
+  {%- if display %}{{ display }}{% endif -%}
+  {%- set d = define(key) -%}
+  {%- if d %}<span class="info" tabindex="0" role="note" aria-label="{{ d }}">&#9432;<span class="tip">{{ d }}</span></span>{% endif -%}
+{%- endmacro %}

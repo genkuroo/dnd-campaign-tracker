@@ -1,20 +1,26 @@
 {% extends "base.html" %}
+{% from "macros.html" import info %}
 {% block content %}
   <div class="page-head">
     <div>
       <h1 class="spell-title">{{ spell['name'] }}</h1>
-      <p class="muted">{{ spell['level'] | ordinal_level }} · {{ spell['school'] }}</p>
+      <p class="muted">
+        {% if spell['level'] == 0 %}{{ info('cantrip', 'Cantrip') }}{% else %}{{ spell['level'] | ordinal_level }} {{ info('spell-level') }}{% endif %}
+        · {{ info(spell['school'] | lower, spell['school']) }}
+      </p>
     </div>
     <a class="btn-ghost" href="{{ url_for('spells') }}">← All spells</a>
   </div>
 
   <dl class="spell-stats">
-    <div><dt>Casting Time</dt><dd>{{ spell['casting_time'] }}</dd></div>
+    <div><dt>Casting Time {{ info('casting-time') }}</dt><dd>{{ spell['casting_time'] }}</dd></div>
     <div><dt>Range</dt><dd>{{ spell['range'] }}</dd></div>
-    <div><dt>Components</dt><dd>{{ spell['components'] }}</dd></div>
+    <div><dt>Components</dt><dd>
+      {% for part in spell['components'].split(',') %}{% set p = part.strip() %}{{ info(p | lower, p) }}{{ ', ' if not loop.last }}{% endfor %}
+    </dd></div>
     <div><dt>Duration</dt><dd>{{ spell['duration'] }}</dd></div>
-    {% if spell['save'] %}<div><dt>Saving Throw</dt><dd>{{ spell['save'] }}</dd></div>{% endif %}
-    {% if spell['attack'] %}<div><dt>Attack</dt><dd>{{ spell['attack'] }}</dd></div>{% endif %}
+    {% if spell['save'] %}<div><dt>Saving Throw {{ info('saving-throw') }}</dt><dd>{{ info(spell['save'] | lower, spell['save']) }}</dd></div>{% endif %}
+    {% if spell['attack'] %}<div><dt>Attack {{ info('spell-attack') }}</dt><dd>{{ spell['attack'] }}</dd></div>{% endif %}
   </dl>
 
   <p class="spell-desc">{{ spell['description'] | dicetext(mode, spell['name']) }}</p>
