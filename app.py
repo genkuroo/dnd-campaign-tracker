@@ -34,12 +34,16 @@ from models.dice import DiceError, parse_and_roll
 from models.glossary import define
 from models.roll_log import add_roll, clear_rolls, delete_roll, recent_rolls
 from models.inventory import (
+    SLOT_LABELS,
+    SLOTS,
     add_item,
     adjust_quantity,
+    equip_item,
+    equipped_by_slot,
     get_item,
     list_items,
     remove_item,
-    set_equipped,
+    unequip_item,
 )
 from models.spells import all_spells, get_spell, level_label, search_spells
 from models.spellbook import (
@@ -207,6 +211,9 @@ def character_detail(creature_id):
         next_level=next_level,                         # (level, xp_to_go) or None
         xp_level=level_from_xp(creature["xp"]),         # level the XP implies
         items=list_items(creature_id),
+        slots=SLOTS,
+        slot_labels=SLOT_LABELS,
+        equipment=equipped_by_slot(creature_id),
     )
 
 
@@ -274,7 +281,9 @@ def inventory_add():
     if cid and get_creature(cid):
         add_item(cid, request.form.get("name", ""),
                  request.form.get("quantity", 1, type=int) or 1,
-                 request.form.get("description", ""))
+                 request.form.get("description", ""),
+                 slot=request.form.get("slot", ""),
+                 hands=2 if request.form.get("two_handed") else 1)
         flash("Item added.")
     return redirect(target)
 
@@ -291,7 +300,10 @@ def inventory_quantity(item_id):
 def inventory_equipped(item_id):
     item, target = _item_owner_next(item_id)
     if item:
-        set_equipped(item_id, not item["equipped"])
+        if item["equipped"]:
+            unequip_item(item_id)
+        else:
+            equip_item(item_id)
     return redirect(target)
 
 

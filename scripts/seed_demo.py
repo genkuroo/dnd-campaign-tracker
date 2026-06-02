@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from db import get_connection, init_db
 from models.creature import create_creature
-from models.inventory import add_item, set_equipped
+from models.inventory import add_item, equip_item
 from models.spellbook import add_spell
 
 
@@ -30,10 +30,10 @@ def reset():
         conn.close()
 
 
-def item(cid, name, qty=1, desc="", equipped=False):
-    iid = add_item(cid, name, qty, desc)
+def item(cid, name, qty=1, desc="", slot="", hands=1, equipped=False):
+    iid = add_item(cid, name, qty, desc, slot=slot, hands=hands)
     if equipped:
-        set_equipped(iid, True)
+        equip_item(iid)
 
 
 def seed():
@@ -47,9 +47,10 @@ def seed():
         "gold": 45, "silver": 12, "copper": 8,
         "notes": "Dwarf cleric of the forge. Gruff but loyal.",
     })
-    item(thoradin, "Mace", 1, "1d6 bludgeoning", equipped=True)
-    item(thoradin, "Shield", 1, "+2 AC", equipped=True)
-    item(thoradin, "Chain mail", 1, "AC 16", equipped=True)
+    item(thoradin, "Mace", 1, "1d6 bludgeoning", slot="main_hand", equipped=True)
+    item(thoradin, "Shield", 1, "+2 AC", slot="off_hand", equipped=True)
+    item(thoradin, "Chain mail", 1, "AC 16", slot="armor", equipped=True)
+    item(thoradin, "Amulet of health", 1, "CON 19", slot="amulet", equipped=True)
     item(thoradin, "Potion of healing", 3, "Regain 2d4+2 HP")
     item(thoradin, "Torch", 5)
     item(thoradin, "Rations", 10, "1 day each")
@@ -67,8 +68,11 @@ def seed():
         "gold": 120, "silver": 0, "copper": 0,
         "notes": "High-elf evoker. Loves fire.",
     })
-    item(aria, "Quarterstaff", 1, "1d6 bludgeoning", equipped=True)
-    item(aria, "Spellbook", 1, equipped=True)
+    item(aria, "Quarterstaff", 1, "1d6 bludgeoning", slot="main_hand", equipped=True)
+    item(aria, "Robe of the archmagi", 1, "AC 15 + bonuses", slot="armor", equipped=True)
+    item(aria, "Cloak of protection", 1, "+1 AC and saves", slot="cloak", equipped=True)
+    item(aria, "Ring of evasion", 1, slot="ring", equipped=True)
+    item(aria, "Ring of spell storing", 1, slot="ring", equipped=True)
     item(aria, "Component pouch", 1, "Spellcasting focus")
     item(aria, "Dagger", 2, "1d4 piercing")
     item(aria, "Potion of healing", 2, "Regain 2d4+2 HP")
@@ -86,7 +90,10 @@ def seed():
         "resistances": "bludgeoning, piercing, slashing",
         "notes": "Half-orc barbarian. Smashes first.",
     })
-    item(grok, "Greataxe", 1, "1d12 slashing", equipped=True)
+    # Greataxe is two-handed -> blocks the off hand. The unequipped shield lets
+    # you test the swap (equipping it frees the greataxe).
+    item(grok, "Greataxe", 1, "1d12 slashing", slot="main_hand", hands=2, equipped=True)
+    item(grok, "Shield", 1, "+2 AC (try equipping it!)", slot="off_hand")
     item(grok, "Javelin", 4, "1d6 piercing")
     item(grok, "Bedroll", 1)
     item(grok, "Rations", 5)
@@ -101,7 +108,7 @@ def seed():
         "gold": 30, "silver": 5, "copper": 0,
         "notes": "Runs the Prancing Pony. Knows all the local gossip.",
     })
-    item(greta, "Frying pan", 1, "Improvised weapon", equipped=True)
+    item(greta, "Frying pan", 1, "Improvised weapon", slot="main_hand", equipped=True)
     item(greta, "Ring of keys", 1)
     item(greta, "Mug of ale", 12)
 

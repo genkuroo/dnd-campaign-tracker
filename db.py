@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -101,6 +101,14 @@ MIGRATIONS = {
         equipped    INTEGER NOT NULL DEFAULT 0,
         added_at    TEXT    NOT NULL DEFAULT (datetime('now'))
     );
+    """,
+    7: """
+    -- Equipment slots. `slot` is which body slot an item occupies ('' = not
+    -- equippable, e.g. potions). `hands` (1 or 2) matters for main-hand weapons:
+    -- a two-handed weapon also blocks the off hand. Enforcement lives in
+    -- models/inventory.equip_item (one item per slot, swap to make room).
+    ALTER TABLE creature_items ADD COLUMN slot  TEXT    NOT NULL DEFAULT '';
+    ALTER TABLE creature_items ADD COLUMN hands INTEGER NOT NULL DEFAULT 1;
     """,
 }
 
