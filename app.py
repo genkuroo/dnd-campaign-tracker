@@ -27,7 +27,7 @@ from models.creature import (
     update_creature,
 )
 from models.dice import DiceError, parse_and_roll
-from models.roll_log import add_roll, clear_rolls, recent_rolls
+from models.roll_log import add_roll, clear_rolls, delete_roll, recent_rolls
 
 # Quick-roll die buttons on the dice page.
 DICE_BUTTONS = [4, 6, 8, 10, 12, 20, 100]
@@ -223,6 +223,7 @@ def _decorate_rolls(rows):
             if gap > ROLL_GAP_SECONDS:
                 gap_label = _humanize_duration(gap)
         items.append({
+            "id": r["id"],
             "total": r["total"],
             "detail": r["detail"],
             "label": r["label"],
@@ -264,6 +265,13 @@ def dice_roll():
     prefix = f"{label}: " if label else ""
     flash(f"🎲 {prefix}{result['detail']} = {result['total']}")
     return redirect(target)
+
+
+@app.route("/dice/roll/<int:roll_id>/delete", methods=["POST"])
+def dice_delete(roll_id):
+    delete_roll(roll_id)
+    flash("Roll deleted.")
+    return redirect(url_for("dice"))
 
 
 @app.route("/dice/clear", methods=["POST"])

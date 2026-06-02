@@ -373,6 +373,18 @@ form.inline { display: inline; margin: 0; }
   color: var(--muted);
   white-space: nowrap;
 }
+.roll-del {
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.3rem;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  opacity: 0.5;
+}
+.roll-del:hover { color: var(--accent); opacity: 1; }
 
 /* Gap divider between bursts of rolls separated by a long pause */
 .roll-break {

@@ -64,6 +64,10 @@
               {{ r.detail }}
             </span>
             <span class="roll-time" title="{{ r.relative }}">{{ r.clock }}</span>
+            <form method="post" action="{{ url_for('dice_delete', roll_id=r.id) }}" class="inline"
+                  onsubmit="return confirm('Delete this roll?')">
+              <button type="submit" class="roll-del" title="Delete this roll" aria-label="Delete roll">×</button>
+            </form>
           </li>
           {% if r.break_after %}
             <li class="roll-break"><span>{{ r.break_after }} earlier</span></li>

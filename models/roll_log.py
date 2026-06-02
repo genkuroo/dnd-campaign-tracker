@@ -26,6 +26,15 @@ def recent_rolls(limit=20):
         conn.close()
 
 
+def delete_roll(roll_id):
+    conn = get_connection()
+    try:
+        conn.execute("DELETE FROM rolls WHERE id = ?", (roll_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def clear_rolls():
     conn = get_connection()
     try:
