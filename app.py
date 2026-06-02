@@ -24,6 +24,11 @@ from models.creature import (
     list_roster,
     update_creature,
 )
+from models.dice import DiceError, roll_check, roll_expression
+from models.roll_log import add_roll, clear_rolls, recent_rolls
+
+# Quick-roll die buttons on the dice page.
+DICE_BUTTONS = [4, 6, 8, 10, 12, 20, 100]
 
 app = Flask(__name__)
 app.secret_key = "dnd-campaign-tracker-local-only"  # local dev only; not a secret
@@ -33,6 +38,7 @@ app.secret_key = "dnd-campaign-tracker-local-only"  # local dev only; not a secr
 TABS = [
     {"endpoint": "character", "label": "Character Sheet"},
     {"endpoint": "spells", "label": "Spells & Actions"},
+    {"endpoint": "dice", "label": "Dice"},
     {"endpoint": "map", "label": "Map"},
     {"endpoint": "blog", "label": "Campaign Blog"},
 ]
@@ -160,6 +166,58 @@ def _form_to_data(form):
     data["visibility"] = "hidden" if form.get("hidden") else "visible"
     data["kind"] = form.get("kind") if form.get("kind") in {"pc", "npc"} else "pc"
     return data
+
+
+# --- Dice tab -------------------------------------------------------------
+
+@app.route("/dice")
+def dice():
+    return render_template(
+        "dice.html",
+        active="dice",
+        title="Dice",
+        die_buttons=DICE_BUTTONS,
+        rolls=recent_rolls(),
+    )
+
+
+@app.route("/dice/roll", methods=["POST"])
+def dice_roll():
+    """Roll an expression (or a d20 check via `mode`), log it, and bounce back.
+
+    `next` lets a roll launched from a character sheet return to that sheet
+    instead of the dice page, with the result shown as a flash.
+    """
+    target = _safe_next(request.form.get("next"), default=url_for("dice"))
+    label = (request.form.get("label") or "").strip()
+    mode = request.form.get("mode", "normal")
+    try:
+        if mode in ("advantage", "disadvantage"):
+            result = roll_check(request.form.get("modifier", 0), mode)
+        else:
+            result = roll_expression(request.form.get("expression", ""))
+    except DiceError as err:
+        flash(str(err))
+        return redirect(target)
+
+    add_roll(result, label)
+    prefix = f"{label}: " if label else ""
+    flash(f"🎲 {prefix}{result['detail']} = {result['total']}")
+    return redirect(target)
+
+
+@app.route("/dice/clear", methods=["POST"])
+def dice_clear():
+    clear_rolls()
+    flash("Roll history cleared.")
+    return redirect(url_for("dice"))
+
+
+def _safe_next(value, default):
+    """Only allow same-site relative redirects (avoid open-redirect)."""
+    if value and value.startswith("/") and not value.startswith("//"):
+        return value
+    return default
 
 
 # --- Placeholder tabs (filled in later phases) ----------------------------

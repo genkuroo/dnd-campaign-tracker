@@ -42,9 +42,17 @@
         <span class="ability-short">{{ short }}</span>
         <span class="ability-mod">{{ creature[col] | mod }}</span>
         <span class="ability-score">{{ creature[col] }}</span>
+        <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
+          <input type="hidden" name="expression" value="1d20{{ creature[col] | mod }}">
+          <input type="hidden" name="label" value="{{ creature['name'] }} · {{ short }} check">
+          <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+          <button type="submit" class="check-btn"
+                  title="Roll a {{ short }} check: d20 {{ creature[col] | mod }}">Check</button>
+        </form>
       </div>
     {% endfor %}
   </section>
+  <p class="muted check-hint">A check rolls d20 + the ability modifier. Saving throws roll the same until proficiency lands.</p>
 
   {% set res = creature['resistances'] | commalist %}
   {% set imm = creature['immunities'] | commalist %}

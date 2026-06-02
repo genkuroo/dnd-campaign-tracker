@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Dice</h1>
+  <p class="muted">For anyone without physical dice. Tap a die, or type an expression like <code>2d6+3</code>.</p>
+
+  <section class="dice-quick">
+    {% for sides in die_buttons %}
+      <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
+        <input type="hidden" name="expression" value="1d{{ sides }}">
+        <button type="submit" class="die-btn">d{{ sides }}</button>
+      </form>
+    {% endfor %}
+    <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
+      <input type="hidden" name="mode" value="advantage">
+      <button type="submit" class="die-btn die-adv" title="Roll two d20, keep the highest">d20 adv</button>
+    </form>
+    <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
+      <input type="hidden" name="mode" value="disadvantage">
+      <button type="submit" class="die-btn die-dis" title="Roll two d20, keep the lowest">d20 dis</button>
+    </form>
+  </section>
+
+  <form method="post" action="{{ url_for('dice_roll') }}" class="dice-expr">
+    <input type="text" name="expression" placeholder="2d6+3" autofocus
+           pattern="[0-9dD+\- ]+" aria-label="Dice expression">
+    <button type="submit" class="btn">Roll</button>
+  </form>
+
+  <section class="roll-log">
+    <div class="roll-log-head">
+      <h2>Recent rolls</h2>
+      {% if rolls %}
+        <form method="post" action="{{ url_for('dice_clear') }}" class="inline"
+              onsubmit="return confirm('Clear all roll history?')">
+          <button type="submit" class="btn-ghost">Clear</button>
+        </form>
+      {% endif %}
+    </div>
+    {% if rolls %}
+      <ul class="roll-list">
+        {% for r in rolls %}
+          <li class="roll-row">
+            <span class="roll-total">{{ r['total'] }}</span>
+            <span class="roll-detail">
+              {% if r['label'] %}<span class="roll-label">{{ r['label'] }}</span>{% endif %}
+              {{ r['detail'] }}
+            </span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No rolls yet.</p>
+    {% endif %}
+  </section>
+{% endblock %}

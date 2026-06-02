@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -54,6 +54,18 @@ MIGRATIONS = {
     -- Both live on every creature; most useful for NPCs/monsters.
     ALTER TABLE creatures ADD COLUMN disposition TEXT NOT NULL DEFAULT 'neutral';
     ALTER TABLE creatures ADD COLUMN alignment   TEXT NOT NULL DEFAULT '';
+    """,
+    3: """
+    -- The roll log: a persisted history for the dice roller. `label` records the
+    -- context of a roll (e.g. 'Thoradin · STR check'); detail is the breakdown.
+    CREATE TABLE rolls (
+        id          INTEGER PRIMARY KEY,
+        expression  TEXT    NOT NULL,
+        total       INTEGER NOT NULL,
+        detail      TEXT    NOT NULL DEFAULT '',
+        label       TEXT    NOT NULL DEFAULT '',
+        created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
     """,
 }
 
