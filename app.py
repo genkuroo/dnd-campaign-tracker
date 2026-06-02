@@ -25,8 +25,10 @@ from models.creature import (
     delete_creature,
     format_modifier,
     get_creature,
+    level_from_xp,
     list_roster,
     update_creature,
+    xp_to_next,
 )
 from models.dice import DiceError, parse_and_roll
 from models.glossary import define
@@ -184,6 +186,7 @@ def character_detail(creature_id):
         abort(404)
     known = creature_spells(creature_id)
     known_slugs = {s["slug"] for s in known}
+    next_level = xp_to_next(creature["xp"])
     return render_template(
         "character_detail.html",
         active="character",
@@ -193,6 +196,8 @@ def character_detail(creature_id):
         creature=creature,
         spells=known,
         addable_spells=[s for s in all_spells() if s["slug"] not in known_slugs],
+        next_level=next_level,                         # (level, xp_to_go) or None
+        xp_level=level_from_xp(creature["xp"]),         # level the XP implies
     )
 
 

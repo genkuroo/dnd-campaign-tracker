@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -79,6 +79,15 @@ MIGRATIONS = {
         added_at    TEXT    NOT NULL DEFAULT (datetime('now')),
         PRIMARY KEY (creature_id, spell_slug)
     );
+    """,
+    5: """
+    -- Progression + coin purse on every creature. Level already exists; XP is
+    -- tracked alongside it (level stays manual to support milestone play, with
+    -- XP-based level-up hints layered on in the app, not the schema).
+    ALTER TABLE creatures ADD COLUMN xp     INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE creatures ADD COLUMN gold   INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE creatures ADD COLUMN silver INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE creatures ADD COLUMN copper INTEGER NOT NULL DEFAULT 0;
     """,
 }
 

@@ -275,6 +275,25 @@ body {
 }
 .vital-label { display: block; font-size: 0.75rem; font-family: sans-serif; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
 .vital-value { display: block; font-size: 1.6rem; font-weight: bold; }
+.xp-value { font-size: 1.3rem; }
+.purse { text-align: left; }
+.coins { display: flex; gap: 0.5rem; margin-top: 0.3rem; }
+.coin { font-family: sans-serif; font-weight: bold; font-size: 1rem; padding: 0.1rem 0.4rem; border-radius: 4px; }
+.coin-gp { color: #e8c860; }
+.coin-sp { color: #cdd2d8; }
+.coin-cp { color: #cf9b6b; }
+.levelup {
+  display: inline-block;
+  color: #b5d68f;
+  background: rgba(90, 123, 63, 0.18);
+  border: 1px solid #5a7b3f;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-family: sans-serif;
+  font-size: 0.85rem;
+  margin: 0 0 1rem;
+}
+.xp-progress { font-size: 0.85rem; margin: -0.5rem 0 1rem; }
 
 .ability-grid {
   display: grid;

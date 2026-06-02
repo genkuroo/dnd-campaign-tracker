@@ -35,7 +35,24 @@
   <section class="vitals">
     <div class="vital"><span class="vital-label">Hit Points {{ info('hit-points') }}</span><span class="vital-value">{{ creature['current_hp'] }} / {{ creature['max_hp'] }}</span></div>
     <div class="vital"><span class="vital-label">Armor Class {{ info('armor-class') }}</span><span class="vital-value">{{ creature['armor_class'] }}</span></div>
+    <div class="vital"><span class="vital-label">Experience</span><span class="vital-value xp-value">{{ '{:,}'.format(creature['xp']) }}</span></div>
+    <div class="vital purse">
+      <span class="vital-label">Purse</span>
+      <span class="coins">
+        <span class="coin coin-gp">{{ creature['gold'] }}g</span>
+        <span class="coin coin-sp">{{ creature['silver'] }}s</span>
+        <span class="coin coin-cp">{{ creature['copper'] }}c</span>
+      </span>
+    </div>
   </section>
+
+  {% if xp_level > creature['level'] %}
+    <p class="levelup">⬆ XP reaches level {{ xp_level }} — ready to level up (currently {{ creature['level'] }}).</p>
+  {% elif next_level %}
+    <p class="muted xp-progress">{{ '{:,}'.format(next_level[1]) }} XP to level {{ next_level[0] }}.</p>
+  {% else %}
+    <p class="muted xp-progress">Maximum level reached.</p>
+  {% endif %}
 
   <section class="ability-grid">
     {% for col, short in abilities %}

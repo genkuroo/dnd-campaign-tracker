@@ -74,6 +74,20 @@
     </fieldset>
 
     <fieldset>
+      <legend>Progression &amp; Currency</legend>
+      <div class="field-row">
+        <label class="field narrow"><span>XP</span>
+          <input type="number" name="xp" min="0" value="{{ c['xp'] if c else 0 }}"></label>
+        <label class="field narrow"><span>Gold</span>
+          <input type="number" name="gold" min="0" value="{{ c['gold'] if c else 0 }}"></label>
+        <label class="field narrow"><span>Silver</span>
+          <input type="number" name="silver" min="0" value="{{ c['silver'] if c else 0 }}"></label>
+        <label class="field narrow"><span>Copper</span>
+          <input type="number" name="copper" min="0" value="{{ c['copper'] if c else 0 }}"></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
       <legend>Defenses <span class="muted">(comma-separated damage types)</span></legend>
       <label class="field"><span>Resistances</span>
         <input type="text" name="resistances" value="{{ c['resistances'] if c else '' }}" placeholder="fire, cold"></label>

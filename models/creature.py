@@ -38,8 +38,35 @@ def alignment_label(code):
 # Fields a creature form may set, with the type to coerce each to.
 _INT_FIELDS = [
     "level", "max_hp", "current_hp", "armor_class",
+    "xp", "gold", "silver", "copper",
     *[col for col, _ in ABILITIES],
 ]
+
+# D&D 5e: total XP required to reach each level (index = level).
+XP_THRESHOLDS = [
+    0, 0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000,
+    85000, 100000, 120000, 140000, 165000, 195000, 225000, 265000, 305000, 355000,
+]
+MAX_LEVEL = 20
+
+
+def level_from_xp(xp):
+    """Highest level whose XP threshold the creature has reached (1–20)."""
+    xp = int(xp)
+    level = 1
+    for lvl in range(2, MAX_LEVEL + 1):
+        if xp >= XP_THRESHOLDS[lvl]:
+            level = lvl
+    return level
+
+
+def xp_to_next(xp):
+    """(next_level, xp_remaining) toward the next level, or None at the cap."""
+    xp = int(xp)
+    current = level_from_xp(xp)
+    if current >= MAX_LEVEL:
+        return None
+    return current + 1, XP_THRESHOLDS[current + 1] - xp
 _TEXT_FIELDS = [
     "name", "kind", "player_name", "disposition", "alignment",
     "resistances", "immunities", "vulnerabilities", "notes", "visibility",
