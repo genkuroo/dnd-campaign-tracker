@@ -17,6 +17,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from db import get_connection, init_db
 from models.creature import create_creature
 from models.inventory import add_item, equip_item
+from models.items import get_item_def
+from models.loot import add_loot, create_area, set_current_area
 from models.spellbook import add_spell
 
 
@@ -24,10 +26,33 @@ def reset():
     conn = get_connection()
     try:
         conn.execute("DELETE FROM creatures")   # cascades to spells + items
+        conn.execute("DELETE FROM areas")       # cascades to loot
         conn.execute("DELETE FROM rolls")
         conn.commit()
     finally:
         conn.close()
+
+
+def spawn(area_id, slug, qty=1):
+    """Drop a premade catalog item into an area's loot pool."""
+    d = get_item_def(slug)
+    add_loot(area_id, d["name"], qty, d["description"], slot=d["slot"], hands=d["hands"])
+
+
+def seed_loot():
+    pony = create_area("The Prancing Pony (Tavern)")
+    spawn(pony, "potion-of-healing", 2)
+    spawn(pony, "rations", 10)
+    add_loot(pony, "Mysterious sealed letter", 1, "Addressed to no one. Wax seal shows a black raven.")
+
+    warren = create_area("Goblin Warren")
+    spawn(warren, "shortbow")
+    spawn(warren, "shield")
+    spawn(warren, "longsword")
+    spawn(warren, "ring-of-protection")
+    add_loot(warren, "Pouch of gold", 1, "37 gp pried from a goblin chieftain.")
+    set_current_area(warren)
+    return [pony, warren]
 
 
 def item(cid, name, qty=1, desc="", slot="", hands=1, equipped=False):
@@ -125,6 +150,7 @@ if __name__ == "__main__":
     if not args.keep:
         reset()
     ids = seed()
+    areas = seed_loot()
     mode = "Appended" if args.keep else "Seeded"
-    print(f"{mode} {len(ids)} creatures (3 PCs + 1 NPC) into campaign.db.")
+    print(f"{mode} {len(ids)} creatures (3 PCs + 1 NPC) and {len(areas)} loot areas into campaign.db.")
     print("Run:  python app.py   then open http://127.0.0.1:5002/character")

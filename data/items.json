@@ -1,0 +1,18 @@
+[
+  { "slug": "longsword", "name": "Longsword", "category": "Weapon", "slot": "main_hand", "hands": 1, "description": "1d8 slashing (1d10 versatile)." },
+  { "slug": "greatsword", "name": "Greatsword", "category": "Weapon", "slot": "main_hand", "hands": 2, "description": "2d6 slashing. Two-handed, heavy." },
+  { "slug": "greataxe", "name": "Greataxe", "category": "Weapon", "slot": "main_hand", "hands": 2, "description": "1d12 slashing. Two-handed, heavy." },
+  { "slug": "dagger", "name": "Dagger", "category": "Weapon", "slot": "main_hand", "hands": 1, "description": "1d4 piercing. Finesse, light, thrown." },
+  { "slug": "shortbow", "name": "Shortbow", "category": "Weapon", "slot": "main_hand", "hands": 2, "description": "1d6 piercing. Ranged, two-handed." },
+  { "slug": "shield", "name": "Shield", "category": "Armor", "slot": "off_hand", "hands": 1, "description": "+2 AC while equipped." },
+  { "slug": "leather-armor", "name": "Leather Armor", "category": "Armor", "slot": "armor", "hands": 1, "description": "AC 11 + Dexterity modifier." },
+  { "slug": "chain-mail", "name": "Chain Mail", "category": "Armor", "slot": "armor", "hands": 1, "description": "AC 16. Requires Strength 13." },
+  { "slug": "cloak-of-protection", "name": "Cloak of Protection", "category": "Accessory", "slot": "cloak", "hands": 1, "description": "+1 AC and saving throws. (Requires attunement.)" },
+  { "slug": "ring-of-protection", "name": "Ring of Protection", "category": "Accessory", "slot": "ring", "hands": 1, "description": "+1 AC and saving throws. (Requires attunement.)" },
+  { "slug": "amulet-of-health", "name": "Amulet of Health", "category": "Accessory", "slot": "amulet", "hands": 1, "description": "Your Constitution becomes 19. (Requires attunement.)" },
+  { "slug": "boots-of-elvenkind", "name": "Boots of Elvenkind", "category": "Accessory", "slot": "boots", "hands": 1, "description": "Advantage on Stealth checks made to move silently." },
+  { "slug": "potion-of-healing", "name": "Potion of Healing", "category": "Consumable", "slot": "", "hands": 1, "description": "Regain 2d4 + 2 hit points when you drink it." },
+  { "slug": "torch", "name": "Torch", "category": "Gear", "slot": "", "hands": 1, "description": "Sheds bright light in a 20-foot radius for 1 hour." },
+  { "slug": "rope-hempen", "name": "Hempen Rope (50 ft)", "category": "Gear", "slot": "", "hands": 1, "description": "50 feet of rope. 2 hp, DC 17 to burst." },
+  { "slug": "rations", "name": "Rations", "category": "Gear", "slot": "", "hands": 1, "description": "One day of dry trail food." }
+]

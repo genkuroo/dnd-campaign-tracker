@@ -149,20 +149,7 @@
     {% else %}
       <p class="muted">No items yet.</p>
     {% endif %}
-
-    <form method="post" action="{{ url_for('inventory_add') }}" class="add-item">
-      <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
-      <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-      <input type="text" name="name" placeholder="Item name" required>
-      <input type="number" name="quantity" value="1" min="1" class="qty-input" aria-label="Quantity">
-      <select name="slot" aria-label="Equipment slot">
-        <option value="">Not equippable</option>
-        {% for key, label, cap in slots %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
-      </select>
-      <label class="two-handed-check"><input type="checkbox" name="two_handed"> 2H</label>
-      <input type="text" name="description" placeholder="Description (optional)" class="desc-input">
-      <button type="submit" class="btn">Add item</button>
-    </form>
+    <p class="muted loot-note">Items are granted from the <a href="{{ url_for('loot') }}">Loot</a> tab.</p>
   </section>
 
   <section class="char-spells">

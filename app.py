@@ -36,7 +36,6 @@ from models.roll_log import add_roll, clear_rolls, delete_roll, recent_rolls
 from models.inventory import (
     SLOT_LABELS,
     SLOTS,
-    add_item,
     adjust_quantity,
     equip_item,
     equipped_by_slot,
@@ -44,6 +43,20 @@ from models.inventory import (
     list_items,
     remove_item,
     unequip_item,
+)
+from models.items import all_item_defs, get_item_def
+from models.loot import (
+    add_loot,
+    area_loot,
+    clear_area_loot,
+    create_area,
+    current_area_id,
+    delete_area,
+    get_area,
+    give_loot,
+    list_areas,
+    remove_loot,
+    set_current_area,
 )
 from models.spells import all_spells, get_spell, level_label, search_spells
 from models.spellbook import (
@@ -71,6 +84,7 @@ app.jinja_env.globals["define"] = define
 # navigation renders. Single source of truth so nav and routes can't drift.
 TABS = [
     {"endpoint": "character", "label": "Character Sheet"},
+    {"endpoint": "loot", "label": "Loot"},
     {"endpoint": "spells", "label": "Spells & Actions"},
     {"endpoint": "dice", "label": "Dice"},
     {"endpoint": "map", "label": "Map"},
@@ -274,20 +288,6 @@ def _item_owner_next(item_id):
     return item, url_for("character_detail", creature_id=item["creature_id"])
 
 
-@app.route("/inventory/add", methods=["POST"])
-def inventory_add():
-    cid = request.form.get("creature_id", type=int)
-    target = _safe_next(request.form.get("next"), url_for("character"))
-    if cid and get_creature(cid):
-        add_item(cid, request.form.get("name", ""),
-                 request.form.get("quantity", 1, type=int) or 1,
-                 request.form.get("description", ""),
-                 slot=request.form.get("slot", ""),
-                 hands=2 if request.form.get("two_handed") else 1)
-        flash("Item added.")
-    return redirect(target)
-
-
 @app.route("/inventory/<int:item_id>/quantity", methods=["POST"])
 def inventory_quantity(item_id):
     item, target = _item_owner_next(item_id)
@@ -323,6 +323,99 @@ def inventory_remove(item_id):
         remove_item(item_id)
         flash("Item removed.")
     return redirect(target)
+
+
+# --- Loot tab -------------------------------------------------------------
+
+@app.route("/loot")
+def loot():
+    area_id = current_area_id()
+    return render_template(
+        "loot.html",
+        active="loot",
+        title="Loot",
+        areas=list_areas(),
+        area=get_area(area_id) if area_id else None,
+        loot=area_loot(area_id) if area_id else [],
+        catalog=all_item_defs(),
+        roster=list_roster(),
+        slots=SLOTS,
+        slot_labels=SLOT_LABELS,
+    )
+
+
+@app.route("/loot/area/new", methods=["POST"])
+def loot_area_new():
+    new_id = create_area(request.form.get("name", ""))
+    if new_id:
+        set_current_area(new_id)
+        flash("Area created.")
+    return redirect(url_for("loot"))
+
+
+@app.route("/loot/area/switch", methods=["POST"])
+def loot_area_switch():
+    aid = request.form.get("area_id", type=int)
+    if aid and get_area(aid):
+        set_current_area(aid)
+    return redirect(url_for("loot"))
+
+
+@app.route("/loot/area/delete", methods=["POST"])
+def loot_area_delete():
+    aid = request.form.get("area_id", type=int)
+    if aid:
+        delete_area(aid)
+        flash("Area deleted.")
+    return redirect(url_for("loot"))
+
+
+@app.route("/loot/area/clear", methods=["POST"])
+def loot_area_clear():
+    aid = request.form.get("area_id", type=int)
+    if aid:
+        clear_area_loot(aid)
+        flash("Area loot cleared.")
+    return redirect(url_for("loot"))
+
+
+@app.route("/loot/spawn", methods=["POST"])
+def loot_spawn():
+    aid = request.form.get("area_id", type=int)
+    item = get_item_def(request.form.get("slug", ""))
+    if aid and get_area(aid) and item:
+        add_loot(aid, item["name"], request.form.get("quantity", 1, type=int) or 1,
+                 item["description"], slot=item["slot"], hands=item["hands"])
+        flash(f"Spawned {item['name']}.")
+    return redirect(url_for("loot"))
+
+
+@app.route("/loot/create", methods=["POST"])
+def loot_create():
+    aid = request.form.get("area_id", type=int)
+    if aid and get_area(aid):
+        add_loot(aid, request.form.get("name", ""),
+                 request.form.get("quantity", 1, type=int) or 1,
+                 request.form.get("description", ""),
+                 slot=request.form.get("slot", ""),
+                 hands=2 if request.form.get("two_handed") else 1)
+        flash("Item added to loot.")
+    return redirect(url_for("loot"))
+
+
+@app.route("/loot/<int:loot_id>/give", methods=["POST"])
+def loot_give(loot_id):
+    cid = request.form.get("creature_id", type=int)
+    if cid and get_creature(cid) and give_loot(loot_id, cid):
+        flash("Item given.")
+    return redirect(url_for("loot"))
+
+
+@app.route("/loot/<int:loot_id>/remove", methods=["POST"])
+def loot_remove(loot_id):
+    remove_loot(loot_id)
+    flash("Loot removed.")
+    return redirect(url_for("loot"))
 
 
 # --- Dice tab -------------------------------------------------------------

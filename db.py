@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -109,6 +109,27 @@ MIGRATIONS = {
     -- models/inventory.equip_item (one item per slot, swap to make room).
     ALTER TABLE creature_items ADD COLUMN slot  TEXT    NOT NULL DEFAULT '';
     ALTER TABLE creature_items ADD COLUMN hands INTEGER NOT NULL DEFAULT 1;
+    """,
+    8: """
+    -- DM-driven loot. Areas are named locations (a lightweight precursor to the
+    -- fuller location system in later phases); each holds its own loot pool.
+    -- Items mirror creature_items' shape so giving loot to a creature is a
+    -- straight copy. ON DELETE CASCADE clears a deleted area's loot.
+    CREATE TABLE areas (
+        id         INTEGER PRIMARY KEY,
+        name       TEXT    NOT NULL,
+        created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE TABLE loot_items (
+        id          INTEGER PRIMARY KEY,
+        area_id     INTEGER NOT NULL REFERENCES areas(id) ON DELETE CASCADE,
+        name        TEXT    NOT NULL,
+        quantity    INTEGER NOT NULL DEFAULT 1,
+        description TEXT    NOT NULL DEFAULT '',
+        slot        TEXT    NOT NULL DEFAULT '',
+        hands       INTEGER NOT NULL DEFAULT 1,
+        added_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
     """,
 }
 

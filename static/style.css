@@ -660,6 +660,53 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
   display: inline-flex; align-items: center; gap: 0.3rem;
   font-family: sans-serif; font-size: 0.8rem; color: var(--muted);
 }
+.loot-note { margin-top: 0.5rem; font-size: 0.85rem; }
+.loot-note a { color: var(--accent-2); }
+
+/* --- Phase 4c: loot tab --- */
+.area-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap; margin-bottom: 0.75rem;
+}
+.area-switch { display: flex; align-items: center; gap: 0.5rem; }
+.area-switch select, .add-area input, .add-area + * {
+  font: inherit;
+}
+.area-switch select {
+  font-size: 1.05rem; padding: 0.4rem 0.6rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--accent-2); border-radius: 6px;
+}
+.area-actions { display: flex; gap: 0.5rem; }
+.add-area { display: flex; gap: 0.5rem; margin-bottom: 1.75rem; }
+.add-area input {
+  padding: 0.4rem 0.6rem; background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+
+.loot-heading { color: var(--accent-2); font-size: 1.15rem; }
+.loot-list { list-style: none; padding: 0; margin: 0 0 1.5rem; }
+.loot-row {
+  display: flex; align-items: center; gap: 0.8rem;
+  padding: 0.55rem 0.2rem;
+  border-bottom: 1px solid var(--border);
+}
+.loot-main { flex: 1; display: flex; flex-direction: column; }
+.loot-name { font-weight: bold; }
+.loot-sub { font-size: 0.82rem; }
+.give-form { display: flex; gap: 0.35rem; }
+.give-form select {
+  font: inherit; padding: 0.3rem 0.5rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 5px;
+}
+
+.loot-add-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+.loot-add { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.1rem; }
+.loot-add h3 { margin-top: 0; color: var(--accent-2); font-size: 0.95rem; }
 .qty { display: flex; align-items: center; gap: 0.4rem; }
 .qty-btn {
   font: inherit; font-size: 1rem; line-height: 1; cursor: pointer;
