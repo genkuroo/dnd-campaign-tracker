@@ -65,6 +65,35 @@ def roll_expression(expr):
     return {"expression": s, "total": total, "detail": detail}
 
 
+# A d20 check optionally carrying a flat modifier: 'd20', '1d20', 'd20+3', 'd20-1'.
+_D20_CHECK_RE = re.compile(r"^(\d*)d20([+-]\d+)?$")
+
+
+def parse_and_roll(text):
+    """Roll a typed expression, dispatching on an optional adv/dis suffix.
+
+    'd20 adv', 'd20+3 disadvantage' -> a d20 check with advantage/disadvantage.
+    Anything else -> a plain expression ('2d6+3'). One entry point so every roll
+    (quick buttons, free text, sheet checks) goes through a single path.
+    """
+    s = (text or "").strip().lower()
+    if not s:
+        raise DiceError("Enter a dice expression, like 2d6+3.")
+
+    m = re.match(r"^(.*?)\s*(adv|advantage|dis|disadvantage)$", s)
+    if m:
+        lead = m.group(1).replace(" ", "")
+        mode = "advantage" if m.group(2).startswith("adv") else "disadvantage"
+        check = _D20_CHECK_RE.match(lead)
+        if not check or (check.group(1) not in ("", "1")):
+            raise DiceError("Advantage/disadvantage only applies to a single d20 "
+                            "(e.g. 'd20 adv' or 'd20+3 dis').")
+        modifier = int(check.group(2)) if check.group(2) else 0
+        return roll_check(modifier, mode)
+
+    return roll_expression(s)
+
+
 def roll_check(modifier=0, mode="normal"):
     """Roll a d20 check/saving throw: d20 + modifier.
 

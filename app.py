@@ -24,7 +24,7 @@ from models.creature import (
     list_roster,
     update_creature,
 )
-from models.dice import DiceError, roll_check, roll_expression
+from models.dice import DiceError, parse_and_roll
 from models.roll_log import add_roll, clear_rolls, recent_rolls
 
 # Quick-roll die buttons on the dice page.
@@ -183,19 +183,16 @@ def dice():
 
 @app.route("/dice/roll", methods=["POST"])
 def dice_roll():
-    """Roll an expression (or a d20 check via `mode`), log it, and bounce back.
+    """Roll the submitted expression, log it, and bounce back.
 
-    `next` lets a roll launched from a character sheet return to that sheet
-    instead of the dice page, with the result shown as a flash.
+    The expression may carry an adv/dis suffix ('d20 adv'); parse_and_roll
+    dispatches. `next` lets a roll launched from a character sheet return to that
+    sheet instead of the dice page, with the result shown as a flash.
     """
     target = _safe_next(request.form.get("next"), default=url_for("dice"))
     label = (request.form.get("label") or "").strip()
-    mode = request.form.get("mode", "normal")
     try:
-        if mode in ("advantage", "disadvantage"):
-            result = roll_check(request.form.get("modifier", 0), mode)
-        else:
-            result = roll_expression(request.form.get("expression", ""))
+        result = parse_and_roll(request.form.get("expression", ""))
     except DiceError as err:
         flash(str(err))
         return redirect(target)

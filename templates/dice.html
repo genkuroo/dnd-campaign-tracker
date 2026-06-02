@@ -3,28 +3,46 @@
   <h1>Dice</h1>
   <p class="muted">For anyone without physical dice. Tap a die, or type an expression like <code>2d6+3</code>.</p>
 
+  <p class="muted">Quick buttons fill the box below — review it, then press <strong>Roll</strong> to commit.</p>
+
   <section class="dice-quick">
     {% for sides in die_buttons %}
-      <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
-        <input type="hidden" name="expression" value="1d{{ sides }}">
-        <button type="submit" class="die-btn">d{{ sides }}</button>
-      </form>
+      <button type="button" class="die-btn" data-die="{{ sides }}">d{{ sides }}</button>
     {% endfor %}
-    <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
-      <input type="hidden" name="mode" value="advantage">
-      <button type="submit" class="die-btn die-adv" title="Roll two d20, keep the highest">d20 adv</button>
-    </form>
-    <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
-      <input type="hidden" name="mode" value="disadvantage">
-      <button type="submit" class="die-btn die-dis" title="Roll two d20, keep the lowest">d20 dis</button>
-    </form>
+    <button type="button" class="die-btn die-adv" data-expr="d20 adv"
+            title="Roll two d20, keep the highest">d20 adv</button>
+    <button type="button" class="die-btn die-dis" data-expr="d20 dis"
+            title="Roll two d20, keep the lowest">d20 dis</button>
   </section>
 
   <form method="post" action="{{ url_for('dice_roll') }}" class="dice-expr">
-    <input type="text" name="expression" placeholder="2d6+3" autofocus
-           pattern="[0-9dD+\- ]+" aria-label="Dice expression">
+    <input type="text" name="expression" id="expr" placeholder="2d6+3" autofocus
+           autocomplete="off" aria-label="Dice expression">
     <button type="submit" class="btn">Roll</button>
+    <button type="button" class="btn-ghost" id="expr-clear">Clear</button>
   </form>
+
+  <script>
+    (function () {
+      const expr = document.getElementById('expr');
+      // Dice buttons append a term (so you can build 2d6+1d4); adv/dis replace.
+      document.querySelectorAll('.die-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          if (btn.dataset.expr) {
+            expr.value = btn.dataset.expr;
+          } else {
+            const term = '1d' + btn.dataset.die;
+            expr.value = expr.value.trim() ? expr.value.trim() + '+' + term : term;
+          }
+          expr.focus();
+        });
+      });
+      document.getElementById('expr-clear').addEventListener('click', function () {
+        expr.value = '';
+        expr.focus();
+      });
+    })();
+  </script>
 
   <section class="roll-log">
     <div class="roll-log-head">
