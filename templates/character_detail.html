@@ -7,8 +7,23 @@
         {% if creature['visibility'] == 'hidden' %}<span class="badge-dm">DM only</span>{% endif %}
       </h1>
       <p class="muted">
+        <span class="badge-kind">{{ 'NPC' if creature['kind'] == 'npc' else 'PC' }}</span>
         Level {{ creature['level'] }}{% if creature['player_name'] %} · played by {{ creature['player_name'] }}{% endif %}
+        {% if creature['alignment'] %} · {{ creature['alignment'] | alignment }}{% endif %}
       </p>
+
+      {% if creature['kind'] in ('npc', 'monster') %}
+        <form class="disp-toggle" method="post"
+              action="{{ url_for('character_set_disposition', creature_id=creature['id']) }}">
+          <span class="disp-toggle-label">Disposition</span>
+          {% for d in dispositions %}
+            <button type="submit" name="disposition" value="{{ d }}"
+                    class="disp-btn disp-{{ d }} {{ 'active' if creature['disposition'] == d else '' }}">
+              {{ d }}
+            </button>
+          {% endfor %}
+        </form>
+      {% endif %}
     </div>
     <div class="head-actions">
       <a class="btn" href="{{ url_for('character_edit', creature_id=creature['id']) }}">Edit</a>

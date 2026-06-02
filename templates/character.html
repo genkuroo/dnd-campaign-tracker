@@ -1,20 +1,24 @@
 {% extends "base.html" %}
 {% block content %}
   <div class="page-head">
-    <h1>Characters</h1>
-    <a class="btn" href="{{ url_for('character_new') }}">+ New Character</a>
+    <h1>Characters &amp; NPCs</h1>
+    <a class="btn" href="{{ url_for('character_new') }}">+ New</a>
   </div>
 
-  {% if characters %}
+  {% if roster %}
     <div class="card-grid">
-      {% for c in characters %}
+      {% for c in roster %}
         <a class="char-card" href="{{ url_for('character_detail', creature_id=c['id']) }}">
           <div class="char-card-head">
             <span class="char-name">{{ c['name'] }}</span>
             {% if c['visibility'] == 'hidden' %}<span class="badge-dm">DM only</span>{% endif %}
           </div>
-          <div class="muted">
-            Level {{ c['level'] }}{% if c['player_name'] %} · {{ c['player_name'] }}{% endif %}
+          <div class="char-meta">
+            <span class="badge-kind">{{ 'NPC' if c['kind'] == 'npc' else 'PC' }}</span>
+            {% if c['kind'] == 'npc' %}
+              <span class="disp disp-{{ c['disposition'] }}">{{ c['disposition'] }}</span>
+            {% endif %}
+            <span class="muted">Lv {{ c['level'] }}{% if c['player_name'] %} · {{ c['player_name'] }}{% endif %}</span>
           </div>
           <div class="char-card-stats">
             <span title="Hit Points">❤️ {{ c['current_hp'] }}/{{ c['max_hp'] }}</span>
@@ -24,7 +28,7 @@
       {% endfor %}
     </div>
   {% else %}
-    <p class="muted">No characters yet.</p>
+    <p class="muted">No characters or NPCs yet.</p>
     <p class="placeholder-note">Create your first one to start the party.</p>
   {% endif %}
 {% endblock %}

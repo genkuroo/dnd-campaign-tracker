@@ -13,12 +13,39 @@
         <input type="text" name="name" required value="{{ c['name'] if c else '' }}">
       </label>
       <label class="field">
+        <span>Type</span>
+        <select name="kind">
+          {% for value, label in kinds %}
+            <option value="{{ value }}" {{ 'selected' if c and c['kind'] == value else '' }}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="field">
         <span>Player</span>
         <input type="text" name="player_name" value="{{ c['player_name'] if c else '' }}">
       </label>
       <label class="field narrow">
         <span>Level</span>
         <input type="number" name="level" min="1" value="{{ c['level'] if c else 1 }}">
+      </label>
+    </div>
+
+    <div class="field-row">
+      <label class="field">
+        <span>Alignment</span>
+        <select name="alignment">
+          {% for value, label in alignments %}
+            <option value="{{ value }}" {{ 'selected' if c and c['alignment'] == value else '' }}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="field">
+        <span>Disposition <span class="muted">(toward the party)</span></span>
+        <select name="disposition">
+          {% for d in dispositions %}
+            <option value="{{ d }}" {{ 'selected' if (c and c['disposition'] == d) or (not c and d == 'neutral') else '' }}>{{ d }}</option>
+          {% endfor %}
+        </select>
       </label>
     </div>
 

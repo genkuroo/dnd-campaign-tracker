@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -46,6 +46,14 @@ MIGRATIONS = {
         visibility      TEXT    NOT NULL DEFAULT 'visible',  -- 'visible' | 'hidden'
         created_at      TEXT    NOT NULL DEFAULT (datetime('now'))
     );
+    """,
+    2: """
+    -- Two distinct D&D concepts (CLAUDE.md "creature engine"):
+    --   disposition = how the creature treats the party (friendly/neutral/hostile)
+    --   alignment   = the creature's moral compass (LG..CE, '' = unaligned)
+    -- Both live on every creature; most useful for NPCs/monsters.
+    ALTER TABLE creatures ADD COLUMN disposition TEXT NOT NULL DEFAULT 'neutral';
+    ALTER TABLE creatures ADD COLUMN alignment   TEXT NOT NULL DEFAULT '';
     """,
 }
 

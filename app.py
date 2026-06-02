@@ -12,12 +12,16 @@ from flask import (
 from db import init_db
 from models.creature import (
     ABILITIES,
+    ALIGNMENTS,
+    DISPOSITIONS,
+    KINDS,
     ability_modifier,
+    alignment_label,
     create_creature,
     delete_creature,
     format_modifier,
     get_creature,
-    list_characters,
+    list_roster,
     update_creature,
 )
 
@@ -52,6 +56,18 @@ def _commalist_filter(value):
     return [item.strip() for item in (value or "").split(",") if item.strip()]
 
 
+@app.template_filter("alignment")
+def _alignment_filter(code):
+    """Jinja filter: alignment code -> full label (e.g. 'LG' -> 'Lawful Good')."""
+    return alignment_label(code)
+
+
+# Vocab the character form needs; injected so the form template stays declarative.
+def _form_vocab():
+    return {"abilities": ABILITIES, "kinds": KINDS,
+            "dispositions": DISPOSITIONS, "alignments": ALIGNMENTS}
+
+
 @app.route("/")
 def index():
     return redirect(url_for("character"))
@@ -65,7 +81,7 @@ def character():
         "character.html",
         active="character",
         title="Character Sheet",
-        characters=list_characters(),
+        roster=list_roster(),
     )
 
 
@@ -79,8 +95,8 @@ def character_new():
         "character_form.html",
         active="character",
         title="New Character",
-        abilities=ABILITIES,
         creature=None,
+        **_form_vocab(),
     )
 
 
@@ -94,6 +110,7 @@ def character_detail(creature_id):
         active="character",
         title=creature["name"],
         abilities=ABILITIES,
+        dispositions=DISPOSITIONS,
         creature=creature,
     )
 
@@ -111,9 +128,19 @@ def character_edit(creature_id):
         "character_form.html",
         active="character",
         title=f"Edit {creature['name']}",
-        abilities=ABILITIES,
         creature=creature,
+        **_form_vocab(),
     )
+
+
+@app.route("/character/<int:creature_id>/disposition", methods=["POST"])
+def character_set_disposition(creature_id):
+    """Quick live toggle of a creature's disposition (for NPCs/monsters)."""
+    value = request.form.get("disposition")
+    if value in DISPOSITIONS:
+        update_creature(creature_id, {"disposition": value})
+        flash(f"Disposition set to {value}.")
+    return redirect(url_for("character_detail", creature_id=creature_id))
 
 
 @app.route("/character/<int:creature_id>/delete", methods=["POST"])
@@ -127,10 +154,11 @@ def _form_to_data(form):
     """Normalize a submitted character form into a data dict for the model.
 
     The `hidden` checkbox maps onto the visibility spine: checked = DM-only.
+    `kind` is constrained to the values the form offers (pc | npc).
     """
     data = form.to_dict()
     data["visibility"] = "hidden" if form.get("hidden") else "visible"
-    data["kind"] = "pc"
+    data["kind"] = form.get("kind") if form.get("kind") in {"pc", "npc"} else "pc"
     return data
 
 

@@ -16,13 +16,32 @@ ABILITIES = [
     ("charisma", "CHA"),
 ]
 
+# What a creature *is*. Monsters arrive with the rest of Phase 5.
+KINDS = [("pc", "Player Character"), ("npc", "NPC")]
+
+# How a creature treats the party.
+DISPOSITIONS = ["friendly", "neutral", "hostile"]
+
+# A creature's moral compass. '' = unaligned (many beasts/constructs).
+ALIGNMENTS = [
+    ("", "Unaligned / —"),
+    ("LG", "Lawful Good"), ("NG", "Neutral Good"), ("CG", "Chaotic Good"),
+    ("LN", "Lawful Neutral"), ("TN", "True Neutral"), ("CN", "Chaotic Neutral"),
+    ("LE", "Lawful Evil"), ("NE", "Neutral Evil"), ("CE", "Chaotic Evil"),
+]
+ALIGNMENT_LABELS = dict(ALIGNMENTS)
+
+
+def alignment_label(code):
+    return ALIGNMENT_LABELS.get(code or "", code or "")
+
 # Fields a creature form may set, with the type to coerce each to.
 _INT_FIELDS = [
     "level", "max_hp", "current_hp", "armor_class",
     *[col for col, _ in ABILITIES],
 ]
 _TEXT_FIELDS = [
-    "name", "kind", "player_name",
+    "name", "kind", "player_name", "disposition", "alignment",
     "resistances", "immunities", "vulnerabilities", "notes", "visibility",
 ]
 
@@ -37,12 +56,16 @@ def format_modifier(mod):
     return f"+{mod}" if mod >= 0 else str(mod)
 
 
-def list_characters():
-    """All player characters (kind='pc'), newest first."""
+def list_roster():
+    """The DM's cast — player characters and NPCs, PCs listed first.
+
+    Monsters are excluded; they get their own home with encounters in Phase 5.
+    """
     conn = get_connection()
     try:
         return conn.execute(
-            "SELECT * FROM creatures WHERE kind = 'pc' ORDER BY created_at DESC"
+            "SELECT * FROM creatures WHERE kind IN ('pc', 'npc') "
+            "ORDER BY CASE kind WHEN 'pc' THEN 0 ELSE 1 END, created_at DESC"
         ).fetchall()
     finally:
         conn.close()

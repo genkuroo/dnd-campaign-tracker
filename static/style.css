@@ -168,6 +168,55 @@ body {
   vertical-align: middle;
 }
 
+/* Kind badge (PC / NPC) */
+.badge-kind {
+  font-size: 0.7rem;
+  font-family: sans-serif;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+/* Disposition pills (read-only, e.g. on cards) */
+.char-meta { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.35rem; flex-wrap: wrap; }
+.disp {
+  font-family: sans-serif;
+  font-size: 0.72rem;
+  text-transform: capitalize;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid;
+}
+.disp-friendly { color: #8fd0a0; border-color: #3f6b4c; }
+.disp-neutral  { color: #d9c98f; border-color: #6b5f3f; }
+.disp-hostile  { color: #e8918f; border-color: #7a3838; }
+
+/* Disposition toggle (DM live control on the detail page) */
+.disp-toggle { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.6rem; flex-wrap: wrap; }
+.disp-toggle-label { font-family: sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.disp-btn {
+  font: inherit;
+  font-family: sans-serif;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+  cursor: pointer;
+  padding: 0.22rem 0.7rem;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  opacity: 0.65;
+}
+.disp-btn:hover { opacity: 1; }
+.disp-btn.active { opacity: 1; font-weight: bold; }
+.disp-btn.disp-friendly.active { color: #8fd0a0; border-color: #3f6b4c; background: rgba(63,107,76,0.18); }
+.disp-btn.disp-neutral.active  { color: #d9c98f; border-color: #6b5f3f; background: rgba(107,95,63,0.18); }
+.disp-btn.disp-hostile.active  { color: #e8918f; border-color: #7a3838; background: rgba(122,56,56,0.18); }
+
 /* Character cards */
 .card-grid {
   display: grid;
@@ -245,7 +294,7 @@ body {
 .sheet-form legend { color: var(--accent-2); padding: 0 0.4rem; font-family: sans-serif; font-size: 0.85rem; }
 .field { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.75rem; }
 .field > span { font-size: 0.8rem; font-family: sans-serif; color: var(--muted); }
-.field input, .field textarea {
+.field input, .field textarea, .field select {
   font: inherit;
   padding: 0.4rem 0.55rem;
   background: var(--bg);
@@ -253,7 +302,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 5px;
 }
-.field input:focus, .field textarea:focus { outline: none; border-color: var(--accent-2); }
+.field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: var(--accent-2); }
 .field-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
 .field.grow { flex: 1 1 12rem; }
 .field.narrow { width: 5.5rem; }
