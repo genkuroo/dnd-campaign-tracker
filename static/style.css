@@ -60,6 +60,27 @@ body {
   border-bottom-color: var(--panel-2);
 }
 
+/* Assist / Track mode toggle */
+.mode-toggle {
+  margin: 0 0 0 auto;
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.mode-btn {
+  font: inherit;
+  font-family: sans-serif;
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 0.3rem 0.85rem;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+}
+.mode-btn:hover { color: var(--ink); }
+.mode-btn.active { background: var(--accent); color: #fff; }
+
 /* Layout: sidebar + content */
 .layout {
   display: grid;
@@ -420,3 +441,55 @@ form.inline { display: inline; margin: 0; }
 .check-btn:hover { color: var(--ink); border-color: var(--accent-2); }
 .check-hint { font-size: 0.8rem; margin-top: -0.75rem; }
 code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px; }
+
+/* --- Phase 3: spells --- */
+.mode-hint { font-size: 0.85rem; }
+.spell-search { display: flex; gap: 0.5rem; max-width: 460px; margin-bottom: 1.5rem; }
+.spell-search input {
+  flex: 1; font: inherit; padding: 0.5rem 0.7rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.spell-search input:focus { outline: none; border-color: var(--accent-2); }
+
+.spell-list { list-style: none; padding: 0; margin: 0; }
+.spell-row {
+  display: flex; align-items: center; gap: 0.9rem;
+  padding: 0.6rem 0.4rem;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none; color: var(--ink);
+}
+.spell-row:hover { background: var(--panel); }
+.spell-name { font-weight: bold; color: var(--accent-2); min-width: 9rem; }
+.spell-meta { flex: 1; font-family: sans-serif; font-size: 0.85rem; }
+
+/* Dice rendered in text */
+.die-text {
+  font-family: sans-serif; font-size: 0.85em;
+  color: var(--accent-2);
+  background: var(--panel-2);
+  padding: 0.02rem 0.4rem; border-radius: 4px;
+  white-space: nowrap;
+}
+.rollable {
+  font: inherit; font-family: sans-serif; font-size: 0.85em; cursor: pointer;
+  color: var(--accent-2);
+  background: var(--panel-2);
+  border: 1px solid var(--accent-2);
+  padding: 0.02rem 0.45rem; border-radius: 4px;
+  white-space: nowrap;
+}
+.rollable:hover { background: var(--accent-2); color: var(--bg); }
+
+/* Spell detail */
+.spell-title { margin: 0; }
+.spell-stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.5rem 1.5rem; margin: 1rem 0 1.5rem;
+}
+.spell-stats div { border-left: 2px solid var(--border); padding-left: 0.7rem; }
+.spell-stats dt { font-family: sans-serif; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.spell-stats dd { margin: 0.1rem 0 0; }
+.spell-desc { max-width: 680px; line-height: 1.7; }
+.cast-box { margin-top: 1.5rem; }
+.cast-btn { font-size: 0.95rem; }

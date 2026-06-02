@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="spell-title">{{ spell['name'] }}</h1>
+      <p class="muted">{{ spell['level'] | ordinal_level }} · {{ spell['school'] }}</p>
+    </div>
+    <a class="btn-ghost" href="{{ url_for('spells') }}">← All spells</a>
+  </div>
+
+  <dl class="spell-stats">
+    <div><dt>Casting Time</dt><dd>{{ spell['casting_time'] }}</dd></div>
+    <div><dt>Range</dt><dd>{{ spell['range'] }}</dd></div>
+    <div><dt>Components</dt><dd>{{ spell['components'] }}</dd></div>
+    <div><dt>Duration</dt><dd>{{ spell['duration'] }}</dd></div>
+    {% if spell['save'] %}<div><dt>Saving Throw</dt><dd>{{ spell['save'] }}</dd></div>{% endif %}
+    {% if spell['attack'] %}<div><dt>Attack</dt><dd>{{ spell['attack'] }}</dd></div>{% endif %}
+  </dl>
+
+  <p class="spell-desc">{{ spell['description'] | dicetext(mode, spell['name']) }}</p>
+
+  {% if spell['roll'] %}
+    <section class="cast-box">
+      {% if mode == 'assist' %}
+        <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
+          <input type="hidden" name="expression" value="{{ spell['roll'] }}">
+          <input type="hidden" name="label" value="{{ spell['name'] }}{% if spell['damage_type'] == 'healing' %} (heal){% else %} damage{% endif %}">
+          <input type="hidden" name="next" value="{{ url_for('spell_detail', slug=spell['slug']) }}">
+          <button type="submit" class="btn cast-btn">
+            🎲 Cast {{ spell['name'] }} — roll {{ spell['roll'] }}{% if spell['damage_type'] %} {{ spell['damage_type'] }}{% endif %}
+          </button>
+        </form>
+      {% else %}
+        <p class="muted">
+          {% if spell['damage_type'] == 'healing' %}Heals{% else %}Deals{% endif %}
+          <span class="die-text">{{ spell['roll'] }}</span>{% if spell['damage_type'] and spell['damage_type'] != 'healing' %} {{ spell['damage_type'] }} damage{% endif %}.
+          Switch to <strong>Assist</strong> to roll it.
+        </p>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endblock %}

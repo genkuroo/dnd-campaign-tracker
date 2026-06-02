@@ -1,9 +1,33 @@
 {% extends "base.html" %}
 {% block content %}
-  <h1>Spells &amp; Actions</h1>
-  <p class="muted">
-    Your spells and actions, with inline 5e SRD rules text so you can read what
-    each one does — including clickable dice.
-  </p>
-  <p class="placeholder-note">Phase 3 wires in the SRD rules reference.</p>
+  <div class="page-head">
+    <h1>Spells &amp; Actions</h1>
+    <span class="mode-hint muted">
+      {% if mode == 'assist' %}Assist mode — clicking dice rolls them.{% else %}Track mode — click a spell to read what it does.{% endif %}
+    </span>
+  </div>
+
+  <form method="get" class="spell-search">
+    <input type="text" name="q" value="{{ q }}" placeholder="Search spells…" autocomplete="off">
+    <button type="submit" class="btn">Search</button>
+    {% if q %}<a class="btn-ghost" href="{{ url_for('spells') }}">Clear</a>{% endif %}
+  </form>
+
+  {% if spells %}
+    <ul class="spell-list">
+      {% for s in spells %}
+        <li>
+          <a class="spell-row" href="{{ url_for('spell_detail', slug=s['slug']) }}">
+            <span class="spell-name">{{ s['name'] }}</span>
+            <span class="spell-meta muted">{{ s['level'] | ordinal_level }} · {{ s['school'] }}</span>
+            {% if s['roll'] %}<span class="spell-dice die-text">{{ s['roll'] }}</span>{% endif %}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">No spells match “{{ q }}”.</p>
+  {% endif %}
+
+  <p class="placeholder-note">Phase 3b will let you add these to a character's spellbook.</p>
 {% endblock %}

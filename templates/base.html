@@ -17,6 +17,12 @@
         </a>
       {% endfor %}
     </nav>
+    <form method="post" action="{{ url_for('set_mode') }}" class="mode-toggle"
+          title="Assist rolls for you; Track just shows what things do">
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <button name="mode" value="track" class="mode-btn {{ 'active' if mode == 'track' }}">Track</button>
+      <button name="mode" value="assist" class="mode-btn {{ 'active' if mode == 'assist' }}">Assist</button>
+    </form>
   </header>
 
   <div class="layout">
@@ -43,5 +49,29 @@
   <footer class="footer">
     <span class="muted">Rules reference uses the D&amp;D 5e SRD (CC-BY-4.0).</span>
   </footer>
+
+  <script>
+    // Assist mode: a die in spell text (class "rollable") rolls through the
+    // dice engine, logs it, and returns here with the result flashed.
+    (function () {
+      document.querySelectorAll('.rollable').forEach(function (el) {
+        el.addEventListener('click', function () {
+          var f = document.createElement('form');
+          f.method = 'post';
+          f.action = '{{ url_for("dice_roll") }}';
+          function add(name, value) {
+            var i = document.createElement('input');
+            i.type = 'hidden'; i.name = name; i.value = value;
+            f.appendChild(i);
+          }
+          add('expression', el.dataset.expr);
+          add('label', el.dataset.label || '');
+          add('next', window.location.pathname);
+          document.body.appendChild(f);
+          f.submit();
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

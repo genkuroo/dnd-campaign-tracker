@@ -5,11 +5,13 @@ lists, views, creates, and edits player characters (ability scores + modifiers,
 HP, AC, resistances). DM-only for now; player logins arrive in Phase 7.
 See CLAUDE.md for the full phased plan.
 """
+import re
 from datetime import datetime, timezone
 
 from flask import (
     Flask, abort, flash, redirect, render_template, request, url_for,
 )
+from markupsafe import Markup, escape
 
 from db import init_db
 from models.creature import (
@@ -28,6 +30,7 @@ from models.creature import (
 )
 from models.dice import DiceError, parse_and_roll
 from models.roll_log import add_roll, clear_rolls, delete_roll, recent_rolls
+from models.spells import all_spells, get_spell, level_label, search_spells
 
 # Quick-roll die buttons on the dice page.
 DICE_BUTTONS = [4, 6, 8, 10, 12, 20, 100]
@@ -55,6 +58,25 @@ def inject_nav():
     return {"tabs": TABS}
 
 
+@app.context_processor
+def inject_mode():
+    """Assist vs Track is a personal UI preference, stored per-browser in a cookie.
+
+    'track' (default) = clicking a spell just shows what it does.
+    'assist'          = clicking a spell rolls it for you.
+    """
+    return {"mode": request.cookies.get("mode", "track")}
+
+
+@app.route("/mode", methods=["POST"])
+def set_mode():
+    chosen = request.form.get("mode")
+    resp = redirect(_safe_next(request.form.get("next"), url_for("character")))
+    if chosen in ("assist", "track"):
+        resp.set_cookie("mode", chosen, max_age=60 * 60 * 24 * 365, samesite="Lax")
+    return resp
+
+
 @app.template_filter("mod")
 def _mod_filter(score):
     """Jinja filter: an ability score -> its formatted modifier (e.g. 14 -> '+2')."""
@@ -71,6 +93,38 @@ def _commalist_filter(value):
 def _alignment_filter(code):
     """Jinja filter: alignment code -> full label (e.g. 'LG' -> 'Lawful Good')."""
     return alignment_label(code)
+
+
+@app.template_filter("ordinal_level")
+def _ordinal_level_filter(level):
+    return level_label(level)
+
+
+# Dice tokens inside prose, e.g. '8d6', '1d4 + 1'.
+_DICE_TOKEN = re.compile(r"\d*d\d+(?:\s*[+-]\s*\d+)?", re.IGNORECASE)
+
+
+@app.template_filter("dicetext")
+def _dicetext_filter(text, mode="track", label=""):
+    """Highlight dice in rules text. In assist mode each die is clickable (rolls
+    via the base-layout JS); in track mode it's just styled, non-interactive.
+
+    Surrounding prose is escaped; only our generated markup is trusted.
+    """
+    out, last = [], 0
+    for m in _DICE_TOKEN.finditer(text or ""):
+        out.append(str(escape(text[last:m.start()])))
+        token = escape(m.group(0))
+        if mode == "assist":
+            out.append(
+                f'<button type="button" class="rollable" '
+                f'data-expr="{token}" data-label="{escape(label)}">{token}</button>'
+            )
+        else:
+            out.append(f'<span class="die-text">{token}</span>')
+        last = m.end()
+    out.append(str(escape((text or "")[last:])))
+    return Markup("".join(out))
 
 
 # Vocab the character form needs; injected so the form template stays declarative.
@@ -292,7 +346,27 @@ def _safe_next(value, default):
 
 @app.route("/spells")
 def spells():
-    return render_template("spells.html", active="spells", title="Spells & Actions")
+    q = request.args.get("q", "")
+    return render_template(
+        "spells.html",
+        active="spells",
+        title="Spells & Actions",
+        spells=search_spells(q),
+        q=q,
+    )
+
+
+@app.route("/spells/<slug>")
+def spell_detail(slug):
+    spell = get_spell(slug)
+    if spell is None:
+        abort(404)
+    return render_template(
+        "spell_detail.html",
+        active="spells",
+        title=spell["name"],
+        spell=spell,
+    )
 
 
 @app.route("/map")
