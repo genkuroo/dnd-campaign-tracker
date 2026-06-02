@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -88,6 +88,19 @@ MIGRATIONS = {
     ALTER TABLE creatures ADD COLUMN gold   INTEGER NOT NULL DEFAULT 0;
     ALTER TABLE creatures ADD COLUMN silver INTEGER NOT NULL DEFAULT 0;
     ALTER TABLE creatures ADD COLUMN copper INTEGER NOT NULL DEFAULT 0;
+    """,
+    6: """
+    -- A creature's inventory. Free-form items (loot lands here); ON DELETE
+    -- CASCADE clears them with the creature.
+    CREATE TABLE creature_items (
+        id          INTEGER PRIMARY KEY,
+        creature_id INTEGER NOT NULL REFERENCES creatures(id) ON DELETE CASCADE,
+        name        TEXT    NOT NULL,
+        quantity    INTEGER NOT NULL DEFAULT 1,
+        description TEXT    NOT NULL DEFAULT '',
+        equipped    INTEGER NOT NULL DEFAULT 0,
+        added_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
     """,
 }
 

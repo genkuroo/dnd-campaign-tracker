@@ -33,6 +33,14 @@ from models.creature import (
 from models.dice import DiceError, parse_and_roll
 from models.glossary import define
 from models.roll_log import add_roll, clear_rolls, delete_roll, recent_rolls
+from models.inventory import (
+    add_item,
+    adjust_quantity,
+    get_item,
+    list_items,
+    remove_item,
+    set_equipped,
+)
 from models.spells import all_spells, get_spell, level_label, search_spells
 from models.spellbook import (
     add_spell,
@@ -198,6 +206,7 @@ def character_detail(creature_id):
         addable_spells=[s for s in all_spells() if s["slug"] not in known_slugs],
         next_level=next_level,                         # (level, xp_to_go) or None
         xp_level=level_from_xp(creature["xp"]),         # level the XP implies
+        items=list_items(creature_id),
     )
 
 
@@ -246,6 +255,53 @@ def _form_to_data(form):
     data["visibility"] = "hidden" if form.get("hidden") else "visible"
     data["kind"] = form.get("kind") if form.get("kind") in {"pc", "npc"} else "pc"
     return data
+
+
+# --- Inventory (on the character sheet) -----------------------------------
+
+def _item_owner_next(item_id):
+    """Return ((item, redirect_target)) for an item, or (None, character list)."""
+    item = get_item(item_id)
+    if item is None:
+        return None, url_for("character")
+    return item, url_for("character_detail", creature_id=item["creature_id"])
+
+
+@app.route("/inventory/add", methods=["POST"])
+def inventory_add():
+    cid = request.form.get("creature_id", type=int)
+    target = _safe_next(request.form.get("next"), url_for("character"))
+    if cid and get_creature(cid):
+        add_item(cid, request.form.get("name", ""),
+                 request.form.get("quantity", 1, type=int) or 1,
+                 request.form.get("description", ""))
+        flash("Item added.")
+    return redirect(target)
+
+
+@app.route("/inventory/<int:item_id>/quantity", methods=["POST"])
+def inventory_quantity(item_id):
+    item, target = _item_owner_next(item_id)
+    if item:
+        adjust_quantity(item_id, request.form.get("delta", 0, type=int))
+    return redirect(target)
+
+
+@app.route("/inventory/<int:item_id>/equipped", methods=["POST"])
+def inventory_equipped(item_id):
+    item, target = _item_owner_next(item_id)
+    if item:
+        set_equipped(item_id, not item["equipped"])
+    return redirect(target)
+
+
+@app.route("/inventory/<int:item_id>/remove", methods=["POST"])
+def inventory_remove(item_id):
+    item, target = _item_owner_next(item_id)
+    if item:
+        remove_item(item_id)
+        flash("Item removed.")
+    return redirect(target)
 
 
 # --- Dice tab -------------------------------------------------------------
