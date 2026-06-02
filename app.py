@@ -307,6 +307,15 @@ def inventory_equipped(item_id):
     return redirect(target)
 
 
+@app.route("/inventory/<int:item_id>/equip", methods=["POST"])
+def inventory_equip(item_id):
+    """Always-equip (used by drag-and-drop drops); swap logic lives in equip_item."""
+    item, target = _item_owner_next(item_id)
+    if item:
+        equip_item(item_id)
+    return redirect(_safe_next(request.form.get("next"), target))
+
+
 @app.route("/inventory/<int:item_id>/remove", methods=["POST"])
 def inventory_remove(item_id):
     item, target = _item_owner_next(item_id)

@@ -625,6 +625,14 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
   gap: 0.15rem;
 }
 .slot-box.filled { border-color: var(--accent-2); }
+.slot-box.drop-ok {
+  border-color: var(--accent-2);
+  border-style: dashed;
+  background: rgba(201, 161, 74, 0.18);
+}
+.item-line.draggable { cursor: grab; }
+.item-line.draggable:active { cursor: grabbing; }
+.item-line.dragging { opacity: 0.45; }
 .slot-label {
   font-family: sans-serif; font-size: 0.68rem; text-transform: uppercase;
   letter-spacing: 0.05em; color: var(--muted);
