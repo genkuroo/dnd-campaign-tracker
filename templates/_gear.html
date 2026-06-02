@@ -1,0 +1,91 @@
+{# Equipment panel + inventory list. Rendered both inside the character sheet
+   and standalone by the AJAX gear endpoints, so equip/unequip/qty/remove can
+   refresh this fragment without a full page reload. Expects: creature, panel,
+   items, slot_labels. #}
+<section class="equipment">
+  <h2>Equipment</h2>
+  <p class="muted equip-hint">Drag an item onto its slot to equip — or use the buttons. Each filled slot has an unequip ×.</p>
+  <div class="slot-grid">
+    {% for box in panel %}
+      <div class="slot-box {{ 'filled' if box.item }}" data-slot="{{ box.key }}">
+        <span class="slot-label">{{ box.label }}</span>
+        {% if box.item %}
+          <span class="slot-filled-row">
+            <span class="slot-item">{{ box.item['name'] }}{% if box.item['hands'] == 2 %} <span class="tag-2h">2H</span>{% endif %}</span>
+            <form method="post" action="{{ url_for('inventory_equipped', item_id=box.item['id']) }}" class="inline">
+              <button type="submit" class="slot-unequip" title="Unequip {{ box.item['name'] }}">×</button>
+            </form>
+          </span>
+        {% elif box.blocked %}
+          <span class="slot-empty">⟵ two-handed</span>
+        {% else %}
+          <span class="slot-empty">empty</span>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="inventory">
+  <h2>Inventory</h2>
+  {% if items %}
+    <ul class="item-list">
+      {% for it in items %}
+        <li class="item-line {{ 'equipped' if it['equipped'] }} {{ 'draggable' if it['slot'] }}"
+            {% if it['slot'] %}draggable="true" data-slot="{{ it['slot'] }}" data-name="{{ it['name'] }}" data-equip-url="{{ url_for('inventory_equip', item_id=it['id']) }}"{% endif %}>
+          {% if it['slot'] %}
+            <form method="post" action="{{ url_for('inventory_equipped', item_id=it['id']) }}" class="inline">
+              <button type="submit" class="equip-toggle {{ 'on' if it['equipped'] }}">
+                {{ 'Unequip' if it['equipped'] else 'Equip' }}
+              </button>
+            </form>
+          {% else %}
+            <span class="equip-spacer"></span>
+          {% endif %}
+          <span class="item-main">
+            <span class="item-name">{{ it['name'] }}{% if it['slot'] and it['hands'] == 2 %} <span class="tag-2h">2H</span>{% endif %}</span>
+            <span class="item-sub muted">
+              {%- if it['slot'] %}{{ slot_labels[it['slot']] }}{% endif -%}
+              {%- if it['slot'] and it['description'] %} · {% endif -%}
+              {%- if it['description'] %}{{ it['description'] }}{% endif -%}
+            </span>
+          </span>
+          <span class="qty">
+            <form method="post" action="{{ url_for('inventory_quantity', item_id=it['id']) }}" class="inline">
+              <input type="hidden" name="delta" value="-1">
+              <button type="submit" class="qty-btn" title="One fewer">−</button>
+            </form>
+            <span class="qty-num">{{ it['quantity'] }}</span>
+            <form method="post" action="{{ url_for('inventory_quantity', item_id=it['id']) }}" class="inline">
+              <input type="hidden" name="delta" value="1">
+              <button type="submit" class="qty-btn" title="One more">+</button>
+            </form>
+          </span>
+          <form method="post" action="{{ url_for('inventory_remove', item_id=it['id']) }}" class="inline"
+                data-confirm="Remove {{ it['name'] }}?">
+            <button type="submit" class="roll-del" title="Remove item">×</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">No items yet.</p>
+  {% endif %}
+
+  {% if creature['kind'] == 'npc' %}
+    <form method="post" action="{{ url_for('inventory_add') }}" class="add-item">
+      <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+      <input type="text" name="name" placeholder="Item name" required>
+      <input type="number" name="quantity" value="1" min="1" class="qty-input" aria-label="Quantity">
+      <select name="slot" aria-label="Equipment slot">
+        <option value="">Not equippable</option>
+        {% for key, label, cap in slots %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
+      </select>
+      <label class="two-handed-check"><input type="checkbox" name="two_handed"> 2H</label>
+      <input type="text" name="description" placeholder="Description (optional)" class="desc-input">
+      <button type="submit" class="btn">Add item</button>
+    </form>
+  {% else %}
+    <p class="muted loot-note">Items are granted from the <a href="{{ url_for('loot') }}">Loot</a> tab.</p>
+  {% endif %}
+</section>

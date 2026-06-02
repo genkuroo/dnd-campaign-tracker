@@ -11,7 +11,7 @@ SLOTS = [
     ("gloves", "Gloves", 1),
     ("boots", "Boots", 1),
     ("amulet", "Amulet", 1),
-    ("ring", "Rings", 2),
+    ("ring", "Ring", 2),
 ]
 SLOT_LABELS = {key: label for key, label, _ in SLOTS}
 SLOT_CAP = {key: cap for key, _, cap in SLOTS}
@@ -135,9 +135,40 @@ def equip_item(item_id):
 
 
 def equipped_by_slot(creature_id):
-    """{slot_key: [equipped items]} for rendering the equipment panel."""
+    """{slot_key: [equipped items]} keyed by canonical slot."""
     by_slot = {key: [] for key in EQUIP_SLOTS}
     for it in list_items(creature_id):
         if it["equipped"] and it["slot"] in by_slot:
             by_slot[it["slot"]].append(it)
     return by_slot
+
+
+def equipment_panel(creature_id):
+    """Flat list of display boxes for the equipment panel.
+
+    Multi-capacity slots (rings) expand into one numbered box each (Ring 1,
+    Ring 2), filled positionally — so the model keeps a single 'ring' slot while
+    the UI shows two. Each box: {key (canonical slot for drops), label, item, blocked}.
+    """
+    by_slot = equipped_by_slot(creature_id)
+    main_two_handed = any(i["hands"] == 2 for i in by_slot["main_hand"])
+    panel = []
+    for key, label, cap in SLOTS:
+        items = by_slot[key]
+        if cap == 1:
+            panel.append({
+                "key": key,
+                "label": label,
+                "item": items[0] if items else None,
+                "blocked": key == "off_hand" and not items and main_two_handed,
+            })
+        else:
+            base = label[:-1] if label.endswith("s") else label
+            for i in range(cap):
+                panel.append({
+                    "key": key,
+                    "label": f"{base} {i + 1}",
+                    "item": items[i] if i < len(items) else None,
+                    "blocked": False,
+                })
+    return panel

@@ -53,10 +53,10 @@
                 {%- if it['description'] %}{{ it['description'] }}{% endif -%}
               </span>
             </span>
-            {% if roster %}
+            {% if pcs %}
               <form method="post" action="{{ url_for('loot_give', loot_id=it['id']) }}" class="inline give-form">
-                <select name="creature_id" aria-label="Give to">
-                  {% for c in roster %}<option value="{{ c['id'] }}">{{ c['name'] }}</option>{% endfor %}
+                <select name="creature_id" aria-label="Give to player character">
+                  {% for c in pcs %}<option value="{{ c['id'] }}">{{ c['name'] }}</option>{% endfor %}
                 </select>
                 <button type="submit" class="btn">Give</button>
               </form>

@@ -36,9 +36,10 @@ from models.roll_log import add_roll, clear_rolls, delete_roll, recent_rolls
 from models.inventory import (
     SLOT_LABELS,
     SLOTS,
+    add_item,
     adjust_quantity,
     equip_item,
-    equipped_by_slot,
+    equipment_panel,
     get_item,
     list_items,
     remove_item,
@@ -225,9 +226,9 @@ def character_detail(creature_id):
         next_level=next_level,                         # (level, xp_to_go) or None
         xp_level=level_from_xp(creature["xp"]),         # level the XP implies
         items=list_items(creature_id),
-        slots=SLOTS,
         slot_labels=SLOT_LABELS,
-        equipment=equipped_by_slot(creature_id),
+        slots=SLOTS,
+        panel=equipment_panel(creature_id),
     )
 
 
@@ -288,41 +289,75 @@ def _item_owner_next(item_id):
     return item, url_for("character_detail", creature_id=item["creature_id"])
 
 
+def _gear_response(creature_id, target):
+    """Re-render just the gear fragment for fetch requests; else full redirect."""
+    if request.headers.get("X-Requested-With") == "fetch":
+        return render_template(
+            "_gear.html",
+            creature=get_creature(creature_id),
+            items=list_items(creature_id),
+            slot_labels=SLOT_LABELS,
+            slots=SLOTS,
+            panel=equipment_panel(creature_id),
+        )
+    return redirect(target)
+
+
+@app.route("/inventory/add", methods=["POST"])
+def inventory_add():
+    """Manual item entry — used by the DM on NPC sheets (PCs get items via loot)."""
+    cid = request.form.get("creature_id", type=int)
+    creature = get_creature(cid) if cid else None
+    if creature is None:
+        return redirect(url_for("character"))
+    add_item(cid, request.form.get("name", ""),
+             request.form.get("quantity", 1, type=int) or 1,
+             request.form.get("description", ""),
+             slot=request.form.get("slot", ""),
+             hands=2 if request.form.get("two_handed") else 1)
+    return _gear_response(cid, url_for("character_detail", creature_id=cid))
+
+
 @app.route("/inventory/<int:item_id>/quantity", methods=["POST"])
 def inventory_quantity(item_id):
     item, target = _item_owner_next(item_id)
-    if item:
-        adjust_quantity(item_id, request.form.get("delta", 0, type=int))
-    return redirect(target)
+    if item is None:
+        return redirect(target)
+    adjust_quantity(item_id, request.form.get("delta", 0, type=int))
+    return _gear_response(item["creature_id"], target)
 
 
 @app.route("/inventory/<int:item_id>/equipped", methods=["POST"])
 def inventory_equipped(item_id):
+    """Toggle: equip an unequipped item, or unequip an equipped one."""
     item, target = _item_owner_next(item_id)
-    if item:
-        if item["equipped"]:
-            unequip_item(item_id)
-        else:
-            equip_item(item_id)
-    return redirect(target)
+    if item is None:
+        return redirect(target)
+    if item["equipped"]:
+        unequip_item(item_id)
+    else:
+        equip_item(item_id)
+    return _gear_response(item["creature_id"], target)
 
 
 @app.route("/inventory/<int:item_id>/equip", methods=["POST"])
 def inventory_equip(item_id):
     """Always-equip (used by drag-and-drop drops); swap logic lives in equip_item."""
     item, target = _item_owner_next(item_id)
-    if item:
-        equip_item(item_id)
-    return redirect(_safe_next(request.form.get("next"), target))
+    if item is None:
+        return redirect(target)
+    equip_item(item_id)
+    return _gear_response(item["creature_id"], _safe_next(request.form.get("next"), target))
 
 
 @app.route("/inventory/<int:item_id>/remove", methods=["POST"])
 def inventory_remove(item_id):
     item, target = _item_owner_next(item_id)
-    if item:
-        remove_item(item_id)
-        flash("Item removed.")
-    return redirect(target)
+    if item is None:
+        return redirect(target)
+    cid = item["creature_id"]
+    remove_item(item_id)
+    return _gear_response(cid, target)
 
 
 # --- Loot tab -------------------------------------------------------------
@@ -338,7 +373,7 @@ def loot():
         area=get_area(area_id) if area_id else None,
         loot=area_loot(area_id) if area_id else [],
         catalog=all_item_defs(),
-        roster=list_roster(),
+        pcs=[c for c in list_roster() if c["kind"] == "pc"],
         slots=SLOTS,
         slot_labels=SLOT_LABELS,
     )
@@ -406,7 +441,9 @@ def loot_create():
 @app.route("/loot/<int:loot_id>/give", methods=["POST"])
 def loot_give(loot_id):
     cid = request.form.get("creature_id", type=int)
-    if cid and get_creature(cid) and give_loot(loot_id, cid):
+    target = get_creature(cid) if cid else None
+    # Loot is distributed to player characters only; NPCs are stocked manually.
+    if target and target["kind"] == "pc" and give_loot(loot_id, cid):
         flash("Item given.")
     return redirect(url_for("loot"))
 

@@ -202,6 +202,30 @@ body {
   vertical-align: middle;
 }
 
+.badge-kind-pc { color: #8fd0a0; border-color: #3f6b4c; }
+.badge-kind-npc { color: #9ab8e8; border-color: #3f5070; }
+
+/* Roster search + kind filter */
+.roster-filter {
+  display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+#roster-search {
+  flex: 1; min-width: 12rem; font: inherit;
+  padding: 0.5rem 0.7rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+#roster-search:focus { outline: none; border-color: var(--accent-2); }
+.roster-kinds { display: flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+.kind-btn {
+  font: inherit; font-family: sans-serif; font-size: 0.82rem; cursor: pointer;
+  padding: 0.4rem 0.9rem; background: transparent; border: none; color: var(--muted);
+}
+.kind-btn:hover { color: var(--ink); }
+.kind-btn.active { background: var(--accent); color: #fff; }
+.roster-empty { margin-top: 1rem; }
+
 /* Disposition pills (read-only, e.g. on cards) */
 .char-meta { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.35rem; flex-wrap: wrap; }
 .disp {
@@ -656,6 +680,13 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 }
 .slot-item { font-weight: bold; color: var(--accent-2); }
 .slot-empty { color: var(--muted); font-style: italic; font-size: 0.85rem; }
+.slot-filled-row { display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; }
+.slot-unequip {
+  font: inherit; font-size: 0.95rem; line-height: 1; cursor: pointer;
+  padding: 0 0.25rem; background: transparent; border: none;
+  color: var(--muted); opacity: 0.6;
+}
+.slot-unequip:hover { color: var(--accent); opacity: 1; }
 .two-handed-check {
   display: inline-flex; align-items: center; gap: 0.3rem;
   font-family: sans-serif; font-size: 0.8rem; color: var(--muted);
