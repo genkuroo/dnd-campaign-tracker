@@ -110,7 +110,7 @@
       <ul class="item-list">
         {% for it in items %}
           <li class="item-line {{ 'equipped' if it['equipped'] }} {{ 'draggable' if it['slot'] }}"
-              {% if it['slot'] %}draggable="true" data-slot="{{ it['slot'] }}" data-equip-url="{{ url_for('inventory_equip', item_id=it['id']) }}"{% endif %}>
+              {% if it['slot'] %}draggable="true" data-slot="{{ it['slot'] }}" data-name="{{ it['name'] }}" data-equip-url="{{ url_for('inventory_equip', item_id=it['id']) }}"{% endif %}>
             {% if it['slot'] %}
               <form method="post" action="{{ url_for('inventory_equipped', item_id=it['id']) }}" class="inline">
                 <button type="submit" class="equip-toggle {{ 'on' if it['equipped'] }}">
@@ -231,7 +231,11 @@
     // keyboard-accessible fallback.
     (function () {
       const next = "{{ url_for('character_detail', creature_id=creature['id']) }}";
-      let dragging = null;  // { slot, equipUrl }
+      const ICONS = {
+        main_hand: '⚔️', off_hand: '🛡️', armor: '👕', helmet: '🪖',
+        cloak: '🧥', gloves: '🧤', boots: '🥾', amulet: '📿', ring: '💍',
+      };
+      let dragging = null;  // { slot, equipUrl, ghost }
 
       document.querySelectorAll('.item-line.draggable').forEach(function (row) {
         row.addEventListener('dragstart', function (e) {
@@ -239,9 +243,18 @@
           row.classList.add('dragging');
           e.dataTransfer.effectAllowed = 'move';
           e.dataTransfer.setData('text/plain', row.dataset.slot);  // Firefox needs data set
+
+          // A compact chip as the drag image instead of the whole row.
+          const ghost = document.createElement('div');
+          ghost.className = 'drag-ghost';
+          ghost.textContent = (ICONS[row.dataset.slot] || '🎒') + ' ' + row.dataset.name;
+          document.body.appendChild(ghost);
+          e.dataTransfer.setDragImage(ghost, 12, 12);
+          dragging.ghost = ghost;
         });
         row.addEventListener('dragend', function () {
           row.classList.remove('dragging');
+          if (dragging && dragging.ghost) dragging.ghost.remove();
           dragging = null;
           document.querySelectorAll('.slot-box').forEach(b => b.classList.remove('drop-ok'));
         });

@@ -633,6 +633,23 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .item-line.draggable { cursor: grab; }
 .item-line.draggable:active { cursor: grabbing; }
 .item-line.dragging { opacity: 0.45; }
+
+/* Compact chip used as the drag image (positioned off-screen until grabbed) */
+.drag-ghost {
+  position: absolute;
+  top: -1000px;
+  left: -1000px;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--ink);
+  border: 1px solid var(--accent-2);
+  font-family: sans-serif;
+  font-size: 0.82rem;
+  font-weight: bold;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+}
 .slot-label {
   font-family: sans-serif; font-size: 0.68rem; text-transform: uppercase;
   letter-spacing: 0.05em; color: var(--muted);
