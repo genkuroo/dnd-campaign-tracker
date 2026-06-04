@@ -2,27 +2,42 @@
    and standalone by the AJAX gear endpoints, so equip/unequip/qty/remove can
    refresh this fragment without a full page reload. Expects: creature, panel,
    items, slot_labels. #}
+{% macro slot_box(box) %}
+  <div class="slot-box {{ 'filled' if box.item }}" data-slot="{{ box.key }}">
+    <span class="slot-label">{{ box.label }}</span>
+    {% if box.item %}
+      <span class="slot-filled-row">
+        <span class="slot-item">{{ box.item['name'] }}{% if box.item['hands'] == 2 %} <span class="tag-2h">2H</span>{% endif %}</span>
+        <form method="post" action="{{ url_for('inventory_equipped', item_id=box.item['id']) }}" class="inline">
+          <button type="submit" class="slot-unequip" title="Unequip {{ box.item['name'] }}">×</button>
+        </form>
+      </span>
+    {% elif box.blocked %}
+      <span class="slot-empty">⟵ two-handed</span>
+    {% else %}
+      <span class="slot-empty">empty</span>
+    {% endif %}
+  </div>
+{% endmacro %}
+
 <section class="equipment">
   <h2>Equipment</h2>
   <p class="muted equip-hint">Drag an item onto its slot to equip — or use the buttons. Each filled slot has an unequip ×.</p>
-  <div class="slot-grid">
-    {% for box in panel %}
-      <div class="slot-box {{ 'filled' if box.item }}" data-slot="{{ box.key }}">
-        <span class="slot-label">{{ box.label }}</span>
-        {% if box.item %}
-          <span class="slot-filled-row">
-            <span class="slot-item">{{ box.item['name'] }}{% if box.item['hands'] == 2 %} <span class="tag-2h">2H</span>{% endif %}</span>
-            <form method="post" action="{{ url_for('inventory_equipped', item_id=box.item['id']) }}" class="inline">
-              <button type="submit" class="slot-unequip" title="Unequip {{ box.item['name'] }}">×</button>
-            </form>
-          </span>
-        {% elif box.blocked %}
-          <span class="slot-empty">⟵ two-handed</span>
-        {% else %}
-          <span class="slot-empty">empty</span>
-        {% endif %}
+  <div class="equip-doll">
+    <div class="equip-col equip-left">
+      {% for box in panel if box.column == 'left' %}{{ slot_box(box) }}{% endfor %}
+    </div>
+    <div class="equip-figure">
+      <div class="figure-frame">
+        <span class="figure-icon">{{ '👤' if creature['kind'] == 'npc' else '🧝' }}</span>
+        <span class="figure-name">{{ creature['name'] }}</span>
+        <span class="badge-kind badge-kind-{{ creature['kind'] }}">{{ 'NPC' if creature['kind'] == 'npc' else 'PC' }}</span>
+        <span class="figure-meta muted">Level {{ creature['level'] }}</span>
       </div>
-    {% endfor %}
+    </div>
+    <div class="equip-col equip-right">
+      {% for box in panel if box.column == 'right' %}{{ slot_box(box) }}{% endfor %}
+    </div>
   </div>
 </section>
 

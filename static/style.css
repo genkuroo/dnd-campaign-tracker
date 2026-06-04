@@ -638,6 +638,39 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 0.6rem;
 }
+
+/* Baldur's Gate-style paper doll: gear left, figure middle, jewelry right */
+.equip-doll {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+  max-width: 880px;
+}
+.equip-col { display: flex; flex-direction: column; gap: 0.6rem; }
+.equip-figure { align-self: stretch; display: flex; }
+.figure-frame {
+  flex: 1;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--accent-2);
+  border-radius: 10px;
+}
+.figure-icon { font-size: 3.5rem; line-height: 1; }
+.figure-name { font-weight: bold; font-size: 1.1rem; color: var(--accent-2); }
+.figure-meta { font-size: 0.8rem; }
+
+@media (max-width: 720px) {
+  .equip-doll { grid-template-columns: 1fr; }
+  .equip-figure { order: -1; }
+}
 .slot-box {
   background: var(--panel);
   border: 1px solid var(--border);

@@ -17,6 +17,14 @@ SLOT_LABELS = {key: label for key, label, _ in SLOTS}
 SLOT_CAP = {key: cap for key, _, cap in SLOTS}
 EQUIP_SLOTS = [key for key, _, _ in SLOTS]
 
+# Paper-doll layout: weapons/armor on the left, jewelry on the right, a
+# character frame in the middle (Baldur's Gate-style).
+SLOT_COLUMN = {
+    "main_hand": "left", "off_hand": "left", "armor": "left", "helmet": "left",
+    "cloak": "left", "gloves": "left", "boots": "left",
+    "amulet": "right", "ring": "right",
+}
+
 
 def list_items(creature_id):
     """A creature's items: equipped first, then by name."""
@@ -155,12 +163,14 @@ def equipment_panel(creature_id):
     panel = []
     for key, label, cap in SLOTS:
         items = by_slot[key]
+        column = SLOT_COLUMN.get(key, "left")
         if cap == 1:
             panel.append({
                 "key": key,
                 "label": label,
                 "item": items[0] if items else None,
                 "blocked": key == "off_hand" and not items and main_two_handed,
+                "column": column,
             })
         else:
             base = label[:-1] if label.endswith("s") else label
@@ -170,5 +180,6 @@ def equipment_panel(creature_id):
                     "label": f"{base} {i + 1}",
                     "item": items[i] if i < len(items) else None,
                     "blocked": False,
+                    "column": column,
                 })
     return panel
