@@ -648,7 +648,35 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
   margin-top: 1.75rem;
 }
 .gear-layout .equipment { flex: 2 1 460px; margin-top: 0; }
-.gear-layout .inventory { flex: 1 1 280px; margin-top: 0; }
+.gear-layout .inventory { flex: 1 1 280px; margin-top: 0; display: flex; flex-direction: column; }
+
+/* Inventory as a fixed-height scrollable nested panel (height synced to the
+   equipment panel via JS); list scrolls, search/filter + footer stay put. */
+.inv-filter { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.inv-search {
+  flex: 1; min-width: 8rem; font: inherit;
+  padding: 0.35rem 0.6rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.inv-search:focus { outline: none; border-color: var(--accent-2); }
+.inv-kinds { display: flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+.invk-btn {
+  font: inherit; font-family: sans-serif; font-size: 0.75rem; cursor: pointer;
+  padding: 0.3rem 0.65rem; background: transparent; border: none; color: var(--muted);
+}
+.invk-btn:hover { color: var(--ink); }
+.invk-btn.active { background: var(--accent); color: #fff; }
+.inv-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 0.6rem;
+}
+.inv-scroll .item-list { margin: 0; }
+.inv-empty { padding: 0.6rem 0.2rem; }
 
 /* Baldur's Gate-style paper doll: armor left, figure middle, weapons/jewelry right */
 .equip-doll {

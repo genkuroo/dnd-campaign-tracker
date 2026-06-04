@@ -45,10 +45,20 @@
 <section class="inventory">
   <h2>Inventory</h2>
   {% if items %}
+    <div class="inv-filter">
+      <input type="search" class="inv-search" placeholder="Search items…" autocomplete="off" aria-label="Search inventory">
+      <div class="inv-kinds" role="group" aria-label="Filter inventory">
+        <button type="button" class="invk-btn active" data-filter="all">All</button>
+        <button type="button" class="invk-btn" data-filter="equipped">Equipped</button>
+        <button type="button" class="invk-btn" data-filter="equippable">Equippable</button>
+      </div>
+    </div>
+    <div class="inv-scroll">
     <ul class="item-list">
       {% for it in items %}
         <li class="item-line {{ 'equipped' if it['equipped'] }} {{ 'draggable' if it['slot'] }}"
-            {% if it['slot'] %}draggable="true" data-slot="{{ it['slot'] }}" data-name="{{ it['name'] }}" data-equip-url="{{ url_for('inventory_equip', item_id=it['id']) }}"{% endif %}>
+            data-name="{{ it['name'] }}" data-equipped="{{ '1' if it['equipped'] else '0' }}" data-slotted="{{ '1' if it['slot'] else '0' }}"
+            {% if it['slot'] %}draggable="true" data-slot="{{ it['slot'] }}" data-equip-url="{{ url_for('inventory_equip', item_id=it['id']) }}"{% endif %}>
           {% if it['slot'] %}
             <form method="post" action="{{ url_for('inventory_equipped', item_id=it['id']) }}" class="inline">
               <button type="submit" class="equip-toggle {{ 'on' if it['equipped'] }}">
@@ -84,6 +94,8 @@
         </li>
       {% endfor %}
     </ul>
+    <p class="muted inv-empty" hidden>No items match.</p>
+    </div>
   {% else %}
     <p class="muted">No items yet.</p>
   {% endif %}
