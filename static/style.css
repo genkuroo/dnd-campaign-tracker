@@ -327,7 +327,7 @@ body {
   position: relative;
   height: 1px; width: 65%;
   margin: 2rem auto;
-  background: linear-gradient(to right, transparent, rgba(201, 161, 74, 0.55) 50%, transparent);
+  background: linear-gradient(to right, transparent, rgba(201, 161, 74, 0.8) 50%, transparent);
 }
 .sheet-divider::after {
   content: "◆";
