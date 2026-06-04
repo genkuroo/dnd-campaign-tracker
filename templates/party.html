@@ -3,16 +3,18 @@
 {% block content %}
   <div class="page-head">
     <h1>Party</h1>
-    <div class="head-actions">
-      <form method="post" action="{{ url_for('party_rest_route') }}" class="inline">
-        <input type="hidden" name="kind" value="short">
-        <button type="submit" class="btn-ghost" title="Each character recovers about half their missing HP">Short rest</button>
-      </form>
-      <form method="post" action="{{ url_for('party_rest_route') }}" class="inline">
-        <input type="hidden" name="kind" value="long">
-        <button type="submit" class="btn" title="Everyone back to full HP">🌙 Long rest</button>
-      </form>
-    </div>
+    {% if is_dm %}
+      <div class="head-actions">
+        <form method="post" action="{{ url_for('party_rest_route') }}" class="inline">
+          <input type="hidden" name="kind" value="short">
+          <button type="submit" class="btn-ghost" title="Each character recovers about half their missing HP">Short rest</button>
+        </form>
+        <form method="post" action="{{ url_for('party_rest_route') }}" class="inline">
+          <input type="hidden" name="kind" value="long">
+          <button type="submit" class="btn" title="Everyone back to full HP">🌙 Long rest</button>
+        </form>
+      </div>
+    {% endif %}
   </div>
   <p class="muted">Your player characters. Rests restore HP on their actual sheets — a long rest brings everyone to full; a {{ info('short-rest', 'short rest') }} recovers about half of each character's missing HP.</p>
 

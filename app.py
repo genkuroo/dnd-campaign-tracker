@@ -733,6 +733,8 @@ def party():
 
 @app.route("/party/rest", methods=["POST"])
 def party_rest_route():
+    if not is_dm():  # DM-only: a player shouldn't rest the whole party (Phase 7)
+        abort(403)
     kind = request.form.get("kind")
     if kind in ("short", "long"):
         party_rest(kind)
