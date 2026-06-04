@@ -889,6 +889,33 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .avatar-fields input[type="file"] { font: inherit; color: var(--ink); }
 .avatar-hint { margin: 0; font-size: 0.8rem; }
 
+/* Avatar size variants (cards, inspector). */
+.avatar-img.avatar-sm { width: 38px; height: 38px; border-radius: 8px; }
+.avatar-emoji.avatar-sm { font-size: 1.7rem; line-height: 1; }
+.avatar-img.avatar-md { width: 64px; height: 64px; }
+.avatar-emoji.avatar-md { font-size: 2.6rem; line-height: 1; }
+
+/* Roster/bestiary card title: portrait beside the name. */
+.char-card-title { display: flex; align-items: center; gap: 0.55rem; min-width: 0; }
+.char-card-title .char-name { overflow: hidden; text-overflow: ellipsis; }
+/* Inspector title: portrait beside the name block. */
+.inspect-title { display: flex; align-items: center; gap: 1rem; }
+
+/* Quick "change portrait" editor on the sheet figure. */
+.portrait-edit { width: 100%; margin-top: 0.4rem; }
+.portrait-edit > summary {
+  cursor: pointer; color: var(--muted); font-family: sans-serif; font-size: 0.78rem;
+  text-align: center; list-style: none;
+}
+.portrait-edit[open] > summary { color: var(--ink); margin-bottom: 0.5rem; }
+.portrait-form { display: flex; flex-direction: column; gap: 0.45rem; align-items: stretch; }
+.portrait-form input[type="text"], .portrait-form input[type="file"] {
+  font: inherit; font-size: 0.8rem; padding: 0.3rem 0.45rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 5px; max-width: 100%;
+}
+.checkbox-inline { font-family: sans-serif; font-size: 0.78rem; color: var(--muted); display: flex; align-items: center; gap: 0.35rem; }
+
 @media (max-width: 720px) {
   .equip-doll { grid-template-columns: 1fr; }
   .equip-figure { order: -1; }

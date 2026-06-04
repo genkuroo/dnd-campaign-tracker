@@ -297,6 +297,17 @@ def character_edit(creature_id):
     )
 
 
+@app.route("/character/<int:creature_id>/avatar", methods=["POST"])
+def character_avatar(creature_id):
+    """Update just the portrait from the sheet — no full edit needed, so a PC can
+    change their own picture anytime. Returns the gear fragment (the figure lives
+    there) for in-place AJAX, else redirects back to the sheet."""
+    if get_creature(creature_id) is None:
+        abort(404)
+    _apply_avatar(creature_id)
+    return _gear_response(creature_id, url_for("character_detail", creature_id=creature_id))
+
+
 @app.route("/character/<int:creature_id>/disposition", methods=["POST"])
 def character_set_disposition(creature_id):
     """Quick live toggle of a creature's disposition (for NPCs/monsters)."""

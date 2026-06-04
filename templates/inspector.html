@@ -1,18 +1,21 @@
 {% extends "base.html" %}
-{% from "macros.html" import info %}
+{% from "macros.html" import info, avatar %}
 {% block content %}
   {% set mask = not revealed %}
   <div class="page-head">
-    <div>
-      <h1 class="sheet-name">
-        {{ creature['name'] }}
-        {% if creature['visibility'] == 'hidden' %}<span class="badge-dm">DM only</span>{% endif %}
-      </h1>
-      <p class="muted">
-        <span class="badge-kind badge-kind-monster">Monster</span>
-        <span class="disp disp-{{ creature['disposition'] }}">{{ creature['disposition'] }}</span>
-        {% if creature['alignment'] %} · {{ creature['alignment'] | alignment }}{% endif %}
-      </p>
+    <div class="inspect-title">
+      {{ avatar(creature, 'avatar-md') }}
+      <div>
+        <h1 class="sheet-name">
+          {{ creature['name'] }}
+          {% if creature['visibility'] == 'hidden' %}<span class="badge-dm">DM only</span>{% endif %}
+        </h1>
+        <p class="muted">
+          <span class="badge-kind badge-kind-monster">Monster</span>
+          <span class="disp disp-{{ creature['disposition'] }}">{{ creature['disposition'] }}</span>
+          {% if creature['alignment'] %} · {{ creature['alignment'] | alignment }}{% endif %}
+        </p>
+      </div>
     </div>
     <div class="head-actions">
       <a class="btn-ghost" href="{{ url_for('character_detail', creature_id=creature['id']) }}">Full sheet (DM)</a>

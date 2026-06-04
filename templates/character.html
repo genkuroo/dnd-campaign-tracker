@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import avatar %}
 {% block content %}
   <div class="page-head">
     <h1>Characters &amp; NPCs</h1>
@@ -20,7 +21,7 @@
         <a class="char-card" href="{{ url_for('character_detail', creature_id=c['id']) }}"
            data-name="{{ c['name'] | lower }}" data-kind="{{ c['kind'] }}">
           <div class="char-card-head">
-            <span class="char-name">{{ c['name'] }}</span>
+            <span class="char-card-title">{{ avatar(c, 'avatar-sm') }}<span class="char-name">{{ c['name'] }}</span></span>
             {% if c['visibility'] == 'hidden' %}<span class="badge-dm">DM only</span>{% endif %}
           </div>
           <div class="char-meta">
