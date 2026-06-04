@@ -1,12 +1,36 @@
 {% extends "base.html" %}
+{% from "macros.html" import avatar %}
 {% block content %}
   {% set c = creature %}
+  {% set has_img = c and c['avatar'] and (c['avatar'].startswith('/') or c['avatar'].startswith('http')) %}
   <div class="page-head">
     <h1>{{ title }}</h1>
     <a class="btn-ghost" href="{{ cancel_url or url_for('character') }}">Cancel</a>
   </div>
 
-  <form method="post" class="sheet-form">
+  <form method="post" class="sheet-form" enctype="multipart/form-data">
+    <fieldset>
+      <legend>Portrait</legend>
+      <div class="avatar-edit">
+        <div class="avatar-preview">
+          {% if c %}{{ avatar(c, 'avatar-lg') }}{% else %}<span class="avatar-emoji avatar-lg">🧝</span>{% endif %}
+        </div>
+        <div class="avatar-fields">
+          <label class="field"><span>Emoji</span>
+            <input type="text" name="avatar_emoji" maxlength="8" placeholder="🧝 🐉 🧙"
+                   value="{{ c['avatar'] if c and c['avatar'] and not has_img else '' }}">
+          </label>
+          <label class="field"><span>Or upload an image <span class="muted">(square works best, ~256×256)</span></span>
+            <input type="file" name="avatar_file" accept="image/*">
+          </label>
+          {% if c and c['avatar'] %}
+            <label class="checkbox"><input type="checkbox" name="remove_avatar"> <span>Remove current portrait</span></label>
+          {% endif %}
+          <p class="muted avatar-hint">An uploaded image wins over an emoji. This portrait is reused on the map later.</p>
+        </div>
+      </div>
+    </fieldset>
+
     <div class="field-row">
       <label class="field grow">
         <span>Name</span>

@@ -8,3 +8,16 @@
   {%- set d = define(key) -%}
   {%- if d %}<span class="info" tabindex="0" role="note" aria-label="{{ d }}">&#9432;<span class="tip">{{ d }}</span></span>{% endif -%}
 {%- endmacro %}
+
+{# A creature's portrait: an uploaded image (avatar is a URL path) or an emoji
+   (any other non-empty avatar), falling back to a kind-based default emoji. One
+   renderer shared by the sheet figure now and the map markers later. `cls` adds
+   a size/context modifier class. #}
+{% macro avatar(creature, cls='') -%}
+  {%- set av = creature['avatar'] -%}
+  {%- if av and (av.startswith('/') or av.startswith('http')) -%}
+    <img class="avatar-img {{ cls }}" src="{{ av }}" alt="{{ creature['name'] }}">
+  {%- else -%}
+    <span class="avatar-emoji {{ cls }}">{{ av or ('👤' if creature['kind'] == 'npc' else ('🐉' if creature['kind'] == 'monster' else '🧝')) }}</span>
+  {%- endif -%}
+{%- endmacro %}

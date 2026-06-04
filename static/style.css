@@ -868,6 +868,27 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .figure-name { font-weight: bold; font-size: 1.1rem; color: var(--accent-2); }
 .figure-meta { font-size: 0.8rem; }
 
+/* Character portrait (avatar): emoji or uploaded image, shared by the sheet
+   figure and reused for map markers later. The figure shows a large square. */
+.avatar-img {
+  width: 96px; height: 96px; object-fit: cover;
+  border-radius: 10px; border: 1px solid var(--accent-2); display: block;
+}
+.figure-icon .avatar-emoji { font-size: 3.5rem; line-height: 1; }
+
+/* Portrait editor on the character form */
+.avatar-edit { display: flex; gap: 1.25rem; align-items: flex-start; flex-wrap: wrap; }
+.avatar-preview {
+  display: flex; align-items: center; justify-content: center;
+  width: 110px; height: 110px; flex: none;
+  background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px;
+}
+.avatar-preview .avatar-lg { font-size: 4rem; line-height: 1; }
+.avatar-preview .avatar-img { width: 108px; height: 108px; border: none; }
+.avatar-fields { flex: 1; min-width: 14rem; display: flex; flex-direction: column; gap: 0.6rem; }
+.avatar-fields input[type="file"] { font: inherit; color: var(--ink); }
+.avatar-hint { margin: 0; font-size: 0.8rem; }
+
 @media (max-width: 720px) {
   .equip-doll { grid-template-columns: 1fr; }
   .equip-figure { order: -1; }

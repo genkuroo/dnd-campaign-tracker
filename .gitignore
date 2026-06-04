@@ -15,6 +15,9 @@ env/
 # Database (local campaign data)
 *.db
 
+# Uploaded character portraits (local user data)
+static/avatars/
+
 # macOS
 .DS_Store
 

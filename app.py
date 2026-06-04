@@ -5,6 +5,7 @@ lists, views, creates, and edits player characters (ability scores + modifiers,
 HP, AC, resistances). DM-only for now; player logins arrive in Phase 7.
 See CLAUDE.md for the full phased plan.
 """
+import os
 import re
 from datetime import datetime, timezone
 
@@ -12,6 +13,7 @@ from flask import (
     Flask, abort, flash, redirect, render_template, request, url_for,
 )
 from markupsafe import Markup, escape
+from werkzeug.utils import secure_filename
 
 from db import init_db
 from models.creature import (
@@ -99,6 +101,12 @@ ROLL_GAP_SECONDS = 5 * 60
 
 app = Flask(__name__)
 app.secret_key = "dnd-campaign-tracker-local-only"  # local dev only; not a secret
+app.config["MAX_CONTENT_LENGTH"] = 3 * 1024 * 1024  # cap uploads (avatars) at 3 MB
+
+# Uploaded character portraits live under static/avatars (served by Flask's
+# static route). Kept out of git; the dir is created on demand.
+AVATAR_DIR = os.path.join(app.static_folder, "avatars")
+ALLOWED_AVATAR_EXT = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 
 # Exposed as a Jinja global (not a context processor) so imported macros — which
 # don't receive template context — can still look up glossary terms.
@@ -225,6 +233,7 @@ def character():
 def character_new():
     if request.method == "POST":
         new_id = create_creature(_form_to_data(request.form))
+        _apply_avatar(new_id)
         flash("Character created.")
         return redirect(url_for("character_detail", creature_id=new_id))
     return render_template(
@@ -272,6 +281,7 @@ def character_edit(creature_id):
         abort(404)
     if request.method == "POST":
         update_creature(creature_id, _form_to_data(request.form))
+        _apply_avatar(creature_id)
         flash("Character updated.")
         return redirect(url_for("character_detail", creature_id=creature_id))
     vocab = _form_vocab()
@@ -347,6 +357,7 @@ def monster_new():
         data = _form_to_data(request.form)
         data["kind"] = "monster"  # the Bestiary only makes monsters
         new_id = create_creature(data)
+        _apply_avatar(new_id)
         flash("Monster created.")
         return redirect(url_for("character_detail", creature_id=new_id))
     return render_template(
@@ -459,6 +470,32 @@ def encounter_member_remove(member_id):
     remove_member(member_id)
     return redirect(url_for("encounter_detail", encounter_id=enc_id) if enc_id
                     else url_for("bestiary"))
+
+
+def _apply_avatar(creature_id):
+    """Apply an avatar change from the character form, if any. A change only
+    happens on an explicit action, so a plain save never wipes an existing
+    portrait: an uploaded file wins; else a 'remove' clears it; else a non-empty
+    emoji sets it; otherwise the avatar is left untouched.
+
+    The emoji field is named `avatar_emoji` (not `avatar`) so it stays out of the
+    generic create/update path — avatar is only ever written here.
+    """
+    file = request.files.get("avatar_file")
+    if file and file.filename:
+        ext = os.path.splitext(file.filename)[1].lower()
+        if ext in ALLOWED_AVATAR_EXT:
+            os.makedirs(AVATAR_DIR, exist_ok=True)
+            fname = secure_filename(f"{creature_id}{ext}")
+            file.save(os.path.join(AVATAR_DIR, fname))
+            update_creature(creature_id, {"avatar": url_for("static", filename=f"avatars/{fname}")})
+            return
+    if request.form.get("remove_avatar"):
+        update_creature(creature_id, {"avatar": ""})
+        return
+    emoji = (request.form.get("avatar_emoji") or "").strip()
+    if emoji:
+        update_creature(creature_id, {"avatar": emoji})
 
 
 def _form_to_data(form):

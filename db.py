@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 11
+SCHEMA_VERSION = 12
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -175,6 +175,13 @@ MIGRATIONS = {
         quantity     INTEGER NOT NULL DEFAULT 1,
         added_at     TEXT    NOT NULL DEFAULT (datetime('now'))
     );
+    """,
+    12: """
+    -- A creature's portrait. Stores either an emoji (e.g. '🧝') or the URL path
+    -- to an uploaded image under static/avatars (e.g. '/static/avatars/3.png');
+    -- '' falls back to a kind-based default. Reused for the character sheet figure
+    -- now and the map overlay markers later (Phase 10).
+    ALTER TABLE creatures ADD COLUMN avatar TEXT NOT NULL DEFAULT '';
     """,
 }
 

@@ -2,6 +2,7 @@
    and standalone by the AJAX gear endpoints, so equip/unequip/qty/remove can
    refresh this fragment without a full page reload. Expects: creature, panel,
    items, slot_labels. #}
+{% from "macros.html" import avatar %}
 {% macro slot_box(box) %}
   <div class="slot-box {{ 'filled' if box.item }}" data-slot="{{ box.key }}">
     <span class="slot-label">{{ box.label }}</span>
@@ -30,7 +31,7 @@
     </div>
     <div class="equip-figure">
       <div class="figure-frame">
-        <span class="figure-icon">{{ '👤' if creature['kind'] == 'npc' else '🧝' }}</span>
+        <span class="figure-icon">{{ avatar(creature) }}</span>
         <span class="figure-name">{{ creature['name'] }}</span>
         <span class="badge-kind badge-kind-{{ creature['kind'] }}">{{ 'NPC' if creature['kind'] == 'npc' else 'PC' }}</span>
         <span class="figure-meta muted">Level {{ creature['level'] }}</span>
