@@ -574,13 +574,12 @@ def _safe_next(value, default):
 
 @app.route("/spells")
 def spells():
-    q = request.args.get("q", "")
+    # Full list; search + type/casting filters are applied client-side.
     return render_template(
         "spells.html",
         active="spells",
         title="Spells & Actions",
-        spells=search_spells(q),
-        q=q,
+        spells=all_spells(),
     )
 
 

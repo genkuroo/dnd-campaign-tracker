@@ -532,7 +532,24 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 }
 .spell-search input:focus { outline: none; border-color: var(--accent-2); }
 
+.spell-filter { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.25rem; }
+#spell-search {
+  flex: 1; min-width: 12rem; font: inherit;
+  padding: 0.5rem 0.7rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+#spell-search:focus { outline: none; border-color: var(--accent-2); }
+.filter-group { display: flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+.filt-btn {
+  font: inherit; font-family: sans-serif; font-size: 0.8rem; cursor: pointer;
+  padding: 0.4rem 0.85rem; background: transparent; border: none; color: var(--muted);
+}
+.filt-btn:hover { color: var(--ink); }
+.filt-btn.active { background: var(--accent); color: #fff; }
+
 .spell-list { list-style: none; padding: 0; margin: 0; }
+.spell-item { list-style: none; }
 .spell-row {
   display: flex; align-items: center; gap: 0.9rem;
   padding: 0.6rem 0.4rem;
