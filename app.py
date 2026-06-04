@@ -73,6 +73,24 @@ from models.actions import (
     remove_action,
 )
 from models.action_catalog import all_catalog_actions, get_catalog_action
+from models.combat import (
+    CONDITIONS,
+    add_creature as combat_add_creature,
+    apply_hp,
+    create_combat,
+    delete_combat,
+    get_combat,
+    get_combatant,
+    list_combatants,
+    list_combats,
+    next_turn,
+    remove_combatant,
+    rest as combat_rest,
+    roll_initiative_all,
+    set_initiative,
+    set_temp_hp,
+    toggle_condition,
+)
 from models.encounters import (
     add_member,
     create_encounter,
@@ -117,6 +135,7 @@ app.jinja_env.globals["define"] = define
 TABS = [
     {"endpoint": "character", "label": "Character Sheet"},
     {"endpoint": "bestiary", "label": "Bestiary"},
+    {"endpoint": "combat", "label": "Combat"},
     {"endpoint": "loot", "label": "Loot"},
     {"endpoint": "spells", "label": "Spells & Actions"},
     {"endpoint": "dice", "label": "Dice"},
@@ -481,6 +500,163 @@ def encounter_member_remove(member_id):
     remove_member(member_id)
     return redirect(url_for("encounter_detail", encounter_id=enc_id) if enc_id
                     else url_for("bestiary"))
+
+
+@app.route("/encounters/<int:encounter_id>/start-combat", methods=["POST"])
+def encounter_start_combat(encounter_id):
+    """Spin up a live combat pre-loaded with this encounter's monsters."""
+    enc = get_encounter(encounter_id)
+    if enc is None:
+        abort(404)
+    new_id = create_combat(enc["name"])
+    _load_encounter_into_combat(new_id, encounter_id)
+    flash("Combat started from encounter.")
+    return redirect(url_for("combat_detail", combat_id=new_id))
+
+
+# --- Combat tracker tab ---------------------------------------------------
+# A live fight built on the creature engine: PCs and monsters share one tracker.
+# Combatants snapshot their own HP, so the fight never mutates the sheets and
+# multiple instances of a stat block (Goblin 1..4) take damage independently.
+
+def _load_encounter_into_combat(combat_id, encounter_id):
+    """Add every member of an encounter (respecting quantities) as combatants."""
+    for m in encounter_members(encounter_id):
+        creature = get_creature(m["creature_id"])
+        if creature:
+            combat_add_creature(combat_id, creature, m["quantity"])
+
+
+def _combatant_back(combatant_id):
+    """Redirect target for a combatant action: its combat, else the combat list."""
+    c = get_combatant(combatant_id)
+    return (url_for("combat_detail", combat_id=c["combat_id"]) if c
+            else url_for("combat"))
+
+
+@app.route("/combat")
+def combat():
+    return render_template(
+        "combat.html", active="combat", title="Combat", combats=list_combats(),
+    )
+
+
+@app.route("/combat/new", methods=["POST"])
+def combat_new():
+    new_id = create_combat(request.form.get("name", ""))
+    flash("Combat started.")
+    return redirect(url_for("combat_detail", combat_id=new_id))
+
+
+@app.route("/combat/<int:combat_id>")
+def combat_detail(combat_id):
+    c = get_combat(combat_id)
+    if c is None:
+        abort(404)
+    return render_template(
+        "combat_detail.html",
+        active="combat",
+        title=c["name"],
+        combat=c,
+        combatants=list_combatants(combat_id),
+        conditions=CONDITIONS,
+        roster=list_roster(),
+        encounters=list_encounters(),
+    )
+
+
+@app.route("/combat/<int:combat_id>/delete", methods=["POST"])
+def combat_delete(combat_id):
+    delete_combat(combat_id)
+    flash("Combat ended.")
+    return redirect(url_for("combat"))
+
+
+@app.route("/combat/<int:combat_id>/add", methods=["POST"])
+def combat_add(combat_id):
+    if get_combat(combat_id) is None:
+        abort(404)
+    cid = request.form.get("creature_id", type=int)
+    creature = get_creature(cid) if cid else None
+    if creature:
+        combat_add_creature(combat_id, creature, request.form.get("quantity", 1, type=int) or 1)
+        flash(f"Added {creature['name']}.")
+    return redirect(url_for("combat_detail", combat_id=combat_id))
+
+
+@app.route("/combat/<int:combat_id>/load-encounter", methods=["POST"])
+def combat_load_encounter(combat_id):
+    if get_combat(combat_id) is None:
+        abort(404)
+    eid = request.form.get("encounter_id", type=int)
+    if eid and get_encounter(eid):
+        _load_encounter_into_combat(combat_id, eid)
+        flash("Encounter loaded.")
+    return redirect(url_for("combat_detail", combat_id=combat_id))
+
+
+@app.route("/combat/<int:combat_id>/roll-initiative", methods=["POST"])
+def combat_roll_initiative(combat_id):
+    if get_combat(combat_id):
+        roll_initiative_all(combat_id)
+        flash("Initiative rolled.")
+    return redirect(url_for("combat_detail", combat_id=combat_id))
+
+
+@app.route("/combat/<int:combat_id>/next-turn", methods=["POST"])
+def combat_next_turn(combat_id):
+    if get_combat(combat_id):
+        next_turn(combat_id)
+    return redirect(url_for("combat_detail", combat_id=combat_id))
+
+
+@app.route("/combat/<int:combat_id>/rest", methods=["POST"])
+def combat_rest_route(combat_id):
+    if get_combat(combat_id):
+        kind = request.form.get("kind")
+        if kind in ("short", "long"):
+            combat_rest(combat_id, kind)
+            flash(f"{kind.title()} rest taken.")
+    return redirect(url_for("combat_detail", combat_id=combat_id))
+
+
+@app.route("/combatant/<int:combatant_id>/initiative", methods=["POST"])
+def combatant_initiative(combatant_id):
+    if get_combatant(combatant_id):
+        set_initiative(combatant_id, request.form.get("initiative", 0, type=int) or 0)
+    return redirect(_combatant_back(combatant_id))
+
+
+@app.route("/combatant/<int:combatant_id>/hp", methods=["POST"])
+def combatant_hp(combatant_id):
+    """Apply damage or healing. `mode` is 'damage' or 'heal'; `amount` is positive."""
+    if get_combatant(combatant_id):
+        amount = request.form.get("amount", 0, type=int) or 0
+        if amount:
+            delta = -amount if request.form.get("mode") == "damage" else amount
+            apply_hp(combatant_id, delta)
+    return redirect(_combatant_back(combatant_id))
+
+
+@app.route("/combatant/<int:combatant_id>/temp", methods=["POST"])
+def combatant_temp(combatant_id):
+    if get_combatant(combatant_id):
+        set_temp_hp(combatant_id, request.form.get("temp_hp", 0, type=int) or 0)
+    return redirect(_combatant_back(combatant_id))
+
+
+@app.route("/combatant/<int:combatant_id>/condition", methods=["POST"])
+def combatant_condition(combatant_id):
+    if get_combatant(combatant_id):
+        toggle_condition(combatant_id, request.form.get("condition", ""))
+    return redirect(_combatant_back(combatant_id))
+
+
+@app.route("/combatant/<int:combatant_id>/remove", methods=["POST"])
+def combatant_remove(combatant_id):
+    back = _combatant_back(combatant_id)
+    remove_combatant(combatant_id)
+    return redirect(back)
 
 
 def _apply_avatar(creature_id):

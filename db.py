@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 12
+SCHEMA_VERSION = 13
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -182,6 +182,37 @@ MIGRATIONS = {
     -- '' falls back to a kind-based default. Reused for the character sheet figure
     -- now and the map overlay markers later (Phase 10).
     ALTER TABLE creatures ADD COLUMN avatar TEXT NOT NULL DEFAULT '';
+    """,
+    13: """
+    -- Combat tracker (Phase 6). A `combat` is a live fight; `combatants` are the
+    -- creatures in it. Combatants snapshot their own HP/AC at add time rather than
+    -- editing the creature, so multiple instances of one stat block (Goblin 1..4)
+    -- track damage independently and the fight is a scratch space that never
+    -- mutates the underlying sheets. `creature_id` keeps the link (avatar/abilities)
+    -- but ON DELETE SET NULL so deleting a creature leaves the combatant intact.
+    -- `turn_combatant_id` points at whose turn it is (robust to add/remove, unlike
+    -- an index); display order is by initiative.
+    CREATE TABLE combats (
+        id                INTEGER PRIMARY KEY,
+        name              TEXT    NOT NULL DEFAULT 'Combat',
+        round             INTEGER NOT NULL DEFAULT 1,
+        turn_combatant_id INTEGER,
+        created_at        TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE TABLE combatants (
+        id          INTEGER PRIMARY KEY,
+        combat_id   INTEGER NOT NULL REFERENCES combats(id) ON DELETE CASCADE,
+        creature_id INTEGER REFERENCES creatures(id) ON DELETE SET NULL,
+        name        TEXT    NOT NULL,
+        initiative  INTEGER NOT NULL DEFAULT 0,
+        max_hp      INTEGER NOT NULL DEFAULT 1,
+        current_hp  INTEGER NOT NULL DEFAULT 1,
+        temp_hp     INTEGER NOT NULL DEFAULT 0,
+        armor_class INTEGER NOT NULL DEFAULT 10,
+        dex_mod     INTEGER NOT NULL DEFAULT 0,
+        conditions  TEXT    NOT NULL DEFAULT '',
+        added_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
     """,
 }
 

@@ -1102,3 +1102,84 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .qty-input { width: 4rem; }
 .section-rule { border: none; border-top: 1px solid var(--border); margin: 2rem 0 1.25rem; }
 .encounter-tools { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+
+/* --- Phase 6: combat tracker --- */
+.combat-controls { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.combat-add {
+  display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem; border-bottom: 1px solid var(--border);
+}
+.combat-add select {
+  font: inherit; padding: 0.35rem 0.5rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 5px;
+}
+
+.initiative-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.combatant {
+  display: flex; align-items: center; gap: 0.85rem;
+  padding: 0.7rem 0.9rem; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 8px;
+}
+.combatant.active-turn { border-color: var(--accent-2); box-shadow: inset 3px 0 0 var(--accent-2); background: var(--panel-2); }
+.combatant.downed { opacity: 0.6; }
+.combatant.downed .combatant-name { text-decoration: line-through; }
+
+.init-badge { flex: none; }
+.init-input {
+  width: 3rem; text-align: center; font: inherit; font-weight: bold; font-size: 1.1rem;
+  color: var(--accent-2); background: var(--bg);
+  border: 1px solid var(--border); border-radius: 6px; padding: 0.35rem 0.2rem;
+}
+.combatant-portrait { flex: none; }
+.combatant-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.35rem; }
+.combatant-line { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.combatant-name { font-weight: bold; font-size: 1.05rem; }
+.combatant-ac { font-family: sans-serif; font-size: 0.85rem; color: var(--muted); }
+
+.hp-bar {
+  position: relative; height: 1.25rem; border-radius: 6px; overflow: hidden;
+  background: var(--bg); border: 1px solid var(--border); max-width: 320px;
+}
+.hp-fill { position: absolute; inset: 0 auto 0 0; background: #5a7b3f; transition: width 0.2s; }
+.hp-fill.mid { background: #9a7b2f; }
+.hp-fill.low { background: #7a3838; }
+.hp-text {
+  position: relative; z-index: 1; display: block; text-align: center;
+  font-family: sans-serif; font-size: 0.8rem; line-height: 1.25rem; color: var(--ink);
+}
+.temp-hp { color: #8fc6e8; font-weight: bold; }
+
+.condition-chips { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.cond-chip {
+  font: inherit; font-family: sans-serif; font-size: 0.72rem; cursor: pointer;
+  text-transform: capitalize; padding: 0.12rem 0.5rem; border-radius: 999px;
+  background: transparent; color: var(--muted); border: 1px solid var(--border);
+}
+.cond-chip:hover { color: var(--ink); }
+.cond-chip.on { color: #e8b58f; border-color: #7a5a38; background: rgba(122,90,56,0.2); }
+
+.combatant-actions { flex: none; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; justify-content: flex-end; }
+.hp-form, .temp-form { display: flex; gap: 0.25rem; }
+.hp-amount {
+  width: 3.2rem; font: inherit; padding: 0.3rem 0.4rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 5px;
+}
+.btn-dmg, .btn-heal {
+  font: inherit; font-family: sans-serif; font-size: 0.78rem; cursor: pointer;
+  padding: 0.3rem 0.55rem; border-radius: 5px; white-space: nowrap;
+}
+.btn-dmg { background: transparent; color: #e8918f; border: 1px solid #7a3838; }
+.btn-dmg:hover { background: #7a3838; color: #fff; }
+.btn-heal { background: transparent; color: #b5d68f; border: 1px solid #5a7b3f; }
+.btn-heal:hover { background: #5a7b3f; color: #fff; }
+
+.cond-edit { position: relative; }
+.cond-edit > summary { list-style: none; }
+.cond-edit > summary::-webkit-details-marker { display: none; }
+.cond-grid {
+  display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.4rem;
+  padding: 0.6rem; max-width: 360px;
+  background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px;
+}

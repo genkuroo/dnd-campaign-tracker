@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head">
+    <h1>Combat</h1>
+    <form method="post" action="{{ url_for('combat_new') }}" class="inline encounter-new">
+      <input type="text" name="name" placeholder="New combat name…">
+      <button type="submit" class="btn">+ Start combat</button>
+    </form>
+  </div>
+  <p class="muted">Track initiative, HP, conditions, and rests for a live fight — PCs and monsters together.</p>
+
+  {% if combats %}
+    <ul class="encounter-list">
+      {% for c in combats %}
+        <li class="encounter-row">
+          <a class="encounter-name" href="{{ url_for('combat_detail', combat_id=c['id']) }}">{{ c['name'] }}</a>
+          <span class="muted">Round {{ c['round'] }} · {{ c['combatant_count'] }} combatant{{ '' if c['combatant_count'] == 1 else 's' }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">No combats yet. Start one above, or use “Start combat” on a Bestiary encounter.</p>
+  {% endif %}
+{% endblock %}
