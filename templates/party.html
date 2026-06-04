@@ -34,12 +34,12 @@
           </div>
           <div class="party-card-foot">
             <span class="combatant-ac" title="Armor Class">🛡️ {{ c['armor_class'] }}</span>
-            {% if c['current_hp'] < c['max_hp'] %}
-              <form method="post" action="{{ url_for('party_heal_full', creature_id=c['id']) }}" class="inline">
-                <button type="submit" class="btn-small">Heal to full</button>
+            {% if is_dm %}
+              <form method="post" action="{{ url_for('party_hp', creature_id=c['id']) }}" class="inline hp-form">
+                <input type="number" name="amount" min="0" placeholder="0" class="hp-amount" aria-label="Amount">
+                <button type="submit" name="mode" value="damage" class="btn-dmg" title="Apply damage">− Dmg</button>
+                <button type="submit" name="mode" value="heal" class="btn-heal" title="Apply healing">+ Heal</button>
               </form>
-            {% else %}
-              <span class="muted party-full">Full HP</span>
             {% endif %}
           </div>
         </div>

@@ -133,11 +133,17 @@ def party_rest(kind):
         conn.close()
 
 
-def heal_to_full(creature_id):
+def adjust_hp(creature_id, delta):
+    """Apply damage (delta < 0) or healing (delta > 0) to a creature's sheet,
+    clamped to 0..max_hp. (Creatures have no temp HP; that's a combat concept.)"""
+    c = get_creature(creature_id)
+    if c is None:
+        return
+    new_hp = max(0, min(c["max_hp"], c["current_hp"] + int(delta)))
     conn = get_connection()
     try:
         conn.execute(
-            "UPDATE creatures SET current_hp = max_hp WHERE id = ?", (creature_id,)
+            "UPDATE creatures SET current_hp = ? WHERE id = ?", (new_hp, creature_id)
         )
         conn.commit()
     finally:

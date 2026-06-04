@@ -27,9 +27,9 @@ from models.creature import (
     alignment_label,
     create_creature,
     delete_creature,
+    adjust_hp,
     format_modifier,
     get_creature,
-    heal_to_full,
     level_from_xp,
     list_monsters,
     list_party,
@@ -152,6 +152,24 @@ TABS = [
 def inject_nav():
     """Make the tab list available to every template (the base layout uses it)."""
     return {"tabs": TABS}
+
+
+def is_dm():
+    """Whether the current viewer is the Dungeon Master (admin).
+
+    The app is DM-only until Phase 7 adds player accounts, so this is True for
+    now. Gating DM-only controls/routes through this one helper means they're
+    already locked down when player logins arrive — and the check stays
+    server-side (CLAUDE.md: never hide privileged actions with CSS/JS alone).
+    """
+    return True
+
+
+@app.context_processor
+def inject_is_dm():
+    """Expose is_dm() to templates so DM-only UI can be conditionally rendered
+    (belt-and-suspenders with the server-side route guard)."""
+    return {"is_dm": is_dm()}
 
 
 @app.context_processor
@@ -723,12 +741,18 @@ def party_rest_route():
     return redirect(url_for("party"))
 
 
-@app.route("/party/<int:creature_id>/heal-full", methods=["POST"])
-def party_heal_full(creature_id):
+@app.route("/party/<int:creature_id>/hp", methods=["POST"])
+def party_hp(creature_id):
+    """Adjust a PC's HP by an amount (damage or heal). DM-only — players can't
+    freely set their own HP. The guard is server-side; the UI is hidden too."""
+    if not is_dm():
+        abort(403)
     cr = get_creature(creature_id)
     if cr and cr["kind"] == "pc":
-        heal_to_full(creature_id)
-        flash(f"{cr['name']} healed to full.")
+        amount = request.form.get("amount", 0, type=int) or 0
+        if amount:
+            delta = -amount if request.form.get("mode") == "damage" else amount
+            adjust_hp(creature_id, delta)
     return redirect(url_for("party"))
 
 

@@ -1215,5 +1215,4 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .party-card-head:hover .char-name { text-decoration: underline; }
 .party-portrait { flex: none; }
 .party-id { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
-.party-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
-.party-full { font-family: sans-serif; font-size: 0.8rem; }
+.party-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
