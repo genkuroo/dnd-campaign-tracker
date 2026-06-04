@@ -7,7 +7,7 @@
   {% if actions %}
     <ul class="action-list">
       {% for a in actions %}
-        <li class="action-line">
+        <li class="action-line" data-name="{{ a['name'] | lower }}" data-category="{{ a['category'] }}">
           <div class="action-head">
             <span class="action-cat action-cat-{{ a['category'] }}">{{ a['category'] | action_category }}</span>
             <span class="action-name">{{ a['name'] }}</span>
@@ -30,6 +30,7 @@
         </li>
       {% endfor %}
     </ul>
+    <p class="muted actions-empty" hidden>No actions match the filter.</p>
   {% else %}
     <p class="muted">No actions or abilities yet.</p>
   {% endif %}

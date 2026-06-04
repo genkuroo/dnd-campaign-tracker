@@ -561,13 +561,13 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 }
 #spell-search:focus { outline: none; border-color: var(--accent-2); }
 .book-filter { margin-top: 1.75rem; }
-.bookfilt-search {
+.bookfilt-search, .actfilt-search {
   flex: 1; min-width: 12rem; font: inherit;
   padding: 0.5rem 0.7rem;
   background: var(--bg); color: var(--ink);
   border: 1px solid var(--border); border-radius: 6px;
 }
-.bookfilt-search:focus { outline: none; border-color: var(--accent-2); }
+.bookfilt-search:focus, .actfilt-search:focus { outline: none; border-color: var(--accent-2); }
 .filter-group { display: flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
 .filt-btn {
   font: inherit; font-family: sans-serif; font-size: 0.8rem; cursor: pointer;

@@ -131,6 +131,17 @@
     {% include "_spells.html" %}
   </div>
 
+  {# Actions filter bar — outside #actions so its state survives AJAX updates;
+     JS shows it only when actions exist. #}
+  <div class="spell-filter book-filter" id="actions-filter" hidden>
+    <input type="search" class="actfilt-search" placeholder="Search actions…" autocomplete="off" aria-label="Search actions">
+    <div class="filter-group" role="group" aria-label="Category">
+      <button type="button" class="filt-btn active" data-cat="all">All</button>
+      {% for value, label in action_categories %}
+        <button type="button" class="filt-btn" data-cat="{{ value }}">{{ label }}</button>
+      {% endfor %}
+    </div>
+  </div>
   <div id="actions">
     {% include "_actions.html" %}
   </div>
@@ -265,11 +276,47 @@
       afterRender();
     })();
 
-    // Actions section: fragment-AJAX like gear — submitting any form inside
-    // #actions (add/remove) re-renders just that section, no full reload.
+    // Actions section: fragment-AJAX like gear (add/remove update in place) plus
+    // a persistent filter bar (search + category). The bar lives outside #actions
+    // so its state survives the fragment being replaced — re-applied after each
+    // update.
     (function () {
       const box = document.getElementById('actions');
+      const bar = document.getElementById('actions-filter');
       if (!box) return;
+      let query = '', cat = 'all';
+
+      function applyFilter() {
+        const items = box.querySelectorAll('.action-line');
+        if (bar) bar.hidden = items.length === 0;
+        let shown = 0;
+        items.forEach(function (li) {
+          const matchName = (li.dataset.name || '').includes(query);
+          const matchCat = cat === 'all' || li.dataset.category === cat;
+          const show = matchName && matchCat;
+          li.style.display = show ? '' : 'none';
+          if (show) shown++;
+        });
+        const empty = box.querySelector('.actions-empty');
+        if (empty) empty.hidden = shown !== 0 || items.length === 0;
+      }
+
+      if (bar) {
+        bar.addEventListener('input', function (e) {
+          if (e.target.classList.contains('actfilt-search')) {
+            query = e.target.value.trim().toLowerCase();
+            applyFilter();
+          }
+        });
+        bar.addEventListener('click', function (e) {
+          const b = e.target.closest('.filt-btn');
+          if (!b) return;
+          b.parentElement.querySelectorAll('.filt-btn').forEach(x => x.classList.toggle('active', x === b));
+          cat = b.dataset.cat;
+          applyFilter();
+        });
+      }
+
       box.addEventListener('submit', function (e) {
         const form = e.target.closest('form');
         if (!form) return;
@@ -278,8 +325,10 @@
         fetch(form.action, { method: 'POST', body: new FormData(form),
                              headers: { 'X-Requested-With': 'fetch' } })
           .then(r => r.text())
-          .then(html => { box.innerHTML = html; });
+          .then(html => { box.innerHTML = html; applyFilter(); });
       });
+
+      applyFilter();
     })();
 
     // Spells section: fragment-AJAX (prepare toggle, add, remove update in place)
