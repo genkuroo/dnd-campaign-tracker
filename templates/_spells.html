@@ -9,9 +9,16 @@
     {{ info('known', 'Known') }} = in your repertoire · {{ info('prepared', 'Prepared') }} = readied to cast now. Click the badge to toggle.
   </p>
   {% if spells %}
+    {# Prepared spells float to the top; level/name order holds within each
+       group (the input is already level/name-sorted and Jinja's sort is stable). #}
     <ul class="spellbook">
-      {% for s in spells %}
-        <li class="spell-line {{ 'unprepared' if not s.prepared }}">
+      {% for s in spells | sort(attribute='prepared', reverse=true) %}
+        {% set ct = s['casting_time'] | lower %}
+        <li class="spell-line {{ 'unprepared' if not s.prepared }}"
+            data-name="{{ s['name'] }}"
+            data-prepared="{{ '1' if s.prepared else '0' }}"
+            data-cantrip="{{ '1' if s['level'] == 0 else '0' }}"
+            data-cast="{{ 'bonus' if 'bonus' in ct else ('reaction' if 'reaction' in ct else ('action' if 'action' in ct else 'other')) }}">
           <form method="post" action="{{ url_for('spellbook_prepared') }}" class="inline">
             <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
             <input type="hidden" name="slug" value="{{ s['slug'] }}">
@@ -41,6 +48,7 @@
         </li>
       {% endfor %}
     </ul>
+    <p class="muted spellbook-empty" hidden>No spells match the filter.</p>
   {% else %}
     <p class="muted">No spells yet.</p>
   {% endif %}

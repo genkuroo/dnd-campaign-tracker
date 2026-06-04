@@ -14,6 +14,20 @@
 
   {# ---- Spells library ---- #}
   <div id="spells-pane" class="lib-pane">
+    {% if roster %}
+      <form method="get" action="{{ url_for('spells') }}" class="view-as">
+        <label for="view-as-select">Viewing as</label>
+        <select name="as" id="view-as-select" onchange="this.form.submit()">
+          <option value="">— no character (plain list)</option>
+          {% for c in roster %}
+            <option value="{{ c['id'] }}" {{ 'selected' if view_creature and view_creature['id'] == c['id'] else '' }}>{{ c['name'] }}</option>
+          {% endfor %}
+        </select>
+        {% if view_creature %}
+          <span class="muted">prepared &amp; known spells for {{ view_creature['name'] }} float to the top.</span>
+        {% endif %}
+      </form>
+    {% endif %}
     <div class="spell-filter">
       <input type="search" id="spell-search" placeholder="Search spells…" autocomplete="off" aria-label="Search spells">
       <div class="filter-group" role="group" aria-label="Type">
@@ -27,18 +41,27 @@
         <button type="button" class="filt-btn castfilt" data-cast="bonus">Bonus action</button>
         <button type="button" class="filt-btn castfilt" data-cast="reaction">Reaction</button>
       </div>
+      <div class="filter-group" role="group" aria-label="Known">
+        <button type="button" class="filt-btn knownfilt active" data-known="all">All</button>
+        <button type="button" class="filt-btn knownfilt" data-known="known">Known</button>
+        <button type="button" class="filt-btn knownfilt" data-known="unknown">Unknown</button>
+      </div>
     </div>
 
     <ul class="spell-list" id="spell-list">
       {% for s in spells %}
         {% set ct = s['casting_time'] | lower %}
+        {% set status = spell_status.get(s['slug']) %}
         <li class="spell-item"
             data-name="{{ s['name'] }}"
             data-cantrip="{{ '1' if s['level'] == 0 else '0' }}"
-            data-cast="{{ 'bonus' if 'bonus' in ct else ('reaction' if 'reaction' in ct else ('action' if 'action' in ct else 'other')) }}">
+            data-cast="{{ 'bonus' if 'bonus' in ct else ('reaction' if 'reaction' in ct else ('action' if 'action' in ct else 'other')) }}"
+            data-known="{{ '1' if status else '0' }}">
           <a class="spell-row" href="{{ url_for('spell_detail', slug=s['slug']) }}">
             <span class="spell-name">{{ s['name'] }}</span>
             <span class="spell-meta muted">{{ s['level'] | ordinal_level }} · {{ s['school'] }} · {{ s['casting_time'] }}</span>
+            {% if status == 'prepared' %}<span class="known-badge">✓ Prepared</span>
+            {% elif status == 'known' %}<span class="known-badge known-only">Known</span>{% endif %}
             {% if s['roll'] %}<span class="spell-dice die-text">{{ s['roll'] }}</span>{% endif %}
           </a>
         </li>
@@ -105,7 +128,8 @@
       const empty = document.getElementById('spell-empty');
       const typeBtns = document.querySelectorAll('.filt-btn[data-type]');
       const castBtns = document.querySelectorAll('.filt-btn[data-cast]');
-      let type = 'all', cast = 'all';
+      const knownBtns = document.querySelectorAll('.filt-btn[data-known]');
+      let type = 'all', cast = 'all', known = 'all';
 
       function apply() {
         const q = search.value.trim().toLowerCase();
@@ -115,7 +139,9 @@
           const matchType = type === 'all'
             || (type === 'cantrip' ? li.dataset.cantrip === '1' : li.dataset.cantrip === '0');
           const matchCast = cast === 'all' || li.dataset.cast === cast;
-          const show = matchName && matchType && matchCast;
+          const matchKnown = known === 'all'
+            || (known === 'known' ? li.dataset.known === '1' : li.dataset.known === '0');
+          const show = matchName && matchType && matchCast && matchKnown;
           li.style.display = show ? '' : 'none';
           if (show) shown++;
         });
@@ -131,6 +157,11 @@
       castBtns.forEach(b => b.addEventListener('click', function () {
         cast = b.dataset.cast;
         castBtns.forEach(x => x.classList.toggle('active', x === b));
+        apply();
+      }));
+      knownBtns.forEach(b => b.addEventListener('click', function () {
+        known = b.dataset.known;
+        knownBtns.forEach(x => x.classList.toggle('active', x === b));
         apply();
       }));
 

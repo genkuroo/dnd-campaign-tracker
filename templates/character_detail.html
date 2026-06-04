@@ -106,6 +106,27 @@
     {% include "_gear.html" %}
   </div>
 
+  {# Spellbook filter bar. Lives outside #spells so its state survives the
+     fragment being replaced on AJAX updates; JS shows it only when spells exist. #}
+  <div class="spell-filter book-filter" id="spellbook-filter" hidden>
+    <input type="search" class="bookfilt-search" placeholder="Search spells…" autocomplete="off" aria-label="Search spells">
+    <div class="filter-group" role="group" aria-label="Prepared">
+      <button type="button" class="filt-btn active" data-prep="all">All</button>
+      <button type="button" class="filt-btn" data-prep="prepared">Prepared</button>
+      <button type="button" class="filt-btn" data-prep="unprepared">Unprepared</button>
+    </div>
+    <div class="filter-group" role="group" aria-label="Type">
+      <button type="button" class="filt-btn active" data-type="all">All</button>
+      <button type="button" class="filt-btn" data-type="cantrip">Cantrips</button>
+      <button type="button" class="filt-btn" data-type="leveled">Spells</button>
+    </div>
+    <div class="filter-group" role="group" aria-label="Casting time">
+      <button type="button" class="filt-btn active" data-cast="all">Any time</button>
+      <button type="button" class="filt-btn" data-cast="action">Action</button>
+      <button type="button" class="filt-btn" data-cast="bonus">Bonus</button>
+      <button type="button" class="filt-btn" data-cast="reaction">Reaction</button>
+    </div>
+  </div>
   <div id="spells">
     {% include "_spells.html" %}
   </div>
@@ -244,26 +265,83 @@
       afterRender();
     })();
 
-    // Spells + actions sections: same fragment-AJAX pattern as gear. Submitting
-    // any form inside #spells/#actions (prepare toggle, add, remove) re-renders
-    // just that section in place — no full reload or scroll-jump. Handlers are
-    // delegated on the container, so they survive the fragment being replaced.
-    // Without JS the same forms POST normally and the server redirects.
+    // Actions section: fragment-AJAX like gear — submitting any form inside
+    // #actions (add/remove) re-renders just that section, no full reload.
     (function () {
-      ['spells', 'actions'].forEach(function (id) {
-        const box = document.getElementById(id);
-        if (!box) return;
-        box.addEventListener('submit', function (e) {
-          const form = e.target.closest('form');
-          if (!form) return;
-          e.preventDefault();
-          if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) return;
-          fetch(form.action, { method: 'POST', body: new FormData(form),
-                               headers: { 'X-Requested-With': 'fetch' } })
-            .then(r => r.text())
-            .then(html => { box.innerHTML = html; });
-        });
+      const box = document.getElementById('actions');
+      if (!box) return;
+      box.addEventListener('submit', function (e) {
+        const form = e.target.closest('form');
+        if (!form) return;
+        e.preventDefault();
+        if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) return;
+        fetch(form.action, { method: 'POST', body: new FormData(form),
+                             headers: { 'X-Requested-With': 'fetch' } })
+          .then(r => r.text())
+          .then(html => { box.innerHTML = html; });
       });
+    })();
+
+    // Spells section: fragment-AJAX (prepare toggle, add, remove update in place)
+    // plus a persistent filter bar. Prepared spells render first (server-side);
+    // the bar narrows by name / prepared / type / casting time. The bar lives
+    // outside #spells, so its state survives the fragment being replaced — after
+    // each update we just re-apply the current filter.
+    (function () {
+      const box = document.getElementById('spells');
+      const bar = document.getElementById('spellbook-filter');
+      if (!box) return;
+      let query = '', prep = 'all', type = 'all', cast = 'all';
+
+      function applyFilter() {
+        const items = box.querySelectorAll('.spell-line');
+        if (bar) bar.hidden = items.length === 0;
+        let shown = 0;
+        items.forEach(function (li) {
+          const matchName = (li.dataset.name || '').toLowerCase().includes(query);
+          const matchPrep = prep === 'all'
+            || (prep === 'prepared' ? li.dataset.prepared === '1' : li.dataset.prepared === '0');
+          const matchType = type === 'all'
+            || (type === 'cantrip' ? li.dataset.cantrip === '1' : li.dataset.cantrip === '0');
+          const matchCast = cast === 'all' || li.dataset.cast === cast;
+          const show = matchName && matchPrep && matchType && matchCast;
+          li.style.display = show ? '' : 'none';
+          if (show) shown++;
+        });
+        const empty = box.querySelector('.spellbook-empty');
+        if (empty) empty.hidden = shown !== 0 || items.length === 0;
+      }
+
+      if (bar) {
+        bar.addEventListener('input', function (e) {
+          if (e.target.classList.contains('bookfilt-search')) {
+            query = e.target.value.trim().toLowerCase();
+            applyFilter();
+          }
+        });
+        bar.addEventListener('click', function (e) {
+          const b = e.target.closest('.filt-btn');
+          if (!b) return;
+          b.parentElement.querySelectorAll('.filt-btn').forEach(x => x.classList.toggle('active', x === b));
+          if (b.dataset.prep !== undefined) prep = b.dataset.prep;
+          else if (b.dataset.type !== undefined) type = b.dataset.type;
+          else if (b.dataset.cast !== undefined) cast = b.dataset.cast;
+          applyFilter();
+        });
+      }
+
+      box.addEventListener('submit', function (e) {
+        const form = e.target.closest('form');
+        if (!form) return;
+        e.preventDefault();
+        if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) return;
+        fetch(form.action, { method: 'POST', body: new FormData(form),
+                             headers: { 'X-Requested-With': 'fetch' } })
+          .then(r => r.text())
+          .then(html => { box.innerHTML = html; applyFilter(); });
+      });
+
+      applyFilter();
     })();
   </script>
 {% endblock %}

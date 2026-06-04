@@ -560,6 +560,14 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
   border: 1px solid var(--border); border-radius: 6px;
 }
 #spell-search:focus { outline: none; border-color: var(--accent-2); }
+.book-filter { margin-top: 1.75rem; }
+.bookfilt-search {
+  flex: 1; min-width: 12rem; font: inherit;
+  padding: 0.5rem 0.7rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.bookfilt-search:focus { outline: none; border-color: var(--accent-2); }
 .filter-group { display: flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
 .filt-btn {
   font: inherit; font-family: sans-serif; font-size: 0.8rem; cursor: pointer;
@@ -578,6 +586,25 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 }
 .spell-row:hover { background: var(--panel); }
 .spell-name { font-weight: bold; color: var(--accent-2); min-width: 9rem; }
+.known-badge {
+  font-family: sans-serif; font-size: 0.7rem; white-space: nowrap;
+  color: #b5d68f; border: 1px solid #5a7b3f; background: rgba(90,123,63,0.18);
+  padding: 0.05rem 0.45rem; border-radius: 999px;
+}
+/* Known-but-unprepared reads in worn gold, distinct from the green "prepared". */
+.known-badge.known-only { color: var(--accent-2); border-color: #6b5f3f; background: rgba(107,95,63,0.18); }
+
+/* "Viewing as" character scope selector on the spells library */
+.view-as {
+  display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+  margin-bottom: 1rem; font-family: sans-serif; font-size: 0.85rem;
+}
+.view-as label { color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.72rem; }
+.view-as select {
+  font: inherit; padding: 0.35rem 0.5rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 5px;
+}
 .spell-meta { flex: 1; font-family: sans-serif; font-size: 0.85rem; }
 
 /* Dice rendered in text */

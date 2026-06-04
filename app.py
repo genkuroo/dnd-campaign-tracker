@@ -797,14 +797,33 @@ def _safe_next(value, default):
 
 @app.route("/spells")
 def spells():
-    # Full list; search + type/casting filters are applied client-side.
+    # Known/prepared is *per character*, never global (a barbarian's player must
+    # not see the wizard's spells flagged). With no auth yet, a "Viewing as"
+    # selector scopes the library to one character; in Phase 7 this is replaced
+    # by the logged-in user's own character (the DM may still view as anyone).
+    roster = list_roster()
+    view_id = request.args.get("as", type=int)
+    view_creature = get_creature(view_id) if view_id else None
+    spell_status = {}  # slug -> 'prepared' | 'known', for the viewed character only
+    if view_creature:
+        for s in creature_spells(view_id):
+            spell_status[s["slug"]] = "prepared" if s["prepared"] else "known"
+    # Prepared float above known, known above the rest; level/name order holds
+    # within each group. Search + type/casting/known filters are client-side.
+    rank = {"prepared": 0, "known": 1}
+    spells_sorted = sorted(
+        all_spells(),
+        key=lambda s: (rank.get(spell_status.get(s["slug"]), 2), s["level"], s["name"]),
+    )
     return render_template(
         "spells.html",
         active="spells",
         title="Spells & Actions",
-        spells=all_spells(),
+        spells=spells_sorted,
+        spell_status=spell_status,
+        view_creature=view_creature,
         action_book=all_catalog_actions(),
-        roster=list_roster(),
+        roster=roster,
     )
 
 
