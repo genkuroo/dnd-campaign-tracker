@@ -1,0 +1,12 @@
+{% extends "auth_base.html" %}
+{% block content %}
+  <h1>Create your account</h1>
+  <p class="muted">Enter the signup code your DM shared with you.</p>
+  <form method="post" class="auth-form">
+    <label>Signup code<input type="text" name="code" required autofocus></label>
+    <label>Username<input type="text" name="username" required autocomplete="username"></label>
+    <label>Password<input type="password" name="password" required autocomplete="new-password"></label>
+    <button type="submit" class="btn">Create account</button>
+  </form>
+  <p class="muted auth-alt"><a href="{{ url_for('login') }}">← Back to log in</a></p>
+{% endblock %}

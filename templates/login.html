@@ -1,0 +1,12 @@
+{% extends "auth_base.html" %}
+{% block content %}
+  <h1>Log in</h1>
+  <form method="post" class="auth-form">
+    <label>Username<input type="text" name="username" required autofocus autocomplete="username"></label>
+    <label>Password<input type="password" name="password" required autocomplete="current-password"></label>
+    <button type="submit" class="btn">Log in</button>
+  </form>
+  {% if signup_enabled %}
+    <p class="muted auth-alt">Have a signup code from your DM? <a href="{{ url_for('register') }}">Create an account</a>.</p>
+  {% endif %}
+{% endblock %}

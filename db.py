@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 14
+SCHEMA_VERSION = 15
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -221,6 +221,22 @@ MIGRATIONS = {
     -- "Roll initiative" button into a de-emphasized re-roll once it's been used.
     ALTER TABLE combats ADD COLUMN status TEXT NOT NULL DEFAULT 'active';
     ALTER TABLE combats ADD COLUMN initiative_rolled INTEGER NOT NULL DEFAULT 0;
+    """,
+    15: """
+    -- Accounts (Phase 7). The DM is the admin (role 'dm'); each player ('player')
+    -- is tied to the PC they control via creature_id. `color` is the per-player
+    -- roll colour (Phase 7d). Passwords are stored hashed (werkzeug), never plain.
+    -- The shared signup code players register with lives in `meta` (key
+    -- 'signup_code'), not here.
+    CREATE TABLE users (
+        id            INTEGER PRIMARY KEY,
+        username      TEXT    NOT NULL UNIQUE,
+        password_hash TEXT    NOT NULL,
+        role          TEXT    NOT NULL DEFAULT 'player',  -- 'dm' | 'player'
+        creature_id   INTEGER REFERENCES creatures(id) ON DELETE SET NULL,
+        color         TEXT    NOT NULL DEFAULT '',
+        created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
     """,
 }
 

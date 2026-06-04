@@ -10,7 +10,7 @@ import re
 from datetime import datetime, timezone
 
 from flask import (
-    Flask, abort, flash, redirect, render_template, request, url_for,
+    Flask, abort, flash, g, redirect, render_template, request, session, url_for,
 )
 from markupsafe import Markup, escape
 from werkzeug.utils import secure_filename
@@ -106,6 +106,18 @@ from models.encounters import (
     set_member_quantity,
 )
 from models.spells import all_spells, get_spell, level_label, search_spells
+from models.user import (
+    create_user,
+    delete_user,
+    get_signup_code,
+    get_user,
+    list_users,
+    set_password,
+    set_signup_code,
+    set_user_character,
+    user_count,
+    verify_login,
+)
 from models.spellbook import (
     add_spell,
     creature_spell_slugs,
@@ -145,6 +157,7 @@ TABS = [
     {"endpoint": "dice", "label": "Dice"},
     {"endpoint": "map", "label": "Map"},
     {"endpoint": "blog", "label": "Campaign Blog"},
+    {"endpoint": "users", "label": "Users", "dm_only": True},
 ]
 
 
@@ -154,22 +167,45 @@ def inject_nav():
     return {"tabs": TABS}
 
 
+def current_user():
+    """The logged-in user row for this request, or None. Cached on flask.g."""
+    if "user" not in g:
+        uid = session.get("user_id")
+        g.user = get_user(uid) if uid else None
+    return g.user
+
+
 def is_dm():
     """Whether the current viewer is the Dungeon Master (admin).
 
-    The app is DM-only until Phase 7 adds player accounts, so this is True for
-    now. Gating DM-only controls/routes through this one helper means they're
-    already locked down when player logins arrive — and the check stays
-    server-side (CLAUDE.md: never hide privileged actions with CSS/JS alone).
-    """
-    return True
+    Single server-side chokepoint for every DM-only control/route, so they all
+    lock down together (CLAUDE.md: never hide privileged actions with CSS/JS
+    alone — the route must enforce it too)."""
+    u = current_user()
+    return u is not None and u["role"] == "dm"
+
+
+# Endpoints reachable without being logged in (auth pages + static assets).
+_PUBLIC_ENDPOINTS = {"login", "logout", "register", "setup", "static"}
+
+
+@app.before_request
+def _require_login():
+    """Gate the whole app behind login. With no users yet, force first-run setup
+    (create the DM); otherwise redirect anonymous visitors to the login page."""
+    endpoint = request.endpoint or ""
+    if endpoint in _PUBLIC_ENDPOINTS:
+        return
+    if user_count() == 0:
+        return redirect(url_for("setup"))
+    if current_user() is None:
+        return redirect(url_for("login"))
 
 
 @app.context_processor
-def inject_is_dm():
-    """Expose is_dm() to templates so DM-only UI can be conditionally rendered
-    (belt-and-suspenders with the server-side route guard)."""
-    return {"is_dm": is_dm()}
+def inject_auth():
+    """Expose the current user + is_dm() to every template (topbar, DM-only UI)."""
+    return {"is_dm": is_dm(), "current_user": current_user()}
 
 
 @app.context_processor
@@ -256,6 +292,138 @@ def _form_vocab():
 @app.route("/")
 def index():
     return redirect(url_for("character"))
+
+
+# --- Auth (Phase 7) -------------------------------------------------------
+
+def _safe_next_or(default):
+    return _safe_next(request.args.get("next") or request.form.get("next"), default)
+
+
+@app.route("/setup", methods=["GET", "POST"])
+def setup():
+    """First-run bootstrap: create the DM (admin) account. Disabled once any user
+    exists, so a second DM can't be minted through it."""
+    if user_count() > 0:
+        return redirect(url_for("login"))
+    if request.method == "POST":
+        username = request.form.get("username", "")
+        password = request.form.get("password", "")
+        new_id = create_user(username, password, role="dm")
+        if new_id:
+            session.clear()
+            session["user_id"] = new_id
+            flash("DM account created — welcome, Dungeon Master.")
+            return redirect(url_for("character"))
+        flash("Couldn't create the account. Pick a username and password.")
+    return render_template("setup.html", title="First-time setup")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if user_count() == 0:  # nothing to log into yet — go create the DM
+        return redirect(url_for("setup"))
+    if current_user():
+        return redirect(url_for("character"))
+    if request.method == "POST":
+        user = verify_login(request.form.get("username", ""), request.form.get("password", ""))
+        if user:
+            session.clear()
+            session["user_id"] = user["id"]
+            return redirect(_safe_next_or(url_for("character")))
+        flash("Wrong username or password.")
+    return render_template(
+        "login.html", title="Log in", signup_enabled=bool(get_signup_code()),
+    )
+
+
+@app.route("/logout", methods=["POST"])
+def logout():
+    session.clear()
+    flash("Logged out.")
+    return redirect(url_for("login"))
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    """Code-gated player self-registration. Players join with the shared code the
+    DM sets; the DM then assigns each to their character on the Users page."""
+    if current_user():
+        return redirect(url_for("character"))
+    code = get_signup_code()
+    if not code:
+        flash("Registration isn't open yet — ask your DM for a signup code.")
+        return redirect(url_for("login"))
+    if request.method == "POST":
+        if (request.form.get("code") or "").strip() != code:
+            flash("That signup code isn't right.")
+        else:
+            new_id = create_user(request.form.get("username", ""),
+                                  request.form.get("password", ""), role="player")
+            if new_id:
+                session.clear()
+                session["user_id"] = new_id
+                flash("Account created. Your DM will link you to your character.")
+                return redirect(url_for("character"))
+            flash("That username is taken or invalid.")
+    return render_template("register.html", title="Create account")
+
+
+# --- Users admin (DM only) ------------------------------------------------
+
+def _require_dm():
+    if not is_dm():
+        abort(403)
+
+
+@app.route("/users")
+def users():
+    _require_dm()
+    return render_template(
+        "users.html",
+        active="users",
+        title="Users",
+        users=list_users(),
+        party=list_party(),
+        signup_code=get_signup_code(),
+    )
+
+
+@app.route("/users/code", methods=["POST"])
+def users_set_code():
+    _require_dm()
+    set_signup_code(request.form.get("code", ""))
+    flash("Signup code updated.")
+    return redirect(url_for("users"))
+
+
+@app.route("/users/<int:user_id>/character", methods=["POST"])
+def users_set_character(user_id):
+    _require_dm()
+    if get_user(user_id):
+        set_user_character(user_id, request.form.get("creature_id", type=int))
+        flash("Character assigned.")
+    return redirect(url_for("users"))
+
+
+@app.route("/users/<int:user_id>/password", methods=["POST"])
+def users_reset_password(user_id):
+    _require_dm()
+    if get_user(user_id):
+        set_password(user_id, request.form.get("password", ""))
+        flash("Password reset.")
+    return redirect(url_for("users"))
+
+
+@app.route("/users/<int:user_id>/delete", methods=["POST"])
+def users_delete(user_id):
+    _require_dm()
+    target = get_user(user_id)
+    # Don't let the DM delete themselves out of the only admin seat.
+    if target and not (target["role"] == "dm" and target["id"] == current_user()["id"]):
+        delete_user(user_id)
+        flash("User removed.")
+    return redirect(url_for("users"))
 
 
 # --- Character Sheet tab --------------------------------------------------

@@ -1,0 +1,10 @@
+{% extends "auth_base.html" %}
+{% block content %}
+  <h1>Welcome, Dungeon Master</h1>
+  <p class="muted">Create the admin account that runs the campaign. You can add players afterward from the Users tab.</p>
+  <form method="post" class="auth-form">
+    <label>Username<input type="text" name="username" required autofocus autocomplete="username"></label>
+    <label>Password<input type="password" name="password" required autocomplete="new-password"></label>
+    <button type="submit" class="btn">Create DM account</button>
+  </form>
+{% endblock %}

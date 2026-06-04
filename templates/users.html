@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head"><h1>Users</h1></div>
+
+  <section class="signup-code">
+    <h2>Signup code</h2>
+    <p class="muted">Share this code so players can register at the login page. Clear it to close registration; change it to revoke an old one.</p>
+    <form method="post" action="{{ url_for('users_set_code') }}" class="inline code-form">
+      <input type="text" name="code" value="{{ signup_code }}" placeholder="(empty = registration closed)">
+      <button type="submit" class="btn">Save code</button>
+    </form>
+  </section>
+
+  <h2 class="users-heading">Accounts</h2>
+  <ul class="user-list">
+    {% for u in users %}
+      <li class="user-row">
+        <div class="user-head">
+          <span class="user-name">{{ '👑' if u['role'] == 'dm' else '🧑' }} {{ u['username'] }}</span>
+          <span class="badge-kind">{{ 'DM' if u['role'] == 'dm' else 'Player' }}</span>
+        </div>
+        {% if u['role'] == 'player' %}
+          <form method="post" action="{{ url_for('users_set_character', user_id=u['id']) }}" class="inline assign-form">
+            <label class="muted">Character</label>
+            <select name="creature_id">
+              <option value="">— none —</option>
+              {% for c in party %}
+                <option value="{{ c['id'] }}" {{ 'selected' if u['creature_id'] == c['id'] else '' }}>{{ c['name'] }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="btn-small">Assign</button>
+          </form>
+        {% else %}
+          <span class="muted">campaign admin</span>
+        {% endif %}
+        <details class="user-manage">
+          <summary class="btn-small">Manage</summary>
+          <div class="user-manage-body">
+            <form method="post" action="{{ url_for('users_reset_password', user_id=u['id']) }}" class="inline">
+              <input type="password" name="password" placeholder="new password" required autocomplete="new-password">
+              <button type="submit" class="btn-small">Reset password</button>
+            </form>
+            {% if not (u['role'] == 'dm' and u['id'] == current_user['id']) %}
+              <form method="post" action="{{ url_for('users_delete', user_id=u['id']) }}" class="inline"
+                    onsubmit="return confirm('Remove {{ u['username'] }}?')">
+                <button type="submit" class="btn-danger">Delete user</button>
+              </form>
+            {% endif %}
+          </div>
+        </details>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

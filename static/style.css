@@ -1216,3 +1216,53 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .party-portrait { flex: none; }
 .party-id { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
 .party-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
+
+/* --- Phase 7: auth --- */
+.topbar-right { display: flex; align-items: center; gap: 1rem; }
+.whoami { display: flex; align-items: center; gap: 0.6rem; }
+.whoami-name { font-family: sans-serif; font-size: 0.85rem; color: var(--ink); white-space: nowrap; }
+.logout-btn { padding: 0.2rem 0.2rem; }
+
+.auth-body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1.5rem; }
+.auth-card {
+  width: 100%; max-width: 380px;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+  padding: 2rem;
+}
+.auth-brand { font-size: 1.3rem; margin-bottom: 1.25rem; }
+.auth-card h1 { margin: 0 0 0.5rem; font-size: 1.4rem; }
+.auth-form { display: flex; flex-direction: column; gap: 0.9rem; margin-top: 1.25rem; }
+.auth-form label { display: flex; flex-direction: column; gap: 0.3rem; font-family: sans-serif; font-size: 0.85rem; color: var(--muted); }
+.auth-form input {
+  font: inherit; padding: 0.55rem 0.7rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.auth-form input:focus { outline: none; border-color: var(--accent-2); }
+.auth-form .btn { margin-top: 0.3rem; }
+.auth-alt { margin-top: 1.25rem; font-size: 0.85rem; }
+
+/* Users admin */
+.signup-code { margin-bottom: 1.75rem; }
+.signup-code h2, .users-heading { color: var(--accent-2); font-size: 1.1rem; }
+.code-form input {
+  font: inherit; padding: 0.45rem 0.6rem; min-width: 14rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.user-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.user-row {
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: 0.7rem 0.9rem; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 8px;
+}
+.user-head { display: flex; align-items: center; gap: 0.5rem; min-width: 12rem; }
+.user-name { font-weight: bold; }
+.assign-form { display: flex; align-items: center; gap: 0.4rem; }
+.assign-form select, .user-manage-body input {
+  font: inherit; padding: 0.3rem 0.45rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 5px;
+}
+.user-manage { margin-left: auto; }
+.user-manage-body { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.5rem; align-items: center; }
