@@ -29,6 +29,7 @@ GLOSSARY = {
     "spell-attack": "Spell attack — roll d20 + your spell attack bonus against the target's AC to see if it hits.",
     "armor-class": "Armor Class (AC) — how hard a creature is to hit. An attack must roll this number or higher.",
     "hit-points": "Hit Points (HP) — a creature's health. At 0 HP it falls unconscious or dies.",
+    "temp-hp": "Temporary HP — a buffer on top of your hit points (from some spells/abilities). Damage comes off temp HP first; they don't stack (keep the higher value) and aren't restored by healing.",
     "modifier": "Modifier — the +/- number derived from an ability score, added to related d20 rolls.",
     "hit-die": "Hit die — the die you roll for hit points each level (e.g. d8 for many classes). Level-up HP = that roll (or its average) + your Constitution modifier.",
     # Spell vocabulary

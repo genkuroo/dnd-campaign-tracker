@@ -1,0 +1,118 @@
+{# Combat tracker body. Rendered both inside combat_detail and standalone by the
+   combat AJAX endpoints, so every action (turn, damage, conditions, …) refreshes
+   this fragment in place without a full reload. Expects: combat, combatants,
+   conditions, roster, encounters (+ mode from the context processor). #}
+{% from "macros.html" import avatar, info %}
+{% set active = (combatants | selectattr('id', 'equalto', combat['turn_combatant_id']) | list) %}
+
+<p class="muted combat-status">Round {{ combat['round'] }}{% if active %} · <strong>{{ active[0]['name'] }}</strong>’s turn{% endif %}</p>
+
+<div class="combat-controls">
+  <form method="post" action="{{ url_for('combat_next_turn', combat_id=combat['id']) }}" class="inline">
+    <button type="submit" class="btn">▶ Next turn</button>
+  </form>
+  <form method="post" action="{{ url_for('combat_roll_initiative', combat_id=combat['id']) }}" class="inline">
+    <button type="submit" class="btn-ghost">🎲 Roll initiative</button>
+  </form>
+  <form method="post" action="{{ url_for('combat_rest_route', combat_id=combat['id']) }}" class="inline">
+    <input type="hidden" name="kind" value="short">
+    <button type="submit" class="btn-ghost" title="Clears temp HP">Short rest</button>
+  </form>
+  <form method="post" action="{{ url_for('combat_rest_route', combat_id=combat['id']) }}" class="inline">
+    <input type="hidden" name="kind" value="long">
+    <button type="submit" class="btn-ghost" title="Full HP, clears temp HP &amp; conditions">Long rest</button>
+  </form>
+  <form method="post" action="{{ url_for('combat_delete', combat_id=combat['id']) }}" class="inline"
+        data-full data-confirm="End and delete this combat?">
+    <button type="submit" class="btn-danger">End combat</button>
+  </form>
+</div>
+
+<div class="combat-add">
+  {% if roster %}
+    <form method="post" action="{{ url_for('combat_add', combat_id=combat['id']) }}" class="inline">
+      <select name="creature_id" aria-label="Add character">
+        {% for c in roster %}<option value="{{ c['id'] }}">{{ c['name'] }}</option>{% endfor %}
+      </select>
+      <input type="number" name="quantity" value="1" min="1" class="qty-input" aria-label="Quantity">
+      <button type="submit" class="btn-small">Add</button>
+    </form>
+  {% endif %}
+  {% if encounters %}
+    <form method="post" action="{{ url_for('combat_load_encounter', combat_id=combat['id']) }}" class="inline">
+      <select name="encounter_id" aria-label="Load encounter">
+        {% for e in encounters %}<option value="{{ e['id'] }}">{{ e['name'] }} ({{ e['total_creatures'] }})</option>{% endfor %}
+      </select>
+      <button type="submit" class="btn-small">Load encounter</button>
+    </form>
+  {% endif %}
+</div>
+
+{% if combatants %}
+  <p class="muted combat-help">Dmg / Heal adjust HP. {{ info('temp-hp', 'Temp') }} sets temporary HP — a damage buffer that absorbs hits first.</p>
+  <ul class="initiative-list">
+    {% for m in combatants %}
+      {% set pct = (100 * m['current_hp'] / m['max_hp']) if m['max_hp'] else 0 %}
+      {% set conds = m['conditions'] | commalist %}
+      <li class="combatant {{ 'active-turn' if m['id'] == combat['turn_combatant_id'] }} {{ 'downed' if m['current_hp'] == 0 }}">
+        <form method="post" action="{{ url_for('combatant_initiative', combatant_id=m['id']) }}" class="init-badge">
+          <input type="number" name="initiative" value="{{ m['initiative'] }}" class="init-input"
+                 aria-label="Initiative" onchange="this.form.requestSubmit()">
+        </form>
+
+        <span class="combatant-portrait">{{ avatar(m, 'avatar-sm') }}</span>
+
+        <div class="combatant-main">
+          <div class="combatant-line">
+            <span class="combatant-name">{{ m['name'] }}</span>
+            {% if m['kind'] %}<span class="badge-kind badge-kind-{{ m['kind'] }}">{{ 'NPC' if m['kind'] == 'npc' else ('Monster' if m['kind'] == 'monster' else 'PC') }}</span>{% endif %}
+            <span class="combatant-ac" title="Armor Class">🛡️ {{ m['armor_class'] }}</span>
+          </div>
+          <div class="hp-bar" title="{{ m['current_hp'] }} / {{ m['max_hp'] }} HP{% if m['temp_hp'] %} (+{{ m['temp_hp'] }} temp){% endif %}">
+            <span class="hp-fill {{ 'low' if pct <= 33 else ('mid' if pct <= 66 else '') }}" style="width: {{ pct }}%"></span>
+            <span class="hp-text">{{ m['current_hp'] }} / {{ m['max_hp'] }}{% if m['temp_hp'] %} <span class="temp-hp">+{{ m['temp_hp'] }}</span>{% endif %}</span>
+          </div>
+          {% if conds %}
+            <div class="condition-chips">
+              {% for cond in conds %}
+                <form method="post" action="{{ url_for('combatant_condition', combatant_id=m['id']) }}" class="inline">
+                  <input type="hidden" name="condition" value="{{ cond }}">
+                  <button type="submit" class="cond-chip on" title="Click to clear {{ cond }}">{{ cond }} ✕</button>
+                </form>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="combatant-actions">
+          <form method="post" action="{{ url_for('combatant_hp', combatant_id=m['id']) }}" class="inline hp-form">
+            <input type="number" name="amount" min="0" placeholder="0" class="hp-amount" aria-label="Amount">
+            <button type="submit" name="mode" value="damage" class="btn-dmg" title="Apply damage">− Dmg</button>
+            <button type="submit" name="mode" value="heal" class="btn-heal" title="Apply healing">+ Heal</button>
+          </form>
+          <form method="post" action="{{ url_for('combatant_temp', combatant_id=m['id']) }}" class="inline temp-form">
+            <input type="number" name="temp_hp" min="0" value="{{ m['temp_hp'] }}" class="hp-amount" aria-label="Temp HP">
+            <button type="submit" class="btn-small" title="Set temporary HP">Temp</button>
+          </form>
+          <details class="cond-edit">
+            <summary class="btn-small">Conditions</summary>
+            <div class="cond-grid">
+              {% for cond in conditions %}
+                <form method="post" action="{{ url_for('combatant_condition', combatant_id=m['id']) }}" class="inline">
+                  <input type="hidden" name="condition" value="{{ cond }}">
+                  <button type="submit" class="cond-chip {{ 'on' if cond in conds }}">{{ cond }}</button>
+                </form>
+              {% endfor %}
+            </div>
+          </details>
+          <form method="post" action="{{ url_for('combatant_remove', combatant_id=m['id']) }}" class="inline"
+                data-confirm="Remove {{ m['name'] }} from combat?">
+            <button type="submit" class="roll-del" title="Remove from combat">×</button>
+          </form>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="muted">No combatants yet. Add characters or load an encounter above.</p>
+{% endif %}

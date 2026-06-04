@@ -1,123 +1,38 @@
 {% extends "base.html" %}
-{% from "macros.html" import avatar %}
 {% block content %}
-  {% set active = (combatants | selectattr('id', 'equalto', combat['turn_combatant_id']) | list) %}
   <div class="page-head">
-    <div>
-      <h1 class="sheet-name">{{ combat['name'] }}</h1>
-      <p class="muted">Round {{ combat['round'] }}{% if active %} · <strong>{{ active[0]['name'] }}</strong>’s turn{% endif %}</p>
-    </div>
+    <h1 class="sheet-name">{{ combat['name'] }}</h1>
     <div class="head-actions">
       <a class="btn-ghost" href="{{ url_for('combat') }}">← All combats</a>
     </div>
   </div>
 
-  <div class="combat-controls">
-    <form method="post" action="{{ url_for('combat_next_turn', combat_id=combat['id']) }}" class="inline">
-      <button type="submit" class="btn">▶ Next turn</button>
-    </form>
-    <form method="post" action="{{ url_for('combat_roll_initiative', combat_id=combat['id']) }}" class="inline">
-      <button type="submit" class="btn-ghost">🎲 Roll initiative</button>
-    </form>
-    <form method="post" action="{{ url_for('combat_rest_route', combat_id=combat['id']) }}" class="inline">
-      <input type="hidden" name="kind" value="short">
-      <button type="submit" class="btn-ghost" title="Clears temp HP">Short rest</button>
-    </form>
-    <form method="post" action="{{ url_for('combat_rest_route', combat_id=combat['id']) }}" class="inline">
-      <input type="hidden" name="kind" value="long">
-      <button type="submit" class="btn-ghost" title="Full HP, clears temp HP & conditions">Long rest</button>
-    </form>
-    <form method="post" action="{{ url_for('combat_delete', combat_id=combat['id']) }}" class="inline"
-          onsubmit="return confirm('End and delete this combat?')">
-      <button type="submit" class="btn-danger">End combat</button>
-    </form>
+  <div id="combat">
+    {% include "_combat_body.html" %}
   </div>
 
-  <div class="combat-add">
-    {% if roster %}
-      <form method="post" action="{{ url_for('combat_add', combat_id=combat['id']) }}" class="inline">
-        <select name="creature_id" aria-label="Add character">
-          {% for c in roster %}<option value="{{ c['id'] }}">{{ c['name'] }}</option>{% endfor %}
-        </select>
-        <input type="number" name="quantity" value="1" min="1" class="qty-input" aria-label="Quantity">
-        <button type="submit" class="btn-small">Add</button>
-      </form>
-    {% endif %}
-    {% if encounters %}
-      <form method="post" action="{{ url_for('combat_load_encounter', combat_id=combat['id']) }}" class="inline">
-        <select name="encounter_id" aria-label="Load encounter">
-          {% for e in encounters %}<option value="{{ e['id'] }}">{{ e['name'] }} ({{ e['total_creatures'] }})</option>{% endfor %}
-        </select>
-        <button type="submit" class="btn-small">Load encounter</button>
-      </form>
-    {% endif %}
-  </div>
-
-  {% if combatants %}
-    <ul class="initiative-list">
-      {% for m in combatants %}
-        {% set pct = (100 * m['current_hp'] / m['max_hp']) if m['max_hp'] else 0 %}
-        {% set conds = m['conditions'] | commalist %}
-        <li class="combatant {{ 'active-turn' if m['id'] == combat['turn_combatant_id'] }} {{ 'downed' if m['current_hp'] == 0 }}">
-          <form method="post" action="{{ url_for('combatant_initiative', combatant_id=m['id']) }}" class="init-badge">
-            <input type="number" name="initiative" value="{{ m['initiative'] }}" class="init-input"
-                   aria-label="Initiative" onchange="this.form.submit()">
-          </form>
-
-          <span class="combatant-portrait">{{ avatar(m, 'avatar-sm') }}</span>
-
-          <div class="combatant-main">
-            <div class="combatant-line">
-              <span class="combatant-name">{{ m['name'] }}</span>
-              <span class="badge-kind badge-kind-{{ m['kind'] or 'pc' }}">{{ 'NPC' if m['kind'] == 'npc' else ('Monster' if m['kind'] == 'monster' else 'PC') }}</span>
-              <span class="combatant-ac" title="Armor Class">🛡️ {{ m['armor_class'] }}</span>
-            </div>
-            <div class="hp-bar" title="{{ m['current_hp'] }} / {{ m['max_hp'] }} HP{% if m['temp_hp'] %} (+{{ m['temp_hp'] }} temp){% endif %}">
-              <span class="hp-fill {{ 'low' if pct <= 33 else ('mid' if pct <= 66 else '') }}" style="width: {{ pct }}%"></span>
-              <span class="hp-text">{{ m['current_hp'] }} / {{ m['max_hp'] }}{% if m['temp_hp'] %} <span class="temp-hp">+{{ m['temp_hp'] }}</span>{% endif %}</span>
-            </div>
-            {% if conds %}
-              <div class="condition-chips">
-                {% for cond in conds %}
-                  <form method="post" action="{{ url_for('combatant_condition', combatant_id=m['id']) }}" class="inline">
-                    <input type="hidden" name="condition" value="{{ cond }}">
-                    <button type="submit" class="cond-chip on" title="Click to clear {{ cond }}">{{ cond }} ✕</button>
-                  </form>
-                {% endfor %}
-              </div>
-            {% endif %}
-          </div>
-
-          <div class="combatant-actions">
-            <form method="post" action="{{ url_for('combatant_hp', combatant_id=m['id']) }}" class="inline hp-form">
-              <input type="number" name="amount" min="0" placeholder="0" class="hp-amount" aria-label="Amount">
-              <button type="submit" name="mode" value="damage" class="btn-dmg" title="Apply damage">− Dmg</button>
-              <button type="submit" name="mode" value="heal" class="btn-heal" title="Apply healing">+ Heal</button>
-            </form>
-            <form method="post" action="{{ url_for('combatant_temp', combatant_id=m['id']) }}" class="inline temp-form">
-              <input type="number" name="temp_hp" min="0" value="{{ m['temp_hp'] }}" class="hp-amount" aria-label="Temp HP">
-              <button type="submit" class="btn-small" title="Set temporary HP">Temp</button>
-            </form>
-            <details class="cond-edit">
-              <summary class="btn-small">Conditions</summary>
-              <div class="cond-grid">
-                {% for cond in conditions %}
-                  <form method="post" action="{{ url_for('combatant_condition', combatant_id=m['id']) }}" class="inline">
-                    <input type="hidden" name="condition" value="{{ cond }}">
-                    <button type="submit" class="cond-chip {{ 'on' if cond in conds }}">{{ cond }}</button>
-                  </form>
-                {% endfor %}
-              </div>
-            </details>
-            <form method="post" action="{{ url_for('combatant_remove', combatant_id=m['id']) }}" class="inline"
-                  onsubmit="return confirm('Remove {{ m['name'] }} from combat?')">
-              <button type="submit" class="roll-del" title="Remove from combat">×</button>
-            </form>
-          </div>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p class="muted">No combatants yet. Add characters or load an encounter above.</p>
-  {% endif %}
+  <script>
+    // Combat tracker: every action inside #combat (turn, initiative, damage/heal,
+    // temp HP, conditions, add/remove, rests) re-renders just this fragment via
+    // fetch — no full-page reload, so the tracker stays put during a fast fight.
+    // Handlers are delegated on #combat, so they survive the fragment being
+    // replaced. Forms marked data-full (End combat) navigate normally instead.
+    // Without JS, every form POSTs and the server redirects — a clean fallback.
+    (function () {
+      const box = document.getElementById('combat');
+      if (!box) return;
+      box.addEventListener('submit', function (e) {
+        const form = e.target.closest('form');
+        if (!form || form.hasAttribute('data-full')) return;  // let full-nav forms through
+        e.preventDefault();
+        if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) return;
+        // FormData(form, submitter) keeps the clicked button's value (e.g. the
+        // damage-vs-heal mode), which a plain FormData(form) would drop.
+        fetch(form.action, { method: 'POST', body: new FormData(form, e.submitter),
+                             headers: { 'X-Requested-With': 'fetch' } })
+          .then(r => r.text())
+          .then(html => { box.innerHTML = html; });
+      });
+    })();
+  </script>
 {% endblock %}

@@ -527,11 +527,25 @@ def _load_encounter_into_combat(combat_id, encounter_id):
             combat_add_creature(combat_id, creature, m["quantity"])
 
 
-def _combatant_back(combatant_id):
-    """Redirect target for a combatant action: its combat, else the combat list."""
-    c = get_combatant(combatant_id)
-    return (url_for("combat_detail", combat_id=c["combat_id"]) if c
-            else url_for("combat"))
+def _combat_fragment(combat_id):
+    """Render the combat tracker body (the #combat AJAX fragment)."""
+    return render_template(
+        "_combat_body.html",
+        combat=get_combat(combat_id),
+        combatants=list_combatants(combat_id),
+        conditions=CONDITIONS,
+        roster=list_roster(),
+        encounters=list_encounters(),
+    )
+
+
+def _combat_response(combat_id):
+    """Re-render the tracker fragment for fetch requests; else full redirect."""
+    if _is_fetch() and get_combat(combat_id):
+        return _combat_fragment(combat_id)
+    return redirect(url_for("combat_detail", combat_id=combat_id))
+
+
 
 
 @app.route("/combat")
@@ -581,7 +595,7 @@ def combat_add(combat_id):
     if creature:
         combat_add_creature(combat_id, creature, request.form.get("quantity", 1, type=int) or 1)
         flash(f"Added {creature['name']}.")
-    return redirect(url_for("combat_detail", combat_id=combat_id))
+    return _combat_response(combat_id)
 
 
 @app.route("/combat/<int:combat_id>/load-encounter", methods=["POST"])
@@ -592,7 +606,7 @@ def combat_load_encounter(combat_id):
     if eid and get_encounter(eid):
         _load_encounter_into_combat(combat_id, eid)
         flash("Encounter loaded.")
-    return redirect(url_for("combat_detail", combat_id=combat_id))
+    return _combat_response(combat_id)
 
 
 @app.route("/combat/<int:combat_id>/roll-initiative", methods=["POST"])
@@ -600,14 +614,14 @@ def combat_roll_initiative(combat_id):
     if get_combat(combat_id):
         roll_initiative_all(combat_id)
         flash("Initiative rolled.")
-    return redirect(url_for("combat_detail", combat_id=combat_id))
+    return _combat_response(combat_id)
 
 
 @app.route("/combat/<int:combat_id>/next-turn", methods=["POST"])
 def combat_next_turn(combat_id):
     if get_combat(combat_id):
         next_turn(combat_id)
-    return redirect(url_for("combat_detail", combat_id=combat_id))
+    return _combat_response(combat_id)
 
 
 @app.route("/combat/<int:combat_id>/rest", methods=["POST"])
@@ -617,46 +631,61 @@ def combat_rest_route(combat_id):
         if kind in ("short", "long"):
             combat_rest(combat_id, kind)
             flash(f"{kind.title()} rest taken.")
-    return redirect(url_for("combat_detail", combat_id=combat_id))
+    return _combat_response(combat_id)
+
+
+def _combatant_combat_id(combatant_id):
+    c = get_combatant(combatant_id)
+    return c["combat_id"] if c else None
 
 
 @app.route("/combatant/<int:combatant_id>/initiative", methods=["POST"])
 def combatant_initiative(combatant_id):
-    if get_combatant(combatant_id):
+    cid = _combatant_combat_id(combatant_id)
+    if cid:
         set_initiative(combatant_id, request.form.get("initiative", 0, type=int) or 0)
-    return redirect(_combatant_back(combatant_id))
+        return _combat_response(cid)
+    return redirect(url_for("combat"))
 
 
 @app.route("/combatant/<int:combatant_id>/hp", methods=["POST"])
 def combatant_hp(combatant_id):
     """Apply damage or healing. `mode` is 'damage' or 'heal'; `amount` is positive."""
-    if get_combatant(combatant_id):
+    cid = _combatant_combat_id(combatant_id)
+    if cid:
         amount = request.form.get("amount", 0, type=int) or 0
         if amount:
             delta = -amount if request.form.get("mode") == "damage" else amount
             apply_hp(combatant_id, delta)
-    return redirect(_combatant_back(combatant_id))
+        return _combat_response(cid)
+    return redirect(url_for("combat"))
 
 
 @app.route("/combatant/<int:combatant_id>/temp", methods=["POST"])
 def combatant_temp(combatant_id):
-    if get_combatant(combatant_id):
+    cid = _combatant_combat_id(combatant_id)
+    if cid:
         set_temp_hp(combatant_id, request.form.get("temp_hp", 0, type=int) or 0)
-    return redirect(_combatant_back(combatant_id))
+        return _combat_response(cid)
+    return redirect(url_for("combat"))
 
 
 @app.route("/combatant/<int:combatant_id>/condition", methods=["POST"])
 def combatant_condition(combatant_id):
-    if get_combatant(combatant_id):
+    cid = _combatant_combat_id(combatant_id)
+    if cid:
         toggle_condition(combatant_id, request.form.get("condition", ""))
-    return redirect(_combatant_back(combatant_id))
+        return _combat_response(cid)
+    return redirect(url_for("combat"))
 
 
 @app.route("/combatant/<int:combatant_id>/remove", methods=["POST"])
 def combatant_remove(combatant_id):
-    back = _combatant_back(combatant_id)
+    cid = _combatant_combat_id(combatant_id)
     remove_combatant(combatant_id)
-    return redirect(back)
+    if cid:
+        return _combat_response(cid)
+    return redirect(url_for("combat"))
 
 
 def _apply_avatar(creature_id):
