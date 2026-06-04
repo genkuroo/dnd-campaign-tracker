@@ -39,6 +39,8 @@ GLOSSARY = {
     "prepared": "Prepared — a known spell you've readied (usually after a long rest) and can cast right now. Many classes can only cast prepared spells.",
     "casting-time": "Casting time — how long a spell takes: an action, bonus action, reaction, or longer.",
     "concentration": "Concentration — some spells last only while you focus; taking damage can break it.",
+    "short-rest": "Short rest — a ~1 hour breather. In 5e you spend hit dice to heal; here it recovers about half of each character's missing HP.",
+    "long-rest": "Long rest — ~8 hours of rest. Restores all hit points (and, in full 5e, spell slots and abilities).",
     "action": "Action — the main thing you do on your turn.",
     "bonus-action": "Bonus action — a quick extra action some abilities grant on your turn.",
     "reaction": "Reaction — an instant response triggered by an event, even on another creature's turn.",

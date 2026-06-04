@@ -5,25 +5,32 @@
 {% from "macros.html" import avatar, info %}
 {% set active = (combatants | selectattr('id', 'equalto', combat['turn_combatant_id']) | list) %}
 
+{% if combat['status'] == 'ended' %}
+  <div class="ended-banner">
+    <span>🏁 This combat has ended (kept in history).</span>
+    <form method="post" action="{{ url_for('combat_reopen', combat_id=combat['id']) }}" class="inline" data-full>
+      <button type="submit" class="btn-small">Reopen</button>
+    </form>
+  </div>
+{% endif %}
+
 <p class="muted combat-status">Round {{ combat['round'] }}{% if active %} · <strong>{{ active[0]['name'] }}</strong>’s turn{% endif %}</p>
 
 <div class="combat-controls">
   <form method="post" action="{{ url_for('combat_next_turn', combat_id=combat['id']) }}" class="inline">
     <button type="submit" class="btn">▶ Next turn</button>
   </form>
-  <form method="post" action="{{ url_for('combat_roll_initiative', combat_id=combat['id']) }}" class="inline">
-    <button type="submit" class="btn-ghost">🎲 Roll initiative</button>
-  </form>
-  <form method="post" action="{{ url_for('combat_rest_route', combat_id=combat['id']) }}" class="inline">
-    <input type="hidden" name="kind" value="short">
-    <button type="submit" class="btn-ghost" title="Clears temp HP">Short rest</button>
-  </form>
-  <form method="post" action="{{ url_for('combat_rest_route', combat_id=combat['id']) }}" class="inline">
-    <input type="hidden" name="kind" value="long">
-    <button type="submit" class="btn-ghost" title="Full HP, clears temp HP &amp; conditions">Long rest</button>
-  </form>
-  <form method="post" action="{{ url_for('combat_delete', combat_id=combat['id']) }}" class="inline"
-        data-full data-confirm="End and delete this combat?">
+  {% if combat['initiative_rolled'] %}
+    <form method="post" action="{{ url_for('combat_roll_initiative', combat_id=combat['id']) }}" class="inline">
+      <button type="submit" class="btn-text" title="Re-roll initiative for everyone">↻ Re-roll initiative</button>
+    </form>
+  {% else %}
+    <form method="post" action="{{ url_for('combat_roll_initiative', combat_id=combat['id']) }}" class="inline">
+      <button type="submit" class="btn-ghost">🎲 Roll initiative</button>
+    </form>
+  {% endif %}
+  <form method="post" action="{{ url_for('combat_end', combat_id=combat['id']) }}" class="inline"
+        data-full data-confirm="End this combat? It will be kept in history.">
     <button type="submit" class="btn-danger">End combat</button>
   </form>
 </div>

@@ -102,6 +102,48 @@ def list_roster():
         conn.close()
 
 
+def list_party():
+    """The player characters — the adventuring party — by name."""
+    conn = get_connection()
+    try:
+        return conn.execute(
+            "SELECT * FROM creatures WHERE kind = 'pc' ORDER BY name COLLATE NOCASE"
+        ).fetchall()
+    finally:
+        conn.close()
+
+
+def party_rest(kind):
+    """A party-wide rest on the actual character sheets (not a combat snapshot).
+    Long rest = everyone to full HP. Short rest = each PC recovers half their
+    *missing* HP — an approximation of spending hit dice, which we don't track."""
+    conn = get_connection()
+    try:
+        if kind == "long":
+            conn.execute(
+                "UPDATE creatures SET current_hp = max_hp WHERE kind = 'pc'"
+            )
+        elif kind == "short":
+            conn.execute(
+                "UPDATE creatures SET current_hp = current_hp + (max_hp - current_hp) / 2 "
+                "WHERE kind = 'pc'"
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def heal_to_full(creature_id):
+    conn = get_connection()
+    try:
+        conn.execute(
+            "UPDATE creatures SET current_hp = max_hp WHERE id = ?", (creature_id,)
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def list_monsters():
     """The bestiary — every creature with kind 'monster', newest first.
 

@@ -1183,3 +1183,37 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
   padding: 0.6rem; max-width: 360px;
   background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px;
 }
+
+/* De-emphasized text button (e.g. re-roll initiative once it's been rolled). */
+.btn-text {
+  font: inherit; font-family: sans-serif; font-size: 0.82rem; cursor: pointer;
+  background: transparent; border: none; color: var(--muted);
+  padding: 0.45rem 0.4rem; text-decoration: underline;
+}
+.btn-text:hover { color: var(--ink); }
+
+/* Ended-combat banner */
+.ended-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  flex-wrap: wrap; margin-bottom: 1rem;
+  padding: 0.5rem 0.8rem; border-radius: 6px;
+  font-family: sans-serif; font-size: 0.9rem;
+  border: 1px solid #6b5f3f; background: rgba(107,95,63,0.15);
+}
+
+/* --- Party tab --- */
+.party-grid {
+  display: grid; gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+.party-card {
+  padding: 1rem; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 8px;
+  display: flex; flex-direction: column; gap: 0.7rem;
+}
+.party-card-head { display: flex; align-items: center; gap: 0.7rem; text-decoration: none; color: var(--ink); }
+.party-card-head:hover .char-name { text-decoration: underline; }
+.party-portrait { flex: none; }
+.party-id { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+.party-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.party-full { font-family: sans-serif; font-size: 0.8rem; }

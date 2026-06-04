@@ -29,9 +29,12 @@ from models.creature import (
     delete_creature,
     format_modifier,
     get_creature,
+    heal_to_full,
     level_from_xp,
     list_monsters,
+    list_party,
     list_roster,
+    party_rest,
     update_creature,
     xp_to_next,
 )
@@ -85,9 +88,9 @@ from models.combat import (
     list_combats,
     next_turn,
     remove_combatant,
-    rest as combat_rest,
     roll_initiative_all,
     set_initiative,
+    set_status as set_combat_status,
     set_temp_hp,
     toggle_condition,
 )
@@ -134,6 +137,7 @@ app.jinja_env.globals["define"] = define
 # navigation renders. Single source of truth so nav and routes can't drift.
 TABS = [
     {"endpoint": "character", "label": "Character Sheet"},
+    {"endpoint": "party", "label": "Party"},
     {"endpoint": "bestiary", "label": "Bestiary"},
     {"endpoint": "combat", "label": "Combat"},
     {"endpoint": "loot", "label": "Loot"},
@@ -551,7 +555,9 @@ def _combat_response(combat_id):
 @app.route("/combat")
 def combat():
     return render_template(
-        "combat.html", active="combat", title="Combat", combats=list_combats(),
+        "combat.html", active="combat", title="Combat",
+        combats=list_combats("active"),
+        history=list_combats("ended"),
     )
 
 
@@ -579,10 +585,28 @@ def combat_detail(combat_id):
     )
 
 
+@app.route("/combat/<int:combat_id>/end", methods=["POST"])
+def combat_end(combat_id):
+    """Archive a combat (keep it in history) rather than destroying it."""
+    if get_combat(combat_id):
+        set_combat_status(combat_id, "ended")
+        flash("Combat ended — kept in history.")
+    return redirect(url_for("combat"))
+
+
+@app.route("/combat/<int:combat_id>/reopen", methods=["POST"])
+def combat_reopen(combat_id):
+    if get_combat(combat_id):
+        set_combat_status(combat_id, "active")
+        flash("Combat reopened.")
+    return redirect(url_for("combat_detail", combat_id=combat_id))
+
+
 @app.route("/combat/<int:combat_id>/delete", methods=["POST"])
 def combat_delete(combat_id):
+    """Permanently delete a combat (from history)."""
     delete_combat(combat_id)
-    flash("Combat ended.")
+    flash("Combat deleted.")
     return redirect(url_for("combat"))
 
 
@@ -621,16 +645,6 @@ def combat_roll_initiative(combat_id):
 def combat_next_turn(combat_id):
     if get_combat(combat_id):
         next_turn(combat_id)
-    return _combat_response(combat_id)
-
-
-@app.route("/combat/<int:combat_id>/rest", methods=["POST"])
-def combat_rest_route(combat_id):
-    if get_combat(combat_id):
-        kind = request.form.get("kind")
-        if kind in ("short", "long"):
-            combat_rest(combat_id, kind)
-            flash(f"{kind.title()} rest taken.")
     return _combat_response(combat_id)
 
 
@@ -686,6 +700,36 @@ def combatant_remove(combatant_id):
     if cid:
         return _combat_response(cid)
     return redirect(url_for("combat"))
+
+
+# --- Party tab ------------------------------------------------------------
+# The adventuring party (the PCs). Home for between-fights actions like rests,
+# which restore the actual character sheets (not a combat snapshot).
+
+@app.route("/party")
+def party():
+    return render_template(
+        "party.html", active="party", title="Party", party=list_party(),
+    )
+
+
+@app.route("/party/rest", methods=["POST"])
+def party_rest_route():
+    kind = request.form.get("kind")
+    if kind in ("short", "long"):
+        party_rest(kind)
+        flash("Long rest — party restored to full HP." if kind == "long"
+              else "Short rest — party recovered some HP.")
+    return redirect(url_for("party"))
+
+
+@app.route("/party/<int:creature_id>/heal-full", methods=["POST"])
+def party_heal_full(creature_id):
+    cr = get_creature(creature_id)
+    if cr and cr["kind"] == "pc":
+        heal_to_full(creature_id)
+        flash(f"{cr['name']} healed to full.")
+    return redirect(url_for("party"))
 
 
 def _apply_avatar(creature_id):

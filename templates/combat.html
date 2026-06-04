@@ -19,6 +19,28 @@
       {% endfor %}
     </ul>
   {% else %}
-    <p class="muted">No combats yet. Start one above, or use “Start combat” on a Bestiary encounter.</p>
+    <p class="muted">No active combats. Start one above, or use “Start combat” on a Bestiary encounter.</p>
+  {% endif %}
+
+  {% if history %}
+    <section class="encounters">
+      <div class="section-head"><h2>History</h2></div>
+      <p class="muted">Ended fights are kept here — reopen one to continue, or delete it for good.</p>
+      <ul class="encounter-list">
+        {% for c in history %}
+          <li class="encounter-row">
+            <a class="encounter-name" href="{{ url_for('combat_detail', combat_id=c['id']) }}">{{ c['name'] }}</a>
+            <span class="muted">Round {{ c['round'] }} · {{ c['combatant_count'] }} combatant{{ '' if c['combatant_count'] == 1 else 's' }}</span>
+            <form method="post" action="{{ url_for('combat_reopen', combat_id=c['id']) }}" class="inline">
+              <button type="submit" class="btn-small">Reopen</button>
+            </form>
+            <form method="post" action="{{ url_for('combat_delete', combat_id=c['id']) }}" class="inline"
+                  onsubmit="return confirm('Permanently delete “{{ c['name'] }}”?')">
+              <button type="submit" class="roll-del" title="Delete permanently">×</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
   {% endif %}
 {% endblock %}

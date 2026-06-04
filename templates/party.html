@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "macros.html" import avatar, info %}
+{% block content %}
+  <div class="page-head">
+    <h1>Party</h1>
+    <div class="head-actions">
+      <form method="post" action="{{ url_for('party_rest_route') }}" class="inline">
+        <input type="hidden" name="kind" value="short">
+        <button type="submit" class="btn-ghost" title="Each character recovers about half their missing HP">Short rest</button>
+      </form>
+      <form method="post" action="{{ url_for('party_rest_route') }}" class="inline">
+        <input type="hidden" name="kind" value="long">
+        <button type="submit" class="btn" title="Everyone back to full HP">🌙 Long rest</button>
+      </form>
+    </div>
+  </div>
+  <p class="muted">Your player characters. Rests restore HP on their actual sheets — a long rest brings everyone to full; a {{ info('short-rest', 'short rest') }} recovers about half of each character's missing HP.</p>
+
+  {% if party %}
+    <div class="party-grid">
+      {% for c in party %}
+        {% set pct = (100 * c['current_hp'] / c['max_hp']) if c['max_hp'] else 0 %}
+        <div class="party-card">
+          <a class="party-card-head" href="{{ url_for('character_detail', creature_id=c['id']) }}">
+            <span class="party-portrait">{{ avatar(c, 'avatar-md') }}</span>
+            <span class="party-id">
+              <span class="char-name">{{ c['name'] }}</span>
+              <span class="muted">Lv {{ c['level'] }}{% if c['player_name'] %} · {{ c['player_name'] }}{% endif %}</span>
+            </span>
+          </a>
+          <div class="hp-bar" title="{{ c['current_hp'] }} / {{ c['max_hp'] }} HP">
+            <span class="hp-fill {{ 'low' if pct <= 33 else ('mid' if pct <= 66 else '') }}" style="width: {{ pct }}%"></span>
+            <span class="hp-text">{{ c['current_hp'] }} / {{ c['max_hp'] }}</span>
+          </div>
+          <div class="party-card-foot">
+            <span class="combatant-ac" title="Armor Class">🛡️ {{ c['armor_class'] }}</span>
+            {% if c['current_hp'] < c['max_hp'] %}
+              <form method="post" action="{{ url_for('party_heal_full', creature_id=c['id']) }}" class="inline">
+                <button type="submit" class="btn-small">Heal to full</button>
+              </form>
+            {% else %}
+              <span class="muted party-full">Full HP</span>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">No player characters yet.</p>
+    <p class="placeholder-note">Create a PC on the Character Sheet tab to add them to the party.</p>
+  {% endif %}
+{% endblock %}

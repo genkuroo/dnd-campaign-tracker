@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 13
+SCHEMA_VERSION = 14
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -213,6 +213,14 @@ MIGRATIONS = {
         conditions  TEXT    NOT NULL DEFAULT '',
         added_at    TEXT    NOT NULL DEFAULT (datetime('now'))
     );
+    """,
+    14: """
+    -- Combat history + one-time initiative. `status` keeps an ended fight around
+    -- ('ended') instead of deleting it, so the Combat tab can show a history and
+    -- reopen past fights. `initiative_rolled` lets the UI collapse the prominent
+    -- "Roll initiative" button into a de-emphasized re-roll once it's been used.
+    ALTER TABLE combats ADD COLUMN status TEXT NOT NULL DEFAULT 'active';
+    ALTER TABLE combats ADD COLUMN initiative_rolled INTEGER NOT NULL DEFAULT 0;
     """,
 }
 

@@ -32,15 +32,33 @@ def create_combat(name=""):
         conn.close()
 
 
-def list_combats():
-    """All combats (newest first) with a combatant count."""
+def list_combats(status=None):
+    """Combats (newest first) with a combatant count; optionally filter by
+    status ('active' | 'ended')."""
     conn = get_connection()
     try:
-        return conn.execute(
+        sql = (
             "SELECT c.*, COUNT(m.id) AS combatant_count "
             "FROM combats c LEFT JOIN combatants m ON m.combat_id = c.id "
-            "GROUP BY c.id ORDER BY c.created_at DESC"
-        ).fetchall()
+        )
+        params = ()
+        if status:
+            sql += "WHERE c.status = ? "
+            params = (status,)
+        sql += "GROUP BY c.id ORDER BY c.created_at DESC"
+        return conn.execute(sql, params).fetchall()
+    finally:
+        conn.close()
+
+
+def set_status(combat_id, status):
+    """Archive ('ended') or reopen ('active') a combat — history, not deletion."""
+    conn = get_connection()
+    try:
+        conn.execute(
+            "UPDATE combats SET status = ? WHERE id = ?", (status, combat_id)
+        )
+        conn.commit()
     finally:
         conn.close()
 
@@ -155,6 +173,10 @@ def roll_initiative_all(combat_id):
                 "UPDATE combatants SET initiative = ? WHERE id = ?",
                 (random.randint(1, 20) + r["dex_mod"], r["id"]),
             )
+        # Mark it rolled so the UI can collapse the prominent button into a re-roll.
+        conn.execute(
+            "UPDATE combats SET initiative_rolled = 1 WHERE id = ?", (combat_id,)
+        )
         conn.commit()
     finally:
         conn.close()
