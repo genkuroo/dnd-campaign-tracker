@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head">
+    <h1>Bestiary</h1>
+    <a class="btn" href="{{ url_for('monster_new') }}">+ New Monster</a>
+  </div>
+
+  {% if monsters %}
+    <div class="roster-filter">
+      <input type="search" id="bestiary-search" placeholder="Search by name…" autocomplete="off" aria-label="Search">
+    </div>
+
+    <div class="card-grid" id="bestiary-grid">
+      {% for m in monsters %}
+        <div class="char-card monster-card" data-name="{{ m['name'] | lower }}">
+          <a class="char-card-link" href="{{ url_for('character_detail', creature_id=m['id']) }}">
+            <div class="char-card-head">
+              <span class="char-name">{{ m['name'] }}</span>
+              {% if m['visibility'] == 'hidden' %}<span class="badge-dm">DM only</span>{% endif %}
+            </div>
+            <div class="char-meta">
+              <span class="badge-kind badge-kind-monster">Monster</span>
+              <span class="disp disp-{{ m['disposition'] }}">{{ m['disposition'] }}</span>
+              {% if m['alignment'] %}<span class="muted">{{ m['alignment'] | alignment }}</span>{% endif %}
+            </div>
+            <div class="char-card-stats">
+              <span title="Hit Points">❤️ {{ m['current_hp'] }}/{{ m['max_hp'] }}</span>
+              <span title="Armor Class">🛡️ {{ m['armor_class'] }}</span>
+              <span class="{{ 'revealed' if m['stats_revealed'] else 'muted' }}" title="Stat reveal to players">
+                {{ '👁 revealed' if m['stats_revealed'] else '🙈 hidden stats' }}
+              </span>
+            </div>
+          </a>
+          <a class="inspect-link" href="{{ url_for('monster_inspect', creature_id=m['id']) }}">🔍 Inspect</a>
+        </div>
+      {% endfor %}
+    </div>
+    <p class="muted roster-empty" id="bestiary-empty" hidden>No matches.</p>
+
+    <script>
+      (function () {
+        const search = document.getElementById('bestiary-search');
+        const grid = document.getElementById('bestiary-grid');
+        const empty = document.getElementById('bestiary-empty');
+        search.addEventListener('input', function () {
+          const q = search.value.trim().toLowerCase();
+          let shown = 0;
+          grid.querySelectorAll('.monster-card').forEach(function (card) {
+            const show = card.dataset.name.includes(q);
+            card.style.display = show ? '' : 'none';
+            if (show) shown++;
+          });
+          empty.hidden = shown !== 0;
+        });
+      })();
+    </script>
+  {% else %}
+    <p class="muted">No monsters yet.</p>
+    <p class="placeholder-note">Create a monster to start stocking encounters.</p>
+  {% endif %}
+
+  <section class="encounters">
+    <div class="section-head">
+      <h2>Encounters</h2>
+      <form method="post" action="{{ url_for('encounter_new') }}" class="inline encounter-new">
+        <input type="text" name="name" placeholder="New encounter name…" required>
+        <button type="submit" class="btn-small">+ Create</button>
+      </form>
+    </div>
+    <p class="muted">Saved groups of monsters to load into the combat tracker (Phase 6).</p>
+
+    {% if encounters %}
+      <ul class="encounter-list">
+        {% for e in encounters %}
+          <li class="encounter-row">
+            <a class="encounter-name" href="{{ url_for('encounter_detail', encounter_id=e['id']) }}">{{ e['name'] }}</a>
+            <span class="muted">{{ e['total_creatures'] }} creature{{ '' if e['total_creatures'] == 1 else 's' }} · {{ e['member_count'] }} type{{ '' if e['member_count'] == 1 else 's' }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No encounters saved yet.</p>
+    {% endif %}
+  </section>
+{% endblock %}

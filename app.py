@@ -19,6 +19,7 @@ from models.creature import (
     ALIGNMENTS,
     DISPOSITIONS,
     KINDS,
+    MONSTER_KINDS,
     ability_modifier,
     alignment_label,
     create_creature,
@@ -26,6 +27,7 @@ from models.creature import (
     format_modifier,
     get_creature,
     level_from_xp,
+    list_monsters,
     list_roster,
     update_creature,
     xp_to_next,
@@ -59,6 +61,26 @@ from models.loot import (
     remove_loot,
     set_current_area,
 )
+from models.actions import (
+    CATEGORIES as ACTION_CATEGORIES,
+    add_action,
+    category_label as action_category_label,
+    get_action,
+    list_actions,
+    remove_action,
+)
+from models.action_catalog import all_catalog_actions, get_catalog_action
+from models.encounters import (
+    add_member,
+    create_encounter,
+    delete_encounter,
+    encounter_members,
+    get_encounter,
+    list_encounters,
+    remove_member,
+    rename_encounter,
+    set_member_quantity,
+)
 from models.spells import all_spells, get_spell, level_label, search_spells
 from models.spellbook import (
     add_spell,
@@ -85,6 +107,7 @@ app.jinja_env.globals["define"] = define
 # navigation renders. Single source of truth so nav and routes can't drift.
 TABS = [
     {"endpoint": "character", "label": "Character Sheet"},
+    {"endpoint": "bestiary", "label": "Bestiary"},
     {"endpoint": "loot", "label": "Loot"},
     {"endpoint": "spells", "label": "Spells & Actions"},
     {"endpoint": "dice", "label": "Dice"},
@@ -139,6 +162,12 @@ def _alignment_filter(code):
 @app.template_filter("ordinal_level")
 def _ordinal_level_filter(level):
     return level_label(level)
+
+
+@app.template_filter("action_category")
+def _action_category_filter(value):
+    """Jinja filter: action category code -> label (e.g. 'bonus' -> 'Bonus Action')."""
+    return action_category_label(value)
 
 
 # Dice tokens inside prose, e.g. '8d6', '1d4 + 1'.
@@ -216,7 +245,7 @@ def character_detail(creature_id):
     next_level = xp_to_next(creature["xp"])
     return render_template(
         "character_detail.html",
-        active="character",
+        active="bestiary" if creature["kind"] == "monster" else "character",
         title=creature["name"],
         abilities=ABILITIES,
         dispositions=DISPOSITIONS,
@@ -229,6 +258,9 @@ def character_detail(creature_id):
         slot_labels=SLOT_LABELS,
         slots=SLOTS,
         panel=equipment_panel(creature_id),
+        actions=list_actions(creature_id),
+        action_categories=ACTION_CATEGORIES,
+        action_book=all_catalog_actions(),
     )
 
 
@@ -241,12 +273,16 @@ def character_edit(creature_id):
         update_creature(creature_id, _form_to_data(request.form))
         flash("Character updated.")
         return redirect(url_for("character_detail", creature_id=creature_id))
+    vocab = _form_vocab()
+    if creature["kind"] == "monster":
+        vocab["kinds"] = MONSTER_KINDS  # keep the Type field as Monster, not pc/npc
     return render_template(
         "character_form.html",
-        active="character",
+        active="bestiary" if creature["kind"] == "monster" else "character",
         title=f"Edit {creature['name']}",
         creature=creature,
-        **_form_vocab(),
+        cancel_url=url_for("character_detail", creature_id=creature_id),
+        **vocab,
     )
 
 
@@ -267,6 +303,143 @@ def character_delete(creature_id):
     return redirect(url_for("character"))
 
 
+# --- Bestiary tab (monsters) ----------------------------------------------
+# Monsters reuse the creature engine wholesale — the editable sheet is the same
+# character_detail view, and create/edit/delete go through the shared character
+# routes. The Bestiary only adds a monster-scoped list, a create entry point, and
+# the BG3-style read-only inspector with its DM-gated stat reveal.
+
+@app.route("/bestiary")
+def bestiary():
+    return render_template(
+        "bestiary.html",
+        active="bestiary",
+        title="Bestiary",
+        monsters=list_monsters(),
+        encounters=list_encounters(),
+    )
+
+
+@app.route("/bestiary/new", methods=["GET", "POST"])
+def monster_new():
+    if request.method == "POST":
+        data = _form_to_data(request.form)
+        data["kind"] = "monster"  # the Bestiary only makes monsters
+        new_id = create_creature(data)
+        flash("Monster created.")
+        return redirect(url_for("character_detail", creature_id=new_id))
+    return render_template(
+        "character_form.html",
+        active="bestiary",
+        title="New Monster",
+        creature=None,
+        cancel_url=url_for("bestiary"),
+        **{**_form_vocab(), "kinds": MONSTER_KINDS},
+    )
+
+
+@app.route("/bestiary/<int:creature_id>/inspect")
+def monster_inspect(creature_id):
+    """The BG3-style read-only inspector — a trimmed creature view that previews
+    what a player sees. Stat-block numbers are masked until the DM reveals them.
+    """
+    creature = get_creature(creature_id)
+    if creature is None or creature["kind"] != "monster":
+        abort(404)
+    return render_template(
+        "inspector.html",
+        active="bestiary",
+        title=f"Inspect {creature['name']}",
+        creature=creature,
+        abilities=ABILITIES,
+        revealed=bool(creature["stats_revealed"]),
+        spells=[s for s in creature_spells(creature_id) if s["prepared"]],
+        actions=list_actions(creature_id),
+    )
+
+
+@app.route("/bestiary/<int:creature_id>/reveal", methods=["POST"])
+def monster_reveal(creature_id):
+    """Toggle whether a monster's stat block is revealed to players (the inspector
+    masks the numbers until then). DM-only, live from the inspector."""
+    creature = get_creature(creature_id)
+    if creature and creature["kind"] == "monster":
+        update_creature(creature_id, {"stats_revealed": 0 if creature["stats_revealed"] else 1})
+    return redirect(url_for("monster_inspect", creature_id=creature_id))
+
+
+# --- Encounters (saved monster groups, on the Bestiary tab) ---------------
+
+@app.route("/encounters/new", methods=["POST"])
+def encounter_new():
+    new_id = create_encounter(request.form.get("name", ""))
+    if new_id:
+        flash("Encounter created.")
+        return redirect(url_for("encounter_detail", encounter_id=new_id))
+    return redirect(url_for("bestiary"))
+
+
+@app.route("/encounters/<int:encounter_id>")
+def encounter_detail(encounter_id):
+    enc = get_encounter(encounter_id)
+    if enc is None:
+        abort(404)
+    members = encounter_members(encounter_id)
+    return render_template(
+        "encounter_detail.html",
+        active="bestiary",
+        title=enc["name"],
+        encounter=enc,
+        members=members,
+        total_creatures=sum(m["quantity"] for m in members),
+        monsters=list_monsters(),
+    )
+
+
+@app.route("/encounters/<int:encounter_id>/rename", methods=["POST"])
+def encounter_rename(encounter_id):
+    if get_encounter(encounter_id):
+        rename_encounter(encounter_id, request.form.get("name", ""))
+        flash("Encounter renamed.")
+    return redirect(url_for("encounter_detail", encounter_id=encounter_id))
+
+
+@app.route("/encounters/<int:encounter_id>/delete", methods=["POST"])
+def encounter_delete(encounter_id):
+    delete_encounter(encounter_id)
+    flash("Encounter deleted.")
+    return redirect(url_for("bestiary"))
+
+
+@app.route("/encounters/<int:encounter_id>/add", methods=["POST"])
+def encounter_add_member(encounter_id):
+    if get_encounter(encounter_id) is None:
+        abort(404)
+    cid = request.form.get("creature_id", type=int)
+    monster = get_creature(cid) if cid else None
+    # Encounters are groups of monsters; the bestiary is the only source.
+    if monster and monster["kind"] == "monster":
+        add_member(encounter_id, cid, request.form.get("quantity", 1, type=int) or 1)
+        flash(f"Added {monster['name']}.")
+    return redirect(url_for("encounter_detail", encounter_id=encounter_id))
+
+
+@app.route("/encounters/member/<int:member_id>/quantity", methods=["POST"])
+def encounter_member_quantity(member_id):
+    enc_id = request.form.get("encounter_id", type=int)
+    set_member_quantity(member_id, request.form.get("quantity", 0, type=int))
+    return redirect(url_for("encounter_detail", encounter_id=enc_id) if enc_id
+                    else url_for("bestiary"))
+
+
+@app.route("/encounters/member/<int:member_id>/remove", methods=["POST"])
+def encounter_member_remove(member_id):
+    enc_id = request.form.get("encounter_id", type=int)
+    remove_member(member_id)
+    return redirect(url_for("encounter_detail", encounter_id=enc_id) if enc_id
+                    else url_for("bestiary"))
+
+
 def _form_to_data(form):
     """Normalize a submitted character form into a data dict for the model.
 
@@ -275,7 +448,7 @@ def _form_to_data(form):
     """
     data = form.to_dict()
     data["visibility"] = "hidden" if form.get("hidden") else "visible"
-    data["kind"] = form.get("kind") if form.get("kind") in {"pc", "npc"} else "pc"
+    data["kind"] = form.get("kind") if form.get("kind") in {"pc", "npc", "monster"} else "pc"
     return data
 
 
@@ -580,6 +753,8 @@ def spells():
         active="spells",
         title="Spells & Actions",
         spells=all_spells(),
+        action_book=all_catalog_actions(),
+        roster=list_roster(),
     )
 
 
@@ -633,6 +808,48 @@ def spellbook_prepared():
     if cid:
         set_prepared(cid, slug, request.form.get("prepared") == "1")
     return redirect(_safe_next(request.form.get("next"), url_for("character")))
+
+
+# --- Actions & abilities (on the character/monster sheet) -----------------
+# Free-form, creature-attached (CLAUDE.md: distinct from SRD spells). Keyed by
+# the form's creature_id + `next`, mirroring the spellbook routes.
+
+@app.route("/actions/add", methods=["POST"])
+def actions_add():
+    """Add an action to a creature. The primary path grabs a premade entry from
+    the action book (a `slug`, copied onto the creature like loot); a `slug` of
+    '' falls back to a hand-written custom action from the form fields.
+    """
+    cid = request.form.get("creature_id", type=int)
+    if cid and get_creature(cid):
+        entry = get_catalog_action(request.form.get("slug", ""))
+        if entry:
+            add_action(cid, entry["name"], entry["description"],
+                       entry["dice"], entry["category"])
+            flash(f"Added {entry['name']}.")
+        elif (request.form.get("name") or "").strip():
+            add_action(
+                cid,
+                request.form.get("name", ""),
+                request.form.get("description", ""),
+                request.form.get("dice", ""),
+                request.form.get("category", "action"),
+            )
+            flash("Custom action added.")
+    return redirect(_safe_next(request.form.get("next"), url_for("character")))
+
+
+@app.route("/actions/<int:action_id>/remove", methods=["POST"])
+def actions_remove(action_id):
+    action = get_action(action_id)
+    if action is None:
+        return redirect(url_for("character"))
+    remove_action(action_id)
+    flash("Action removed.")
+    return redirect(_safe_next(
+        request.form.get("next"),
+        url_for("character_detail", creature_id=action["creature_id"]),
+    ))
 
 
 @app.route("/map")

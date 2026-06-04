@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 11
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -129,6 +129,51 @@ MIGRATIONS = {
         slot        TEXT    NOT NULL DEFAULT '',
         hands       INTEGER NOT NULL DEFAULT 1,
         added_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    """,
+    9: """
+    -- A creature's free-form actions/abilities (Phase 5). Deliberately *distinct*
+    -- from spells (CLAUDE.md): spells are SRD-backed with level/components, while
+    -- actions (Multiattack, Rage, breath weapons, legendary actions, traits) are
+    -- hand-written name + description + an optional dice expression. Rides the
+    -- same creature-attached pattern as the spellbook; ON DELETE CASCADE clears a
+    -- deleted creature's actions. Works for PCs, NPCs, and monsters alike.
+    CREATE TABLE creature_actions (
+        id          INTEGER PRIMARY KEY,
+        creature_id INTEGER NOT NULL REFERENCES creatures(id) ON DELETE CASCADE,
+        name        TEXT    NOT NULL,
+        category    TEXT    NOT NULL DEFAULT 'action',  -- trait|action|bonus|reaction|legendary
+        dice        TEXT    NOT NULL DEFAULT '',         -- optional roll expr, e.g. '2d6+3'
+        description TEXT    NOT NULL DEFAULT '',
+        added_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    """,
+    10: """
+    -- The BG3-style monster inspector's DM-gated stat reveal (Phase 5). Distinct
+    -- from `visibility` (whether the creature exists for players at all): this is
+    -- whether the *stat block numbers* (AC/HP/abilities/defenses) are shown when a
+    -- player inspects a known monster, vs. left as '?'. The DM flips it live from
+    -- the inspector. Real enforcement against player logins lands in Phase 7; for
+    -- now the inspector renders the player's-eye view as a preview.
+    ALTER TABLE creatures ADD COLUMN stats_revealed INTEGER NOT NULL DEFAULT 0;
+    """,
+    11: """
+    -- Saved encounters (Phase 5): a named group of monsters the DM can later
+    -- load into the combat tracker (Phase 6). A member points at a creature
+    -- (typically a monster from the bestiary) with a quantity, so 'Goblin x4' is
+    -- one row. ON DELETE CASCADE both ways: deleting an encounter drops its
+    -- members; deleting a creature drops it from every encounter.
+    CREATE TABLE encounters (
+        id         INTEGER PRIMARY KEY,
+        name       TEXT    NOT NULL,
+        created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE TABLE encounter_members (
+        id           INTEGER PRIMARY KEY,
+        encounter_id INTEGER NOT NULL REFERENCES encounters(id) ON DELETE CASCADE,
+        creature_id  INTEGER NOT NULL REFERENCES creatures(id) ON DELETE CASCADE,
+        quantity     INTEGER NOT NULL DEFAULT 1,
+        added_at     TEXT    NOT NULL DEFAULT (datetime('now'))
     );
     """,
 }

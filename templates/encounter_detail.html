@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="sheet-name">{{ encounter['name'] }}</h1>
+      <p class="muted">{{ total_creatures }} creature{{ '' if total_creatures == 1 else 's' }} across {{ members | length }} type{{ '' if members | length == 1 else 's' }}.</p>
+    </div>
+    <div class="head-actions">
+      <a class="btn-ghost" href="{{ url_for('bestiary') }}">← Bestiary</a>
+    </div>
+  </div>
+
+  {% if members %}
+    <ul class="encounter-members">
+      {% for m in members %}
+        <li class="encounter-member">
+          <a class="encounter-member-name" href="{{ url_for('character_detail', creature_id=m['creature_id']) }}">{{ m['name'] }}</a>
+          <span class="muted encounter-member-stats" title="HP · AC">❤️ {{ m['max_hp'] }} · 🛡️ {{ m['armor_class'] }}</span>
+          <form method="post" action="{{ url_for('encounter_member_quantity', member_id=m['id']) }}" class="inline qty-form">
+            <input type="hidden" name="encounter_id" value="{{ encounter['id'] }}">
+            <input type="hidden" name="quantity" value="{{ m['quantity'] - 1 }}">
+            <button type="submit" class="qty-btn" title="One fewer" {{ 'disabled' if m['quantity'] <= 1 else '' }}>−</button>
+          </form>
+          <span class="encounter-qty">×{{ m['quantity'] }}</span>
+          <form method="post" action="{{ url_for('encounter_member_quantity', member_id=m['id']) }}" class="inline qty-form">
+            <input type="hidden" name="encounter_id" value="{{ encounter['id'] }}">
+            <input type="hidden" name="quantity" value="{{ m['quantity'] + 1 }}">
+            <button type="submit" class="qty-btn" title="One more">+</button>
+          </form>
+          <form method="post" action="{{ url_for('encounter_member_remove', member_id=m['id']) }}" class="inline"
+                onsubmit="return confirm('Remove {{ m['name'] }} from this encounter?')">
+            <input type="hidden" name="encounter_id" value="{{ encounter['id'] }}">
+            <button type="submit" class="roll-del" title="Remove">×</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">No monsters in this encounter yet.</p>
+  {% endif %}
+
+  {% if monsters %}
+    <form method="post" action="{{ url_for('encounter_add_member', encounter_id=encounter['id']) }}" class="add-encounter-member">
+      <select name="creature_id" aria-label="Monster">
+        {% for mon in monsters %}
+          <option value="{{ mon['id'] }}">{{ mon['name'] }}</option>
+        {% endfor %}
+      </select>
+      <input type="number" name="quantity" value="1" min="1" class="qty-input" aria-label="Quantity">
+      <button type="submit" class="btn">Add monster</button>
+    </form>
+  {% else %}
+    <p class="placeholder-note">Create a monster in the Bestiary to add it here.</p>
+  {% endif %}
+
+  <hr class="section-rule">
+  <div class="encounter-tools">
+    <form method="post" action="{{ url_for('encounter_rename', encounter_id=encounter['id']) }}" class="inline">
+      <input type="text" name="name" value="{{ encounter['name'] }}" aria-label="Encounter name">
+      <button type="submit" class="btn-small">Rename</button>
+    </form>
+    <form method="post" action="{{ url_for('encounter_delete', encounter_id=encounter['id']) }}" class="inline"
+          onsubmit="return confirm('Delete encounter “{{ encounter['name'] }}”?')">
+      <button type="submit" class="btn-danger">Delete encounter</button>
+    </form>
+  </div>
+{% endblock %}
