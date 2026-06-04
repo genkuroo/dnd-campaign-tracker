@@ -320,12 +320,22 @@ body {
 }
 .xp-progress { font-size: 0.85rem; margin: -0.5rem 0 1rem; }
 
-/* Short, centered section break between major character-sheet sections (gear,
-   spells, actions, notes) — a small divider, not an end-to-end rule. */
+/* Centered section break between major character-sheet sections (gear, spells,
+   actions, notes). A soft gold gradient line with a gold diamond ornament in the
+   middle, so it reads as an intentional divider rather than another card edge. */
 .sheet-divider {
-  border: none; height: 1px; width: 65%;
-  margin: 1.75rem auto;
-  background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+  position: relative;
+  height: 1px; width: 65%;
+  margin: 2rem auto;
+  background: linear-gradient(to right, transparent, rgba(201, 161, 74, 0.55) 50%, transparent);
+}
+.sheet-divider::after {
+  content: "◆";
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--accent-2);
+  font-size: 0.7rem; line-height: 1;
+  background: var(--bg); padding: 0 0.6rem;
 }
 
 /* Level-up control */

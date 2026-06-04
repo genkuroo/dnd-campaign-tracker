@@ -102,13 +102,13 @@
     </section>
   {% endif %}
 
-  <hr class="sheet-divider">
+  <div class="sheet-divider" role="separator"></div>
 
   <div id="gear">
     {% include "_gear.html" %}
   </div>
 
-  <hr class="sheet-divider">
+  <div class="sheet-divider" role="separator"></div>
 
   {# Spellbook filter bar. Lives outside #spells so its state survives the
      fragment being replaced on AJAX updates; JS shows it only when spells exist. #}
@@ -135,7 +135,7 @@
     {% include "_spells.html" %}
   </div>
 
-  <hr class="sheet-divider">
+  <div class="sheet-divider" role="separator"></div>
 
   {# Actions filter bar — outside #actions so its state survives AJAX updates;
      JS shows it only when actions exist. #}
@@ -153,7 +153,7 @@
   </div>
 
   {% if creature['notes'] %}
-    <hr class="sheet-divider">
+    <div class="sheet-divider" role="separator"></div>
     <section class="notes">
       <h2>Notes</h2>
       <p>{{ creature['notes'] }}</p>
