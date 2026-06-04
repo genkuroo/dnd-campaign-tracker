@@ -53,10 +53,22 @@
     </div>
   </section>
 
-  {% if xp_level > creature['level'] %}
-    <p class="levelup">⬆ XP reaches level {{ xp_level }} — ready to level up (currently {{ creature['level'] }}).</p>
-  {% elif next_level %}
-    <p class="muted xp-progress">{{ '{:,}'.format(next_level[1]) }} XP to level {{ next_level[0] }}.</p>
+  {% if creature['level'] < 20 %}
+    <section class="levelup-box {{ 'ready' if xp_level > creature['level'] }}">
+      <span class="levelup-status">
+        {% if xp_level > creature['level'] %}
+          ⬆ XP reaches level {{ xp_level }} — ready to level up (currently {{ creature['level'] }}).
+        {% elif next_level %}
+          <span class="muted">{{ '{:,}'.format(next_level[1]) }} XP to level {{ next_level[0] }}.</span>
+        {% endif %}
+      </span>
+      <form method="post" action="{{ url_for('character_levelup', creature_id=creature['id']) }}" class="levelup-form">
+        <label class="hp-gain-label">+HP {{ info('hit-die') }}
+          <input type="number" name="hp_gain" min="0" value="0" class="hp-gain-input" aria-label="Hit points gained">
+        </label>
+        <button type="submit" class="btn levelup-btn">Level up to {{ creature['level'] + 1 }}</button>
+      </form>
+    </section>
   {% else %}
     <p class="muted xp-progress">Maximum level reached.</p>
   {% endif %}
@@ -94,132 +106,13 @@
     {% include "_gear.html" %}
   </div>
 
-  <section class="char-spells">
-    <h2>Spells</h2>
-    {% if spells %}
-      <ul class="spellbook">
-        {% for s in spells %}
-          <li class="spell-line {{ 'unprepared' if not s.prepared }}">
-            <form method="post" action="{{ url_for('spellbook_prepared') }}" class="inline">
-              <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
-              <input type="hidden" name="slug" value="{{ s['slug'] }}">
-              <input type="hidden" name="prepared" value="{{ '0' if s.prepared else '1' }}">
-              <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-              <button type="submit" class="prep-toggle {{ 'on' if s.prepared }}"
-                      title="{{ 'Prepared — click to set aside' if s.prepared else 'Known but not prepared — click to prepare' }}">
-                {{ 'Prepared' if s.prepared else 'Known' }}
-              </button>
-            </form>
-            <a class="spell-line-name" href="{{ url_for('spell_detail', slug=s['slug']) }}">{{ s['name'] }}</a>
-            <span class="muted spell-line-meta">{{ s['level'] | ordinal_level }}</span>
-            {% if s['roll'] %}
-              {% if mode == 'assist' %}
-                <button type="button" class="rollable" data-expr="{{ s['roll'] }}" data-label="{{ s['name'] }}">{{ s['roll'] }}</button>
-              {% else %}
-                <span class="die-text">{{ s['roll'] }}</span>
-              {% endif %}
-            {% endif %}
-            <form method="post" action="{{ url_for('spellbook_remove') }}" class="inline"
-                  onsubmit="return confirm('Remove {{ s['name'] }}?')">
-              <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
-              <input type="hidden" name="slug" value="{{ s['slug'] }}">
-              <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-              <button type="submit" class="roll-del" title="Remove spell">×</button>
-            </form>
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p class="muted">No spells yet.</p>
-    {% endif %}
+  <div id="spells">
+    {% include "_spells.html" %}
+  </div>
 
-    {% if addable_spells %}
-      <form method="post" action="{{ url_for('spellbook_add') }}" class="add-spell">
-        <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
-        <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-        <select name="slug">
-          {% for s in addable_spells %}
-            <option value="{{ s['slug'] }}">{{ s['name'] }} ({{ s['level'] | ordinal_level }})</option>
-          {% endfor %}
-        </select>
-        <button type="submit" class="btn">Add spell</button>
-      </form>
-    {% endif %}
-  </section>
-
-  <section class="char-actions">
-    <h2>Actions &amp; Abilities</h2>
-    {% if actions %}
-      <ul class="action-list">
-        {% for a in actions %}
-          <li class="action-line">
-            <div class="action-head">
-              <span class="action-cat action-cat-{{ a['category'] }}">{{ a['category'] | action_category }}</span>
-              <span class="action-name">{{ a['name'] }}</span>
-              {% if a['dice'] %}
-                {% if mode == 'assist' %}
-                  <button type="button" class="rollable" data-expr="{{ a['dice'] }}" data-label="{{ creature['name'] }} · {{ a['name'] }}">{{ a['dice'] }}</button>
-                {% else %}
-                  <span class="die-text">{{ a['dice'] }}</span>
-                {% endif %}
-              {% endif %}
-              <form method="post" action="{{ url_for('actions_remove', action_id=a['id']) }}" class="inline"
-                    onsubmit="return confirm('Remove {{ a['name'] }}?')">
-                <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-                <button type="submit" class="roll-del" title="Remove action">×</button>
-              </form>
-            </div>
-            {% if a['description'] %}
-              <p class="action-desc">{{ a['description'] | dicetext(mode, a['name']) }}</p>
-            {% endif %}
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p class="muted">No actions or abilities yet.</p>
-    {% endif %}
-
-    {# Primary path: grab a premade action from the action book (copied onto the
-       creature). Custom one-offs live in the secondary form below. #}
-    <form method="post" action="{{ url_for('actions_add') }}" class="add-action add-from-book">
-      <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
-      <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-      <div class="field-row">
-        <select name="slug" aria-label="Action book">
-          {% for value, label in action_categories %}
-            {% set group = action_book | selectattr('category', 'equalto', value) | list %}
-            {% if group %}
-              <optgroup label="{{ label }}">
-                {% for a in group %}
-                  <option value="{{ a['slug'] }}">{{ a['name'] }}{% if a['dice'] %} ({{ a['dice'] }}){% endif %}</option>
-                {% endfor %}
-              </optgroup>
-            {% endif %}
-          {% endfor %}
-        </select>
-        <button type="submit" class="btn">Add from action book</button>
-      </div>
-    </form>
-
-    <details class="add-custom-action">
-      <summary>Add a custom action</summary>
-      <form method="post" action="{{ url_for('actions_add') }}" class="add-action">
-        <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
-        <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-        <div class="field-row">
-          <input type="text" name="name" placeholder="Name (e.g. Tail Sweep)" required>
-          <select name="category">
-            {% for value, label in action_categories %}
-              <option value="{{ value }}" {{ 'selected' if value == 'action' else '' }}>{{ label }}</option>
-            {% endfor %}
-          </select>
-          <input type="text" name="dice" placeholder="Dice (optional, e.g. 2d6+3)" class="dice-input">
-        </div>
-        <textarea name="description" rows="2" placeholder="Description (optional)"></textarea>
-        <button type="submit" class="btn">Add custom action</button>
-      </form>
-    </details>
-  </section>
+  <div id="actions">
+    {% include "_actions.html" %}
+  </div>
 
   {% if creature['notes'] %}
     <section class="notes">
@@ -349,6 +242,28 @@
       window.addEventListener('resize', syncHeight);
 
       afterRender();
+    })();
+
+    // Spells + actions sections: same fragment-AJAX pattern as gear. Submitting
+    // any form inside #spells/#actions (prepare toggle, add, remove) re-renders
+    // just that section in place — no full reload or scroll-jump. Handlers are
+    // delegated on the container, so they survive the fragment being replaced.
+    // Without JS the same forms POST normally and the server redirects.
+    (function () {
+      ['spells', 'actions'].forEach(function (id) {
+        const box = document.getElementById(id);
+        if (!box) return;
+        box.addEventListener('submit', function (e) {
+          const form = e.target.closest('form');
+          if (!form) return;
+          e.preventDefault();
+          if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) return;
+          fetch(form.action, { method: 'POST', body: new FormData(form),
+                               headers: { 'X-Requested-With': 'fetch' } })
+            .then(r => r.text())
+            .then(html => { box.innerHTML = html; });
+        });
+      });
     })();
   </script>
 {% endblock %}

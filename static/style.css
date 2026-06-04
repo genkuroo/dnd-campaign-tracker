@@ -320,6 +320,25 @@ body {
 }
 .xp-progress { font-size: 0.85rem; margin: -0.5rem 0 1rem; }
 
+/* Level-up control */
+.levelup-box {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0.8rem; border-radius: 6px; margin: 0 0 1.25rem;
+  border: 1px solid var(--border);
+  font-family: sans-serif; font-size: 0.85rem;
+}
+.levelup-box.ready { color: #b5d68f; border-color: #5a7b3f; background: rgba(90,123,63,0.18); }
+.levelup-form { display: flex; align-items: center; gap: 0.6rem; }
+.hp-gain-label { display: flex; align-items: center; gap: 0.3rem; color: var(--muted); }
+.hp-gain-input {
+  width: 4rem; font: inherit; padding: 0.3rem 0.45rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 5px;
+}
+.levelup-btn { white-space: nowrap; }
+.spell-help { font-size: 0.82rem; margin: -0.3rem 0 0.8rem; }
+
 .ability-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);

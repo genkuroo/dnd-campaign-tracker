@@ -52,26 +52,26 @@
 
   <script>
     // Assist mode: a die in spell text (class "rollable") rolls through the
-    // dice engine, logs it, and returns here with the result flashed.
-    (function () {
-      document.querySelectorAll('.rollable').forEach(function (el) {
-        el.addEventListener('click', function () {
-          var f = document.createElement('form');
-          f.method = 'post';
-          f.action = '{{ url_for("dice_roll") }}';
-          function add(name, value) {
-            var i = document.createElement('input');
-            i.type = 'hidden'; i.name = name; i.value = value;
-            f.appendChild(i);
-          }
-          add('expression', el.dataset.expr);
-          add('label', el.dataset.label || '');
-          add('next', window.location.pathname);
-          document.body.appendChild(f);
-          f.submit();
-        });
-      });
-    })();
+    // dice engine, logs it, and returns here with the result flashed. Delegated
+    // on the document so dice injected by AJAX fragment updates (the character
+    // sheet's spells/actions/gear sections) stay clickable too.
+    document.addEventListener('click', function (e) {
+      var el = e.target.closest('.rollable');
+      if (!el) return;
+      var f = document.createElement('form');
+      f.method = 'post';
+      f.action = '{{ url_for("dice_roll") }}';
+      function add(name, value) {
+        var i = document.createElement('input');
+        i.type = 'hidden'; i.name = name; i.value = value;
+        f.appendChild(i);
+      }
+      add('expression', el.dataset.expr);
+      add('label', el.dataset.label || '');
+      add('next', window.location.pathname);
+      document.body.appendChild(f);
+      f.submit();
+    });
   </script>
 </body>
 </html>

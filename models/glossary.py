@@ -30,9 +30,12 @@ GLOSSARY = {
     "armor-class": "Armor Class (AC) — how hard a creature is to hit. An attack must roll this number or higher.",
     "hit-points": "Hit Points (HP) — a creature's health. At 0 HP it falls unconscious or dies.",
     "modifier": "Modifier — the +/- number derived from an ability score, added to related d20 rolls.",
+    "hit-die": "Hit die — the die you roll for hit points each level (e.g. d8 for many classes). Level-up HP = that roll (or its average) + your Constitution modifier.",
     # Spell vocabulary
     "cantrip": "Cantrip — a level-0 spell you can cast at will, without spending a spell slot.",
     "spell-level": "Spell level (1–9) — a spell's power tier; casting it spends a spell slot of that level or higher.",
+    "known": "Known — a spell in your repertoire. For prepare-casting classes you must still prepare it before you can cast it.",
+    "prepared": "Prepared — a known spell you've readied (usually after a long rest) and can cast right now. Many classes can only cast prepared spells.",
     "casting-time": "Casting time — how long a spell takes: an action, bonus action, reaction, or longer.",
     "concentration": "Concentration — some spells last only while you focus; taking damage can break it.",
     "action": "Action — the main thing you do on your turn.",

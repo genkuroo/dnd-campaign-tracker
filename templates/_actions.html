@@ -1,0 +1,77 @@
+{# Actions & abilities. Rendered both inside the character sheet and standalone
+   by the actions AJAX endpoints, so add/remove refresh this fragment without a
+   full page reload. Expects: creature, actions, action_categories, action_book
+   (+ mode from the context processor). #}
+<section class="char-actions">
+  <h2>Actions &amp; Abilities</h2>
+  {% if actions %}
+    <ul class="action-list">
+      {% for a in actions %}
+        <li class="action-line">
+          <div class="action-head">
+            <span class="action-cat action-cat-{{ a['category'] }}">{{ a['category'] | action_category }}</span>
+            <span class="action-name">{{ a['name'] }}</span>
+            {% if a['dice'] %}
+              {% if mode == 'assist' %}
+                <button type="button" class="rollable" data-expr="{{ a['dice'] }}" data-label="{{ creature['name'] }} · {{ a['name'] }}">{{ a['dice'] }}</button>
+              {% else %}
+                <span class="die-text">{{ a['dice'] }}</span>
+              {% endif %}
+            {% endif %}
+            <form method="post" action="{{ url_for('actions_remove', action_id=a['id']) }}" class="inline"
+                  data-confirm="Remove {{ a['name'] }}?">
+              <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+              <button type="submit" class="roll-del" title="Remove action">×</button>
+            </form>
+          </div>
+          {% if a['description'] %}
+            <p class="action-desc">{{ a['description'] | dicetext(mode, a['name']) }}</p>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">No actions or abilities yet.</p>
+  {% endif %}
+
+  {# Primary path: grab a premade action from the action book (copied onto the
+     creature). Custom one-offs live in the secondary form below. #}
+  <form method="post" action="{{ url_for('actions_add') }}" class="add-action add-from-book">
+    <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+    <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+    <div class="field-row">
+      <select name="slug" aria-label="Action book">
+        {% for value, label in action_categories %}
+          {% set group = action_book | selectattr('category', 'equalto', value) | list %}
+          {% if group %}
+            <optgroup label="{{ label }}">
+              {% for a in group %}
+                <option value="{{ a['slug'] }}">{{ a['name'] }}{% if a['dice'] %} ({{ a['dice'] }}){% endif %}</option>
+              {% endfor %}
+            </optgroup>
+          {% endif %}
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn">Add from action book</button>
+    </div>
+  </form>
+
+  <details class="add-custom-action">
+    <summary>Add a custom action</summary>
+    <form method="post" action="{{ url_for('actions_add') }}" class="add-action">
+      <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+      <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+      <div class="field-row">
+        <input type="text" name="name" placeholder="Name (e.g. Tail Sweep)" required>
+        <select name="category">
+          {% for value, label in action_categories %}
+            <option value="{{ value }}" {{ 'selected' if value == 'action' else '' }}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <input type="text" name="dice" placeholder="Dice (optional, e.g. 2d6+3)" class="dice-input">
+      </div>
+      <textarea name="description" rows="2" placeholder="Description (optional)"></textarea>
+      <button type="submit" class="btn">Add custom action</button>
+    </form>
+  </details>
+</section>

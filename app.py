@@ -19,6 +19,7 @@ from models.creature import (
     ALIGNMENTS,
     DISPOSITIONS,
     KINDS,
+    MAX_LEVEL,
     MONSTER_KINDS,
     ability_modifier,
     alignment_label,
@@ -296,6 +297,26 @@ def character_set_disposition(creature_id):
     return redirect(url_for("character_detail", creature_id=creature_id))
 
 
+@app.route("/character/<int:creature_id>/levelup", methods=["POST"])
+def character_levelup(creature_id):
+    """Bump a creature one level (milestone- or XP-driven, DM's call) and add the
+    HP gained. Level stays manual; this just applies the step. Capped at the max.
+    """
+    creature = get_creature(creature_id)
+    if creature is None:
+        abort(404)
+    if creature["level"] < MAX_LEVEL:
+        hp_gain = max(0, request.form.get("hp_gain", 0, type=int) or 0)
+        new_level = creature["level"] + 1
+        update_creature(creature_id, {
+            "level": new_level,
+            "max_hp": creature["max_hp"] + hp_gain,
+            "current_hp": creature["current_hp"] + hp_gain,
+        })
+        flash(f"Leveled up to {new_level}." + (f" +{hp_gain} HP." if hp_gain else ""))
+    return redirect(url_for("character_detail", creature_id=creature_id))
+
+
 @app.route("/character/<int:creature_id>/delete", methods=["POST"])
 def character_delete(creature_id):
     delete_creature(creature_id)
@@ -462,9 +483,15 @@ def _item_owner_next(item_id):
     return item, url_for("character_detail", creature_id=item["creature_id"])
 
 
+def _is_fetch():
+    """True when the request came from the sheet's in-place AJAX (vs. a plain form
+    POST), so a handler can return just a fragment instead of redirecting."""
+    return request.headers.get("X-Requested-With") == "fetch"
+
+
 def _gear_response(creature_id, target):
     """Re-render just the gear fragment for fetch requests; else full redirect."""
-    if request.headers.get("X-Requested-With") == "fetch":
+    if _is_fetch():
         return render_template(
             "_gear.html",
             creature=get_creature(creature_id),
@@ -474,6 +501,29 @@ def _gear_response(creature_id, target):
             panel=equipment_panel(creature_id),
         )
     return redirect(target)
+
+
+def _spells_fragment(creature_id):
+    """Render the spellbook section for a creature (the #spells AJAX fragment)."""
+    known = creature_spells(creature_id)
+    known_slugs = {s["slug"] for s in known}
+    return render_template(
+        "_spells.html",
+        creature=get_creature(creature_id),
+        spells=known,
+        addable_spells=[s for s in all_spells() if s["slug"] not in known_slugs],
+    )
+
+
+def _actions_fragment(creature_id):
+    """Render the actions section for a creature (the #actions AJAX fragment)."""
+    return render_template(
+        "_actions.html",
+        creature=get_creature(creature_id),
+        actions=list_actions(creature_id),
+        action_categories=ACTION_CATEGORIES,
+        action_book=all_catalog_actions(),
+    )
 
 
 @app.route("/inventory/add", methods=["POST"])
@@ -788,6 +838,8 @@ def spellbook_add():
     if cid and get_creature(cid) and get_spell(slug):
         add_spell(cid, slug)
         flash("Spell added.")
+    if _is_fetch() and cid and get_creature(cid):
+        return _spells_fragment(cid)
     return redirect(_safe_next(request.form.get("next"), url_for("character")))
 
 
@@ -798,6 +850,8 @@ def spellbook_remove():
     if cid:
         remove_spell(cid, slug)
         flash("Spell removed.")
+    if _is_fetch() and cid and get_creature(cid):
+        return _spells_fragment(cid)
     return redirect(_safe_next(request.form.get("next"), url_for("character")))
 
 
@@ -807,6 +861,8 @@ def spellbook_prepared():
     slug = request.form.get("slug", "")
     if cid:
         set_prepared(cid, slug, request.form.get("prepared") == "1")
+    if _is_fetch() and cid and get_creature(cid):
+        return _spells_fragment(cid)
     return redirect(_safe_next(request.form.get("next"), url_for("character")))
 
 
@@ -836,6 +892,8 @@ def actions_add():
                 request.form.get("category", "action"),
             )
             flash("Custom action added.")
+    if _is_fetch() and cid and get_creature(cid):
+        return _actions_fragment(cid)
     return redirect(_safe_next(request.form.get("next"), url_for("character")))
 
 
@@ -844,11 +902,14 @@ def actions_remove(action_id):
     action = get_action(action_id)
     if action is None:
         return redirect(url_for("character"))
+    cid = action["creature_id"]
     remove_action(action_id)
     flash("Action removed.")
+    if _is_fetch():
+        return _actions_fragment(cid)
     return redirect(_safe_next(
         request.form.get("next"),
-        url_for("character_detail", creature_id=action["creature_id"]),
+        url_for("character_detail", creature_id=cid),
     ))
 
 

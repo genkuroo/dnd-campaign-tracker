@@ -1,0 +1,60 @@
+{# Character spellbook. Rendered both inside the character sheet and standalone
+   by the spellbook AJAX endpoints, so prepare/known/add/remove refresh this
+   fragment without a full page reload. Expects: creature, spells, addable_spells
+   (+ mode from the context processor). #}
+{% from "macros.html" import info %}
+<section class="char-spells">
+  <h2>Spells</h2>
+  <p class="muted spell-help">
+    {{ info('known', 'Known') }} = in your repertoire · {{ info('prepared', 'Prepared') }} = readied to cast now. Click the badge to toggle.
+  </p>
+  {% if spells %}
+    <ul class="spellbook">
+      {% for s in spells %}
+        <li class="spell-line {{ 'unprepared' if not s.prepared }}">
+          <form method="post" action="{{ url_for('spellbook_prepared') }}" class="inline">
+            <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+            <input type="hidden" name="slug" value="{{ s['slug'] }}">
+            <input type="hidden" name="prepared" value="{{ '0' if s.prepared else '1' }}">
+            <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+            <button type="submit" class="prep-toggle {{ 'on' if s.prepared }}"
+                    title="{{ 'Prepared — click to set aside' if s.prepared else 'Known but not prepared — click to prepare' }}">
+              {{ 'Prepared' if s.prepared else 'Known' }}
+            </button>
+          </form>
+          <a class="spell-line-name" href="{{ url_for('spell_detail', slug=s['slug']) }}">{{ s['name'] }}</a>
+          <span class="muted spell-line-meta">{{ s['level'] | ordinal_level }}</span>
+          {% if s['roll'] %}
+            {% if mode == 'assist' %}
+              <button type="button" class="rollable" data-expr="{{ s['roll'] }}" data-label="{{ s['name'] }}">{{ s['roll'] }}</button>
+            {% else %}
+              <span class="die-text">{{ s['roll'] }}</span>
+            {% endif %}
+          {% endif %}
+          <form method="post" action="{{ url_for('spellbook_remove') }}" class="inline"
+                data-confirm="Remove {{ s['name'] }}?">
+            <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+            <input type="hidden" name="slug" value="{{ s['slug'] }}">
+            <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+            <button type="submit" class="roll-del" title="Remove spell">×</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">No spells yet.</p>
+  {% endif %}
+
+  {% if addable_spells %}
+    <form method="post" action="{{ url_for('spellbook_add') }}" class="add-spell">
+      <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+      <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+      <select name="slug">
+        {% for s in addable_spells %}
+          <option value="{{ s['slug'] }}">{{ s['name'] }} ({{ s['level'] | ordinal_level }})</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn">Add spell</button>
+    </form>
+  {% endif %}
+</section>
