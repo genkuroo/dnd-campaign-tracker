@@ -16,8 +16,11 @@ ABILITIES = [
     ("charisma", "CHA"),
 ]
 
-# What a creature *is*. Monsters arrive with the rest of Phase 5.
+# What a creature *is*. The Characters tab offers pc/npc; the Bestiary creates
+# monsters. All three share this one engine — `kind` is the only thing that
+# differs (CLAUDE.md "creature/stat-block engine").
 KINDS = [("pc", "Player Character"), ("npc", "NPC")]
+MONSTER_KINDS = [("monster", "Monster")]
 
 # How a creature treats the party — a 5-point spectrum, ordered hate -> love.
 DISPOSITIONS = ["hostile", "unfriendly", "neutral", "friendly", "allied"]
@@ -38,7 +41,7 @@ def alignment_label(code):
 # Fields a creature form may set, with the type to coerce each to.
 _INT_FIELDS = [
     "level", "max_hp", "current_hp", "armor_class",
-    "xp", "gold", "silver", "copper",
+    "xp", "gold", "silver", "copper", "stats_revealed",
     *[col for col, _ in ABILITIES],
 ]
 
@@ -93,6 +96,21 @@ def list_roster():
         return conn.execute(
             "SELECT * FROM creatures WHERE kind IN ('pc', 'npc') "
             "ORDER BY CASE kind WHEN 'pc' THEN 0 ELSE 1 END, created_at DESC"
+        ).fetchall()
+    finally:
+        conn.close()
+
+
+def list_monsters():
+    """The bestiary — every creature with kind 'monster', newest first.
+
+    Kept separate from list_roster (PCs/NPCs) so the Characters tab and the
+    Bestiary stay distinct views of the one creatures table.
+    """
+    conn = get_connection()
+    try:
+        return conn.execute(
+            "SELECT * FROM creatures WHERE kind = 'monster' ORDER BY name COLLATE NOCASE"
         ).fetchall()
     finally:
         conn.close()

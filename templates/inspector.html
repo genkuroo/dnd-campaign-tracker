@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% from "macros.html" import info %}
+{% block content %}
+  {% set mask = not revealed %}
+  <div class="page-head">
+    <div>
+      <h1 class="sheet-name">
+        {{ creature['name'] }}
+        {% if creature['visibility'] == 'hidden' %}<span class="badge-dm">DM only</span>{% endif %}
+      </h1>
+      <p class="muted">
+        <span class="badge-kind badge-kind-monster">Monster</span>
+        <span class="disp disp-{{ creature['disposition'] }}">{{ creature['disposition'] }}</span>
+        {% if creature['alignment'] %} · {{ creature['alignment'] | alignment }}{% endif %}
+      </p>
+    </div>
+    <div class="head-actions">
+      <a class="btn-ghost" href="{{ url_for('character_detail', creature_id=creature['id']) }}">Full sheet (DM)</a>
+      <a class="btn-ghost" href="{{ url_for('bestiary') }}">← Bestiary</a>
+    </div>
+  </div>
+
+  {# DM-only control: this view previews what a player sees. The reveal toggle
+     governs whether the stat-block numbers below are shown or masked. #}
+  <div class="reveal-banner {{ 'revealed' if revealed else 'hidden' }}">
+    <span>
+      {% if revealed %}👁 Stats revealed — players inspecting this creature see the block below.
+      {% else %}🙈 Stats hidden — players see only the silhouette until you reveal them.{% endif %}
+    </span>
+    <form method="post" action="{{ url_for('monster_reveal', creature_id=creature['id']) }}" class="inline">
+      <button type="submit" class="btn-small">{{ 'Hide stats' if revealed else 'Reveal stats' }}</button>
+    </form>
+  </div>
+
+  <section class="inspect-block {{ 'masked' if mask else '' }}">
+    <div class="vitals inspect-vitals">
+      <div class="vital"><span class="vital-label">Armor Class {{ info('armor-class') }}</span>
+        <span class="vital-value">{{ '?' if mask else creature['armor_class'] }}</span></div>
+      <div class="vital"><span class="vital-label">Hit Points {{ info('hit-points') }}</span>
+        <span class="vital-value">{{ '?' if mask else '%d / %d' % (creature['current_hp'], creature['max_hp']) }}</span></div>
+    </div>
+
+    <div class="ability-grid inspect-abilities">
+      {% for col, short in abilities %}
+        <div class="ability">
+          <span class="ability-short">{{ info(col, short) }}</span>
+          <span class="ability-mod">{{ '?' if mask else creature[col] | mod }}</span>
+          <span class="ability-score">{{ '?' if mask else creature[col] }}</span>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if mask %}
+      <p class="muted inspect-note">This creature's capabilities are unknown. Discover or reveal them to learn more.</p>
+    {% else %}
+      {% set res = creature['resistances'] | commalist %}
+      {% set imm = creature['immunities'] | commalist %}
+      {% set vul = creature['vulnerabilities'] | commalist %}
+      {% if res or imm or vul %}
+        <section class="defenses">
+          {% if res %}<div class="defense-row"><span class="defense-label">Resistances</span>{% for d in res %}<span class="chip chip-res">{{ d }}</span>{% endfor %}</div>{% endif %}
+          {% if imm %}<div class="defense-row"><span class="defense-label">Immunities</span>{% for d in imm %}<span class="chip chip-imm">{{ d }}</span>{% endfor %}</div>{% endif %}
+          {% if vul %}<div class="defense-row"><span class="defense-label">Vulnerabilities</span>{% for d in vul %}<span class="chip chip-vul">{{ d }}</span>{% endfor %}</div>{% endif %}
+        </section>
+      {% endif %}
+
+      {% if actions %}
+        <h2 class="inspect-h">Actions &amp; Abilities</h2>
+        <ul class="action-list">
+          {% for a in actions %}
+            <li class="action-line">
+              <div class="action-head">
+                <span class="action-cat action-cat-{{ a['category'] }}">{{ a['category'] | action_category }}</span>
+                <span class="action-name">{{ a['name'] }}</span>
+                {% if a['dice'] %}
+                  {% if mode == 'assist' %}
+                    <button type="button" class="rollable" data-expr="{{ a['dice'] }}" data-label="{{ creature['name'] }} · {{ a['name'] }}">{{ a['dice'] }}</button>
+                  {% else %}
+                    <span class="die-text">{{ a['dice'] }}</span>
+                  {% endif %}
+                {% endif %}
+              </div>
+              {% if a['description'] %}<p class="action-desc">{{ a['description'] | dicetext(mode, a['name']) }}</p>{% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% if spells %}
+        <h2 class="inspect-h">Spells</h2>
+        <ul class="spellbook">
+          {% for s in spells %}
+            <li class="spell-line">
+              <a class="spell-line-name" href="{{ url_for('spell_detail', slug=s['slug']) }}">{{ s['name'] }}</a>
+              <span class="muted spell-line-meta">{{ s['level'] | ordinal_level }}</span>
+              {% if s['roll'] %}
+                {% if mode == 'assist' %}
+                  <button type="button" class="rollable" data-expr="{{ s['roll'] }}" data-label="{{ s['name'] }}">{{ s['roll'] }}</button>
+                {% else %}
+                  <span class="die-text">{{ s['roll'] }}</span>
+                {% endif %}
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% if not actions and not spells %}
+        <p class="muted inspect-note">No special actions or spells recorded.</p>
+      {% endif %}
+    {% endif %}
+  </section>
+{% endblock %}

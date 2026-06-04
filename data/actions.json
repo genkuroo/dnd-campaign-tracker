@@ -1,0 +1,156 @@
+[
+  {
+    "slug": "multiattack",
+    "name": "Multiattack",
+    "category": "action",
+    "dice": "",
+    "description": "The creature makes two or more attacks on its turn. Note which attacks below in the creature's other actions."
+  },
+  {
+    "slug": "dagger",
+    "name": "Dagger",
+    "category": "action",
+    "dice": "1d4",
+    "description": "Melee or thrown weapon attack. On a hit, deals 1d4 piercing damage plus the wielder's ability modifier. Finesse, light, range 20/60."
+  },
+  {
+    "slug": "shortsword",
+    "name": "Shortsword",
+    "category": "action",
+    "dice": "1d6",
+    "description": "Melee weapon attack. On a hit, deals 1d6 piercing damage plus the wielder's ability modifier. Finesse, light."
+  },
+  {
+    "slug": "longsword",
+    "name": "Longsword",
+    "category": "action",
+    "dice": "1d8",
+    "description": "Melee weapon attack. On a hit, deals 1d8 slashing damage (1d10 if used with two hands) plus the wielder's ability modifier."
+  },
+  {
+    "slug": "greataxe",
+    "name": "Greataxe",
+    "category": "action",
+    "dice": "1d12",
+    "description": "Melee weapon attack with a heavy two-handed axe. On a hit, deals 1d12 slashing damage plus the wielder's Strength modifier."
+  },
+  {
+    "slug": "shortbow",
+    "name": "Shortbow",
+    "category": "action",
+    "dice": "1d6",
+    "description": "Ranged weapon attack, range 80/320. On a hit, deals 1d6 piercing damage plus the wielder's Dexterity modifier."
+  },
+  {
+    "slug": "longbow",
+    "name": "Longbow",
+    "category": "action",
+    "dice": "1d8",
+    "description": "Ranged weapon attack, range 150/600. On a hit, deals 1d8 piercing damage plus the wielder's Dexterity modifier."
+  },
+  {
+    "slug": "bite",
+    "name": "Bite",
+    "category": "action",
+    "dice": "1d6",
+    "description": "Natural melee attack. On a hit, deals 1d6 piercing damage plus the creature's Strength modifier."
+  },
+  {
+    "slug": "claw",
+    "name": "Claw",
+    "category": "action",
+    "dice": "1d4",
+    "description": "Natural melee attack. On a hit, deals 1d4 slashing damage plus the creature's Strength modifier."
+  },
+  {
+    "slug": "slam",
+    "name": "Slam",
+    "category": "action",
+    "dice": "1d6",
+    "description": "Natural melee attack with a heavy limb or body. On a hit, deals 1d6 bludgeoning damage plus the creature's Strength modifier."
+  },
+  {
+    "slug": "fire-breath",
+    "name": "Fire Breath",
+    "category": "action",
+    "dice": "4d6",
+    "description": "The creature exhales fire in a cone. Each creature in the area makes a Dexterity saving throw, taking 4d6 fire damage on a failure, or half as much on a success. Recharges after a short rest."
+  },
+  {
+    "slug": "frightful-presence",
+    "name": "Frightful Presence",
+    "category": "action",
+    "dice": "",
+    "description": "Each creature of the DM's choice within 120 feet must succeed on a Wisdom saving throw or become frightened for 1 minute. A creature can repeat the save at the end of each of its turns."
+  },
+  {
+    "slug": "rage",
+    "name": "Rage",
+    "category": "bonus",
+    "dice": "",
+    "description": "The creature enters a rage: advantage on Strength checks and saves, bonus damage on melee attacks, and resistance to bludgeoning, piercing, and slashing damage. Lasts up to 1 minute."
+  },
+  {
+    "slug": "second-wind",
+    "name": "Second Wind",
+    "category": "bonus",
+    "dice": "1d10",
+    "description": "The creature regains 1d10 hit points plus its level. Usable once per short or long rest."
+  },
+  {
+    "slug": "dash",
+    "name": "Dash",
+    "category": "action",
+    "dice": "",
+    "description": "The creature gains extra movement equal to its speed for the current turn."
+  },
+  {
+    "slug": "disengage",
+    "name": "Disengage",
+    "category": "action",
+    "dice": "",
+    "description": "The creature's movement doesn't provoke opportunity attacks for the rest of the turn."
+  },
+  {
+    "slug": "parry",
+    "name": "Parry",
+    "category": "reaction",
+    "dice": "",
+    "description": "The creature adds to its AC against one melee attack that would hit it. To do so, it must see the attacker and be wielding a melee weapon."
+  },
+  {
+    "slug": "opportunity-attack",
+    "name": "Opportunity Attack",
+    "category": "reaction",
+    "dice": "",
+    "description": "When a hostile creature it can see leaves its reach, the creature makes one melee attack against that creature."
+  },
+  {
+    "slug": "legendary-resistance",
+    "name": "Legendary Resistance",
+    "category": "legendary",
+    "dice": "",
+    "description": "If the creature fails a saving throw, it can choose to succeed instead. Limited uses per day."
+  },
+  {
+    "slug": "pack-tactics",
+    "name": "Pack Tactics",
+    "category": "trait",
+    "dice": "",
+    "description": "The creature has advantage on an attack roll against a target if at least one of its allies is within 5 feet of the target and isn't incapacitated."
+  },
+  {
+    "slug": "keen-senses",
+    "name": "Keen Senses",
+    "category": "trait",
+    "dice": "",
+    "description": "The creature has advantage on Wisdom (Perception) checks that rely on its heightened sight, hearing, or smell."
+  },
+  {
+    "slug": "spellcasting",
+    "name": "Spellcasting",
+    "category": "trait",
+    "dice": "",
+    "description": "The creature is a spellcaster. Add its prepared spells in the Spells section of its sheet."
+  }
+]
