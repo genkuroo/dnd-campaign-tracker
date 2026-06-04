@@ -5,9 +5,10 @@ from db import get_connection
 SLOTS = [
     ("main_hand", "Main Hand", 1),
     ("off_hand", "Off Hand", 1),
-    ("armor", "Armor", 1),
+    # Left column renders head-to-toe: helmet, cloak, armor, gloves, boots.
     ("helmet", "Helmet", 1),
     ("cloak", "Cloak", 1),
+    ("armor", "Armor", 1),
     ("gloves", "Gloves", 1),
     ("boots", "Boots", 1),
     ("amulet", "Amulet", 1),
