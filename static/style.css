@@ -323,7 +323,7 @@ body {
 /* Short, centered section break between major character-sheet sections (gear,
    spells, actions, notes) — a small divider, not an end-to-end rule. */
 .sheet-divider {
-  border: none; height: 2px; width: 1440px; max-width: 90%;
+  border: none; height: 1px; width: 65%;
   margin: 1.75rem auto;
   background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
 }
