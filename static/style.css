@@ -320,6 +320,14 @@ body {
 }
 .xp-progress { font-size: 0.85rem; margin: -0.5rem 0 1rem; }
 
+/* Short, centered section break between major character-sheet sections (gear,
+   spells, actions, notes) — a small divider, not an end-to-end rule. */
+.sheet-divider {
+  border: none; height: 1px; width: 90px;
+  margin: 1.75rem auto;
+  background: linear-gradient(to right, transparent, var(--border) 30%, var(--border) 70%, transparent);
+}
+
 /* Level-up control */
 .levelup-box {
   display: flex; align-items: center; justify-content: space-between; gap: 1rem;
@@ -560,7 +568,7 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
   border: 1px solid var(--border); border-radius: 6px;
 }
 #spell-search:focus { outline: none; border-color: var(--accent-2); }
-.book-filter { margin-top: 1.75rem; }
+.book-filter { margin-top: 0; }
 .bookfilt-search, .actfilt-search {
   flex: 1; min-width: 12rem; font: inherit;
   padding: 0.5rem 0.7rem;
