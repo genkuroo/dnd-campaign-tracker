@@ -204,6 +204,7 @@ body {
 
 .badge-kind-pc { color: #8fd0a0; border-color: #3f6b4c; }
 .badge-kind-npc { color: #9ab8e8; border-color: #3f5070; }
+.badge-kind-monster { color: #e0a0a0; border-color: #7a4040; }
 
 /* Roster search + kind filter */
 .roster-filter {
@@ -620,6 +621,86 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
   border: 1px solid var(--border); border-radius: 5px;
 }
 
+/* Actions & abilities on the character/monster sheet (free-form, distinct from
+   spells). */
+.char-actions { margin-top: 1.75rem; }
+.char-actions h2 { color: var(--accent-2); font-size: 1.1rem; }
+.action-list { list-style: none; padding: 0; margin: 0 0 1rem; }
+.action-line { padding: 0.55rem 0.2rem; border-bottom: 1px solid var(--border); }
+.action-head { display: flex; align-items: center; gap: 0.7rem; }
+.action-name { font-weight: bold; flex: 1; }
+.action-cat {
+  font-family: sans-serif; font-size: 0.66rem; text-transform: uppercase;
+  letter-spacing: 0.05em; padding: 0.1rem 0.5rem; border-radius: 999px;
+  border: 1px solid var(--border); color: var(--muted); white-space: nowrap;
+}
+.action-cat-trait     { color: #c9b88f; border-color: #6b5f3f; }
+.action-cat-action    { color: #b5d68f; border-color: #5a7b3f; }
+.action-cat-bonus     { color: #8fc6e8; border-color: #38607a; }
+.action-cat-reaction  { color: #e8b58f; border-color: #7a5a38; }
+.action-cat-legendary { color: #d59ae0; border-color: #6b3f7a; }
+.action-desc { margin: 0.4rem 0 0; max-width: 680px; line-height: 1.6; color: var(--ink); }
+
+.add-action { display: flex; flex-direction: column; gap: 0.5rem; max-width: 680px; }
+.add-action .field-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.add-action input, .add-action select, .add-action textarea {
+  font: inherit; padding: 0.4rem 0.55rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 5px;
+}
+.add-action input[name="name"] { flex: 1 1 12rem; }
+.add-action .dice-input { flex: 0 1 12rem; }
+.add-action textarea { width: 100%; resize: vertical; }
+.add-action .btn { align-self: flex-start; }
+
+/* Primary "add from action book" picker + secondary custom <details> */
+.add-from-book select {
+  flex: 1 1 16rem; font: inherit; padding: 0.4rem 0.55rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 5px;
+}
+.add-from-book { margin-bottom: 0.75rem; }
+.add-custom-action > summary {
+  cursor: pointer; color: var(--muted); font-family: sans-serif;
+  font-size: 0.85rem; padding: 0.3rem 0;
+}
+.add-custom-action[open] > summary { color: var(--ink); margin-bottom: 0.5rem; }
+
+/* Library pane toggle (Spells / Action Book) */
+.library-toggle {
+  display: inline-flex; border: 1px solid var(--border);
+  border-radius: 999px; overflow: hidden; margin-bottom: 1.25rem;
+}
+.lib-btn {
+  font: inherit; font-family: sans-serif; font-size: 0.85rem; cursor: pointer;
+  padding: 0.45rem 1.1rem; background: transparent; border: none; color: var(--muted);
+}
+.lib-btn:hover { color: var(--ink); }
+.lib-btn.active { background: var(--accent); color: #fff; }
+
+/* Action book list (Spells & Actions tab) */
+#action-search {
+  width: 100%; max-width: 460px; font: inherit; padding: 0.5rem 0.7rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px; margin-bottom: 0.75rem;
+}
+#action-search:focus { outline: none; border-color: var(--accent-2); }
+.actionbook-list { list-style: none; padding: 0; margin: 0; }
+.actionbook-item { padding: 0.6rem 0.4rem; border-bottom: 1px solid var(--border); }
+.actionbook-head { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; }
+.actionbook-add { margin-left: auto; display: flex; gap: 0.4rem; }
+.actionbook-add select {
+  font: inherit; padding: 0.25rem 0.45rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 5px;
+}
+.btn-small {
+  font: inherit; font-family: sans-serif; font-size: 0.8rem; cursor: pointer;
+  padding: 0.25rem 0.7rem; border-radius: 5px;
+  background: var(--accent); color: #fff; border: 1px solid var(--accent);
+}
+.btn-small:hover { opacity: 0.9; }
+
 /* Inventory */
 .inventory { margin-top: 1.75rem; }
 .inventory h2 { color: var(--accent-2); font-size: 1.1rem; }
@@ -844,3 +925,68 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 }
 .add-item .qty-input { width: 4rem; }
 .add-item .desc-input { flex: 1; min-width: 8rem; }
+
+/* --- Phase 5: bestiary + monster inspector --- */
+.revealed { color: #b5d68f; }
+
+/* Bestiary card: a main link plus a separate Inspect link below it. */
+.monster-card { display: flex; flex-direction: column; }
+.char-card-link { display: block; color: var(--ink); text-decoration: none; }
+.inspect-link {
+  margin-top: 0.7rem; align-self: flex-start;
+  font-family: sans-serif; font-size: 0.85rem;
+  color: var(--accent-2); text-decoration: none;
+}
+.inspect-link:hover { text-decoration: underline; }
+
+/* Inspector reveal banner (DM control). */
+.reveal-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.6rem 0.9rem; border-radius: 8px; margin: 0 0 1.5rem;
+  font-family: sans-serif; font-size: 0.9rem;
+  border: 1px solid var(--border);
+}
+.reveal-banner.revealed { border-color: #5a7b3f; background: rgba(90,123,63,0.12); }
+.reveal-banner.hidden { border-color: #6b5f3f; background: rgba(107,95,63,0.12); }
+
+.inspect-vitals { margin-top: 0; }
+.inspect-h { color: var(--accent-2); font-size: 1.1rem; margin-top: 1.75rem; }
+.inspect-note { margin-top: 1rem; }
+/* Masked (unrevealed) stat block reads as a dim silhouette. */
+.inspect-block.masked .vital-value,
+.inspect-block.masked .ability-mod,
+.inspect-block.masked .ability-score { color: var(--muted); opacity: 0.7; }
+
+/* Encounters (Bestiary tab + detail page) */
+.encounters { margin-top: 2.5rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
+.section-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.section-head h2 { color: var(--accent-2); font-size: 1.2rem; margin: 0; }
+.encounter-new input, .add-encounter-member select, .add-encounter-member input,
+.encounter-tools input {
+  font: inherit; padding: 0.4rem 0.55rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 5px;
+}
+.encounter-new { display: flex; gap: 0.5rem; }
+.encounter-list { list-style: none; padding: 0; margin: 1rem 0 0; }
+.encounter-row {
+  display: flex; align-items: baseline; gap: 0.8rem;
+  padding: 0.55rem 0.2rem; border-bottom: 1px solid var(--border);
+}
+.encounter-name { color: var(--accent-2); text-decoration: none; font-weight: bold; }
+.encounter-name:hover { text-decoration: underline; }
+
+.encounter-members { list-style: none; padding: 0; margin: 0 0 1rem; }
+.encounter-member {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.5rem 0.2rem; border-bottom: 1px solid var(--border);
+}
+.encounter-member-name { color: var(--accent-2); text-decoration: none; font-weight: bold; flex: 1; }
+.encounter-member-name:hover { text-decoration: underline; }
+.encounter-member-stats { font-family: sans-serif; font-size: 0.85rem; }
+.encounter-qty { font-family: sans-serif; min-width: 2.2rem; text-align: center; }
+.add-encounter-member { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+.qty-input { width: 4rem; }
+.section-rule { border: none; border-top: 1px solid var(--border); margin: 2rem 0 1.25rem; }
+.encounter-tools { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }

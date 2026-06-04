@@ -3,7 +3,7 @@
   {% set c = creature %}
   <div class="page-head">
     <h1>{{ title }}</h1>
-    <a class="btn-ghost" href="{{ url_for('character') }}">Cancel</a>
+    <a class="btn-ghost" href="{{ cancel_url or url_for('character') }}">Cancel</a>
   </div>
 
   <form method="post" class="sheet-form">

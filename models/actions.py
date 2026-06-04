@@ -1,0 +1,83 @@
+"""A creature's free-form actions & abilities (Phase 5).
+
+Deliberately separate from the spellbook (CLAUDE.md): spells are SRD-backed with
+level/components, whereas these are hand-written entries — Multiattack, Rage,
+breath weapons, legendary actions, passive traits — a name + description with an
+optional dice expression. The data lives entirely in the DB (creature_actions),
+so unlike spells there is no JSON reference file to resolve against.
+
+The same creature-attached pattern as models/spellbook, so it works for PCs,
+NPCs, and monsters with no special-casing.
+"""
+from db import get_connection
+
+# Action categories, ordered the way a stat block reads (passive traits first,
+# legendary actions last). (value, label); `value` is what's stored.
+CATEGORIES = [
+    ("trait", "Trait"),
+    ("action", "Action"),
+    ("bonus", "Bonus Action"),
+    ("reaction", "Reaction"),
+    ("legendary", "Legendary Action"),
+]
+CATEGORY_LABELS = dict(CATEGORIES)
+_CATEGORY_ORDER = {value: i for i, (value, _) in enumerate(CATEGORIES)}
+_VALID_CATEGORIES = set(_CATEGORY_ORDER)
+
+
+def category_label(value):
+    return CATEGORY_LABELS.get(value, value)
+
+
+def add_action(creature_id, name, description="", dice="", category="action"):
+    """Add an action to a creature. Returns the new id, or None if unnamed."""
+    name = (name or "").strip()
+    if not name:
+        return None
+    if category not in _VALID_CATEGORIES:
+        category = "action"
+    conn = get_connection()
+    try:
+        cur = conn.execute(
+            "INSERT INTO creature_actions (creature_id, name, category, dice, description)"
+            " VALUES (?, ?, ?, ?, ?)",
+            (creature_id, name, category, (dice or "").strip(),
+             (description or "").strip()),
+        )
+        conn.commit()
+        return cur.lastrowid
+    finally:
+        conn.close()
+
+
+def get_action(action_id):
+    conn = get_connection()
+    try:
+        return conn.execute(
+            "SELECT * FROM creature_actions WHERE id = ?", (action_id,)
+        ).fetchone()
+    finally:
+        conn.close()
+
+
+def remove_action(action_id):
+    conn = get_connection()
+    try:
+        conn.execute("DELETE FROM creature_actions WHERE id = ?", (action_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def list_actions(creature_id):
+    """A creature's actions, ordered by category (stat-block order) then name."""
+    conn = get_connection()
+    try:
+        rows = conn.execute(
+            "SELECT * FROM creature_actions WHERE creature_id = ?", (creature_id,)
+        ).fetchall()
+    finally:
+        conn.close()
+    return sorted(
+        rows, key=lambda r: (_CATEGORY_ORDER.get(r["category"], 99), r["name"].lower())
+    )

@@ -7,42 +7,99 @@
     </span>
   </div>
 
-  <div class="spell-filter">
-    <input type="search" id="spell-search" placeholder="Search spells…" autocomplete="off" aria-label="Search spells">
-    <div class="filter-group" role="group" aria-label="Type">
-      <button type="button" class="filt-btn active" data-type="all">All</button>
-      <button type="button" class="filt-btn" data-type="cantrip">Cantrips</button>
-      <button type="button" class="filt-btn" data-type="leveled">Spells</button>
-    </div>
-    <div class="filter-group" role="group" aria-label="Casting time">
-      <button type="button" class="filt-btn castfilt active" data-cast="all">Any time</button>
-      <button type="button" class="filt-btn castfilt" data-cast="action">Action</button>
-      <button type="button" class="filt-btn castfilt" data-cast="bonus">Bonus action</button>
-      <button type="button" class="filt-btn castfilt" data-cast="reaction">Reaction</button>
-    </div>
+  <div class="library-toggle" role="group" aria-label="Library">
+    <button type="button" class="lib-btn active" data-pane="spells">Spells</button>
+    <button type="button" class="lib-btn" data-pane="actions">Action Book</button>
   </div>
 
-  <ul class="spell-list" id="spell-list">
-    {% for s in spells %}
-      {% set ct = s['casting_time'] | lower %}
-      <li class="spell-item"
-          data-name="{{ s['name'] }}"
-          data-cantrip="{{ '1' if s['level'] == 0 else '0' }}"
-          data-cast="{{ 'bonus' if 'bonus' in ct else ('reaction' if 'reaction' in ct else ('action' if 'action' in ct else 'other')) }}">
-        <a class="spell-row" href="{{ url_for('spell_detail', slug=s['slug']) }}">
-          <span class="spell-name">{{ s['name'] }}</span>
-          <span class="spell-meta muted">{{ s['level'] | ordinal_level }} · {{ s['school'] }} · {{ s['casting_time'] }}</span>
-          {% if s['roll'] %}<span class="spell-dice die-text">{{ s['roll'] }}</span>{% endif %}
-        </a>
-      </li>
-    {% endfor %}
-  </ul>
-  <p class="muted spell-empty" id="spell-empty" hidden>No spells match.</p>
+  {# ---- Spells library ---- #}
+  <div id="spells-pane" class="lib-pane">
+    <div class="spell-filter">
+      <input type="search" id="spell-search" placeholder="Search spells…" autocomplete="off" aria-label="Search spells">
+      <div class="filter-group" role="group" aria-label="Type">
+        <button type="button" class="filt-btn active" data-type="all">All</button>
+        <button type="button" class="filt-btn" data-type="cantrip">Cantrips</button>
+        <button type="button" class="filt-btn" data-type="leveled">Spells</button>
+      </div>
+      <div class="filter-group" role="group" aria-label="Casting time">
+        <button type="button" class="filt-btn castfilt active" data-cast="all">Any time</button>
+        <button type="button" class="filt-btn castfilt" data-cast="action">Action</button>
+        <button type="button" class="filt-btn castfilt" data-cast="bonus">Bonus action</button>
+        <button type="button" class="filt-btn castfilt" data-cast="reaction">Reaction</button>
+      </div>
+    </div>
 
-  <p class="placeholder-note">Phase 3b will let you add these to a character's spellbook.</p>
+    <ul class="spell-list" id="spell-list">
+      {% for s in spells %}
+        {% set ct = s['casting_time'] | lower %}
+        <li class="spell-item"
+            data-name="{{ s['name'] }}"
+            data-cantrip="{{ '1' if s['level'] == 0 else '0' }}"
+            data-cast="{{ 'bonus' if 'bonus' in ct else ('reaction' if 'reaction' in ct else ('action' if 'action' in ct else 'other')) }}">
+          <a class="spell-row" href="{{ url_for('spell_detail', slug=s['slug']) }}">
+            <span class="spell-name">{{ s['name'] }}</span>
+            <span class="spell-meta muted">{{ s['level'] | ordinal_level }} · {{ s['school'] }} · {{ s['casting_time'] }}</span>
+            {% if s['roll'] %}<span class="spell-dice die-text">{{ s['roll'] }}</span>{% endif %}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+    <p class="muted spell-empty" id="spell-empty" hidden>No spells match.</p>
+    <p class="muted">Open a spell to add it to a character's spellbook.</p>
+  </div>
+
+  {# ---- Action book ---- #}
+  <div id="actions-pane" class="lib-pane" hidden>
+    <input type="search" id="action-search" placeholder="Search actions…" autocomplete="off" aria-label="Search actions">
+    <p class="muted">Grab a premade action onto a character — it's copied to their sheet, where you can tweak or remove it.</p>
+
+    <ul class="actionbook-list" id="actionbook-list">
+      {% for a in action_book %}
+        <li class="actionbook-item" data-name="{{ a['name'] | lower }}">
+          <div class="actionbook-head">
+            <span class="action-cat action-cat-{{ a['category'] }}">{{ a['category'] | action_category }}</span>
+            <span class="action-name">{{ a['name'] }}</span>
+            {% if a['dice'] %}
+              {% if mode == 'assist' %}
+                <button type="button" class="rollable" data-expr="{{ a['dice'] }}" data-label="{{ a['name'] }}">{{ a['dice'] }}</button>
+              {% else %}
+                <span class="die-text">{{ a['dice'] }}</span>
+              {% endif %}
+            {% endif %}
+            {% if roster %}
+              <form method="post" action="{{ url_for('actions_add') }}" class="inline actionbook-add">
+                <input type="hidden" name="slug" value="{{ a['slug'] }}">
+                <input type="hidden" name="next" value="{{ url_for('spells') }}">
+                <select name="creature_id" aria-label="Add to">
+                  {% for c in roster %}
+                    <option value="{{ c['id'] }}">{{ c['name'] }}</option>
+                  {% endfor %}
+                </select>
+                <button type="submit" class="btn-small">Add</button>
+              </form>
+            {% endif %}
+          </div>
+          {% if a['description'] %}
+            <p class="action-desc">{{ a['description'] | dicetext(mode, a['name']) }}</p>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+    <p class="muted action-empty" id="action-empty" hidden>No actions match.</p>
+  </div>
 
   <script>
     (function () {
+      // Library pane toggle (Spells / Action Book).
+      const libBtns = document.querySelectorAll('.lib-btn');
+      const panes = { spells: document.getElementById('spells-pane'),
+                      actions: document.getElementById('actions-pane') };
+      libBtns.forEach(b => b.addEventListener('click', function () {
+        libBtns.forEach(x => x.classList.toggle('active', x === b));
+        Object.entries(panes).forEach(([k, el]) => { el.hidden = k !== b.dataset.pane; });
+      }));
+
+      // Spell search + filters.
       const search = document.getElementById('spell-search');
       const list = document.getElementById('spell-list');
       const empty = document.getElementById('spell-empty');
@@ -76,6 +133,21 @@
         castBtns.forEach(x => x.classList.toggle('active', x === b));
         apply();
       }));
+
+      // Action book search.
+      const aSearch = document.getElementById('action-search');
+      const aList = document.getElementById('actionbook-list');
+      const aEmpty = document.getElementById('action-empty');
+      aSearch.addEventListener('input', function () {
+        const q = aSearch.value.trim().toLowerCase();
+        let shown = 0;
+        aList.querySelectorAll('.actionbook-item').forEach(function (li) {
+          const show = li.dataset.name.includes(q);
+          li.style.display = show ? '' : 'none';
+          if (show) shown++;
+        });
+        aEmpty.hidden = shown !== 0;
+      });
     })();
   </script>
 {% endblock %}
