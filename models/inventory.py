@@ -17,12 +17,11 @@ SLOT_LABELS = {key: label for key, label, _ in SLOTS}
 SLOT_CAP = {key: cap for key, _, cap in SLOTS}
 EQUIP_SLOTS = [key for key, _, _ in SLOTS]
 
-# Paper-doll layout: weapons/armor on the left, jewelry on the right, a
-# character frame in the middle (Baldur's Gate-style).
+# Paper-doll layout: armor on the left, a character frame in the middle, and
+# weapons + jewelry on the right (Baldur's Gate-style).
 SLOT_COLUMN = {
-    "main_hand": "left", "off_hand": "left", "armor": "left", "helmet": "left",
-    "cloak": "left", "gloves": "left", "boots": "left",
-    "amulet": "right", "ring": "right",
+    "armor": "left", "helmet": "left", "cloak": "left", "gloves": "left", "boots": "left",
+    "main_hand": "right", "off_hand": "right", "amulet": "right", "ring": "right",
 }
 
 
