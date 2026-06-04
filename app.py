@@ -188,11 +188,33 @@ def is_dm():
 # Endpoints reachable without being logged in (auth pages + static assets).
 _PUBLIC_ENDPOINTS = {"login", "logout", "register", "setup", "static"}
 
+# Endpoints only the DM may reach — the whole authoring/management surface
+# (bestiary, encounters, combat, loot, party, users, creating/deleting chars).
+# Enforced server-side here, not just hidden in the nav (CLAUDE.md). Per-creature
+# edits (a player editing their own PC) are guarded separately by can_edit_creature.
+_DM_ONLY_ENDPOINTS = {
+    "character_new", "character_delete",
+    "bestiary", "monster_new", "monster_inspect", "monster_reveal",
+    "encounter_detail", "encounter_new", "encounter_rename", "encounter_delete",
+    "encounter_add_member", "encounter_member_quantity", "encounter_member_remove",
+    "encounter_start_combat",
+    "combat", "combat_new", "combat_detail", "combat_end", "combat_reopen",
+    "combat_delete", "combat_add", "combat_load_encounter",
+    "combat_roll_initiative", "combat_next_turn",
+    "combatant_initiative", "combatant_hp", "combatant_temp",
+    "combatant_condition", "combatant_remove",
+    "loot", "loot_area_new", "loot_area_switch", "loot_area_delete",
+    "loot_area_clear", "loot_spawn", "loot_create", "loot_give", "loot_remove",
+    "party", "party_rest_route", "party_hp",
+    "users", "users_set_code", "users_set_character", "users_reset_password",
+    "users_delete",
+}
+
 
 @app.before_request
 def _require_login():
-    """Gate the whole app behind login. With no users yet, force first-run setup
-    (create the DM); otherwise redirect anonymous visitors to the login page."""
+    """Gate the whole app behind login (with first-run setup), then block the
+    DM-only authoring surface for players — both server-side."""
     endpoint = request.endpoint or ""
     if endpoint in _PUBLIC_ENDPOINTS:
         return
@@ -200,6 +222,65 @@ def _require_login():
         return redirect(url_for("setup"))
     if current_user() is None:
         return redirect(url_for("login"))
+    if endpoint in _DM_ONLY_ENDPOINTS and not is_dm():
+        abort(403)
+
+
+# --- Per-creature visibility (the fog-of-war spine) ------------------------
+
+def _my_pc_id():
+    """The creature id of the logged-in player's own character (None for the DM
+    or an unassigned player)."""
+    u = current_user()
+    return u["creature_id"] if (u and u["role"] == "player") else None
+
+
+def can_view_creature(creature):
+    """DM sees everyone. A player sees only their own PC. (Discovered NPCs /
+    locations reach players through the entity sidebar + blog in Phase 9; the
+    `visibility` flag already gates those server-side when they land.)"""
+    if is_dm():
+        return True
+    return creature is not None and creature["id"] == _my_pc_id()
+
+
+def can_edit_creature(creature):
+    """DM edits anyone; a player edits only their own PC."""
+    if is_dm():
+        return True
+    return creature is not None and creature["id"] == _my_pc_id()
+
+
+def visible_roster():
+    """The roster filtered to what the viewer may see."""
+    roster = list_roster()
+    return roster if is_dm() else [c for c in roster if can_view_creature(c)]
+
+
+def editable_roster():
+    """The roster filtered to what the viewer may edit (own PC, or all for DM)."""
+    roster = list_roster()
+    return roster if is_dm() else [c for c in roster if can_edit_creature(c)]
+
+
+def _require_edit(creature_id):
+    """Fetch a creature and 404/403 if the viewer can't see/edit it. Returns it."""
+    creature = get_creature(creature_id)
+    if not can_view_creature(creature):
+        abort(404)
+    if not can_edit_creature(creature):
+        abort(403)
+    return creature
+
+
+def _require_edit_form_creature():
+    """Guard a mutation keyed by a form `creature_id` (spellbook/actions). Returns
+    the creature id, or aborts 403 if the viewer can't edit that creature."""
+    cid = request.form.get("creature_id", type=int)
+    creature = get_creature(cid) if cid else None
+    if creature is None or not can_edit_creature(creature):
+        abort(403)
+    return cid
 
 
 @app.context_processor
@@ -434,7 +515,7 @@ def character():
         "character.html",
         active="character",
         title="Character Sheet",
-        roster=list_roster(),
+        roster=visible_roster(),
     )
 
 
@@ -457,7 +538,7 @@ def character_new():
 @app.route("/character/<int:creature_id>")
 def character_detail(creature_id):
     creature = get_creature(creature_id)
-    if creature is None:
+    if not can_view_creature(creature):  # hidden/forbidden creatures 404 for players
         abort(404)
     known = creature_spells(creature_id)
     known_slugs = {s["slug"] for s in known}
@@ -466,6 +547,7 @@ def character_detail(creature_id):
         "character_detail.html",
         active="bestiary" if creature["kind"] == "monster" else "character",
         title=creature["name"],
+        can_edit=can_edit_creature(creature),
         abilities=ABILITIES,
         dispositions=DISPOSITIONS,
         creature=creature,
@@ -485,9 +567,7 @@ def character_detail(creature_id):
 
 @app.route("/character/<int:creature_id>/edit", methods=["GET", "POST"])
 def character_edit(creature_id):
-    creature = get_creature(creature_id)
-    if creature is None:
-        abort(404)
+    creature = _require_edit(creature_id)
     if request.method == "POST":
         update_creature(creature_id, _form_to_data(request.form))
         _apply_avatar(creature_id)
@@ -511,8 +591,7 @@ def character_avatar(creature_id):
     """Update just the portrait from the sheet — no full edit needed, so a PC can
     change their own picture anytime. Returns the gear fragment (the figure lives
     there) for in-place AJAX, else redirects back to the sheet."""
-    if get_creature(creature_id) is None:
-        abort(404)
+    _require_edit(creature_id)
     _apply_avatar(creature_id)
     return _gear_response(creature_id, url_for("character_detail", creature_id=creature_id))
 
@@ -520,6 +599,7 @@ def character_avatar(creature_id):
 @app.route("/character/<int:creature_id>/disposition", methods=["POST"])
 def character_set_disposition(creature_id):
     """Quick live toggle of a creature's disposition (for NPCs/monsters)."""
+    _require_edit(creature_id)
     value = request.form.get("disposition")
     if value in DISPOSITIONS:
         update_creature(creature_id, {"disposition": value})
@@ -532,9 +612,7 @@ def character_levelup(creature_id):
     """Bump a creature one level (milestone- or XP-driven, DM's call) and add the
     HP gained. Level stays manual; this just applies the step. Capped at the max.
     """
-    creature = get_creature(creature_id)
-    if creature is None:
-        abort(404)
+    creature = _require_edit(creature_id)
     if creature["level"] < MAX_LEVEL:
         hp_gain = max(0, request.form.get("hp_gain", 0, type=int) or 0)
         new_level = creature["level"] + 1
@@ -967,10 +1045,13 @@ def _form_to_data(form):
 # --- Inventory (on the character sheet) -----------------------------------
 
 def _item_owner_next(item_id):
-    """Return ((item, redirect_target)) for an item, or (None, character list)."""
+    """Return (item, redirect_target) for an item, or (None, character list).
+    Aborts 403 if the viewer can't edit the item's owner (visibility spine)."""
     item = get_item(item_id)
     if item is None:
         return None, url_for("character")
+    if not can_edit_creature(get_creature(item["creature_id"])):
+        abort(403)
     return item, url_for("character_detail", creature_id=item["creature_id"])
 
 
@@ -1024,6 +1105,8 @@ def inventory_add():
     creature = get_creature(cid) if cid else None
     if creature is None:
         return redirect(url_for("character"))
+    if not can_edit_creature(creature):
+        abort(403)
     add_item(cid, request.form.get("name", ""),
              request.form.get("quantity", 1, type=int) or 1,
              request.form.get("description", ""),
@@ -1292,9 +1375,13 @@ def spells():
     # not see the wizard's spells flagged). With no auth yet, a "Viewing as"
     # selector scopes the library to one character; in Phase 7 this is replaced
     # by the logged-in user's own character (the DM may still view as anyone).
-    roster = list_roster()
+    roster = editable_roster()  # add-to dropdowns: DM = all, player = own PC only
     view_id = request.args.get("as", type=int)
+    if not is_dm():
+        view_id = _my_pc_id()  # a player always views the library as their own PC
     view_creature = get_creature(view_id) if view_id else None
+    if view_creature and not can_view_creature(view_creature):
+        view_creature = None
     spell_status = {}  # slug -> 'prepared' | 'known', for the viewed character only
     if view_creature:
         for s in creature_spells(view_id):
@@ -1323,11 +1410,12 @@ def spell_detail(slug):
     spell = get_spell(slug)
     if spell is None:
         abort(404)
-    # PCs/NPCs this spell could be added to, flagged with whether they have it.
+    # Characters this spell could be added to (DM: all; player: their own PC),
+    # flagged with whether they already have it.
     roster = [
         {"id": c["id"], "name": c["name"],
          "has": spell["slug"] in creature_spell_slugs(c["id"])}
-        for c in list_roster()
+        for c in editable_roster()
     ]
     return render_template(
         "spell_detail.html",
@@ -1343,35 +1431,31 @@ def spell_detail(slug):
 
 @app.route("/spellbook/add", methods=["POST"])
 def spellbook_add():
-    cid = request.form.get("creature_id", type=int)
+    cid = _require_edit_form_creature()
     slug = request.form.get("slug", "")
-    if cid and get_creature(cid) and get_spell(slug):
+    if get_spell(slug):
         add_spell(cid, slug)
         flash("Spell added.")
-    if _is_fetch() and cid and get_creature(cid):
+    if _is_fetch():
         return _spells_fragment(cid)
     return redirect(_safe_next(request.form.get("next"), url_for("character")))
 
 
 @app.route("/spellbook/remove", methods=["POST"])
 def spellbook_remove():
-    cid = request.form.get("creature_id", type=int)
-    slug = request.form.get("slug", "")
-    if cid:
-        remove_spell(cid, slug)
-        flash("Spell removed.")
-    if _is_fetch() and cid and get_creature(cid):
+    cid = _require_edit_form_creature()
+    remove_spell(cid, request.form.get("slug", ""))
+    flash("Spell removed.")
+    if _is_fetch():
         return _spells_fragment(cid)
     return redirect(_safe_next(request.form.get("next"), url_for("character")))
 
 
 @app.route("/spellbook/prepared", methods=["POST"])
 def spellbook_prepared():
-    cid = request.form.get("creature_id", type=int)
-    slug = request.form.get("slug", "")
-    if cid:
-        set_prepared(cid, slug, request.form.get("prepared") == "1")
-    if _is_fetch() and cid and get_creature(cid):
+    cid = _require_edit_form_creature()
+    set_prepared(cid, request.form.get("slug", ""), request.form.get("prepared") == "1")
+    if _is_fetch():
         return _spells_fragment(cid)
     return redirect(_safe_next(request.form.get("next"), url_for("character")))
 
@@ -1386,23 +1470,22 @@ def actions_add():
     the action book (a `slug`, copied onto the creature like loot); a `slug` of
     '' falls back to a hand-written custom action from the form fields.
     """
-    cid = request.form.get("creature_id", type=int)
-    if cid and get_creature(cid):
-        entry = get_catalog_action(request.form.get("slug", ""))
-        if entry:
-            add_action(cid, entry["name"], entry["description"],
-                       entry["dice"], entry["category"])
-            flash(f"Added {entry['name']}.")
-        elif (request.form.get("name") or "").strip():
-            add_action(
-                cid,
-                request.form.get("name", ""),
-                request.form.get("description", ""),
-                request.form.get("dice", ""),
-                request.form.get("category", "action"),
-            )
-            flash("Custom action added.")
-    if _is_fetch() and cid and get_creature(cid):
+    cid = _require_edit_form_creature()
+    entry = get_catalog_action(request.form.get("slug", ""))
+    if entry:
+        add_action(cid, entry["name"], entry["description"],
+                   entry["dice"], entry["category"])
+        flash(f"Added {entry['name']}.")
+    elif (request.form.get("name") or "").strip():
+        add_action(
+            cid,
+            request.form.get("name", ""),
+            request.form.get("description", ""),
+            request.form.get("dice", ""),
+            request.form.get("category", "action"),
+        )
+        flash("Custom action added.")
+    if _is_fetch():
         return _actions_fragment(cid)
     return redirect(_safe_next(request.form.get("next"), url_for("character")))
 
@@ -1413,6 +1496,8 @@ def actions_remove(action_id):
     if action is None:
         return redirect(url_for("character"))
     cid = action["creature_id"]
+    if not can_edit_creature(get_creature(cid)):
+        abort(403)
     remove_action(action_id)
     flash("Action removed.")
     if _is_fetch():

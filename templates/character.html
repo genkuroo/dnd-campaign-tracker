@@ -2,8 +2,8 @@
 {% from "macros.html" import avatar %}
 {% block content %}
   <div class="page-head">
-    <h1>Characters &amp; NPCs</h1>
-    <a class="btn" href="{{ url_for('character_new') }}">+ New</a>
+    <h1>{{ 'Characters &amp; NPCs' if is_dm else 'My Character' }}</h1>
+    {% if is_dm %}<a class="btn" href="{{ url_for('character_new') }}">+ New</a>{% endif %}
   </div>
 
   {% if roster %}
@@ -71,8 +71,11 @@
         });
       })();
     </script>
-  {% else %}
+  {% elif is_dm %}
     <p class="muted">No characters or NPCs yet.</p>
     <p class="placeholder-note">Create your first one to start the party.</p>
+  {% else %}
+    <p class="muted">No character assigned to you yet.</p>
+    <p class="placeholder-note">Ask your DM to link your account to your character.</p>
   {% endif %}
 {% endblock %}
