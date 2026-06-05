@@ -70,9 +70,8 @@
                   {%- if it['description'] %}{{ it['description'] }}{% endif -%}
                 {%- endif -%}
               </span>
-              {% if it['ac_bonus'] or it['stat_bonuses'] or it['grants_spells'] %}
-                <span class="loot-magic">✨ magic{% if it['ac_bonus'] %} ({{ '%+d' % it['ac_bonus'] }} AC){% endif %}</span>
-              {% endif %}
+              {% set fx = it | item_effects %}
+              {% if fx %}<span class="loot-magic">✨ {{ fx | join(' · ') }}</span>{% endif %}
             </span>
             {% if is_dm %}
               {% if pcs %}

@@ -54,6 +54,7 @@ from models.inventory import (
     equipment_panel,
     equipped_ac_bonus,
     get_item,
+    item_effects,
     list_items,
     remove_item,
     unequip_item,
@@ -364,6 +365,12 @@ def _ordinal_level_filter(level):
 def _action_category_filter(value):
     """Jinja filter: action category code -> label (e.g. 'bonus' -> 'Bonus Action')."""
     return action_category_label(value)
+
+
+@app.template_filter("item_effects")
+def _item_effects_filter(item):
+    """Jinja filter: an item row -> readable magic effects (['+2 AC', 'STR +2', …])."""
+    return item_effects(item)
 
 
 # Dice tokens inside prose, e.g. '8d6', '1d4 + 1'.

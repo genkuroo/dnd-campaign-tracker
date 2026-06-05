@@ -1,5 +1,6 @@
 """A creature's inventory of items (loot, gear, consumables) + equipment slots."""
 from db import get_connection
+from models.spells import get_spell
 
 # Equipment slots: (key, label, capacity). Most hold one item; rings hold two.
 SLOTS = [
@@ -76,6 +77,23 @@ def add_item(creature_id, name, quantity=1, description="", slot="", hands=1,
 # Ability score columns, for parsing item stat bonuses.
 _ABILITY_COLS = ("strength", "dexterity", "constitution",
                  "intelligence", "wisdom", "charisma")
+_ABILITY_SHORT = {"strength": "STR", "dexterity": "DEX", "constitution": "CON",
+                  "intelligence": "INT", "wisdom": "WIS", "charisma": "CHA"}
+
+
+def item_effects(item):
+    """Human-readable list of an item's magic effects, e.g. ['+2 AC', 'STR +2',
+    'grants Fire Bolt']. Empty for a mundane item."""
+    out = []
+    if item["ac_bonus"]:
+        out.append(f"{item['ac_bonus']:+d} AC")
+    for col, amt in _parse_stat_bonuses(item["stat_bonuses"]).items():
+        out.append(f"{_ABILITY_SHORT[col]} {amt:+d}")
+    names = [(get_spell(s.strip()) or {}).get("name", s.strip())
+             for s in (item["grants_spells"] or "").split(",") if s.strip()]
+    if names:
+        out.append("grants " + ", ".join(names))
+    return out
 
 
 def _clean_slugs(value):

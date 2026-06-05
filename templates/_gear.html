@@ -93,9 +93,8 @@
               {%- if it['slot'] %}{{ slot_labels[it['slot']] }}{% endif -%}
               {%- if it['slot'] and it['description'] %} · {% endif -%}
               {%- if it['description'] %}{{ it['description'] }}{% endif -%}
-              {%- if it['ac_bonus'] %} · {{ '%+d' % it['ac_bonus'] }} AC{% endif -%}
-              {%- if it['stat_bonuses'] %} · {{ it['stat_bonuses'] }}{% endif -%}
-              {%- if it['grants_spells'] %} · grants {{ it['grants_spells'] }}{% endif -%}
+              {%- set fx = it | item_effects -%}
+              {%- if fx %} · {{ fx | join(' · ') }}{% endif -%}
             </span>
           </span>
           <span class="qty">
