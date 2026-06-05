@@ -75,7 +75,8 @@
     <p class="muted">No characters or NPCs yet.</p>
     <p class="placeholder-note">Create your first one to start the party.</p>
   {% else %}
-    <p class="muted">No character assigned to you yet.</p>
-    <p class="placeholder-note">Ask your DM to link your account to your character.</p>
+    <p class="muted">You don't have a character yet.</p>
+    <p class="placeholder-note">Create your own below, or ask your DM to link you to an existing one.</p>
+    <a class="btn" href="{{ url_for('character_create_mine') }}">+ Create my character</a>
   {% endif %}
 {% endblock %}

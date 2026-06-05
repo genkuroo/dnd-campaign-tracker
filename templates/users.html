@@ -30,6 +30,13 @@
             </select>
             <button type="submit" class="btn-small">Assign</button>
           </form>
+          {% if u['creature_id'] %}
+            <span class="muted assigned-to">→ {{ u['creature_name'] or 'unknown' }}</span>
+            <form method="post" action="{{ url_for('users_set_character', user_id=u['id']) }}" class="inline">
+              <input type="hidden" name="creature_id" value="">
+              <button type="submit" class="btn-small" title="Remove this character from the player">Unassign</button>
+            </form>
+          {% endif %}
         {% else %}
           <span class="muted">campaign admin</span>
         {% endif %}

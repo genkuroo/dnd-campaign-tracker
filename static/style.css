@@ -1264,5 +1264,6 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
   background: var(--bg); color: var(--ink);
   border: 1px solid var(--border); border-radius: 5px;
 }
+.assigned-to { font-family: sans-serif; font-size: 0.85rem; white-space: nowrap; }
 .user-manage { margin-left: auto; }
 .user-manage-body { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.5rem; align-items: center; }

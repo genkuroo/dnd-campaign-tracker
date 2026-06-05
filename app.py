@@ -482,8 +482,9 @@ def users_set_code():
 def users_set_character(user_id):
     _require_dm()
     if get_user(user_id):
-        set_user_character(user_id, request.form.get("creature_id", type=int))
-        flash("Character assigned.")
+        cid = request.form.get("creature_id", type=int)
+        set_user_character(user_id, cid)
+        flash("Character assigned." if cid else "Character unassigned.")
     return redirect(url_for("users"))
 
 
@@ -532,6 +533,38 @@ def character_new():
         title="New Character",
         creature=None,
         **_form_vocab(),
+    )
+
+
+@app.route("/character/create-mine", methods=["GET", "POST"])
+def character_create_mine():
+    """Self-service character creation for a player who has none yet — creates a
+    PC and assigns it to them. (The DM uses the normal new-character flow.)"""
+    u = current_user()
+    if u is None:
+        abort(403)
+    if is_dm():
+        return redirect(url_for("character_new"))
+    if u["creature_id"] and get_creature(u["creature_id"]):
+        return redirect(url_for("character_detail", creature_id=u["creature_id"]))
+    if request.method == "POST":
+        data = _form_to_data(request.form)
+        data["kind"] = "pc"            # players make their own PC
+        data["visibility"] = "visible"  # a player can't hide themselves from the DM
+        if not (data.get("player_name") or "").strip():
+            data["player_name"] = u["username"]
+        new_id = create_creature(data)
+        _apply_avatar(new_id)
+        set_user_character(u["id"], new_id)  # auto-assign to the creator
+        flash("Your character is ready — welcome to the party!")
+        return redirect(url_for("character_detail", creature_id=new_id))
+    return render_template(
+        "character_form.html",
+        active="character",
+        title="Create your character",
+        creature=None,
+        cancel_url=url_for("character"),
+        **{**_form_vocab(), "kinds": [("pc", "Player Character")]},
     )
 
 
