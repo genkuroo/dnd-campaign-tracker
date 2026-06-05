@@ -1621,6 +1621,24 @@ def blog():
     return render_template("blog.html", active="blog", title="Campaign Blog")
 
 
+# --- Friendly error pages (no more bare white screens on 403/404) ----------
+
+@app.errorhandler(403)
+def _forbidden(_e):
+    return render_template(
+        "error.html", title="Not allowed", code="403",
+        message="You don't have access to that — it's a DM-only or read-only area.",
+    ), 403
+
+
+@app.errorhandler(404)
+def _not_found(_e):
+    return render_template(
+        "error.html", title="Not found", code="404",
+        message="That page doesn't exist, or isn't visible to you.",
+    ), 404
+
+
 if __name__ == "__main__":
     init_db()
     app.run(debug=True, port=5002)

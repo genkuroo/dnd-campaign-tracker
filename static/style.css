@@ -1152,6 +1152,9 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
   color: #b5d68f; border: 1px solid #5a7b3f; border-radius: 999px;
   padding: 0.02rem 0.4rem; vertical-align: middle;
 }
+.error-page { text-align: center; padding: 3rem 1rem; }
+.error-code { font-size: 3rem; color: var(--accent-2); margin: 0; }
+.error-msg { color: var(--muted); margin: 0.5rem 0 1.5rem; }
 .equip-static { cursor: default; opacity: 0.85; }
 .note-private { font-size: 0.75rem; font-weight: normal; }
 .init-input {

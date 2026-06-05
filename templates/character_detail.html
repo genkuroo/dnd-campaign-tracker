@@ -16,16 +16,23 @@
       </p>
 
       {% if creature['kind'] in ('npc', 'monster') %}
-        <form class="disp-toggle" method="post"
-              action="{{ url_for('character_set_disposition', creature_id=creature['id']) }}">
-          <span class="disp-toggle-label">Disposition</span>
-          {% for d in dispositions %}
-            <button type="submit" name="disposition" value="{{ d }}"
-                    class="disp-btn disp-{{ d }} {{ 'active' if creature['disposition'] == d else '' }}">
-              {{ d }}
-            </button>
-          {% endfor %}
-        </form>
+        {% if can_edit %}
+          <form class="disp-toggle" method="post"
+                action="{{ url_for('character_set_disposition', creature_id=creature['id']) }}">
+            <span class="disp-toggle-label">Disposition</span>
+            {% for d in dispositions %}
+              <button type="submit" name="disposition" value="{{ d }}"
+                      class="disp-btn disp-{{ d }} {{ 'active' if creature['disposition'] == d else '' }}">
+                {{ d }}
+              </button>
+            {% endfor %}
+          </form>
+        {% else %}
+          <div class="disp-toggle">
+            <span class="disp-toggle-label">Disposition</span>
+            <span class="disp disp-{{ creature['disposition'] }}">{{ creature['disposition'] }}</span>
+          </div>
+        {% endif %}
       {% endif %}
     </div>
     <div class="head-actions">
