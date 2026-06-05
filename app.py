@@ -151,9 +151,9 @@ app.jinja_env.globals["define"] = define
 TABS = [
     {"endpoint": "character", "label": "Character Sheet"},
     {"endpoint": "party", "label": "Party"},
-    {"endpoint": "bestiary", "label": "Bestiary"},
+    {"endpoint": "bestiary", "label": "Bestiary", "dm_only": True},
     {"endpoint": "combat", "label": "Combat"},
-    {"endpoint": "loot", "label": "Loot"},
+    {"endpoint": "loot", "label": "Loot", "dm_only": True},
     {"endpoint": "spells", "label": "Spells & Actions"},
     {"endpoint": "dice", "label": "Dice"},
     {"endpoint": "map", "label": "Map"},
@@ -189,24 +189,26 @@ def is_dm():
 # Endpoints reachable without being logged in (auth pages + static assets).
 _PUBLIC_ENDPOINTS = {"login", "logout", "register", "setup", "static"}
 
-# Endpoints only the DM may reach — the whole authoring/management surface
-# (bestiary, encounters, combat, loot, party, users, creating/deleting chars).
+# Endpoints only the DM may reach — the whole authoring/management surface.
 # Enforced server-side here, not just hidden in the nav (CLAUDE.md). Per-creature
 # edits (a player editing their own PC) are guarded separately by can_edit_creature.
+# NOTE: the Party + Combat *views* (party, combat, combat_detail) are deliberately
+# NOT here — players get a read-only view (controls hidden in-template) while every
+# mutation route below stays DM-only.
 _DM_ONLY_ENDPOINTS = {
     "character_new", "character_delete",
     "bestiary", "monster_new", "monster_inspect", "monster_reveal",
     "encounter_detail", "encounter_new", "encounter_rename", "encounter_delete",
     "encounter_add_member", "encounter_member_quantity", "encounter_member_remove",
     "encounter_start_combat",
-    "combat", "combat_new", "combat_detail", "combat_end", "combat_reopen",
+    "combat_new", "combat_end", "combat_reopen",
     "combat_delete", "combat_add", "combat_load_encounter",
     "combat_roll_initiative", "combat_next_turn",
     "combatant_initiative", "combatant_hp", "combatant_temp",
     "combatant_condition", "combatant_remove",
     "loot", "loot_area_new", "loot_area_switch", "loot_area_delete",
     "loot_area_clear", "loot_spawn", "loot_create", "loot_give", "loot_remove",
-    "party", "party_rest_route", "party_hp",
+    "party_rest_route", "party_hp",
     "users", "users_set_code", "users_set_character", "users_reset_password",
     "users_set_color", "users_delete",
 }

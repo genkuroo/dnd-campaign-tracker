@@ -2,12 +2,14 @@
 {% block content %}
   <div class="page-head">
     <h1>Combat</h1>
-    <form method="post" action="{{ url_for('combat_new') }}" class="inline encounter-new">
-      <input type="text" name="name" placeholder="New combat name…">
-      <button type="submit" class="btn">+ Start combat</button>
-    </form>
+    {% if is_dm %}
+      <form method="post" action="{{ url_for('combat_new') }}" class="inline encounter-new">
+        <input type="text" name="name" placeholder="New combat name…">
+        <button type="submit" class="btn">+ Start combat</button>
+      </form>
+    {% endif %}
   </div>
-  <p class="muted">Track initiative, HP, conditions, and rests for a live fight — PCs and monsters together.</p>
+  <p class="muted">{% if is_dm %}Track initiative, HP, conditions, and rests for a live fight — PCs and monsters together.{% else %}Open the active fight to follow initiative and HP. Your DM runs combat.{% endif %}</p>
 
   {% if combats %}
     <ul class="encounter-list">
@@ -19,10 +21,10 @@
       {% endfor %}
     </ul>
   {% else %}
-    <p class="muted">No active combats. Start one above, or use “Start combat” on a Bestiary encounter.</p>
+    <p class="muted">No active combats{% if is_dm %}. Start one above, or use “Start combat” on a Bestiary encounter{% endif %}.</p>
   {% endif %}
 
-  {% if history %}
+  {% if history and is_dm %}
     <section class="encounters">
       <div class="section-head"><h2>History</h2></div>
       <p class="muted">Ended fights are kept here — reopen one to continue, or delete it for good.</p>

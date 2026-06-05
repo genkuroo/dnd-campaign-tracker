@@ -16,20 +16,35 @@
       </div>
     {% endif %}
   </div>
-  <p class="muted">Your player characters. Rests restore HP on their actual sheets — a long rest brings everyone to full; a {{ info('short-rest', 'short rest') }} recovers about half of each character's missing HP.</p>
+  {% if is_dm %}
+    <p class="muted">Your player characters. Rests restore HP on their actual sheets — a long rest brings everyone to full; a {{ info('short-rest', 'short rest') }} recovers about half of each character's missing HP.</p>
+  {% else %}
+    <p class="muted">The party at a glance. The DM manages rests and HP.</p>
+  {% endif %}
 
   {% if party %}
     <div class="party-grid">
       {% for c in party %}
         {% set pct = (100 * c['current_hp'] / c['max_hp']) if c['max_hp'] else 0 %}
+        {% set mine = is_dm or (current_user and current_user['creature_id'] == c['id']) %}
         <div class="party-card">
-          <a class="party-card-head" href="{{ url_for('character_detail', creature_id=c['id']) }}">
-            <span class="party-portrait">{{ avatar(c, 'avatar-md') }}</span>
-            <span class="party-id">
-              <span class="char-name">{{ c['name'] }}</span>
-              <span class="muted">Lv {{ c['level'] }}{% if c['player_name'] %} · {{ c['player_name'] }}{% endif %}</span>
-            </span>
-          </a>
+          {% if mine %}
+            <a class="party-card-head" href="{{ url_for('character_detail', creature_id=c['id']) }}">
+              <span class="party-portrait">{{ avatar(c, 'avatar-md') }}</span>
+              <span class="party-id">
+                <span class="char-name">{{ c['name'] }}{% if not is_dm %} <span class="you-tag">you</span>{% endif %}</span>
+                <span class="muted">Lv {{ c['level'] }}{% if c['player_name'] %} · {{ c['player_name'] }}{% endif %}</span>
+              </span>
+            </a>
+          {% else %}
+            <div class="party-card-head">
+              <span class="party-portrait">{{ avatar(c, 'avatar-md') }}</span>
+              <span class="party-id">
+                <span class="char-name">{{ c['name'] }}</span>
+                <span class="muted">Lv {{ c['level'] }}{% if c['player_name'] %} · {{ c['player_name'] }}{% endif %}</span>
+              </span>
+            </div>
+          {% endif %}
           <div class="hp-bar" title="{{ c['current_hp'] }} / {{ c['max_hp'] }} HP">
             <span class="hp-fill {{ 'low' if pct <= 33 else ('mid' if pct <= 66 else '') }}" style="width: {{ pct }}%"></span>
             <span class="hp-text">{{ c['current_hp'] }} / {{ c['max_hp'] }}</span>

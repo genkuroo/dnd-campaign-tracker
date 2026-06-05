@@ -1136,6 +1136,21 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .combatant.downed .combatant-name { text-decoration: line-through; }
 
 .init-badge { flex: none; }
+.init-static {
+  display: inline-block; width: 3rem; text-align: center;
+  font-weight: bold; font-size: 1.1rem; color: var(--accent-2);
+  padding: 0.35rem 0.2rem;
+}
+.readonly-tag {
+  font-family: sans-serif; font-size: 0.72rem; text-transform: uppercase;
+  letter-spacing: 0.04em; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 999px; padding: 0.05rem 0.5rem;
+}
+.you-tag {
+  font-family: sans-serif; font-size: 0.65rem; text-transform: uppercase;
+  color: #b5d68f; border: 1px solid #5a7b3f; border-radius: 999px;
+  padding: 0.02rem 0.4rem; vertical-align: middle;
+}
 .init-input {
   width: 3rem; text-align: center; font: inherit; font-weight: bold; font-size: 1.1rem;
   color: var(--accent-2); background: var(--bg);
