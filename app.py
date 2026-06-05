@@ -38,8 +38,16 @@ from models.creature import (
     list_party,
     list_roster,
     party_rest,
+    proficiency_bonus,
     update_creature,
     xp_to_next,
+)
+from models.proficiency import (
+    SKILL_OPTIONS,
+    proficient_skills,
+    save_table,
+    set_skill_proficiencies,
+    skill_table,
 )
 from models.dice import DiceError, parse_and_roll
 from models.glossary import define
@@ -347,6 +355,13 @@ def _mod_filter(score):
     return format_modifier(ability_modifier(score))
 
 
+@app.template_filter("signed")
+def _signed_filter(value):
+    """Jinja filter: an already-computed modifier int -> signed string (3 -> '+3',
+    0 -> '+0'). Used for save/skill totals and the dice expressions they post."""
+    return format_modifier(int(value))
+
+
 @app.template_filter("commalist")
 def _commalist_filter(value):
     """Split a comma-separated field into a clean list for chip rendering."""
@@ -414,7 +429,8 @@ def _dicetext_filter(text, mode="track", label=""):
 def _form_vocab():
     return {"abilities": ABILITIES, "kinds": KINDS,
             "dispositions": DISPOSITIONS, "alignments": ALIGNMENTS,
-            "unarmored_defenses": UNARMORED_DEFENSE, "classes": all_classes()}
+            "unarmored_defenses": UNARMORED_DEFENSE, "classes": all_classes(),
+            "skill_options": SKILL_OPTIONS}
 
 
 def _apply_class(creature_id, class_slug, starting_kit=False):
@@ -635,6 +651,7 @@ def character_new():
     if request.method == "POST":
         new_id = create_creature(_form_to_data(request.form))
         _apply_avatar(new_id)
+        set_skill_proficiencies(new_id, request.form.getlist("skills"))
         if request.form.get("class_name"):
             _apply_class(new_id, request.form.get("class_name"),
                          starting_kit=bool(request.form.get("apply_kit")))
@@ -671,6 +688,8 @@ def character_create_mine():
             data["player_name"] = u["username"]
         new_id = create_creature(data)
         _apply_avatar(new_id)
+        # Skills stay DM-controlled — the DM assigns proficiencies later (the picker
+        # is hidden from players), so a self-created PC starts with none.
         if request.form.get("class_name"):  # players get the full starting kit
             _apply_class(new_id, request.form.get("class_name"), starting_kit=True)
         set_user_character(u["id"], new_id)  # auto-assign to the creator
@@ -709,6 +728,9 @@ def character_detail(creature_id):
         klass=klass,
         level_hp=level_hp,
         eff_abilities=eff_ab,
+        saves=save_table(creature, eff_ab),
+        skills=skill_table(creature, eff_ab),
+        prof_bonus=proficiency_bonus(creature["level"]),
         eff_ac=effective_ac(creature),
         ac_bonus=equipped_ac_bonus(creature_id),
         ac_breakdown=ac_breakdown(creature),
@@ -735,6 +757,8 @@ def character_edit(creature_id):
     if request.method == "POST":
         update_creature(creature_id, _form_to_data(request.form))
         _apply_avatar(creature_id)
+        if is_dm():  # skill proficiencies are DM-controlled; players can't reset them
+            set_skill_proficiencies(creature_id, request.form.getlist("skills"))
         flash("Character updated.")
         return redirect(url_for("character_detail", creature_id=creature_id))
     vocab = _form_vocab()
@@ -745,6 +769,7 @@ def character_edit(creature_id):
         active={"monster": "bestiary", "npc": "npcs"}.get(creature["kind"], "character"),
         title=f"Edit {creature['name']}",
         creature=creature,
+        proficient_skills=proficient_skills(creature_id),
         cancel_url=url_for("character_detail", creature_id=creature_id),
         **vocab,
     )
@@ -840,6 +865,7 @@ def monster_new():
         data["kind"] = "monster"  # the Bestiary only makes monsters
         new_id = create_creature(data)
         _apply_avatar(new_id)
+        set_skill_proficiencies(new_id, request.form.getlist("skills"))
         flash("Monster created.")
         return redirect(url_for("character_detail", creature_id=new_id))
     return render_template(

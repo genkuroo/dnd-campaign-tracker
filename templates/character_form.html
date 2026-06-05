@@ -107,6 +107,22 @@
       </div>
     </fieldset>
 
+    {% if is_dm %}
+      {# Skill proficiencies are DM-controlled (players can't reset their own). #}
+      <fieldset>
+        <legend>Skill Proficiencies <span class="muted">(DM only — add proficiency bonus to these checks)</span></legend>
+        {% set prof = proficient_skills | default([]) %}
+        <div class="skill-checks">
+          {% for slug, name, col, short in skill_options %}
+            <label class="checkbox">
+              <input type="checkbox" name="skills" value="{{ slug }}" {{ 'checked' if slug in prof else '' }}>
+              <span>{{ name }} <span class="muted">{{ short }}</span></span>
+            </label>
+          {% endfor %}
+        </div>
+      </fieldset>
+    {% endif %}
+
     <fieldset>
       <legend>Vitals</legend>
       <div class="field-row">

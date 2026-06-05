@@ -78,6 +78,12 @@ def xp_to_next(xp):
     if current >= MAX_LEVEL:
         return None
     return current + 1, XP_THRESHOLDS[current + 1] - xp
+
+
+def proficiency_bonus(level):
+    """5e proficiency bonus by character level: +2 at 1–4, +3 at 5–8, +4 at 9–12,
+    +5 at 13–16, +6 at 17–20. Added to any roll a creature is proficient in."""
+    return 2 + (max(1, int(level)) - 1) // 4
 _TEXT_FIELDS = [
     "name", "kind", "player_name", "disposition", "alignment",
     "resistances", "immunities", "vulnerabilities", "notes", "visibility",

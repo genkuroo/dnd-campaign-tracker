@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 23
+SCHEMA_VERSION = 24
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -299,6 +299,19 @@ MIGRATIONS = {
     -- records its class by slug; picking one applies a starting package (stats,
     -- HP from the hit die, gear, Unarmored Defense) and the hit die drives level-up.
     ALTER TABLE creatures ADD COLUMN class_name TEXT NOT NULL DEFAULT '';
+    """,
+    24: """
+    -- Skill proficiencies (the proficiency layer). Saving-throw proficiency is
+    -- derived from the creature's class (data/classes.json) and needs no storage;
+    -- skill proficiency is chosen per creature, recorded here by SRD skill slug.
+    -- The proficiency *bonus* is computed from level, never baked into the sheet
+    -- (mirrors effective AC/abilities). ON DELETE CASCADE clears with the creature.
+    CREATE TABLE creature_skills (
+        creature_id INTEGER NOT NULL REFERENCES creatures(id) ON DELETE CASCADE,
+        skill_slug  TEXT    NOT NULL,
+        added_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+        PRIMARY KEY (creature_id, skill_slug)
+    );
     """,
 }
 

@@ -31,6 +31,10 @@ GLOSSARY = {
     "hit-points": "Hit Points (HP) — a creature's health. At 0 HP it falls unconscious or dies.",
     "temp-hp": "Temporary HP — a buffer on top of your hit points (from some spells/abilities). Damage comes off temp HP first; they don't stack (keep the higher value) and aren't restored by healing.",
     "modifier": "Modifier — the +/- number derived from an ability score, added to related d20 rolls.",
+    "proficiency": "Proficiency — training in a particular save or skill. When you're proficient, you add your proficiency bonus to that roll.",
+    "proficiency-bonus": "Proficiency bonus — one number that grows with level (+2 at levels 1–4, up to +6 at 17–20), added to every save, skill, and attack you're proficient in.",
+    "skill": "Skill — a specific kind of ability check (Stealth, Perception, Persuasion…), each tied to one ability. If you're proficient in it, add your proficiency bonus.",
+    "saving-throw-prof": "Saving throw proficiency — your class makes you reliably good at resisting two kinds of effect (e.g. a Barbarian's STR & CON saves), adding your proficiency bonus.",
     "hit-die": "Hit die — the die you roll for hit points each level (e.g. d8 for many classes). Level-up HP = that roll (or its average) + your Constitution modifier.",
     # Spell vocabulary
     "cantrip": "Cantrip — a level-0 spell you can cast at will, without spending a spell slot.",

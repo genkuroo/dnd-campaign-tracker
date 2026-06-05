@@ -102,23 +102,36 @@
   <section class="ability-grid">
     {% for col, short in abilities %}
       {% set e = eff_abilities[col] %}
+      {% set sv = saves[col] %}
       <div class="ability">
         <span class="ability-short">{{ info(col, short) }}</span>
         <span class="ability-mod">{{ e.score | mod }}</span>
         <span class="ability-score">{{ e.score }}{% if e.bonus %} <span class="stat-bonus" title="{{ creature[col] }} base {{ '%+d' % e.bonus }} from items">{{ '%+d' % e.bonus }}</span>{% endif %}</span>
+        <span class="ability-save {{ 'is-prof' if sv.proficient else '' }}"
+              title="{{ short }} saving throw: d20 {{ sv.modifier | signed }}{{ ' (proficient)' if sv.proficient else '' }}">
+          {% if sv.proficient %}<span class="prof-dot" aria-hidden="true">●</span>{% endif %}save {{ sv.modifier | signed }}</span>
         {% if can_edit %}
-          <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
-            <input type="hidden" name="expression" value="1d20{{ e.score | mod }}">
-            <input type="hidden" name="label" value="{{ creature['name'] }} · {{ short }} check">
-            <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-            <button type="submit" class="check-btn"
-                    title="Roll a {{ short }} check: d20 {{ e.score | mod }}">Check</button>
-          </form>
+          <div class="ability-rolls">
+            <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
+              <input type="hidden" name="expression" value="1d20{{ e.score | mod }}">
+              <input type="hidden" name="label" value="{{ creature['name'] }} · {{ short }} check">
+              <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+              <button type="submit" class="check-btn"
+                      title="Roll a {{ short }} check: d20 {{ e.score | mod }}">Check</button>
+            </form>
+            <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
+              <input type="hidden" name="expression" value="1d20{{ sv.modifier | signed }}">
+              <input type="hidden" name="label" value="{{ creature['name'] }} · {{ short }} save">
+              <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+              <button type="submit" class="check-btn {{ 'is-prof' if sv.proficient else '' }}"
+                      title="Roll a {{ short }} saving throw: d20 {{ sv.modifier | signed }}">Save</button>
+            </form>
+          </div>
         {% endif %}
       </div>
     {% endfor %}
   </section>
-  {% if can_edit %}<p class="muted check-hint">A check rolls d20 + the ability modifier. Saving throws roll the same until proficiency lands.</p>{% endif %}
+  {% if can_edit %}<p class="muted check-hint">A <strong>check</strong> rolls d20 + the ability modifier; a <strong>save</strong> adds the {{ info('proficiency-bonus', 'proficiency bonus') }} (+{{ prof_bonus }}) when the class is proficient ({{ info('saving-throw-prof', '●') }}).</p>{% endif %}
 
   {% set res = creature['resistances'] | commalist %}
   {% set imm = creature['immunities'] | commalist %}
@@ -130,6 +143,31 @@
       {% if vul %}<div class="defense-row"><span class="defense-label">Vulnerabilities</span>{% for d in vul %}<span class="chip chip-vul">{{ d }}</span>{% endfor %}</div>{% endif %}
     </section>
   {% endif %}
+
+  <section class="skills">
+    <div class="section-head">
+      <h2>{{ info('skill', 'Skills') }}</h2>
+      <span class="muted">proficient (<span class="prof-dot">●</span>) skills add +{{ prof_bonus }}</span>
+    </div>
+    <div class="skill-grid">
+      {% for s in skills %}
+        <div class="skill {{ 'is-prof' if s.proficient else '' }}">
+          <span class="skill-dot" title="{{ 'Proficient' if s.proficient else 'Not proficient' }}">{{ '●' if s.proficient else '○' }}</span>
+          <span class="skill-name">{{ s.name }} <span class="skill-ability muted">{{ s.ability }}</span></span>
+          <span class="skill-mod">{{ s.modifier | signed }}</span>
+          {% if can_edit %}
+            <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
+              <input type="hidden" name="expression" value="1d20{{ s.modifier | signed }}">
+              <input type="hidden" name="label" value="{{ creature['name'] }} · {{ s.name }} check">
+              <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+              <button type="submit" class="check-btn" title="Roll {{ s.name }}: d20 {{ s.modifier | signed }}">Roll</button>
+            </form>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    {% if is_dm %}<p class="muted check-hint">Set which skills this character is proficient in on the <a href="{{ url_for('character_edit', creature_id=creature['id']) }}">edit page</a> (DM only).</p>{% endif %}
+  </section>
 
   <div class="sheet-divider" role="separator"></div>
 
