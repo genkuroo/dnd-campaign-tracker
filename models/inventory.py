@@ -1,6 +1,11 @@
 """A creature's inventory of items (loot, gear, consumables) + equipment slots."""
 from db import get_connection
+from models.creature import ability_modifier
 from models.spells import get_spell
+
+# 5e armor: how much of your Dexterity modifier applies while wearing each type.
+ARMOR_TYPES = ("light", "medium", "heavy")
+_DEX_CAP = {"light": None, "medium": 2, "heavy": 0}  # None = uncapped
 
 # Equipment slots: (key, label, capacity). Most hold one item; rings hold two.
 SLOTS = [
@@ -51,22 +56,25 @@ def get_item(item_id):
 
 
 def add_item(creature_id, name, quantity=1, description="", slot="", hands=1,
-             ac_bonus=0, grants_spells="", stat_bonuses=""):
+             ac_bonus=0, grants_spells="", stat_bonuses="", armor_base=0, armor_type=""):
     name = (name or "").strip()
     if not name:
         return None
     if slot not in EQUIP_SLOTS:
         slot = ""
+    if armor_type not in ARMOR_TYPES:
+        armor_type = ""
     conn = get_connection()
     try:
         cur = conn.execute(
             "INSERT INTO creature_items "
             "(creature_id, name, quantity, description, slot, hands, ac_bonus, "
-            " grants_spells, stat_bonuses) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            " grants_spells, stat_bonuses, armor_base, armor_type) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (creature_id, name, max(1, int(quantity or 1)), (description or "").strip(),
              slot, 2 if int(hands or 1) == 2 else 1,
-             int(ac_bonus or 0), _clean_slugs(grants_spells), _clean_stat_bonuses(stat_bonuses)),
+             int(ac_bonus or 0), _clean_slugs(grants_spells), _clean_stat_bonuses(stat_bonuses),
+             int(armor_base or 0), armor_type),
         )
         conn.commit()
         return cur.lastrowid
@@ -81,10 +89,16 @@ _ABILITY_SHORT = {"strength": "STR", "dexterity": "DEX", "constitution": "CON",
                   "intelligence": "INT", "wisdom": "WIS", "charisma": "CHA"}
 
 
+_ARMOR_DEX_LABEL = {"light": "full DEX", "medium": "DEX max +2", "heavy": "no DEX"}
+
+
 def item_effects(item):
-    """Human-readable list of an item's magic effects, e.g. ['+2 AC', 'STR +2',
-    'grants Fire Bolt']. Empty for a mundane item."""
+    """Human-readable list of an item's magic effects, e.g. ['Heavy armor: AC 16
+    (no DEX)', '+2 AC', 'STR +2', 'grants Fire Bolt']. Empty for a mundane item."""
     out = []
+    if item["armor_type"]:
+        out.append(f"{item['armor_type'].title()} armor: AC {item['armor_base']} "
+                   f"({_ARMOR_DEX_LABEL.get(item['armor_type'], '')})")
     if item["ac_bonus"]:
         out.append(f"{item['ac_bonus']:+d} AC")
     for col, amt in _parse_stat_bonuses(item["stat_bonuses"]).items():
@@ -140,10 +154,34 @@ def equipped_ac_bonus(creature_id):
         conn.close()
 
 
+def equipped_set_armor(creature_id):
+    """The equipped 'set AC' body armor (armor_type set), or None."""
+    conn = get_connection()
+    try:
+        return conn.execute(
+            "SELECT * FROM creature_items "
+            "WHERE creature_id = ? AND equipped = 1 AND armor_type != '' LIMIT 1",
+            (creature_id,),
+        ).fetchone()
+    finally:
+        conn.close()
+
+
 def effective_ac(creature):
-    """A creature's AC including bonuses from equipped items (base AC is never
-    mutated — this is computed, so it reverts when items come off)."""
-    return creature["armor_class"] + equipped_ac_bonus(creature["id"])
+    """A creature's AC, computed (base never mutated, so it reverts when items
+    come off). 5e rules: equipped body armor *sets* the base AC and caps how much
+    Dexterity applies (light = full, medium = +2, heavy = none); without armor the
+    creature's manually-set AC stands. Additive bonuses (shield/ring/cloak) and any
+    armor enhancement stack on top."""
+    base = creature["armor_class"]
+    armor = equipped_set_armor(creature["id"])
+    if armor:
+        dex = creature["dexterity"] + equipped_stat_bonuses(creature["id"]).get("dexterity", 0)
+        dex_mod = ability_modifier(dex)
+        cap = _DEX_CAP.get(armor["armor_type"], 0)
+        applied = dex_mod if cap is None else min(dex_mod, cap)
+        base = armor["armor_base"] + applied
+    return base + equipped_ac_bonus(creature["id"])
 
 
 def equipped_stat_bonuses(creature_id):

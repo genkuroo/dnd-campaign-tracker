@@ -1167,7 +1167,14 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .magic-fields > summary { cursor: pointer; color: var(--muted); font-family: sans-serif; font-size: 0.8rem; }
 .magic-fields[open] > summary { color: var(--ink); margin-bottom: 0.5rem; }
 .magic-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.magic-grid.armor-row { margin-bottom: 0.5rem; align-items: flex-end; }
 .magic-grid .coin-input { width: 3.4rem; }
+.magic-armor { display: flex; flex-direction: column; gap: 0.2rem; font-family: sans-serif; font-size: 0.8rem; color: var(--muted); }
+.magic-armor select {
+  font: inherit; padding: 0.3rem 0.4rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 5px;
+}
 .magic-spells { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.6rem; font-family: sans-serif; font-size: 0.82rem; color: var(--muted); }
 .magic-spells select {
   font: inherit; padding: 0.3rem; min-width: 14rem;

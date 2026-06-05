@@ -1413,7 +1413,9 @@ def loot_spawn():
                  gold=item.get("gold", 0), silver=item.get("silver", 0),
                  copper=item.get("copper", 0), ac_bonus=item.get("ac_bonus", 0),
                  grants_spells=item.get("grants_spells", ""),
-                 stat_bonuses=item.get("stat_bonuses", ""))
+                 stat_bonuses=item.get("stat_bonuses", ""),
+                 armor_base=item.get("armor_base", 0),
+                 armor_type=item.get("armor_type", ""))
         flash(f"Spawned {item['name']}.")
     return redirect(url_for("loot"))
 
@@ -1427,6 +1429,8 @@ def _magic_fields_from_form():
         "ac_bonus": request.form.get("ac_bonus", 0, type=int) or 0,
         "grants_spells": request.form.getlist("grants_spells"),
         "stat_bonuses": ", ".join(f"{c}:{v}" for c, v in stat.items() if v),
+        "armor_base": request.form.get("armor_base", 0, type=int) or 0,
+        "armor_type": request.form.get("armor_type", ""),
     }
 
 

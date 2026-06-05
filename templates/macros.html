@@ -19,9 +19,21 @@
    `spell_options` (list of spell dicts). #}
 {% macro magic_fields(abilities, spell_options) -%}
   <details class="magic-fields">
-    <summary>✨ Magic (optional)</summary>
+    <summary>✨ Magic / armor (optional)</summary>
+    <div class="magic-grid armor-row">
+      <label class="magic-armor" title="Body armor sets your AC (5e). Light = full DEX, Medium = +2 DEX, Heavy = no DEX.">Armor
+        <select name="armor_type">
+          <option value="">— not armor —</option>
+          <option value="light">Light (+ DEX)</option>
+          <option value="medium">Medium (+ DEX, max 2)</option>
+          <option value="heavy">Heavy (no DEX)</option>
+        </select>
+      </label>
+      <label class="coin-field" title="The armor's base AC (e.g. Chain Mail = 16)">Base AC
+        <input type="number" name="armor_base" value="0" class="coin-input"></label>
+    </div>
     <div class="magic-grid">
-      <label class="coin-field" title="Bonus to Armor Class while equipped">AC
+      <label class="coin-field" title="Flat bonus to Armor Class (shield, ring, magic) — stacks on top of armor">+AC
         <input type="number" name="ac_bonus" value="0" class="coin-input"></label>
       {% for col, short in abilities %}
         <label class="coin-field" title="Bonus to {{ short }} while equipped">{{ short }}

@@ -8,6 +8,7 @@ creature's inventory and removes it from the pool.
 from db import get_connection
 from models.creature import adjust_coins
 from models.inventory import (
+    ARMOR_TYPES,
     EQUIP_SLOTS,
     _clean_slugs,
     _clean_stat_bonuses,
@@ -119,23 +120,27 @@ def get_loot(loot_id):
 
 
 def add_loot(area_id, name, quantity=1, description="", slot="", hands=1,
-             gold=0, silver=0, copper=0, ac_bonus=0, grants_spells="", stat_bonuses=""):
+             gold=0, silver=0, copper=0, ac_bonus=0, grants_spells="", stat_bonuses="",
+             armor_base=0, armor_type=""):
     name = (name or "").strip()
     if not name:
         return None
     if slot not in EQUIP_SLOTS:
         slot = ""
+    if armor_type not in ARMOR_TYPES:
+        armor_type = ""
     conn = get_connection()
     try:
         cur = conn.execute(
             "INSERT INTO loot_items "
             "(area_id, name, quantity, description, slot, hands, gold, silver, copper, "
-            " ac_bonus, grants_spells, stat_bonuses) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            " ac_bonus, grants_spells, stat_bonuses, armor_base, armor_type) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (area_id, name, max(1, int(quantity or 1)), (description or "").strip(),
              slot, 2 if int(hands or 1) == 2 else 1,
              max(0, int(gold or 0)), max(0, int(silver or 0)), max(0, int(copper or 0)),
-             int(ac_bonus or 0), _clean_slugs(grants_spells), _clean_stat_bonuses(stat_bonuses)),
+             int(ac_bonus or 0), _clean_slugs(grants_spells), _clean_stat_bonuses(stat_bonuses),
+             int(armor_base or 0), armor_type),
         )
         conn.commit()
         return cur.lastrowid
@@ -173,7 +178,8 @@ def give_loot(loot_id, creature_id):
         add_creature_item(creature_id, loot["name"], loot["quantity"],
                           loot["description"], slot=loot["slot"], hands=loot["hands"],
                           ac_bonus=loot["ac_bonus"], grants_spells=loot["grants_spells"],
-                          stat_bonuses=loot["stat_bonuses"])
+                          stat_bonuses=loot["stat_bonuses"], armor_base=loot["armor_base"],
+                          armor_type=loot["armor_type"])
     remove_loot(loot_id)
     return True
 
@@ -187,6 +193,7 @@ def drop_to_loot(item_id, area_id):
     add_loot(area_id, item["name"], item["quantity"], item["description"],
              slot=item["slot"], hands=item["hands"],
              ac_bonus=item["ac_bonus"], grants_spells=item["grants_spells"],
-             stat_bonuses=item["stat_bonuses"])
+             stat_bonuses=item["stat_bonuses"], armor_base=item["armor_base"],
+             armor_type=item["armor_type"])
     remove_creature_item(item_id)
     return item["creature_id"]
