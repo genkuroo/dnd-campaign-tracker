@@ -5,40 +5,48 @@
   </div>
 
   {% if not areas %}
-    <p class="muted">No areas yet. Create one to start dropping loot.</p>
-    <form method="post" action="{{ url_for('loot_area_new') }}" class="add-area">
-      <input type="text" name="name" placeholder="Area name (e.g. Goblin Cave)" required>
-      <button type="submit" class="btn">Create area</button>
-    </form>
-  {% else %}
-    <div class="area-bar">
-      <form method="post" action="{{ url_for('loot_area_switch') }}" class="inline area-switch">
-        <label class="muted">Area</label>
-        <select name="area_id" onchange="this.form.submit()">
-          {% for a in areas %}
-            <option value="{{ a['id'] }}" {{ 'selected' if area and a['id'] == area['id'] }}>{{ a['name'] }}</option>
-          {% endfor %}
-        </select>
-        <noscript><button type="submit" class="btn-ghost">Go</button></noscript>
+    {% if is_dm %}
+      <p class="muted">No areas yet. Create one to start dropping loot.</p>
+      <form method="post" action="{{ url_for('loot_area_new') }}" class="add-area">
+        <input type="text" name="name" placeholder="Area name (e.g. Goblin Cave)" required>
+        <button type="submit" class="btn">Create area</button>
       </form>
-      <div class="area-actions">
-        <form method="post" action="{{ url_for('loot_area_clear') }}" class="inline"
-              onsubmit="return confirm('Clear all loot in {{ area['name'] }}?')">
-          <input type="hidden" name="area_id" value="{{ area['id'] }}">
-          <button type="submit" class="btn-ghost">Clear loot</button>
+    {% else %}
+      <p class="muted">No loot location is open yet — your DM will set one up.</p>
+    {% endif %}
+  {% else %}
+    {% if is_dm %}
+      <div class="area-bar">
+        <form method="post" action="{{ url_for('loot_area_switch') }}" class="inline area-switch">
+          <label class="muted">Area</label>
+          <select name="area_id" onchange="this.form.submit()">
+            {% for a in areas %}
+              <option value="{{ a['id'] }}" {{ 'selected' if area and a['id'] == area['id'] }}>{{ a['name'] }}</option>
+            {% endfor %}
+          </select>
+          <noscript><button type="submit" class="btn-ghost">Go</button></noscript>
         </form>
-        <form method="post" action="{{ url_for('loot_area_delete') }}" class="inline"
-              onsubmit="return confirm('Delete the area {{ area['name'] }} and all its loot?')">
-          <input type="hidden" name="area_id" value="{{ area['id'] }}">
-          <button type="submit" class="btn-danger">Delete area</button>
-        </form>
+        <div class="area-actions">
+          <form method="post" action="{{ url_for('loot_area_clear') }}" class="inline"
+                onsubmit="return confirm('Clear all loot in {{ area['name'] }}?')">
+            <input type="hidden" name="area_id" value="{{ area['id'] }}">
+            <button type="submit" class="btn-ghost">Clear loot</button>
+          </form>
+          <form method="post" action="{{ url_for('loot_area_delete') }}" class="inline"
+                onsubmit="return confirm('Delete the area {{ area['name'] }} and all its loot?')">
+            <input type="hidden" name="area_id" value="{{ area['id'] }}">
+            <button type="submit" class="btn-danger">Delete area</button>
+          </form>
+        </div>
       </div>
-    </div>
 
-    <form method="post" action="{{ url_for('loot_area_new') }}" class="add-area">
-      <input type="text" name="name" placeholder="New area…" required>
-      <button type="submit" class="btn-ghost">+ Area</button>
-    </form>
+      <form method="post" action="{{ url_for('loot_area_new') }}" class="add-area">
+        <input type="text" name="name" placeholder="New area…" required>
+        <button type="submit" class="btn-ghost">+ Area</button>
+      </form>
+    {% else %}
+      <p class="muted location-line">📍 Current location: <strong>{{ area['name'] }}</strong></p>
+    {% endif %}
 
     <h2 class="loot-heading">Loot in {{ area['name'] }}</h2>
     {% if loot %}
@@ -53,53 +61,75 @@
                 {%- if it['description'] %}{{ it['description'] }}{% endif -%}
               </span>
             </span>
-            {% if pcs %}
-              <form method="post" action="{{ url_for('loot_give', loot_id=it['id']) }}" class="inline give-form">
-                <select name="creature_id" aria-label="Give to player character">
-                  {% for c in pcs %}<option value="{{ c['id'] }}">{{ c['name'] }}</option>{% endfor %}
-                </select>
-                <button type="submit" class="btn">Give</button>
+            {% if is_dm %}
+              {% if pcs %}
+                <form method="post" action="{{ url_for('loot_give', loot_id=it['id']) }}" class="inline give-form">
+                  <select name="creature_id" aria-label="Give to player character">
+                    {% for c in pcs %}<option value="{{ c['id'] }}">{{ c['name'] }}</option>{% endfor %}
+                  </select>
+                  <button type="submit" class="btn">Give</button>
+                </form>
+              {% endif %}
+              <form method="post" action="{{ url_for('loot_remove', loot_id=it['id']) }}" class="inline"
+                    onsubmit="return confirm('Remove {{ it['name'] }} from loot?')">
+                <button type="submit" class="roll-del" title="Remove from loot">×</button>
+              </form>
+            {% elif my_pc %}
+              <form method="post" action="{{ url_for('loot_take', loot_id=it['id']) }}" class="inline">
+                <button type="submit" class="btn">Take</button>
               </form>
             {% endif %}
-            <form method="post" action="{{ url_for('loot_remove', loot_id=it['id']) }}" class="inline"
-                  onsubmit="return confirm('Remove {{ it['name'] }} from loot?')">
-              <button type="submit" class="roll-del" title="Remove from loot">×</button>
-            </form>
           </li>
         {% endfor %}
       </ul>
     {% else %}
-      <p class="muted">This area has no loot. Spawn or create some below.</p>
+      <p class="muted">{% if is_dm %}This area has no loot. Spawn or create some below.{% else %}Nothing here right now.{% endif %}</p>
     {% endif %}
 
-    <div class="loot-add-grid">
-      <section class="loot-add">
-        <h3>Spawn premade</h3>
-        <form method="post" action="{{ url_for('loot_spawn') }}" class="add-item">
-          <input type="hidden" name="area_id" value="{{ area['id'] }}">
-          <select name="slug" aria-label="Premade item">
-            {% for i in catalog %}<option value="{{ i['slug'] }}">{{ i['name'] }} — {{ i['category'] }}</option>{% endfor %}
-          </select>
-          <input type="number" name="quantity" value="1" min="1" class="qty-input" aria-label="Quantity">
-          <button type="submit" class="btn">Spawn</button>
-        </form>
-      </section>
+    {% if is_dm %}
+      <div class="loot-add-grid">
+        <section class="loot-add">
+          <h3>Spawn premade</h3>
+          <form method="post" action="{{ url_for('loot_spawn') }}" class="add-item">
+            <input type="hidden" name="area_id" value="{{ area['id'] }}">
+            <select name="slug" aria-label="Premade item">
+              {% for i in catalog %}<option value="{{ i['slug'] }}">{{ i['name'] }} — {{ i['category'] }}</option>{% endfor %}
+            </select>
+            <input type="number" name="quantity" value="1" min="1" class="qty-input" aria-label="Quantity">
+            <button type="submit" class="btn">Spawn</button>
+          </form>
+        </section>
 
-      <section class="loot-add">
-        <h3>Create custom</h3>
-        <form method="post" action="{{ url_for('loot_create') }}" class="add-item">
-          <input type="hidden" name="area_id" value="{{ area['id'] }}">
-          <input type="text" name="name" placeholder="Item name" required>
-          <input type="number" name="quantity" value="1" min="1" class="qty-input" aria-label="Quantity">
-          <select name="slot" aria-label="Equipment slot">
-            <option value="">Not equippable</option>
-            {% for key, label, cap in slots %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
-          </select>
-          <label class="two-handed-check"><input type="checkbox" name="two_handed"> 2H</label>
-          <input type="text" name="description" placeholder="Description (optional)" class="desc-input">
-          <button type="submit" class="btn">Add</button>
-        </form>
+        <section class="loot-add">
+          <h3>Create custom</h3>
+          <form method="post" action="{{ url_for('loot_create') }}" class="add-item">
+            <input type="hidden" name="area_id" value="{{ area['id'] }}">
+            <input type="text" name="name" placeholder="Item name" required>
+            <input type="number" name="quantity" value="1" min="1" class="qty-input" aria-label="Quantity">
+            <select name="slot" aria-label="Equipment slot">
+              <option value="">Not equippable</option>
+              {% for key, label, cap in slots %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
+            </select>
+            <label class="two-handed-check"><input type="checkbox" name="two_handed"> 2H</label>
+            <input type="text" name="description" placeholder="Description (optional)" class="desc-input">
+            <button type="submit" class="btn">Add</button>
+          </form>
+        </section>
+      </div>
+    {% elif my_pc %}
+      <section class="loot-add loot-drop">
+        <h3>Drop an item here</h3>
+        {% if my_items %}
+          <form method="post" action="{{ url_for('loot_drop') }}" class="add-item">
+            <select name="item_id" aria-label="Item to drop">
+              {% for it in my_items %}<option value="{{ it['id'] }}">{{ it['name'] }}{% if it['quantity'] > 1 %} ×{{ it['quantity'] }}{% endif %}</option>{% endfor %}
+            </select>
+            <button type="submit" class="btn">Drop into loot</button>
+          </form>
+        {% else %}
+          <p class="muted">Your inventory is empty.</p>
+        {% endif %}
       </section>
-    </div>
+    {% endif %}
   {% endif %}
 {% endblock %}

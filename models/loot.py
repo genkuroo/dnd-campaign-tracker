@@ -6,7 +6,12 @@ never deletes loot). Giving a loot item to a creature copies it into that
 creature's inventory and removes it from the pool.
 """
 from db import get_connection
-from models.inventory import EQUIP_SLOTS, add_item as add_creature_item
+from models.inventory import (
+    EQUIP_SLOTS,
+    add_item as add_creature_item,
+    get_item as get_creature_item,
+    remove_item as remove_creature_item,
+)
 
 _CURRENT_KEY = "current_area_id"
 
@@ -152,3 +157,15 @@ def give_loot(loot_id, creature_id):
                       loot["description"], slot=loot["slot"], hands=loot["hands"])
     remove_loot(loot_id)
     return True
+
+
+def drop_to_loot(item_id, area_id):
+    """Move a creature's inventory item into an area's loot pool (the reverse of
+    give_loot). Returns the source creature_id, or None if the item is gone."""
+    item = get_creature_item(item_id)
+    if item is None:
+        return None
+    add_loot(area_id, item["name"], item["quantity"], item["description"],
+             slot=item["slot"], hands=item["hands"])
+    remove_creature_item(item_id)
+    return item["creature_id"]

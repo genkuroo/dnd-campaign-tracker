@@ -62,7 +62,9 @@ from models.loot import (
     create_area,
     current_area_id,
     delete_area,
+    drop_to_loot,
     get_area,
+    get_loot,
     give_loot,
     list_areas,
     remove_loot,
@@ -155,7 +157,7 @@ TABS = [
     {"endpoint": "npcs", "label": "NPCs"},
     {"endpoint": "bestiary", "label": "Bestiary"},
     {"endpoint": "combat", "label": "Combat"},
-    {"endpoint": "loot", "label": "Loot", "dm_only": True},
+    {"endpoint": "loot", "label": "Loot"},
     {"endpoint": "spells", "label": "Spells & Actions"},
     {"endpoint": "dice", "label": "Dice"},
     {"endpoint": "map", "label": "Map"},
@@ -208,7 +210,7 @@ _DM_ONLY_ENDPOINTS = {
     "combat_roll_initiative", "combat_next_turn",
     "combatant_initiative", "combatant_hp", "combatant_temp",
     "combatant_condition", "combatant_remove",
-    "loot", "loot_area_new", "loot_area_switch", "loot_area_delete",
+    "loot_area_new", "loot_area_switch", "loot_area_delete",
     "loot_area_clear", "loot_spawn", "loot_create", "loot_give", "loot_remove",
     "party_rest_route", "party_hp",
     "users", "users_set_code", "users_set_character", "users_reset_password",
@@ -1279,7 +1281,11 @@ def inventory_remove(item_id):
 
 @app.route("/loot")
 def loot():
+    """The loot table at the current location. The DM stocks/manages it and hands
+    out items; players can **take** items to their PC and **drop** items from
+    their PC's inventory into the pool."""
     area_id = current_area_id()
+    my_pc = get_creature(_my_pc_id()) if _my_pc_id() else None
     return render_template(
         "loot.html",
         active="loot",
@@ -1291,7 +1297,39 @@ def loot():
         pcs=[c for c in list_roster() if c["kind"] == "pc"],
         slots=SLOTS,
         slot_labels=SLOT_LABELS,
+        my_pc=my_pc,
+        my_items=list_items(my_pc["id"]) if my_pc else [],
     )
+
+
+@app.route("/loot/<int:loot_id>/take", methods=["POST"])
+def loot_take(loot_id):
+    """A player picks up a loot item into their own PC (current location only)."""
+    pc_id = _my_pc_id()
+    if not pc_id:
+        abort(403)  # DM hands out via 'give'; only a player with a PC can take
+    loot_item = get_loot(loot_id)
+    if loot_item and loot_item["area_id"] == current_area_id():
+        give_loot(loot_id, pc_id)
+        flash("Picked up.")
+    return redirect(url_for("loot"))
+
+
+@app.route("/loot/drop", methods=["POST"])
+def loot_drop():
+    """Drop an item from your PC's inventory into the current location's loot."""
+    item = get_item(request.form.get("item_id", type=int))
+    if item is None:
+        return redirect(url_for("loot"))
+    if not can_edit_creature(get_creature(item["creature_id"])):
+        abort(403)  # only your own items
+    area_id = current_area_id()
+    if area_id:
+        drop_to_loot(item["id"], area_id)
+        flash("Dropped into the loot table.")
+    else:
+        flash("No location to drop into yet.")
+    return redirect(url_for("loot"))
 
 
 @app.route("/loot/area/new", methods=["POST"])
