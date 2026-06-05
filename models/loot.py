@@ -6,12 +6,18 @@ never deletes loot). Giving a loot item to a creature copies it into that
 creature's inventory and removes it from the pool.
 """
 from db import get_connection
+from models.creature import adjust_coins
 from models.inventory import (
     EQUIP_SLOTS,
     add_item as add_creature_item,
     get_item as get_creature_item,
     remove_item as remove_creature_item,
 )
+
+
+def is_currency(loot):
+    """A loot row is currency (goes to the purse, not inventory) if it carries coins."""
+    return bool(loot["gold"] or loot["silver"] or loot["copper"])
 
 _CURRENT_KEY = "current_area_id"
 
@@ -110,7 +116,8 @@ def get_loot(loot_id):
         conn.close()
 
 
-def add_loot(area_id, name, quantity=1, description="", slot="", hands=1):
+def add_loot(area_id, name, quantity=1, description="", slot="", hands=1,
+             gold=0, silver=0, copper=0):
     name = (name or "").strip()
     if not name:
         return None
@@ -119,10 +126,12 @@ def add_loot(area_id, name, quantity=1, description="", slot="", hands=1):
     conn = get_connection()
     try:
         cur = conn.execute(
-            "INSERT INTO loot_items (area_id, name, quantity, description, slot, hands) "
-            "VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO loot_items "
+            "(area_id, name, quantity, description, slot, hands, gold, silver, copper) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (area_id, name, max(1, int(quantity or 1)), (description or "").strip(),
-             slot, 2 if int(hands or 1) == 2 else 1),
+             slot, 2 if int(hands or 1) == 2 else 1,
+             max(0, int(gold or 0)), max(0, int(silver or 0)), max(0, int(copper or 0))),
         )
         conn.commit()
         return cur.lastrowid
@@ -149,12 +158,16 @@ def clear_area_loot(area_id):
 
 
 def give_loot(loot_id, creature_id):
-    """Move a loot item into a creature's inventory (copy, then drop from pool)."""
+    """Move a loot item to a creature: currency goes into the purse, everything
+    else into the inventory; either way it leaves the pool."""
     loot = get_loot(loot_id)
     if loot is None:
         return False
-    add_creature_item(creature_id, loot["name"], loot["quantity"],
-                      loot["description"], slot=loot["slot"], hands=loot["hands"])
+    if is_currency(loot):
+        adjust_coins(creature_id, loot["gold"], loot["silver"], loot["copper"])
+    else:
+        add_creature_item(creature_id, loot["name"], loot["quantity"],
+                          loot["description"], slot=loot["slot"], hands=loot["hands"])
     remove_loot(loot_id)
     return True
 

@@ -24,10 +24,11 @@ from models.creature import (
     MAX_LEVEL,
     MONSTER_KINDS,
     ability_modifier,
+    adjust_coins,
+    adjust_hp,
     alignment_label,
     create_creature,
     delete_creature,
-    adjust_hp,
     format_modifier,
     get_creature,
     level_from_xp,
@@ -716,6 +717,21 @@ def character_levelup(creature_id):
     return redirect(url_for("character_detail", creature_id=creature_id))
 
 
+@app.route("/character/<int:creature_id>/coins", methods=["POST"])
+def character_coins(creature_id):
+    """Directly add or subtract coins from a creature's purse (owner or DM)."""
+    _require_edit(creature_id)
+    sign = -1 if request.form.get("mode") == "subtract" else 1
+    adjust_coins(
+        creature_id,
+        sign * (request.form.get("gold", 0, type=int) or 0),
+        sign * (request.form.get("silver", 0, type=int) or 0),
+        sign * (request.form.get("copper", 0, type=int) or 0),
+    )
+    flash("Purse updated.")
+    return redirect(url_for("character_detail", creature_id=creature_id))
+
+
 @app.route("/character/<int:creature_id>/delete", methods=["POST"])
 def character_delete(creature_id):
     delete_creature(creature_id)
@@ -1373,7 +1389,9 @@ def loot_spawn():
     item = get_item_def(request.form.get("slug", ""))
     if aid and get_area(aid) and item:
         add_loot(aid, item["name"], request.form.get("quantity", 1, type=int) or 1,
-                 item["description"], slot=item["slot"], hands=item["hands"])
+                 item["description"], slot=item["slot"], hands=item["hands"],
+                 gold=item.get("gold", 0), silver=item.get("silver", 0),
+                 copper=item.get("copper", 0))
         flash(f"Spawned {item['name']}.")
     return redirect(url_for("loot"))
 
@@ -1386,7 +1404,10 @@ def loot_create():
                  request.form.get("quantity", 1, type=int) or 1,
                  request.form.get("description", ""),
                  slot=request.form.get("slot", ""),
-                 hands=2 if request.form.get("two_handed") else 1)
+                 hands=2 if request.form.get("two_handed") else 1,
+                 gold=request.form.get("gold", 0, type=int) or 0,
+                 silver=request.form.get("silver", 0, type=int) or 0,
+                 copper=request.form.get("copper", 0, type=int) or 0)
         flash("Item added to loot.")
     return redirect(url_for("loot"))
 

@@ -144,6 +144,26 @@ def party_rest(kind):
         conn.close()
 
 
+def adjust_coins(creature_id, d_gold=0, d_silver=0, d_copper=0):
+    """Add (or subtract, with negatives) coins to a creature's purse, clamped at
+    0 per denomination. Denominations are kept independent (no auto-conversion)."""
+    c = get_creature(creature_id)
+    if c is None:
+        return
+    conn = get_connection()
+    try:
+        conn.execute(
+            "UPDATE creatures SET gold = ?, silver = ?, copper = ? WHERE id = ?",
+            (max(0, c["gold"] + int(d_gold)),
+             max(0, c["silver"] + int(d_silver)),
+             max(0, c["copper"] + int(d_copper)),
+             creature_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def adjust_hp(creature_id, delta):
     """Apply damage (delta < 0) or healing (delta > 0) to a creature's sheet,
     clamped to 0..max_hp. (Creatures have no temp HP; that's a combat concept.)"""

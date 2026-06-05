@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 17
+SCHEMA_VERSION = 18
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -248,6 +248,14 @@ MIGRATIONS = {
     -- Where a creature is / was last seen (most useful for NPCs — 'the Prancing
     -- Pony', 'last seen fleeing north'). Free text; applies to any creature.
     ALTER TABLE creatures ADD COLUMN location TEXT NOT NULL DEFAULT '';
+    """,
+    18: """
+    -- A loot item can be **currency**: coins that go straight into a character's
+    -- purse when picked up (a 'Bag of Gold'), rather than an inventory item. Any
+    -- non-zero coin amount marks the loot as money.
+    ALTER TABLE loot_items ADD COLUMN gold   INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE loot_items ADD COLUMN silver INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE loot_items ADD COLUMN copper INTEGER NOT NULL DEFAULT 0;
     """,
 }
 

@@ -14,5 +14,8 @@
   { "slug": "potion-of-healing", "name": "Potion of Healing", "category": "Consumable", "slot": "", "hands": 1, "description": "Regain 2d4 + 2 hit points when you drink it." },
   { "slug": "torch", "name": "Torch", "category": "Gear", "slot": "", "hands": 1, "description": "Sheds bright light in a 20-foot radius for 1 hour." },
   { "slug": "rope-hempen", "name": "Hempen Rope (50 ft)", "category": "Gear", "slot": "", "hands": 1, "description": "50 feet of rope. 2 hp, DC 17 to burst." },
-  { "slug": "rations", "name": "Rations", "category": "Gear", "slot": "", "hands": 1, "description": "One day of dry trail food." }
+  { "slug": "rations", "name": "Rations", "category": "Gear", "slot": "", "hands": 1, "description": "One day of dry trail food." },
+  { "slug": "coin-pouch", "name": "Coin Pouch", "category": "Currency", "slot": "", "hands": 1, "description": "A small purse of coins.", "gold": 25 },
+  { "slug": "sack-of-gold", "name": "Sack of Gold", "category": "Currency", "slot": "", "hands": 1, "description": "A heavy sack of gold pieces.", "gold": 100 },
+  { "slug": "handful-of-silver", "name": "Handful of Silver", "category": "Currency", "slot": "", "hands": 1, "description": "Loose silver pieces.", "silver": 50 }
 ]

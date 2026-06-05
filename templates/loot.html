@@ -53,12 +53,21 @@
       <ul class="loot-list">
         {% for it in loot %}
           <li class="loot-row">
+            {% set money = it['gold'] or it['silver'] or it['copper'] %}
             <span class="loot-main">
-              <span class="loot-name">{{ it['name'] }}{% if it['quantity'] > 1 %} ×{{ it['quantity'] }}{% endif %}{% if it['slot'] and it['hands'] == 2 %} <span class="tag-2h">2H</span>{% endif %}</span>
+              <span class="loot-name">{% if money %}💰 {% endif %}{{ it['name'] }}{% if not money and it['quantity'] > 1 %} ×{{ it['quantity'] }}{% endif %}{% if it['slot'] and it['hands'] == 2 %} <span class="tag-2h">2H</span>{% endif %}</span>
               <span class="loot-sub muted">
-                {%- if it['slot'] %}{{ slot_labels[it['slot']] }}{% endif -%}
-                {%- if it['slot'] and it['description'] %} · {% endif -%}
-                {%- if it['description'] %}{{ it['description'] }}{% endif -%}
+                {%- if money -%}
+                  <span class="coins">
+                    {%- if it['gold'] %}<span class="coin coin-gp">{{ it['gold'] }}g</span> {% endif -%}
+                    {%- if it['silver'] %}<span class="coin coin-sp">{{ it['silver'] }}s</span> {% endif -%}
+                    {%- if it['copper'] %}<span class="coin coin-cp">{{ it['copper'] }}c</span>{% endif -%}
+                  </span>
+                {%- else -%}
+                  {%- if it['slot'] %}{{ slot_labels[it['slot']] }}{% endif -%}
+                  {%- if it['slot'] and it['description'] %} · {% endif -%}
+                  {%- if it['description'] %}{{ it['description'] }}{% endif -%}
+                {%- endif -%}
               </span>
             </span>
             {% if is_dm %}
@@ -113,6 +122,18 @@
             <label class="two-handed-check"><input type="checkbox" name="two_handed"> 2H</label>
             <input type="text" name="description" placeholder="Description (optional)" class="desc-input">
             <button type="submit" class="btn">Add</button>
+          </form>
+        </section>
+
+        <section class="loot-add">
+          <h3>Drop coins <span class="muted">(picked up straight into the purse)</span></h3>
+          <form method="post" action="{{ url_for('loot_create') }}" class="add-item">
+            <input type="hidden" name="area_id" value="{{ area['id'] }}">
+            <input type="text" name="name" value="Coins" placeholder="Name (e.g. Bag of Gold)">
+            <label class="coin-field coin-gp">Gold <input type="number" name="gold" value="0" min="0" class="qty-input"></label>
+            <label class="coin-field coin-sp">Silver <input type="number" name="silver" value="0" min="0" class="qty-input"></label>
+            <label class="coin-field coin-cp">Copper <input type="number" name="copper" value="0" min="0" class="qty-input"></label>
+            <button type="submit" class="btn">Add coins</button>
           </form>
         </section>
       </div>

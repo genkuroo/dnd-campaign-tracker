@@ -65,6 +65,18 @@
         <span class="coin coin-sp">{{ creature['silver'] }}s</span>
         <span class="coin coin-cp">{{ creature['copper'] }}c</span>
       </span>
+      {% if can_edit %}
+        <details class="purse-edit">
+          <summary>± Adjust</summary>
+          <form method="post" action="{{ url_for('character_coins', creature_id=creature['id']) }}" class="purse-form">
+            <label class="coin-field coin-gp">G <input type="number" name="gold" value="0" min="0" class="coin-input"></label>
+            <label class="coin-field coin-sp">S <input type="number" name="silver" value="0" min="0" class="coin-input"></label>
+            <label class="coin-field coin-cp">C <input type="number" name="copper" value="0" min="0" class="coin-input"></label>
+            <button type="submit" name="mode" value="add" class="btn-small">+ Add</button>
+            <button type="submit" name="mode" value="subtract" class="btn-small">− Spend</button>
+          </form>
+        </details>
+      {% endif %}
     </div>
   </section>
 
