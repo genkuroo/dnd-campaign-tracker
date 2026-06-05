@@ -118,6 +118,7 @@ python app.py          # serves at http://127.0.0.1:5002 (init_db runs on startu
 - **SRD attribution.** Anything sourced from the 5e SRD must carry CC-BY-4.0 attribution.
 - **DM data vs player data** stay clearly separated in queries; default a query to the *least* privileged view and widen for the DM, not the reverse.
 - **No build step** unless a phase truly needs one (likely only the map).
+- **Commits / PRs: no AI attribution.** Do **not** add a `Co-Authored-By: Claude …` trailer, a "Generated with Claude Code" line, or otherwise list Claude/AI as a contributor on commits or pull requests. Keep commit messages plain.
 
 ## D&D glossary (for the owner — and future sessions)
 
