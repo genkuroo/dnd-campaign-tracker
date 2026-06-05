@@ -61,6 +61,7 @@ from models.inventory import (
     remove_item,
     unequip_item,
 )
+from models.classes import all_classes, get_class, hit_die_average
 from models.items import all_item_defs, get_item_def
 from models.loot import (
     add_loot,
@@ -413,7 +414,39 @@ def _dicetext_filter(text, mode="track", label=""):
 def _form_vocab():
     return {"abilities": ABILITIES, "kinds": KINDS,
             "dispositions": DISPOSITIONS, "alignments": ALIGNMENTS,
-            "unarmored_defenses": UNARMORED_DEFENSE}
+            "unarmored_defenses": UNARMORED_DEFENSE, "classes": all_classes()}
+
+
+def _apply_class(creature_id, class_slug, starting_kit=False):
+    """Set a creature's class. Always records the class + its Unarmored Defense;
+    with `starting_kit` it also applies the BG3-style package — the recommended
+    stat array, level-1 HP from the hit die (+CON), starting gold, and starting
+    equipment (auto-equipped). Stats/HP it doesn't touch unless the kit is applied."""
+    klass = get_class(class_slug)
+    if klass is None:
+        return
+    fields = {"class_name": klass["slug"]}
+    if klass.get("unarmored_defense"):
+        fields["unarmored_defense"] = klass["unarmored_defense"]
+    if starting_kit:
+        stats = klass.get("recommended_stats", {})
+        fields.update(stats)
+        hp = max(1, klass["hit_die"] + ability_modifier(stats.get("constitution", 10)))
+        fields.update({"max_hp": hp, "current_hp": hp, "gold": klass.get("starting_gold", 0)})
+    update_creature(creature_id, fields)
+    if starting_kit:
+        for slug in klass.get("starting_equipment", []):
+            item = get_item_def(slug)
+            if not item:
+                continue
+            new_id = add_item(
+                creature_id, item["name"], 1, item["description"],
+                slot=item["slot"], hands=item["hands"],
+                ac_bonus=item.get("ac_bonus", 0), grants_spells=item.get("grants_spells", ""),
+                stat_bonuses=item.get("stat_bonuses", ""), armor_base=item.get("armor_base", 0),
+                armor_type=item.get("armor_type", ""))
+            if item.get("slot"):
+                equip_item(new_id)  # auto-equip starting gear
 
 
 @app.route("/")
@@ -602,6 +635,9 @@ def character_new():
     if request.method == "POST":
         new_id = create_creature(_form_to_data(request.form))
         _apply_avatar(new_id)
+        if request.form.get("class_name"):
+            _apply_class(new_id, request.form.get("class_name"),
+                         starting_kit=bool(request.form.get("apply_kit")))
         flash("Character created.")
         return redirect(url_for("character_detail", creature_id=new_id))
     default_kind = request.args.get("kind") if request.args.get("kind") in {"pc", "npc"} else "pc"
@@ -635,6 +671,8 @@ def character_create_mine():
             data["player_name"] = u["username"]
         new_id = create_creature(data)
         _apply_avatar(new_id)
+        if request.form.get("class_name"):  # players get the full starting kit
+            _apply_class(new_id, request.form.get("class_name"), starting_kit=True)
         set_user_character(u["id"], new_id)  # auto-assign to the creator
         flash("Your character is ready — welcome to the party!")
         return redirect(url_for("character_detail", creature_id=new_id))
@@ -656,13 +694,21 @@ def character_detail(creature_id):
     known = effective_spells(creature_id)            # known + equipped-item grants
     known_slugs = {s["slug"] for s in known}
     next_level = xp_to_next(creature["xp"])
+    eff_ab = effective_abilities(creature)           # base + equipped-item bonuses
+    klass = get_class(creature["class_name"]) if creature["class_name"] else None
+    # BG3-style fixed level-up HP: average of the class hit die + CON modifier.
+    level_hp = (max(1, hit_die_average(klass["hit_die"])
+                    + ability_modifier(eff_ab["constitution"]["score"]))
+                if klass else 0)
     return render_template(
         "character_detail.html",
         active={"monster": "bestiary", "npc": "npcs"}.get(creature["kind"], "character"),
         title=creature["name"],
         can_edit=can_edit_creature(creature),
         abilities=ABILITIES,
-        eff_abilities=effective_abilities(creature),   # base + equipped-item bonuses
+        klass=klass,
+        level_hp=level_hp,
+        eff_abilities=eff_ab,
         eff_ac=effective_ac(creature),
         ac_bonus=equipped_ac_bonus(creature_id),
         ac_breakdown=ac_breakdown(creature),

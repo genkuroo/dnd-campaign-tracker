@@ -356,6 +356,8 @@ body {
   border: 1px solid var(--border); border-radius: 5px;
 }
 .levelup-btn { white-space: nowrap; }
+.levelup-hint { font-size: 0.78rem; }
+.class-kit { align-self: flex-end; }
 .spell-help { font-size: 0.82rem; margin: -0.3rem 0 0.8rem; }
 
 .ability-grid {

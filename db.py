@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 22
+SCHEMA_VERSION = 23
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -293,6 +293,12 @@ MIGRATIONS = {
     -- CON, 'monk' adds WIS). '' = standard. NPCs/monsters keep their manual
     -- (natural) AC. Computed in effective_ac, so it tracks DEX/items live.
     ALTER TABLE creatures ADD COLUMN unarmored_defense TEXT NOT NULL DEFAULT '';
+    """,
+    23: """
+    -- The bones of the class system (data lives in data/classes.json). A creature
+    -- records its class by slug; picking one applies a starting package (stats,
+    -- HP from the hit die, gear, Unarmored Defense) and the hit die drives level-up.
+    ALTER TABLE creatures ADD COLUMN class_name TEXT NOT NULL DEFAULT '';
     """,
 }
 

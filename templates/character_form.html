@@ -56,6 +56,24 @@
 
     <div class="field-row">
       <label class="field">
+        <span>Class</span>
+        <select name="class_name">
+          <option value="">— none —</option>
+          {% for cl in classes %}
+            <option value="{{ cl['slug'] }}" {{ 'selected' if c and c['class_name'] == cl['slug'] else '' }}>{{ cl['name'] }} (d{{ cl['hit_die'] }})</option>
+          {% endfor %}
+        </select>
+      </label>
+      {% if not c %}
+        <label class="checkbox class-kit grow">
+          <input type="checkbox" name="apply_kit" checked>
+          <span>Apply starting kit <span class="muted">(recommended stats, HP from hit die, starting gear &amp; armor)</span></span>
+        </label>
+      {% endif %}
+    </div>
+
+    <div class="field-row">
+      <label class="field">
         <span>Alignment</span>
         <select name="alignment">
           {% for value, label in alignments %}
