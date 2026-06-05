@@ -56,7 +56,7 @@
 
   <section class="vitals">
     <div class="vital"><span class="vital-label">Hit Points {{ info('hit-points') }}</span><span class="vital-value">{{ creature['current_hp'] }} / {{ creature['max_hp'] }}</span></div>
-    <div class="vital"><span class="vital-label">Armor Class {{ info('armor-class') }}</span><span class="vital-value">{{ eff_ac }}{% if ac_bonus %} <span class="stat-bonus" title="{{ creature['armor_class'] }} base {{ '%+d' % ac_bonus }} from items">{{ '%+d' % ac_bonus }}</span>{% endif %}</span></div>
+    <div class="vital"><span class="vital-label">Armor Class {{ info('armor-class') }}</span><span class="vital-value" title="{{ ac_breakdown }}">{{ eff_ac }}{% if ac_bonus %} <span class="stat-bonus">{{ '%+d' % ac_bonus }}</span>{% endif %}</span></div>
     <div class="vital"><span class="vital-label">Experience</span><span class="vital-value xp-value">{{ '{:,}'.format(creature['xp']) }}</span></div>
     <div class="vital purse">
       <span class="vital-label">Purse</span>

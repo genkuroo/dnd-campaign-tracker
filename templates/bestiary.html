@@ -29,7 +29,7 @@
             <div class="char-card-stats">
               {% if shown_stats %}
                 <span title="Hit Points">❤️ {{ m['current_hp'] }}/{{ m['max_hp'] }}</span>
-                <span title="Armor Class">🛡️ {{ m['armor_class'] }}</span>
+                <span title="Armor Class">🛡️ {{ m | eff_ac }}</span>
               {% else %}
                 <span class="muted">🔒 stats hidden</span>
               {% endif %}

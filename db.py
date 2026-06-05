@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 21
+SCHEMA_VERSION = 22
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -286,6 +286,13 @@ MIGRATIONS = {
     ALTER TABLE creature_items ADD COLUMN armor_type TEXT    NOT NULL DEFAULT '';
     ALTER TABLE loot_items     ADD COLUMN armor_base INTEGER NOT NULL DEFAULT 0;
     ALTER TABLE loot_items     ADD COLUMN armor_type TEXT    NOT NULL DEFAULT '';
+    """,
+    22: """
+    -- 5e unarmored AC for PCs. With no armor equipped a player character's AC is
+    -- computed as 10 + DEX, optionally with Unarmored Defense ('barbarian' adds
+    -- CON, 'monk' adds WIS). '' = standard. NPCs/monsters keep their manual
+    -- (natural) AC. Computed in effective_ac, so it tracks DEX/items live.
+    ALTER TABLE creatures ADD COLUMN unarmored_defense TEXT NOT NULL DEFAULT '';
     """,
 }
 

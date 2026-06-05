@@ -96,9 +96,17 @@
           <input type="number" name="max_hp" min="1" value="{{ c['max_hp'] if c else 1 }}"></label>
         <label class="field narrow"><span>Current HP</span>
           <input type="number" name="current_hp" value="{{ c['current_hp'] if c else '' }}" placeholder="full"></label>
-        <label class="field narrow"><span>Armor Class</span>
+        <label class="field narrow"><span>Armor Class <span class="muted">(natural / NPCs)</span></span>
           <input type="number" name="armor_class" value="{{ c['armor_class'] if c else 10 }}"></label>
+        <label class="field"><span>Unarmored Defense <span class="muted">(PC, no armor)</span></span>
+          <select name="unarmored_defense">
+            {% for value, label in unarmored_defenses %}
+              <option value="{{ value }}" {{ 'selected' if c and c['unarmored_defense'] == value else '' }}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
       </div>
+      <p class="muted form-hint">A player character's AC is computed: <strong>10 + DEX</strong> unarmored (plus the Unarmored Defense ability), or their equipped armor; the Armor Class field above is the natural AC used for NPCs &amp; monsters.</p>
     </fieldset>
 
     <fieldset>

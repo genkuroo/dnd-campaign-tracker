@@ -41,7 +41,7 @@
             <span class="hp-text">{{ c['current_hp'] }} / {{ c['max_hp'] }}</span>
           </div>
           <div class="party-card-foot">
-            <span class="combatant-ac" title="Armor Class">🛡️ {{ c['armor_class'] }}</span>
+            <span class="combatant-ac" title="Armor Class">🛡️ {{ c | eff_ac }}</span>
             {% if is_dm %}
               <form method="post" action="{{ url_for('party_hp', creature_id=c['id']) }}" class="inline hp-form">
                 <input type="number" name="amount" min="0" placeholder="0" class="hp-amount" aria-label="Amount">

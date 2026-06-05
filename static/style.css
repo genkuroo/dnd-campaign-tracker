@@ -1176,6 +1176,7 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
   border: 1px solid var(--border); border-radius: 5px;
 }
 .armor-hint { font-family: sans-serif; font-size: 0.75rem; flex-basis: 100%; }
+.form-hint { font-size: 0.8rem; margin: 0.5rem 0 0; }
 .magic-spells { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.6rem; font-family: sans-serif; font-size: 0.82rem; color: var(--muted); }
 .magic-spells select {
   font: inherit; padding: 0.3rem; min-width: 14rem;

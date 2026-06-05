@@ -34,6 +34,14 @@ ALIGNMENTS = [
 ]
 ALIGNMENT_LABELS = dict(ALIGNMENTS)
 
+# 5e Unarmored Defense (PCs): how a player's AC is figured with no armor on.
+# '' = standard (10 + DEX); class features add a second ability.
+UNARMORED_DEFENSE = [
+    ("", "Standard (10 + DEX)"),
+    ("barbarian", "Barbarian (10 + DEX + CON)"),
+    ("monk", "Monk (10 + DEX + WIS)"),
+]
+
 
 def alignment_label(code):
     return ALIGNMENT_LABELS.get(code or "", code or "")
@@ -73,7 +81,7 @@ def xp_to_next(xp):
 _TEXT_FIELDS = [
     "name", "kind", "player_name", "disposition", "alignment",
     "resistances", "immunities", "vulnerabilities", "notes", "visibility",
-    "avatar", "location",
+    "avatar", "location", "unarmored_defense",
 ]
 
 

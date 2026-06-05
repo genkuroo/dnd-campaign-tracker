@@ -170,21 +170,65 @@ def equipped_set_armor(creature_id):
         conn.close()
 
 
+def _ability_with_items(creature, col, bonuses):
+    return ability_modifier(creature[col] + bonuses.get(col, 0))
+
+
 def effective_ac(creature):
     """A creature's AC, computed (base never mutated, so it reverts when items
-    come off). 5e rules: equipped body armor *sets* the base AC and caps how much
-    Dexterity applies (light = full, medium = +2, heavy = none); without armor the
-    creature's manually-set AC stands. Additive bonuses (shield/ring/cloak) and any
-    armor enhancement stack on top."""
-    base = creature["armor_class"]
+    come off). 5e rules:
+      • equipped body armor *sets* the base and caps DEX (light = full, medium =
+        +2, heavy = none);
+      • else a **PC** is unarmored: 10 + DEX, plus Unarmored Defense (barbarian
+        adds CON, monk adds WIS);
+      • else (NPC/monster) the manually-set natural AC stands.
+    Additive bonuses (shield/ring/cloak/enhancement) stack on top."""
+    bonuses = equipped_stat_bonuses(creature["id"])
     armor = equipped_set_armor(creature["id"])
     if armor:
-        dex = creature["dexterity"] + equipped_stat_bonuses(creature["id"]).get("dexterity", 0)
-        dex_mod = ability_modifier(dex)
+        dex_mod = _ability_with_items(creature, "dexterity", bonuses)
         cap = _DEX_CAP.get(armor["armor_type"], 0)
         applied = dex_mod if cap is None else min(dex_mod, cap)
         base = armor["armor_base"] + applied
+    elif creature["kind"] == "pc":
+        base = 10 + _ability_with_items(creature, "dexterity", bonuses)
+        ud = creature["unarmored_defense"]
+        if ud == "barbarian":
+            base += _ability_with_items(creature, "constitution", bonuses)
+        elif ud == "monk":
+            base += _ability_with_items(creature, "wisdom", bonuses)
+    else:
+        base = creature["armor_class"]
     return base + equipped_ac_bonus(creature["id"])
+
+
+def ac_breakdown(creature):
+    """A short 'how the AC is figured' string for a tooltip, e.g.
+    '10 base + DEX +2 + CON +3' or 'Chain Mail (AC 16) + items +2'."""
+    bonuses = equipped_stat_bonuses(creature["id"])
+    add = equipped_ac_bonus(creature["id"])
+    armor = equipped_set_armor(creature["id"])
+    parts = []
+    if armor:
+        parts.append(f"{armor['name']} (AC {armor['armor_base']})")
+        dex_mod = _ability_with_items(creature, "dexterity", bonuses)
+        cap = _DEX_CAP.get(armor["armor_type"], 0)
+        applied = dex_mod if cap is None else min(dex_mod, cap)
+        if applied:
+            parts.append(f"DEX {applied:+d}")
+    elif creature["kind"] == "pc":
+        parts.append("10 base")
+        parts.append(f"DEX {_ability_with_items(creature, 'dexterity', bonuses):+d}")
+        ud = creature["unarmored_defense"]
+        if ud == "barbarian":
+            parts.append(f"CON {_ability_with_items(creature, 'constitution', bonuses):+d}")
+        elif ud == "monk":
+            parts.append(f"WIS {_ability_with_items(creature, 'wisdom', bonuses):+d}")
+    else:
+        parts.append(f"natural AC {creature['armor_class']}")
+    if add:
+        parts.append(f"items {add:+d}")
+    return " + ".join(parts)
 
 
 def equipped_stat_bonuses(creature_id):

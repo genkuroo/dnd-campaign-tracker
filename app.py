@@ -23,6 +23,7 @@ from models.creature import (
     KINDS,
     MAX_LEVEL,
     MONSTER_KINDS,
+    UNARMORED_DEFENSE,
     ability_modifier,
     adjust_coins,
     adjust_hp,
@@ -46,6 +47,7 @@ from models.roll_log import add_roll, clear_rolls, delete_roll, recent_rolls
 from models.inventory import (
     SLOT_LABELS,
     SLOTS,
+    ac_breakdown,
     add_item,
     adjust_quantity,
     effective_abilities,
@@ -373,6 +375,13 @@ def _item_effects_filter(item):
     return item_effects(item)
 
 
+@app.template_filter("eff_ac")
+def _eff_ac_filter(creature):
+    """Jinja filter: a creature row -> its effective AC (armor / 10+DEX / natural,
+    plus equipped item bonuses). Used on cards so they match the sheet."""
+    return effective_ac(creature)
+
+
 # Dice tokens inside prose, e.g. '8d6', '1d4 + 1'.
 _DICE_TOKEN = re.compile(r"\d*d\d+(?:\s*[+-]\s*\d+)?", re.IGNORECASE)
 
@@ -403,7 +412,8 @@ def _dicetext_filter(text, mode="track", label=""):
 # Vocab the character form needs; injected so the form template stays declarative.
 def _form_vocab():
     return {"abilities": ABILITIES, "kinds": KINDS,
-            "dispositions": DISPOSITIONS, "alignments": ALIGNMENTS}
+            "dispositions": DISPOSITIONS, "alignments": ALIGNMENTS,
+            "unarmored_defenses": UNARMORED_DEFENSE}
 
 
 @app.route("/")
@@ -655,6 +665,7 @@ def character_detail(creature_id):
         eff_abilities=effective_abilities(creature),   # base + equipped-item bonuses
         eff_ac=effective_ac(creature),
         ac_bonus=equipped_ac_bonus(creature_id),
+        ac_breakdown=ac_breakdown(creature),
         dispositions=DISPOSITIONS,
         creature=creature,
         spells=known,

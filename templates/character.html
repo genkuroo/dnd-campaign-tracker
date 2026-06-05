@@ -25,7 +25,7 @@
           </div>
           <div class="char-card-stats">
             <span title="Hit Points">❤️ {{ c['current_hp'] }}/{{ c['max_hp'] }}</span>
-            <span title="Armor Class">🛡️ {{ c['armor_class'] }}</span>
+            <span title="Armor Class">🛡️ {{ c | eff_ac }}</span>
           </div>
         </a>
       {% endfor %}
