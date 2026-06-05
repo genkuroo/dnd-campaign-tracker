@@ -127,8 +127,9 @@ def add_loot(area_id, name, quantity=1, description="", slot="", hands=1,
         return None
     if slot not in EQUIP_SLOTS:
         slot = ""
-    if armor_type not in ARMOR_TYPES:
-        armor_type = ""
+    armor_base = max(0, int(armor_base or 0))
+    if armor_type not in ARMOR_TYPES or armor_base == 0:  # armor needs a base AC
+        armor_type, armor_base = "", 0
     conn = get_connection()
     try:
         cur = conn.execute(

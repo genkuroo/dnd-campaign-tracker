@@ -29,8 +29,9 @@
           <option value="heavy">Heavy (no DEX)</option>
         </select>
       </label>
-      <label class="coin-field" title="The armor's base AC (e.g. Chain Mail = 16)">Base AC
-        <input type="number" name="armor_base" value="0" class="coin-input"></label>
+      <label class="coin-field" title="The armor's base AC (e.g. Chain Mail = 16). Required, or the armor is ignored.">Base AC
+        <input type="number" name="armor_base" value="0" min="0" class="coin-input"></label>
+      <span class="muted armor-hint">Armor needs a Base AC (e.g. 16) — the type just sets the DEX cap.</span>
     </div>
     <div class="magic-grid">
       <label class="coin-field" title="Flat bonus to Armor Class (shield, ring, magic) — stacks on top of armor">+AC

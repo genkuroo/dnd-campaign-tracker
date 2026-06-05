@@ -62,8 +62,9 @@ def add_item(creature_id, name, quantity=1, description="", slot="", hands=1,
         return None
     if slot not in EQUIP_SLOTS:
         slot = ""
-    if armor_type not in ARMOR_TYPES:
-        armor_type = ""
+    armor_base = max(0, int(armor_base or 0))
+    if armor_type not in ARMOR_TYPES or armor_base == 0:  # armor needs a base AC
+        armor_type, armor_base = "", 0
     conn = get_connection()
     try:
         cur = conn.execute(
@@ -96,7 +97,7 @@ def item_effects(item):
     """Human-readable list of an item's magic effects, e.g. ['Heavy armor: AC 16
     (no DEX)', '+2 AC', 'STR +2', 'grants Fire Bolt']. Empty for a mundane item."""
     out = []
-    if item["armor_type"]:
+    if item["armor_type"] and item["armor_base"] > 0:
         out.append(f"{item['armor_type'].title()} armor: AC {item['armor_base']} "
                    f"({_ARMOR_DEX_LABEL.get(item['armor_type'], '')})")
     if item["ac_bonus"]:
@@ -155,12 +156,14 @@ def equipped_ac_bonus(creature_id):
 
 
 def equipped_set_armor(creature_id):
-    """The equipped 'set AC' body armor (armor_type set), or None."""
+    """The equipped 'set AC' body armor (armor_type set with a real base AC), or
+    None. A `armor_base` of 0 is ignored so it can never zero out the AC."""
     conn = get_connection()
     try:
         return conn.execute(
             "SELECT * FROM creature_items "
-            "WHERE creature_id = ? AND equipped = 1 AND armor_type != '' LIMIT 1",
+            "WHERE creature_id = ? AND equipped = 1 AND armor_type != '' AND armor_base > 0 "
+            "LIMIT 1",
             (creature_id,),
         ).fetchone()
     finally:
