@@ -18,22 +18,35 @@
       </div>
     </div>
     <div class="head-actions">
-      <a class="btn-ghost" href="{{ url_for('character_detail', creature_id=creature['id']) }}">Full sheet (DM)</a>
+      {% if is_dm %}<a class="btn-ghost" href="{{ url_for('character_detail', creature_id=creature['id']) }}">Full sheet (DM)</a>{% endif %}
       <a class="btn-ghost" href="{{ url_for('bestiary') }}">← Bestiary</a>
     </div>
   </div>
 
-  {# DM-only control: this view previews what a player sees. The reveal toggle
-     governs whether the stat-block numbers below are shown or masked. #}
-  <div class="reveal-banner {{ 'revealed' if revealed else 'hidden' }}">
-    <span>
-      {% if revealed %}👁 Stats revealed — players inspecting this creature see the block below.
-      {% else %}🙈 Stats hidden — players see only the silhouette until you reveal them.{% endif %}
-    </span>
-    <form method="post" action="{{ url_for('monster_reveal', creature_id=creature['id']) }}" class="inline">
-      <button type="submit" class="btn-small">{{ 'Hide stats' if revealed else 'Reveal stats' }}</button>
-    </form>
-  </div>
+  {% if is_dm %}
+    {# DM controls: this view previews what a player sees. Two levels of fog of
+       war — whether players see the monster at all, and whether the stat block is
+       revealed or masked. #}
+    <div class="reveal-banner {{ 'revealed' if creature['visibility'] == 'visible' else 'hidden' }}">
+      <span>
+        {% if creature['visibility'] == 'visible' %}👁 Visible — players can find this monster in their bestiary.
+        {% else %}🙈 Hidden — players can't see this monster at all yet.{% endif %}
+      </span>
+      <form method="post" action="{{ url_for('monster_visibility', creature_id=creature['id']) }}" class="inline">
+        <input type="hidden" name="next" value="{{ url_for('monster_inspect', creature_id=creature['id']) }}">
+        <button type="submit" class="btn-small">{{ 'Hide from players' if creature['visibility'] == 'visible' else 'Show to players' }}</button>
+      </form>
+    </div>
+    <div class="reveal-banner {{ 'revealed' if revealed else 'hidden' }}">
+      <span>
+        {% if revealed %}👁 Stats revealed — players inspecting this monster see the block below.
+        {% else %}🙈 Stats hidden — players see only the silhouette until you reveal them.{% endif %}
+      </span>
+      <form method="post" action="{{ url_for('monster_reveal', creature_id=creature['id']) }}" class="inline">
+        <button type="submit" class="btn-small">{{ 'Hide stats' if revealed else 'Reveal stats' }}</button>
+      </form>
+    </div>
+  {% endif %}
 
   <section class="inspect-block {{ 'masked' if mask else '' }}">
     <div class="vitals inspect-vitals">

@@ -3,8 +3,9 @@
 {% block content %}
   <div class="page-head">
     <h1>Bestiary</h1>
-    <a class="btn" href="{{ url_for('monster_new') }}">+ New Monster</a>
+    {% if is_dm %}<a class="btn" href="{{ url_for('monster_new') }}">+ New Monster</a>{% endif %}
   </div>
+  <p class="muted">{% if is_dm %}Every monster in the database. Toggle <strong>Show/Hide</strong> to control which appear in players' bestiary; reveal a monster's stats from its inspector.{% else %}Creatures you've encountered. Open one to inspect what you know — your DM reveals more over time.{% endif %}</p>
 
   {% if monsters %}
     <div class="roster-filter">
@@ -13,11 +14,12 @@
 
     <div class="card-grid" id="bestiary-grid">
       {% for m in monsters %}
+        {% set shown_stats = is_dm or m['stats_revealed'] %}
         <div class="char-card monster-card" data-name="{{ m['name'] | lower }}">
-          <a class="char-card-link" href="{{ url_for('character_detail', creature_id=m['id']) }}">
+          <a class="char-card-link" href="{{ url_for('character_detail', creature_id=m['id']) if is_dm else url_for('monster_inspect', creature_id=m['id']) }}">
             <div class="char-card-head">
               <span class="char-card-title">{{ avatar(m, 'avatar-sm') }}<span class="char-name">{{ m['name'] }}</span></span>
-              {% if m['visibility'] == 'hidden' %}<span class="badge-dm">DM only</span>{% endif %}
+              {% if is_dm and m['visibility'] == 'hidden' %}<span class="badge-dm">Hidden</span>{% endif %}
             </div>
             <div class="char-meta">
               <span class="badge-kind badge-kind-monster">Monster</span>
@@ -25,14 +27,30 @@
               {% if m['alignment'] %}<span class="muted">{{ m['alignment'] | alignment }}</span>{% endif %}
             </div>
             <div class="char-card-stats">
-              <span title="Hit Points">❤️ {{ m['current_hp'] }}/{{ m['max_hp'] }}</span>
-              <span title="Armor Class">🛡️ {{ m['armor_class'] }}</span>
-              <span class="{{ 'revealed' if m['stats_revealed'] else 'muted' }}" title="Stat reveal to players">
-                {{ '👁 revealed' if m['stats_revealed'] else '🙈 hidden stats' }}
-              </span>
+              {% if shown_stats %}
+                <span title="Hit Points">❤️ {{ m['current_hp'] }}/{{ m['max_hp'] }}</span>
+                <span title="Armor Class">🛡️ {{ m['armor_class'] }}</span>
+              {% else %}
+                <span class="muted">🔒 stats hidden</span>
+              {% endif %}
+              {% if is_dm %}
+                <span class="{{ 'revealed' if m['stats_revealed'] else 'muted' }}" title="Stat reveal to players">
+                  {{ '👁 stats shown' if m['stats_revealed'] else '🙈 stats hidden' }}
+                </span>
+              {% endif %}
             </div>
           </a>
-          <a class="inspect-link" href="{{ url_for('monster_inspect', creature_id=m['id']) }}">🔍 Inspect</a>
+          <div class="monster-card-foot">
+            {% if is_dm %}
+              <a class="inspect-link" href="{{ url_for('monster_inspect', creature_id=m['id']) }}">🔍 Inspect</a>
+              <form method="post" action="{{ url_for('monster_visibility', creature_id=m['id']) }}" class="inline">
+                <input type="hidden" name="next" value="{{ url_for('bestiary') }}">
+                <button type="submit" class="btn-small monster-vis-btn">
+                  {{ '🙈 Hide from players' if m['visibility'] == 'visible' else '👁 Show to players' }}
+                </button>
+              </form>
+            {% endif %}
+          </div>
         </div>
       {% endfor %}
     </div>
@@ -55,32 +73,37 @@
         });
       })();
     </script>
-  {% else %}
+  {% elif is_dm %}
     <p class="muted">No monsters yet.</p>
     <p class="placeholder-note">Create a monster to start stocking encounters.</p>
+  {% else %}
+    <p class="muted">You haven't encountered any monsters yet.</p>
+    <p class="placeholder-note">Ones your DM reveals will show up here.</p>
   {% endif %}
 
-  <section class="encounters">
-    <div class="section-head">
-      <h2>Encounters</h2>
-      <form method="post" action="{{ url_for('encounter_new') }}" class="inline encounter-new">
-        <input type="text" name="name" placeholder="New encounter name…" required>
-        <button type="submit" class="btn-small">+ Create</button>
-      </form>
-    </div>
-    <p class="muted">Saved groups of monsters to load into the combat tracker (Phase 6).</p>
+  {% if is_dm %}
+    <section class="encounters">
+      <div class="section-head">
+        <h2>Encounters</h2>
+        <form method="post" action="{{ url_for('encounter_new') }}" class="inline encounter-new">
+          <input type="text" name="name" placeholder="New encounter name…" required>
+          <button type="submit" class="btn-small">+ Create</button>
+        </form>
+      </div>
+      <p class="muted">Saved groups of monsters to load into the combat tracker.</p>
 
-    {% if encounters %}
-      <ul class="encounter-list">
-        {% for e in encounters %}
-          <li class="encounter-row">
-            <a class="encounter-name" href="{{ url_for('encounter_detail', encounter_id=e['id']) }}">{{ e['name'] }}</a>
-            <span class="muted">{{ e['total_creatures'] }} creature{{ '' if e['total_creatures'] == 1 else 's' }} · {{ e['member_count'] }} type{{ '' if e['member_count'] == 1 else 's' }}</span>
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p class="muted">No encounters saved yet.</p>
-    {% endif %}
-  </section>
+      {% if encounters %}
+        <ul class="encounter-list">
+          {% for e in encounters %}
+            <li class="encounter-row">
+              <a class="encounter-name" href="{{ url_for('encounter_detail', encounter_id=e['id']) }}">{{ e['name'] }}</a>
+              <span class="muted">{{ e['total_creatures'] }} creature{{ '' if e['total_creatures'] == 1 else 's' }} · {{ e['member_count'] }} type{{ '' if e['member_count'] == 1 else 's' }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="muted">No encounters saved yet.</p>
+      {% endif %}
+    </section>
+  {% endif %}
 {% endblock %}

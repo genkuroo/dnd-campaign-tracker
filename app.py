@@ -153,7 +153,7 @@ TABS = [
     {"endpoint": "character", "label": "Character Sheet"},
     {"endpoint": "party", "label": "Party"},
     {"endpoint": "npcs", "label": "NPCs"},
-    {"endpoint": "bestiary", "label": "Bestiary", "dm_only": True},
+    {"endpoint": "bestiary", "label": "Bestiary"},
     {"endpoint": "combat", "label": "Combat"},
     {"endpoint": "loot", "label": "Loot", "dm_only": True},
     {"endpoint": "spells", "label": "Spells & Actions"},
@@ -199,7 +199,7 @@ _PUBLIC_ENDPOINTS = {"login", "logout", "register", "setup", "static"}
 # mutation route below stays DM-only.
 _DM_ONLY_ENDPOINTS = {
     "character_new", "character_delete",
-    "bestiary", "monster_new", "monster_inspect", "monster_reveal",
+    "monster_new", "monster_reveal", "monster_visibility",
     "encounter_detail", "encounter_new", "encounter_rename", "encounter_delete",
     "encounter_add_member", "encounter_member_quantity", "encounter_member_remove",
     "encounter_start_combat",
@@ -259,6 +259,18 @@ def can_edit_creature(creature):
     if is_dm():
         return True
     return creature is not None and creature["id"] == _my_pc_id()
+
+
+def can_inspect_monster(creature):
+    """Two-level monster fog of war. **Level 1** (this check): can the viewer open
+    the monster's inspector at all — the DM always can; a player only if the DM has
+    made it `visible`. **Level 2** (the `stats_revealed` flag, enforced in the
+    inspector) governs whether the *stat block* is shown or masked. The full
+    monster sheet stays DM-only; players only ever get the inspector."""
+    if is_dm():
+        return True
+    return (creature is not None and creature["kind"] == "monster"
+            and creature["visibility"] == "visible")
 
 
 def visible_roster():
@@ -717,12 +729,17 @@ def character_delete(creature_id):
 
 @app.route("/bestiary")
 def bestiary():
+    # Level-1 fog of war: players see only monsters the DM has made visible; the
+    # DM sees the whole database. Encounters are DM combat-prep (hidden from players).
+    monsters = list_monsters()
+    if not is_dm():
+        monsters = [m for m in monsters if m["visibility"] == "visible"]
     return render_template(
         "bestiary.html",
         active="bestiary",
         title="Bestiary",
-        monsters=list_monsters(),
-        encounters=list_encounters(),
+        monsters=monsters,
+        encounters=list_encounters() if is_dm() else [],
     )
 
 
@@ -751,7 +768,7 @@ def monster_inspect(creature_id):
     what a player sees. Stat-block numbers are masked until the DM reveals them.
     """
     creature = get_creature(creature_id)
-    if creature is None or creature["kind"] != "monster":
+    if not can_inspect_monster(creature):  # hidden monsters 404 for players (level 1)
         abort(404)
     return render_template(
         "inspector.html",
@@ -759,7 +776,7 @@ def monster_inspect(creature_id):
         title=f"Inspect {creature['name']}",
         creature=creature,
         abilities=ABILITIES,
-        revealed=bool(creature["stats_revealed"]),
+        revealed=bool(creature["stats_revealed"]),  # level 2: stat-block mask
         spells=[s for s in creature_spells(creature_id) if s["prepared"]],
         actions=list_actions(creature_id),
     )
@@ -767,12 +784,25 @@ def monster_inspect(creature_id):
 
 @app.route("/bestiary/<int:creature_id>/reveal", methods=["POST"])
 def monster_reveal(creature_id):
-    """Toggle whether a monster's stat block is revealed to players (the inspector
+    """Level 2: toggle whether the stat block is revealed to players (the inspector
     masks the numbers until then). DM-only, live from the inspector."""
     creature = get_creature(creature_id)
     if creature and creature["kind"] == "monster":
         update_creature(creature_id, {"stats_revealed": 0 if creature["stats_revealed"] else 1})
     return redirect(url_for("monster_inspect", creature_id=creature_id))
+
+
+@app.route("/bestiary/<int:creature_id>/visibility", methods=["POST"])
+def monster_visibility(creature_id):
+    """Level 1: toggle whether players can see this monster in the Bestiary at all.
+    DM-only. `next` returns to the bestiary list or the inspector."""
+    creature = get_creature(creature_id)
+    if creature and creature["kind"] == "monster":
+        new = "hidden" if creature["visibility"] == "visible" else "visible"
+        update_creature(creature_id, {"visibility": new})
+        flash("Monster shown to players." if new == "visible" else "Monster hidden from players.")
+    return redirect(_safe_next(request.form.get("next"),
+                               url_for("monster_inspect", creature_id=creature_id)))
 
 
 # --- Encounters (saved monster groups, on the Bestiary tab) ---------------

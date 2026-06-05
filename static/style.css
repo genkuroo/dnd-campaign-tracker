@@ -1056,11 +1056,14 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .monster-card { display: flex; flex-direction: column; }
 .char-card-link { display: block; color: var(--ink); text-decoration: none; }
 .inspect-link {
-  margin-top: 0.7rem; align-self: flex-start;
   font-family: sans-serif; font-size: 0.85rem;
   color: var(--accent-2); text-decoration: none;
 }
 .inspect-link:hover { text-decoration: underline; }
+.monster-card-foot {
+  margin-top: 0.7rem; display: flex; align-items: center; gap: 0.6rem;
+  justify-content: space-between; flex-wrap: wrap;
+}
 
 /* Inspector reveal banner (DM control). */
 .reveal-banner {
