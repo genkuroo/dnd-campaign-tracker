@@ -239,12 +239,17 @@ def _my_pc_id():
 
 
 def can_view_creature(creature):
-    """DM sees everyone. A player sees only their own PC. (Discovered NPCs /
-    locations reach players through the entity sidebar + blog in Phase 9; the
-    `visibility` flag already gates those server-side when they land.)"""
+    """DM sees everyone. A player sees their own PC and can **read-only inspect**
+    fellow party members — any PC the DM hasn't hidden (`visibility='visible'`).
+    NPCs/monsters stay DM-only for now (players discover them via the Phase 9
+    entity sidebar; the `visibility` flag gates those when they land)."""
     if is_dm():
         return True
-    return creature is not None and creature["id"] == _my_pc_id()
+    if creature is None:
+        return False
+    if creature["id"] == _my_pc_id():
+        return True
+    return creature["kind"] == "pc" and creature["visibility"] == "visible"
 
 
 def can_edit_creature(creature):
@@ -524,11 +529,13 @@ def users_delete(user_id):
 
 @app.route("/character")
 def character():
+    # The Character tab is "mine" — a player sees their own PC here (the rest of
+    # the party is on the Party tab); the DM sees the whole cast (PCs + NPCs).
     return render_template(
         "character.html",
         active="character",
         title="Character Sheet",
-        roster=visible_roster(),
+        roster=editable_roster(),
     )
 
 
@@ -1017,8 +1024,13 @@ def combatant_remove(combatant_id):
 
 @app.route("/party")
 def party():
+    # Players see the party minus any DM-hidden PC; everyone's clickable to a
+    # read-only inspect (edit stays own-PC-only).
+    roster = list_party()
+    if not is_dm():
+        roster = [c for c in roster if can_view_creature(c)]
     return render_template(
-        "party.html", active="party", title="Party", party=list_party(),
+        "party.html", active="party", title="Party", party=roster,
     )
 
 
@@ -1109,9 +1121,11 @@ def _is_fetch():
 def _gear_response(creature_id, target):
     """Re-render just the gear fragment for fetch requests; else full redirect."""
     if _is_fetch():
+        creature = get_creature(creature_id)
         return render_template(
             "_gear.html",
-            creature=get_creature(creature_id),
+            creature=creature,
+            can_edit=can_edit_creature(creature),
             items=list_items(creature_id),
             slot_labels=SLOT_LABELS,
             slots=SLOTS,
@@ -1122,11 +1136,13 @@ def _gear_response(creature_id, target):
 
 def _spells_fragment(creature_id):
     """Render the spellbook section for a creature (the #spells AJAX fragment)."""
+    creature = get_creature(creature_id)
     known = creature_spells(creature_id)
     known_slugs = {s["slug"] for s in known}
     return render_template(
         "_spells.html",
-        creature=get_creature(creature_id),
+        creature=creature,
+        can_edit=can_edit_creature(creature),
         spells=known,
         addable_spells=[s for s in all_spells() if s["slug"] not in known_slugs],
     )
@@ -1134,9 +1150,11 @@ def _spells_fragment(creature_id):
 
 def _actions_fragment(creature_id):
     """Render the actions section for a creature (the #actions AJAX fragment)."""
+    creature = get_creature(creature_id)
     return render_template(
         "_actions.html",
-        creature=get_creature(creature_id),
+        creature=creature,
+        can_edit=can_edit_creature(creature),
         actions=list_actions(creature_id),
         action_categories=ACTION_CATEGORIES,
         action_book=all_catalog_actions(),

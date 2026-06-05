@@ -1151,6 +1151,8 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
   color: #b5d68f; border: 1px solid #5a7b3f; border-radius: 999px;
   padding: 0.02rem 0.4rem; vertical-align: middle;
 }
+.equip-static { cursor: default; opacity: 0.85; }
+.note-private { font-size: 0.75rem; font-weight: normal; }
 .init-input {
   width: 3rem; text-align: center; font: inherit; font-weight: bold; font-size: 1.1rem;
   color: var(--accent-2); background: var(--bg);

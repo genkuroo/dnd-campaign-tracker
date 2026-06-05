@@ -6,6 +6,7 @@
       <h1 class="sheet-name">
         {{ creature['name'] }}
         {% if creature['visibility'] == 'hidden' %}<span class="badge-dm">DM only</span>{% endif %}
+        {% if not can_edit %}<span class="readonly-tag">read-only</span>{% endif %}
       </h1>
       <p class="muted">
         <span class="badge-kind">{{ 'NPC' if creature['kind'] == 'npc' else 'PC' }}</span>
@@ -30,11 +31,15 @@
       {% if creature['kind'] == 'monster' %}
         <a class="btn-ghost" href="{{ url_for('monster_inspect', creature_id=creature['id']) }}">🔍 Inspect</a>
       {% endif %}
-      <a class="btn" href="{{ url_for('character_edit', creature_id=creature['id']) }}">Edit</a>
+      {% if can_edit %}
+        <a class="btn" href="{{ url_for('character_edit', creature_id=creature['id']) }}">Edit</a>
+      {% endif %}
       {% if creature['kind'] == 'monster' %}
         <a class="btn-ghost" href="{{ url_for('bestiary') }}">← Bestiary</a>
-      {% else %}
+      {% elif can_edit %}
         <a class="btn-ghost" href="{{ url_for('character') }}">← All characters</a>
+      {% else %}
+        <a class="btn-ghost" href="{{ url_for('party') }}">← Party</a>
       {% endif %}
     </div>
   </div>
@@ -53,7 +58,7 @@
     </div>
   </section>
 
-  {% if creature['level'] < 20 %}
+  {% if can_edit and creature['level'] < 20 %}
     <section class="levelup-box {{ 'ready' if xp_level > creature['level'] }}">
       <span class="levelup-status">
         {% if xp_level > creature['level'] %}
@@ -69,8 +74,6 @@
         <button type="submit" class="btn levelup-btn">Level up to {{ creature['level'] + 1 }}</button>
       </form>
     </section>
-  {% else %}
-    <p class="muted xp-progress">Maximum level reached.</p>
   {% endif %}
 
   <section class="ability-grid">
@@ -79,17 +82,19 @@
         <span class="ability-short">{{ info(col, short) }}</span>
         <span class="ability-mod">{{ creature[col] | mod }}</span>
         <span class="ability-score">{{ creature[col] }}</span>
-        <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
-          <input type="hidden" name="expression" value="1d20{{ creature[col] | mod }}">
-          <input type="hidden" name="label" value="{{ creature['name'] }} · {{ short }} check">
-          <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-          <button type="submit" class="check-btn"
-                  title="Roll a {{ short }} check: d20 {{ creature[col] | mod }}">Check</button>
-        </form>
+        {% if can_edit %}
+          <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
+            <input type="hidden" name="expression" value="1d20{{ creature[col] | mod }}">
+            <input type="hidden" name="label" value="{{ creature['name'] }} · {{ short }} check">
+            <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+            <button type="submit" class="check-btn"
+                    title="Roll a {{ short }} check: d20 {{ creature[col] | mod }}">Check</button>
+          </form>
+        {% endif %}
       </div>
     {% endfor %}
   </section>
-  <p class="muted check-hint">A check rolls d20 + the ability modifier. Saving throws roll the same until proficiency lands.</p>
+  {% if can_edit %}<p class="muted check-hint">A check rolls d20 + the ability modifier. Saving throws roll the same until proficiency lands.</p>{% endif %}
 
   {% set res = creature['resistances'] | commalist %}
   {% set imm = creature['immunities'] | commalist %}
@@ -152,10 +157,11 @@
     {% include "_actions.html" %}
   </div>
 
-  {% if creature['notes'] %}
+  {# Notes are private to the owner + DM — not shown to a party member inspecting. #}
+  {% if creature['notes'] and can_edit %}
     <div class="sheet-divider" role="separator"></div>
     <section class="notes">
-      <h2>Notes</h2>
+      <h2>Notes <span class="muted note-private">(private)</span></h2>
       <p>{{ creature['notes'] }}</p>
     </section>
   {% endif %}

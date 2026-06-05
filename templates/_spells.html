@@ -6,7 +6,7 @@
 <section class="char-spells">
   <h2>Spells</h2>
   <p class="muted spell-help">
-    {{ info('known', 'Known') }} = in your repertoire · {{ info('prepared', 'Prepared') }} = readied to cast now. Click the badge to toggle.
+    {{ info('known', 'Known') }} = in your repertoire · {{ info('prepared', 'Prepared') }} = readied to cast now.{% if can_edit %} Click the badge to toggle.{% endif %}
   </p>
   {% if spells %}
     {# Prepared spells float to the top; level/name order holds within each
@@ -19,16 +19,20 @@
             data-prepared="{{ '1' if s.prepared else '0' }}"
             data-cantrip="{{ '1' if s['level'] == 0 else '0' }}"
             data-cast="{{ 'bonus' if 'bonus' in ct else ('reaction' if 'reaction' in ct else ('action' if 'action' in ct else 'other')) }}">
-          <form method="post" action="{{ url_for('spellbook_prepared') }}" class="inline">
-            <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
-            <input type="hidden" name="slug" value="{{ s['slug'] }}">
-            <input type="hidden" name="prepared" value="{{ '0' if s.prepared else '1' }}">
-            <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-            <button type="submit" class="prep-toggle {{ 'on' if s.prepared }}"
-                    title="{{ 'Prepared — click to set aside' if s.prepared else 'Known but not prepared — click to prepare' }}">
-              {{ 'Prepared' if s.prepared else 'Known' }}
-            </button>
-          </form>
+          {% if can_edit %}
+            <form method="post" action="{{ url_for('spellbook_prepared') }}" class="inline">
+              <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+              <input type="hidden" name="slug" value="{{ s['slug'] }}">
+              <input type="hidden" name="prepared" value="{{ '0' if s.prepared else '1' }}">
+              <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+              <button type="submit" class="prep-toggle {{ 'on' if s.prepared }}"
+                      title="{{ 'Prepared — click to set aside' if s.prepared else 'Known but not prepared — click to prepare' }}">
+                {{ 'Prepared' if s.prepared else 'Known' }}
+              </button>
+            </form>
+          {% else %}
+            <span class="prep-toggle {{ 'on' if s.prepared }}">{{ 'Prepared' if s.prepared else 'Known' }}</span>
+          {% endif %}
           <a class="spell-line-name" href="{{ url_for('spell_detail', slug=s['slug']) }}">{{ s['name'] }}</a>
           <span class="muted spell-line-meta">{{ s['level'] | ordinal_level }}</span>
           {% if s['roll'] %}
@@ -38,13 +42,15 @@
               <span class="die-text">{{ s['roll'] }}</span>
             {% endif %}
           {% endif %}
-          <form method="post" action="{{ url_for('spellbook_remove') }}" class="inline"
-                data-confirm="Remove {{ s['name'] }}?">
-            <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
-            <input type="hidden" name="slug" value="{{ s['slug'] }}">
-            <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-            <button type="submit" class="roll-del" title="Remove spell">×</button>
-          </form>
+          {% if can_edit %}
+            <form method="post" action="{{ url_for('spellbook_remove') }}" class="inline"
+                  data-confirm="Remove {{ s['name'] }}?">
+              <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+              <input type="hidden" name="slug" value="{{ s['slug'] }}">
+              <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+              <button type="submit" class="roll-del" title="Remove spell">×</button>
+            </form>
+          {% endif %}
         </li>
       {% endfor %}
     </ul>
@@ -53,7 +59,7 @@
     <p class="muted">No spells yet.</p>
   {% endif %}
 
-  {% if addable_spells %}
+  {% if can_edit and addable_spells %}
     <form method="post" action="{{ url_for('spellbook_add') }}" class="add-spell">
       <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
       <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">

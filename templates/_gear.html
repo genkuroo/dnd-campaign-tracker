@@ -3,15 +3,17 @@
    refresh this fragment without a full page reload. Expects: creature, panel,
    items, slot_labels. #}
 {% from "macros.html" import avatar %}
-{% macro slot_box(box) %}
+{% macro slot_box(box, editable) %}
   <div class="slot-box {{ 'filled' if box.item }}" data-slot="{{ box.key }}">
     <span class="slot-label">{{ box.label }}</span>
     {% if box.item %}
       <span class="slot-filled-row">
         <span class="slot-item">{{ box.item['name'] }}{% if box.item['hands'] == 2 %} <span class="tag-2h">2H</span>{% endif %}</span>
-        <form method="post" action="{{ url_for('inventory_equipped', item_id=box.item['id']) }}" class="inline">
-          <button type="submit" class="slot-unequip" title="Unequip {{ box.item['name'] }}">×</button>
-        </form>
+        {% if editable %}
+          <form method="post" action="{{ url_for('inventory_equipped', item_id=box.item['id']) }}" class="inline">
+            <button type="submit" class="slot-unequip" title="Unequip {{ box.item['name'] }}">×</button>
+          </form>
+        {% endif %}
       </span>
     {% elif box.blocked %}
       <span class="slot-empty">⟵ two-handed</span>
@@ -24,10 +26,10 @@
 <div class="gear-layout">
 <section class="equipment">
   <h2>Equipment</h2>
-  <p class="muted equip-hint">Drag an item onto its slot to equip — or use the buttons. Each filled slot has an unequip ×.</p>
+  {% if can_edit %}<p class="muted equip-hint">Drag an item onto its slot to equip — or use the buttons. Each filled slot has an unequip ×.</p>{% endif %}
   <div class="equip-doll">
     <div class="equip-col equip-left">
-      {% for box in panel if box.column == 'left' %}{{ slot_box(box) }}{% endfor %}
+      {% for box in panel if box.column == 'left' %}{{ slot_box(box, can_edit) }}{% endfor %}
     </div>
     <div class="equip-figure">
       <div class="figure-frame">
@@ -35,22 +37,24 @@
         <span class="figure-name">{{ creature['name'] }}</span>
         <span class="badge-kind badge-kind-{{ creature['kind'] }}">{{ 'NPC' if creature['kind'] == 'npc' else ('Monster' if creature['kind'] == 'monster' else 'PC') }}</span>
         <span class="figure-meta muted">Level {{ creature['level'] }}</span>
-        <details class="portrait-edit">
-          <summary>✎ Portrait</summary>
-          <form method="post" action="{{ url_for('character_avatar', creature_id=creature['id']) }}"
-                enctype="multipart/form-data" class="portrait-form">
-            <input type="text" name="avatar_emoji" maxlength="8" placeholder="emoji" aria-label="Emoji">
-            <input type="file" name="avatar_file" accept="image/*" aria-label="Upload image">
-            {% if creature['avatar'] %}
-              <label class="checkbox-inline"><input type="checkbox" name="remove_avatar"> remove</label>
-            {% endif %}
-            <button type="submit" class="btn-small">Save portrait</button>
-          </form>
-        </details>
+        {% if can_edit %}
+          <details class="portrait-edit">
+            <summary>✎ Portrait</summary>
+            <form method="post" action="{{ url_for('character_avatar', creature_id=creature['id']) }}"
+                  enctype="multipart/form-data" class="portrait-form">
+              <input type="text" name="avatar_emoji" maxlength="8" placeholder="emoji" aria-label="Emoji">
+              <input type="file" name="avatar_file" accept="image/*" aria-label="Upload image">
+              {% if creature['avatar'] %}
+                <label class="checkbox-inline"><input type="checkbox" name="remove_avatar"> remove</label>
+              {% endif %}
+              <button type="submit" class="btn-small">Save portrait</button>
+            </form>
+          </details>
+        {% endif %}
       </div>
     </div>
     <div class="equip-col equip-right">
-      {% for box in panel if box.column == 'right' %}{{ slot_box(box) }}{% endfor %}
+      {% for box in panel if box.column == 'right' %}{{ slot_box(box, can_edit) }}{% endfor %}
     </div>
   </div>
 </section>
@@ -69,15 +73,17 @@
     <div class="inv-scroll">
     <ul class="item-list">
       {% for it in items %}
-        <li class="item-line {{ 'equipped' if it['equipped'] }} {{ 'draggable' if it['slot'] }}"
+        <li class="item-line {{ 'equipped' if it['equipped'] }} {{ 'draggable' if it['slot'] and can_edit }}"
             data-name="{{ it['name'] }}" data-equipped="{{ '1' if it['equipped'] else '0' }}" data-slotted="{{ '1' if it['slot'] else '0' }}"
-            {% if it['slot'] %}draggable="true" data-slot="{{ it['slot'] }}" data-equip-url="{{ url_for('inventory_equip', item_id=it['id']) }}"{% endif %}>
-          {% if it['slot'] %}
+            {% if it['slot'] and can_edit %}draggable="true" data-slot="{{ it['slot'] }}" data-equip-url="{{ url_for('inventory_equip', item_id=it['id']) }}"{% endif %}>
+          {% if it['slot'] and can_edit %}
             <form method="post" action="{{ url_for('inventory_equipped', item_id=it['id']) }}" class="inline">
               <button type="submit" class="equip-toggle {{ 'on' if it['equipped'] }}">
                 {{ 'Unequip' if it['equipped'] else 'Equip' }}
               </button>
             </form>
+          {% elif it['equipped'] %}
+            <span class="equip-toggle on equip-static">Equipped</span>
           {% else %}
             <span class="equip-spacer"></span>
           {% endif %}
@@ -90,20 +96,26 @@
             </span>
           </span>
           <span class="qty">
-            <form method="post" action="{{ url_for('inventory_quantity', item_id=it['id']) }}" class="inline">
-              <input type="hidden" name="delta" value="-1">
-              <button type="submit" class="qty-btn" title="One fewer">−</button>
-            </form>
-            <span class="qty-num">{{ it['quantity'] }}</span>
-            <form method="post" action="{{ url_for('inventory_quantity', item_id=it['id']) }}" class="inline">
-              <input type="hidden" name="delta" value="1">
-              <button type="submit" class="qty-btn" title="One more">+</button>
-            </form>
+            {% if can_edit %}
+              <form method="post" action="{{ url_for('inventory_quantity', item_id=it['id']) }}" class="inline">
+                <input type="hidden" name="delta" value="-1">
+                <button type="submit" class="qty-btn" title="One fewer">−</button>
+              </form>
+            {% endif %}
+            <span class="qty-num">{% if it['quantity'] > 1 or not can_edit %}×{{ it['quantity'] }}{% else %}{{ it['quantity'] }}{% endif %}</span>
+            {% if can_edit %}
+              <form method="post" action="{{ url_for('inventory_quantity', item_id=it['id']) }}" class="inline">
+                <input type="hidden" name="delta" value="1">
+                <button type="submit" class="qty-btn" title="One more">+</button>
+              </form>
+            {% endif %}
           </span>
-          <form method="post" action="{{ url_for('inventory_remove', item_id=it['id']) }}" class="inline"
-                data-confirm="Remove {{ it['name'] }}?">
-            <button type="submit" class="roll-del" title="Remove item">×</button>
-          </form>
+          {% if can_edit %}
+            <form method="post" action="{{ url_for('inventory_remove', item_id=it['id']) }}" class="inline"
+                  data-confirm="Remove {{ it['name'] }}?">
+              <button type="submit" class="roll-del" title="Remove item">×</button>
+            </form>
+          {% endif %}
         </li>
       {% endfor %}
     </ul>
@@ -113,7 +125,7 @@
     <p class="muted">No items yet.</p>
   {% endif %}
 
-  {% if creature['kind'] == 'npc' %}
+  {% if can_edit and creature['kind'] == 'npc' %}
     <form method="post" action="{{ url_for('inventory_add') }}" class="add-item">
       <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
       <input type="text" name="name" placeholder="Item name" required>
@@ -126,7 +138,7 @@
       <input type="text" name="description" placeholder="Description (optional)" class="desc-input">
       <button type="submit" class="btn">Add item</button>
     </form>
-  {% else %}
+  {% elif can_edit and is_dm %}
     <p class="muted loot-note">Items are granted from the <a href="{{ url_for('loot') }}">Loot</a> tab.</p>
   {% endif %}
 </section>
