@@ -71,6 +71,10 @@
           {% endfor %}
         </select>
       </label>
+      <label class="field grow">
+        <span>Location <span class="muted">(where they are / last seen)</span></span>
+        <input type="text" name="location" value="{{ c['location'] if c else '' }}" placeholder="The Prancing Pony, Bree">
+      </label>
     </div>
 
     <fieldset>

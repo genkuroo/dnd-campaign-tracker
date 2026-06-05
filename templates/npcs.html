@@ -10,12 +10,19 @@
   {% if roster %}
     <div class="roster-filter">
       <input type="search" id="npc-search" placeholder="Search by name…" autocomplete="off" aria-label="Search">
+      <div class="roster-kinds" role="group" aria-label="Filter by disposition">
+        <button type="button" class="kind-btn active" data-disp="all">All</button>
+        <button type="button" class="kind-btn" data-disp="friendly">Friendly</button>
+        <button type="button" class="kind-btn" data-disp="neutral">Neutral</button>
+        <button type="button" class="kind-btn" data-disp="hostile">Hostile</button>
+      </div>
     </div>
 
     <div class="card-grid" id="npc-grid">
       {% for c in roster %}
+        {% set dg = 'friendly' if c['disposition'] in ('friendly', 'allied') else ('hostile' if c['disposition'] in ('hostile', 'unfriendly') else 'neutral') %}
         <a class="char-card" href="{{ url_for('character_detail', creature_id=c['id']) }}"
-           data-name="{{ c['name'] | lower }}">
+           data-name="{{ c['name'] | lower }}" data-disp="{{ dg }}">
           <div class="char-card-head">
             <span class="char-card-title">{{ avatar(c, 'avatar-sm') }}<span class="char-name">{{ c['name'] }}</span></span>
             {% if c['visibility'] == 'hidden' %}<span class="badge-dm">Hidden</span>{% endif %}
@@ -25,6 +32,7 @@
             <span class="disp disp-{{ c['disposition'] }}">{{ c['disposition'] }}</span>
             {% if c['alignment'] %}<span class="muted">{{ c['alignment'] | alignment }}</span>{% endif %}
           </div>
+          {% if c['location'] %}<div class="char-loc muted">📍 {{ c['location'] }}</div>{% endif %}
           <div class="char-card-stats">
             <span title="Hit Points">❤️ {{ c['current_hp'] }}/{{ c['max_hp'] }}</span>
             <span title="Armor Class">🛡️ {{ c['armor_class'] }}</span>
@@ -39,15 +47,29 @@
         const search = document.getElementById('npc-search');
         const grid = document.getElementById('npc-grid');
         const empty = document.getElementById('npc-empty');
-        search.addEventListener('input', function () {
+        const dispBtns = document.querySelectorAll('.kind-btn[data-disp]');
+        let disp = 'all';
+
+        function apply() {
           const q = search.value.trim().toLowerCase();
           let shown = 0;
           grid.querySelectorAll('.char-card').forEach(function (card) {
-            const show = card.dataset.name.includes(q);
+            const matchName = card.dataset.name.includes(q);
+            const matchDisp = disp === 'all' || card.dataset.disp === disp;
+            const show = matchName && matchDisp;
             card.style.display = show ? '' : 'none';
             if (show) shown++;
           });
           empty.hidden = shown !== 0;
+        }
+
+        search.addEventListener('input', apply);
+        dispBtns.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            disp = btn.dataset.disp;
+            dispBtns.forEach(b => b.classList.toggle('active', b === btn));
+            apply();
+          });
         });
       })();
     </script>

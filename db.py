@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 16
+SCHEMA_VERSION = 17
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -243,6 +243,11 @@ MIGRATIONS = {
     -- dice log can tint entries by roller. ON DELETE SET NULL keeps old rolls when
     -- a user is removed; the roll itself stays server-authoritative (anti-cheat).
     ALTER TABLE rolls ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE SET NULL;
+    """,
+    17: """
+    -- Where a creature is / was last seen (most useful for NPCs — 'the Prancing
+    -- Pony', 'last seen fleeing north'). Free text; applies to any creature.
+    ALTER TABLE creatures ADD COLUMN location TEXT NOT NULL DEFAULT '';
     """,
 }
 

@@ -12,6 +12,7 @@
         <span class="badge-kind">{{ 'NPC' if creature['kind'] == 'npc' else 'PC' }}</span>
         Level {{ creature['level'] }}{% if creature['player_name'] %} · played by {{ creature['player_name'] }}{% endif %}
         {% if creature['alignment'] %} · {{ creature['alignment'] | alignment }}{% endif %}
+        {% if creature['location'] %} · 📍 {{ creature['location'] }}{% endif %}
       </p>
 
       {% if creature['kind'] in ('npc', 'monster') %}

@@ -287,6 +287,7 @@ body {
 .char-card-head { display: flex; align-items: center; gap: 0.5rem; justify-content: space-between; }
 .char-name { font-size: 1.15rem; font-weight: bold; color: var(--accent-2); }
 .char-card-stats { margin-top: 0.6rem; display: flex; gap: 1rem; font-family: sans-serif; font-size: 0.9rem; }
+.char-loc { margin-top: 0.45rem; font-family: sans-serif; font-size: 0.85rem; }
 
 /* Sheet: vitals + ability grid */
 .sheet-name { display: flex; align-items: center; gap: 0.6rem; }
