@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 15
+SCHEMA_VERSION = 16
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -237,6 +237,12 @@ MIGRATIONS = {
         color         TEXT    NOT NULL DEFAULT '',
         created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
     );
+    """,
+    16: """
+    -- Per-player roll colours (Phase 7d). Record who made each roll so the shared
+    -- dice log can tint entries by roller. ON DELETE SET NULL keeps old rolls when
+    -- a user is removed; the roll itself stays server-authoritative (anti-cheat).
+    ALTER TABLE rolls ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE SET NULL;
     """,
 }
 

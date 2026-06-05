@@ -457,8 +457,18 @@ form.inline { display: inline; margin: 0; }
   display: flex;
   align-items: center;
   gap: 0.9rem;
-  padding: 0.5rem 0.2rem;
+  padding: 0.5rem 0.2rem 0.5rem 0.6rem;
   border-bottom: 1px solid var(--border);
+  border-left: 3px solid transparent;  /* tinted with the roller's colour */
+}
+.roll-roller { font-weight: bold; margin-right: 0.4rem; }
+
+/* Roll-colour pickers (Dice page + Users admin) */
+.roll-log-tools { display: flex; align-items: center; gap: 1rem; }
+.color-form { display: flex; align-items: center; gap: 0.4rem; }
+.color-form input[type="color"] {
+  width: 2rem; height: 1.6rem; padding: 0; cursor: pointer;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 5px;
 }
 .roll-total {
   font-size: 1.4rem;

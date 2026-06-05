@@ -40,6 +40,11 @@
         {% else %}
           <span class="muted">campaign admin</span>
         {% endif %}
+        <form method="post" action="{{ url_for('users_set_color', user_id=u['id']) }}" class="inline color-form"
+              title="This user's dice-log colour">
+          <input type="color" name="color" value="{{ u['color'] or '#c9a14a' }}" aria-label="Roll colour">
+          <button type="submit" class="btn-small">Colour</button>
+        </form>
         <details class="user-manage">
           <summary class="btn-small">Manage</summary>
           <div class="user-manage-body">

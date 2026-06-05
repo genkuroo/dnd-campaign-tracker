@@ -4,6 +4,7 @@ The DM is the admin (role 'dm'); players (role 'player') each control one PC via
 `creature_id`. Passwords are stored **hashed** (werkzeug), never in plaintext.
 The shared registration code players sign up with lives in the `meta` table.
 """
+import re
 import sqlite3
 
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -11,6 +12,10 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from db import get_connection
 
 ROLES = ("dm", "player")
+
+# A roll colour is a CSS hex (it's rendered into a style attribute), so only
+# accept #rgb / #rrggbb; anything else is stored as '' (no tint).
+_HEX_COLOR = re.compile(r"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
 
 
 def user_count():
@@ -111,11 +116,13 @@ def set_user_character(user_id, creature_id):
 
 
 def set_user_color(user_id, color):
+    color = (color or "").strip()
+    # '' clears the tint; a valid hex sets it; anything else is ignored (kept).
+    if color and not _HEX_COLOR.match(color):
+        return
     conn = get_connection()
     try:
-        conn.execute(
-            "UPDATE users SET color = ? WHERE id = ?", ((color or "").strip(), user_id)
-        )
+        conn.execute("UPDATE users SET color = ? WHERE id = ?", (color, user_id))
         conn.commit()
     finally:
         conn.close()

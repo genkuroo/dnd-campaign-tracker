@@ -115,6 +115,7 @@ from models.user import (
     set_password,
     set_signup_code,
     set_user_character,
+    set_user_color,
     user_count,
     verify_login,
 )
@@ -207,7 +208,7 @@ _DM_ONLY_ENDPOINTS = {
     "loot_area_clear", "loot_spawn", "loot_create", "loot_give", "loot_remove",
     "party", "party_rest_route", "party_hp",
     "users", "users_set_code", "users_set_character", "users_reset_password",
-    "users_delete",
+    "users_set_color", "users_delete",
 }
 
 
@@ -485,6 +486,15 @@ def users_set_character(user_id):
         cid = request.form.get("creature_id", type=int)
         set_user_character(user_id, cid)
         flash("Character assigned." if cid else "Character unassigned.")
+    return redirect(url_for("users"))
+
+
+@app.route("/users/<int:user_id>/color", methods=["POST"])
+def users_set_color(user_id):
+    _require_dm()
+    if get_user(user_id):
+        set_user_color(user_id, request.form.get("color", ""))
+        flash("Roll colour updated.")
     return redirect(url_for("users"))
 
 
@@ -1339,6 +1349,8 @@ def _decorate_rolls(rows):
             "total": r["total"],
             "detail": r["detail"],
             "label": r["label"],
+            "roller": r["roller"],          # username, or None for legacy rolls
+            "color": r["roller_color"],     # the roller's tint, or ''
             "clock": ts.astimezone().strftime("%I:%M %p").lstrip("0"),
             "relative": _relative((now - ts).total_seconds()),
             "break_after": gap_label,   # truthy gap string, or None
@@ -1348,13 +1360,25 @@ def _decorate_rolls(rows):
 
 @app.route("/dice")
 def dice():
+    u = current_user()
     return render_template(
         "dice.html",
         active="dice",
         title="Dice",
         die_buttons=DICE_BUTTONS,
         rolls=_decorate_rolls(recent_rolls()),
+        my_color=(u["color"] if u else "") or "#c9a14a",
     )
+
+
+@app.route("/me/color", methods=["POST"])
+def set_my_color():
+    """Let the logged-in user pick their own dice-log colour."""
+    u = current_user()
+    if u:
+        set_user_color(u["id"], request.form.get("color", ""))
+        flash("Roll colour updated.")
+    return redirect(_safe_next(request.form.get("next"), url_for("dice")))
 
 
 @app.route("/dice/roll", methods=["POST"])
@@ -1373,7 +1397,8 @@ def dice_roll():
         flash(str(err))
         return redirect(target)
 
-    add_roll(result, label)
+    u = current_user()
+    add_roll(result, label, user_id=u["id"] if u else None)
     prefix = f"{label}: " if label else ""
     flash(f"🎲 {prefix}{result['detail']} = {result['total']}")
     return redirect(target)

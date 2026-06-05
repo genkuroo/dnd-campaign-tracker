@@ -47,19 +47,29 @@
   <section class="roll-log">
     <div class="roll-log-head">
       <h2>Recent rolls</h2>
-      {% if rolls %}
-        <form method="post" action="{{ url_for('dice_clear') }}" class="inline"
-              onsubmit="return confirm('Clear all roll history?')">
-          <button type="submit" class="btn-ghost">Clear</button>
+      <div class="roll-log-tools">
+        <form method="post" action="{{ url_for('set_my_color') }}" class="inline color-form"
+              title="Tint your rolls in the shared log">
+          <input type="hidden" name="next" value="{{ url_for('dice') }}">
+          <label class="muted">My colour</label>
+          <input type="color" name="color" value="{{ my_color }}" aria-label="My roll colour">
+          <button type="submit" class="btn-small">Save</button>
         </form>
-      {% endif %}
+        {% if rolls %}
+          <form method="post" action="{{ url_for('dice_clear') }}" class="inline"
+                onsubmit="return confirm('Clear all roll history?')">
+            <button type="submit" class="btn-ghost">Clear</button>
+          </form>
+        {% endif %}
+      </div>
     </div>
     {% if rolls %}
       <ul class="roll-list">
         {% for r in rolls %}
-          <li class="roll-row">
+          <li class="roll-row"{% if r.color %} style="border-left-color: {{ r.color }}"{% endif %}>
             <span class="roll-total">{{ r.total }}</span>
             <span class="roll-detail">
+              {% if r.roller %}<span class="roll-roller"{% if r.color %} style="color: {{ r.color }}"{% endif %}>{{ r.roller }}</span>{% endif %}
               {% if r.label %}<span class="roll-label">{{ r.label }}</span>{% endif %}
               {{ r.detail }}
             </span>

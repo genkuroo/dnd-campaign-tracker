@@ -2,13 +2,15 @@
 from db import get_connection
 
 
-def add_roll(result, label=""):
-    """Record a roll. `result` is the dict returned by the dice engine."""
+def add_roll(result, label="", user_id=None):
+    """Record a roll. `result` is the dict returned by the dice engine; `user_id`
+    is the roller (so the shared log can tint by player)."""
     conn = get_connection()
     try:
         cur = conn.execute(
-            "INSERT INTO rolls (expression, total, detail, label) VALUES (?, ?, ?, ?)",
-            (result["expression"], result["total"], result["detail"], label),
+            "INSERT INTO rolls (expression, total, detail, label, user_id) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (result["expression"], result["total"], result["detail"], label, user_id),
         )
         conn.commit()
         return cur.lastrowid
@@ -17,10 +19,14 @@ def add_roll(result, label=""):
 
 
 def recent_rolls(limit=20):
+    """Recent rolls, newest first, joined to the roller's name + colour."""
     conn = get_connection()
     try:
         return conn.execute(
-            "SELECT * FROM rolls ORDER BY id DESC LIMIT ?", (limit,)
+            "SELECT r.*, u.username AS roller, u.color AS roller_color "
+            "FROM rolls r LEFT JOIN users u ON u.id = r.user_id "
+            "ORDER BY r.id DESC LIMIT ?",
+            (limit,),
         ).fetchall()
     finally:
         conn.close()
