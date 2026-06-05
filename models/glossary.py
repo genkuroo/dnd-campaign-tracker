@@ -26,7 +26,9 @@ GLOSSARY = {
     "m": "Material — you need specific physical items, usually covered by a component pouch or focus.",
     # Core mechanics
     "saving-throw": "Saving throw — a d20 roll a target makes to resist or reduce an effect (e.g. dodging a fireball).",
-    "spell-attack": "Spell attack — roll d20 + your spell attack bonus against the target's AC to see if it hits.",
+    "spell-attack": "Spell attack — roll d20 + your spell attack bonus (proficiency bonus + spellcasting ability) against the target's AC to see if it hits.",
+    "spell-save-dc": "Spell save DC — the number a target must beat on its saving throw to resist your spell. = 8 + proficiency bonus + your spellcasting ability modifier.",
+    "spell-slot": "Spell slot — a charge you spend to cast a leveled spell; you have a limited number per spell level. Cantrips are free. A long rest restores them.",
     "armor-class": "Armor Class (AC) — how hard a creature is to hit. An attack must roll this number or higher.",
     "hit-points": "Hit Points (HP) — a creature's health. At 0 HP it falls unconscious or dies.",
     "temp-hp": "Temporary HP — a buffer on top of your hit points (from some spells/abilities). Damage comes off temp HP first; they don't stack (keep the higher value) and aren't restored by healing.",

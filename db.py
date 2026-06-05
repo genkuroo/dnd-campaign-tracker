@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 24
+SCHEMA_VERSION = 25
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -311,6 +311,21 @@ MIGRATIONS = {
         skill_slug  TEXT    NOT NULL,
         added_at    TEXT    NOT NULL DEFAULT (datetime('now')),
         PRIMARY KEY (creature_id, skill_slug)
+    );
+    """,
+    25: """
+    -- Spell slots (the spellcasting resource). A creature's *maximum* slots are
+    -- computed from its class + level (caster tables in models/spellcasting.py),
+    -- so only *expended* slots are stored here, per spell level (1–9). Casting a
+    -- leveled spell spends one; a long rest (or, for Warlocks, a short rest) clears
+    -- them. Cantrips (level 0) cost no slot. ON DELETE CASCADE clears with the
+    -- creature. Spellcasting *stats* (attack bonus, save DC) need no storage —
+    -- they're computed from proficiency bonus + the class's spellcasting ability.
+    CREATE TABLE creature_spell_slots (
+        creature_id INTEGER NOT NULL REFERENCES creatures(id) ON DELETE CASCADE,
+        slot_level  INTEGER NOT NULL,                 -- 1..9
+        used        INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (creature_id, slot_level)
     );
     """,
 }

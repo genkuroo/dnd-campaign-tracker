@@ -8,6 +8,68 @@
   <p class="muted spell-help">
     {{ info('known', 'Known') }} = in your repertoire · {{ info('prepared', 'Prepared') }} = readied to cast now.{% if can_edit %} Click the badge to toggle.{% endif %}
   </p>
+
+  {% if spell_stats or slot_rows %}
+    <div class="spellcasting">
+      {% if spell_stats %}
+        <div class="cast-stats">
+          <span class="cast-stat">{{ info(spell_stats.ability, spell_stats.ability[:3] | upper) }} casting</span>
+          <span class="cast-stat">{{ info('spell-attack', 'Spell attack') }} <strong>{{ spell_stats.attack | signed }}</strong></span>
+          <span class="cast-stat">{{ info('spell-save-dc', 'Save DC') }} <strong>{{ spell_stats.dc }}</strong></span>
+        </div>
+      {% endif %}
+      {% if slot_rows %}
+        <div class="slot-tracker">
+          {% for r in slot_rows %}
+            <div class="slot-row">
+              <span class="slot-label">{{ r.level | ordinal_level }}</span>
+              <span class="slot-pips" aria-hidden="true">
+                {% for i in range(r.total) %}<span class="pip {{ 'spent' if i >= r.available else '' }}"></span>{% endfor %}
+              </span>
+              {% if can_edit %}
+                <form method="post" action="{{ url_for('spellbook_slot') }}" class="inline">
+                  <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+                  <input type="hidden" name="slot_level" value="{{ r.level }}">
+                  <input type="hidden" name="action" value="spend">
+                  <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+                  <button type="submit" class="slot-btn" {{ 'disabled' if r.available == 0 else '' }} title="Spend a {{ r.level | ordinal_level }} slot">−</button>
+                </form>
+              {% endif %}
+              <span class="slot-count">{{ r.available }}/{{ r.total }}</span>
+              {% if can_edit %}
+                <form method="post" action="{{ url_for('spellbook_slot') }}" class="inline">
+                  <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+                  <input type="hidden" name="slot_level" value="{{ r.level }}">
+                  <input type="hidden" name="action" value="restore">
+                  <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+                  <button type="submit" class="slot-btn" {{ 'disabled' if r.available == r.total else '' }} title="Recover a {{ r.level | ordinal_level }} slot">+</button>
+                </form>
+              {% endif %}
+            </div>
+          {% endfor %}
+          {% if can_edit %}
+            <div class="slot-rests">
+              <form method="post" action="{{ url_for('spellbook_rest') }}" class="inline">
+                <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+                <input type="hidden" name="kind" value="long">
+                <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+                <button type="submit" class="check-btn" title="Restore all spell slots">Long rest ↺</button>
+              </form>
+              {% if caster_type == 'pact' %}
+                <form method="post" action="{{ url_for('spellbook_rest') }}" class="inline">
+                  <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+                  <input type="hidden" name="kind" value="short">
+                  <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+                  <button type="submit" class="check-btn" title="Recharge pact slots">Short rest ↺</button>
+                </form>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
   {% if spells %}
     {# Prepared spells float to the top; level/name order holds within each
        group (the input is already level/name-sorted and Jinja's sort is stable). #}
@@ -37,12 +99,38 @@
           {% endif %}
           <a class="spell-line-name" href="{{ url_for('spell_detail', slug=s['slug']) }}">{{ s['name'] }}</a>
           <span class="muted spell-line-meta">{{ s['level'] | ordinal_level }}</span>
+          {% if spell_stats and s['attack'] %}
+            {% if mode == 'assist' and can_edit %}
+              <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
+                <input type="hidden" name="expression" value="1d20{{ spell_stats.attack | signed }}">
+                <input type="hidden" name="label" value="{{ creature['name'] }} · {{ s['name'] }} attack">
+                <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+                <button type="submit" class="check-btn" title="Spell attack: d20 {{ spell_stats.attack | signed }}">Attack {{ spell_stats.attack | signed }}</button>
+              </form>
+            {% else %}
+              <span class="muted spell-line-meta" title="Spell attack">atk {{ spell_stats.attack | signed }}</span>
+            {% endif %}
+          {% endif %}
+          {% if spell_stats and s['save'] %}
+            <span class="muted spell-line-meta" title="{{ s['save'] }} saving throw">DC {{ spell_stats.dc }}</span>
+          {% endif %}
           {% if s['roll'] %}
             {% if mode == 'assist' %}
               <button type="button" class="rollable" data-expr="{{ s['roll'] }}" data-label="{{ s['name'] }}">{{ s['roll'] }}</button>
             {% else %}
               <span class="die-text">{{ s['roll'] }}</span>
             {% endif %}
+          {% endif %}
+          {% if can_edit and s['level'] > 0 %}
+            {% set avail = slots_available.get(s['level'], 0) %}
+            <form method="post" action="{{ url_for('spellbook_slot') }}" class="inline">
+              <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+              <input type="hidden" name="slot_level" value="{{ s['level'] }}">
+              <input type="hidden" name="action" value="spend">
+              <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+              <button type="submit" class="check-btn cast-slot" {{ 'disabled' if avail == 0 else '' }}
+                      title="Cast — spend a {{ s['level'] | ordinal_level }} slot ({{ avail }} available)">Cast ▸</button>
+            </form>
           {% endif %}
           {% if can_edit and not s.from_item %}
             <form method="post" action="{{ url_for('spellbook_remove') }}" class="inline"

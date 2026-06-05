@@ -146,6 +146,15 @@ from models.spellbook import (
     remove_spell,
     set_prepared,
 )
+from models.spellcasting import (
+    caster_type,
+    restore_all_slots,
+    restore_pact_slots,
+    restore_slot,
+    slot_rows,
+    spell_stats,
+    spend_slot,
+)
 
 # Quick-roll die buttons on the dice page.
 DICE_BUTTONS = [4, 6, 8, 10, 12, 20, 100]
@@ -738,6 +747,7 @@ def character_detail(creature_id):
         creature=creature,
         spells=known,
         addable_spells=[s for s in all_spells() if s["slug"] not in known_slugs],
+        **_spellcasting_ctx(creature),
         next_level=next_level,                         # (level, xp_to_go) or None
         xp_level=level_from_xp(creature["xp"]),         # level the XP implies
         items=list_items(creature_id),
@@ -1212,8 +1222,12 @@ def party_rest_route():
     kind = request.form.get("kind")
     if kind in ("short", "long"):
         party_rest(kind)
-        flash("Long rest — party restored to full HP." if kind == "long"
-              else "Short rest — party recovered some HP.")
+        # Spell slots refresh with the rest: a long rest clears all expended slots;
+        # a short rest only recharges Warlock pact slots.
+        for pc in list_party():
+            restore_all_slots(pc["id"]) if kind == "long" else restore_pact_slots(pc["id"])
+        flash("Long rest — party restored to full HP and spell slots." if kind == "long"
+              else "Short rest — party recovered some HP (and pact slots).")
     return redirect(url_for("party"))
 
 
@@ -1307,6 +1321,19 @@ def _gear_response(creature_id, target):
     return redirect(target)
 
 
+def _spellcasting_ctx(creature):
+    """Computed spellcasting context for the spellbook fragment: casting stats
+    (attack/DC), the slot pool, and a level→available lookup (for per-spell Cast
+    buttons). Reused by the sheet and the #spells fragment."""
+    rows = slot_rows(creature)
+    return {
+        "spell_stats": spell_stats(creature, effective_abilities(creature)),
+        "slot_rows": rows,
+        "caster_type": caster_type(creature),
+        "slots_available": {r["level"]: r["available"] for r in rows},
+    }
+
+
 def _spells_fragment(creature_id):
     """Render the spellbook section for a creature (the #spells AJAX fragment)."""
     creature = get_creature(creature_id)
@@ -1318,6 +1345,7 @@ def _spells_fragment(creature_id):
         can_edit=can_edit_creature(creature),
         spells=known,
         addable_spells=[s for s in all_spells() if s["slug"] not in known_slugs],
+        **_spellcasting_ctx(creature),
     )
 
 
@@ -1769,6 +1797,38 @@ def spellbook_remove():
 def spellbook_prepared():
     cid = _require_edit_form_creature()
     set_prepared(cid, request.form.get("slug", ""), request.form.get("prepared") == "1")
+    if _is_fetch():
+        return _spells_fragment(cid)
+    return redirect(_safe_next(request.form.get("next"), url_for("character")))
+
+
+@app.route("/spellbook/slot", methods=["POST"])
+def spellbook_slot():
+    """Spend or recover one spell slot of a given level (casting / a quick refill).
+    Edit-permission gated, so a player manages only their own PC's slots."""
+    cid = _require_edit_form_creature()
+    level = request.form.get("slot_level", type=int)
+    if level:
+        if request.form.get("action") == "restore":
+            restore_slot(cid, level)
+        elif not spend_slot(cid, level):
+            flash(f"No level-{level} slots left.")
+    if _is_fetch():
+        return _spells_fragment(cid)
+    return redirect(_safe_next(request.form.get("next"), url_for("character")))
+
+
+@app.route("/spellbook/rest", methods=["POST"])
+def spellbook_rest():
+    """Refill a single caster's slots from their own sheet: a long rest clears all,
+    a short rest only recharges Warlock pact slots."""
+    cid = _require_edit_form_creature()
+    if request.form.get("kind") == "long":
+        restore_all_slots(cid)
+        flash("Long rest — spell slots restored.")
+    else:
+        restore_pact_slots(cid)
+        flash("Short rest — pact slots restored.")
     if _is_fetch():
         return _spells_fragment(cid)
     return redirect(_safe_next(request.form.get("next"), url_for("character")))
