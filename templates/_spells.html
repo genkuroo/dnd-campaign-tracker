@@ -19,7 +19,9 @@
             data-prepared="{{ '1' if s.prepared else '0' }}"
             data-cantrip="{{ '1' if s['level'] == 0 else '0' }}"
             data-cast="{{ 'bonus' if 'bonus' in ct else ('reaction' if 'reaction' in ct else ('action' if 'action' in ct else 'other')) }}">
-          {% if can_edit %}
+          {% if s.from_item %}
+            <span class="prep-toggle from-item" title="Granted by {{ s.from_item }} (while equipped)">⚙ {{ s.from_item }}</span>
+          {% elif can_edit %}
             <form method="post" action="{{ url_for('spellbook_prepared') }}" class="inline">
               <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
               <input type="hidden" name="slug" value="{{ s['slug'] }}">
@@ -42,7 +44,7 @@
               <span class="die-text">{{ s['roll'] }}</span>
             {% endif %}
           {% endif %}
-          {% if can_edit %}
+          {% if can_edit and not s.from_item %}
             <form method="post" action="{{ url_for('spellbook_remove') }}" class="inline"
                   data-confirm="Remove {{ s['name'] }}?">
               <input type="hidden" name="creature_id" value="{{ creature['id'] }}">

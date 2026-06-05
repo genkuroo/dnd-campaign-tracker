@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import magic_fields %}
 {% block content %}
   <div class="page-head">
     <h1>Loot</h1>
@@ -69,6 +70,9 @@
                   {%- if it['description'] %}{{ it['description'] }}{% endif -%}
                 {%- endif -%}
               </span>
+              {% if it['ac_bonus'] or it['stat_bonuses'] or it['grants_spells'] %}
+                <span class="loot-magic">✨ magic{% if it['ac_bonus'] %} ({{ '%+d' % it['ac_bonus'] }} AC){% endif %}</span>
+              {% endif %}
             </span>
             {% if is_dm %}
               {% if pcs %}
@@ -121,6 +125,7 @@
             </select>
             <label class="two-handed-check"><input type="checkbox" name="two_handed"> 2H</label>
             <input type="text" name="description" placeholder="Description (optional)" class="desc-input">
+            {{ magic_fields(abilities, spell_options) }}
             <button type="submit" class="btn">Add</button>
           </form>
         </section>

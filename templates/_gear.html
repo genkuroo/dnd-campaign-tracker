@@ -2,7 +2,7 @@
    and standalone by the AJAX gear endpoints, so equip/unequip/qty/remove can
    refresh this fragment without a full page reload. Expects: creature, panel,
    items, slot_labels. #}
-{% from "macros.html" import avatar %}
+{% from "macros.html" import avatar, magic_fields %}
 {% macro slot_box(box, editable) %}
   <div class="slot-box {{ 'filled' if box.item }}" data-slot="{{ box.key }}">
     <span class="slot-label">{{ box.label }}</span>
@@ -88,11 +88,14 @@
             <span class="equip-spacer"></span>
           {% endif %}
           <span class="item-main">
-            <span class="item-name">{{ it['name'] }}{% if it['slot'] and it['hands'] == 2 %} <span class="tag-2h">2H</span>{% endif %}</span>
+            <span class="item-name">{{ it['name'] }}{% if it['slot'] and it['hands'] == 2 %} <span class="tag-2h">2H</span>{% endif %}{% if it['ac_bonus'] or it['stat_bonuses'] or it['grants_spells'] %} <span class="item-magic" title="Bonuses apply while equipped">✨</span>{% endif %}</span>
             <span class="item-sub muted">
               {%- if it['slot'] %}{{ slot_labels[it['slot']] }}{% endif -%}
               {%- if it['slot'] and it['description'] %} · {% endif -%}
               {%- if it['description'] %}{{ it['description'] }}{% endif -%}
+              {%- if it['ac_bonus'] %} · {{ '%+d' % it['ac_bonus'] }} AC{% endif -%}
+              {%- if it['stat_bonuses'] %} · {{ it['stat_bonuses'] }}{% endif -%}
+              {%- if it['grants_spells'] %} · grants {{ it['grants_spells'] }}{% endif -%}
             </span>
           </span>
           <span class="qty">
@@ -136,6 +139,7 @@
       </select>
       <label class="two-handed-check"><input type="checkbox" name="two_handed"> 2H</label>
       <input type="text" name="description" placeholder="Description (optional)" class="desc-input">
+      {{ magic_fields(abilities, spell_options) }}
       <button type="submit" class="btn">Add item</button>
     </form>
   {% elif can_edit and is_dm %}

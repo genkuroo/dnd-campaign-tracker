@@ -10,6 +10,7 @@ import random
 
 from db import get_connection
 from models.creature import ability_modifier
+from models.inventory import effective_ac, equipped_stat_bonuses
 
 # The 5e conditions, in alphabetical order (exhaustion's levels are out of scope).
 CONDITIONS = [
@@ -109,7 +110,9 @@ def get_combatant(combatant_id):
 
 
 def add_combatant(combat_id, creature, name=None):
-    """Add one combatant from a creature row, snapshotting its current stats."""
+    """Add one combatant from a creature row, snapshotting its current stats —
+    including AC and DEX bonuses from equipped magic items."""
+    dex = creature["dexterity"] + equipped_stat_bonuses(creature["id"]).get("dexterity", 0)
     conn = get_connection()
     try:
         conn.execute(
@@ -117,8 +120,8 @@ def add_combatant(combat_id, creature, name=None):
             "(combat_id, creature_id, name, max_hp, current_hp, armor_class, dex_mod) "
             "VALUES (?, ?, ?, ?, ?, ?, ?)",
             (combat_id, creature["id"], name or creature["name"],
-             creature["max_hp"], creature["current_hp"], creature["armor_class"],
-             ability_modifier(creature["dexterity"])),
+             creature["max_hp"], creature["current_hp"], effective_ac(creature),
+             ability_modifier(dex)),
         )
         conn.commit()
     finally:

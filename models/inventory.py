@@ -49,7 +49,8 @@ def get_item(item_id):
         conn.close()
 
 
-def add_item(creature_id, name, quantity=1, description="", slot="", hands=1):
+def add_item(creature_id, name, quantity=1, description="", slot="", hands=1,
+             ac_bonus=0, grants_spells="", stat_bonuses=""):
     name = (name or "").strip()
     if not name:
         return None
@@ -58,15 +59,119 @@ def add_item(creature_id, name, quantity=1, description="", slot="", hands=1):
     conn = get_connection()
     try:
         cur = conn.execute(
-            "INSERT INTO creature_items (creature_id, name, quantity, description, slot, hands) "
-            "VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO creature_items "
+            "(creature_id, name, quantity, description, slot, hands, ac_bonus, "
+            " grants_spells, stat_bonuses) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (creature_id, name, max(1, int(quantity or 1)), (description or "").strip(),
-             slot, 2 if int(hands or 1) == 2 else 1),
+             slot, 2 if int(hands or 1) == 2 else 1,
+             int(ac_bonus or 0), _clean_slugs(grants_spells), _clean_stat_bonuses(stat_bonuses)),
         )
         conn.commit()
         return cur.lastrowid
     finally:
         conn.close()
+
+
+# Ability score columns, for parsing item stat bonuses.
+_ABILITY_COLS = ("strength", "dexterity", "constitution",
+                 "intelligence", "wisdom", "charisma")
+
+
+def _clean_slugs(value):
+    """Normalize a spell-slug list (list or comma string) to a comma string."""
+    if isinstance(value, (list, tuple)):
+        parts = value
+    else:
+        parts = (value or "").split(",")
+    return ", ".join(s.strip() for s in parts if s and s.strip())
+
+
+def _parse_stat_bonuses(text):
+    """'strength:2, dexterity:1' -> {'strength': 2, 'dexterity': 1} (valid only)."""
+    out = {}
+    for pair in (text or "").split(","):
+        key, sep, val = pair.partition(":")
+        key = key.strip().lower()
+        if sep and key in _ABILITY_COLS:
+            try:
+                out[key] = out.get(key, 0) + int(val)
+            except ValueError:
+                pass
+    return out
+
+
+def _clean_stat_bonuses(value):
+    """Normalize stat bonuses (dict or 'ability:amount' string) to a stored string,
+    dropping zero/invalid entries."""
+    data = value if isinstance(value, dict) else _parse_stat_bonuses(value)
+    return ", ".join(f"{k}:{v}" for k, v in data.items() if v)
+
+
+def equipped_ac_bonus(creature_id):
+    """Total AC bonus from the creature's currently-equipped items."""
+    conn = get_connection()
+    try:
+        row = conn.execute(
+            "SELECT COALESCE(SUM(ac_bonus), 0) AS total FROM creature_items "
+            "WHERE creature_id = ? AND equipped = 1",
+            (creature_id,),
+        ).fetchone()
+        return row["total"]
+    finally:
+        conn.close()
+
+
+def effective_ac(creature):
+    """A creature's AC including bonuses from equipped items (base AC is never
+    mutated — this is computed, so it reverts when items come off)."""
+    return creature["armor_class"] + equipped_ac_bonus(creature["id"])
+
+
+def equipped_stat_bonuses(creature_id):
+    """{ability_col: total_bonus} from the creature's equipped items."""
+    conn = get_connection()
+    try:
+        rows = conn.execute(
+            "SELECT stat_bonuses FROM creature_items "
+            "WHERE creature_id = ? AND equipped = 1 AND stat_bonuses != ''",
+            (creature_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+    totals = {}
+    for r in rows:
+        for k, v in _parse_stat_bonuses(r["stat_bonuses"]).items():
+            totals[k] = totals.get(k, 0) + v
+    return totals
+
+
+def effective_abilities(creature):
+    """{ability_col: {'score': effective, 'bonus': from_items}} for the six scores,
+    base never mutated."""
+    bonuses = equipped_stat_bonuses(creature["id"])
+    return {col: {"score": creature[col] + bonuses.get(col, 0),
+                  "bonus": bonuses.get(col, 0)}
+            for col in _ABILITY_COLS}
+
+
+def equipped_granted_spells(creature_id):
+    """[(spell_slug, item_name)] for each spell granted by an equipped item."""
+    conn = get_connection()
+    try:
+        rows = conn.execute(
+            "SELECT name, grants_spells FROM creature_items "
+            "WHERE creature_id = ? AND equipped = 1 AND grants_spells != ''",
+            (creature_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+    out = []
+    for r in rows:
+        for slug in (s.strip() for s in r["grants_spells"].split(",")):
+            if slug:
+                out.append((slug, r["name"]))
+    return out
 
 
 def remove_item(item_id):

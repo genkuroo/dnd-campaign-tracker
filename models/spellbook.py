@@ -4,6 +4,7 @@ The join lives in the DB (creature_spells); the spell content stays in
 data/spells.json (models/spells.py). This module resolves the two together.
 """
 from db import get_connection
+from models.inventory import equipped_granted_spells
 from models.spells import get_spell
 
 
@@ -66,3 +67,19 @@ def creature_spells(creature_id):
 
 def creature_spell_slugs(creature_id):
     return {s["slug"] for s in creature_spells(creature_id)}
+
+
+def effective_spells(creature_id):
+    """Known spells plus spells granted by equipped items (flagged `from_item`,
+    so the UI shows them read-only and they vanish when the item comes off).
+    Owned spells win over a duplicate grant."""
+    spells = creature_spells(creature_id)
+    have = {s["slug"] for s in spells}
+    for slug, item_name in equipped_granted_spells(creature_id):
+        if slug in have:
+            continue
+        spell = get_spell(slug)
+        if spell:
+            spells.append({**spell, "prepared": True, "from_item": item_name})
+            have.add(slug)
+    return sorted(spells, key=lambda s: (s["level"], s["name"]))

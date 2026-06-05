@@ -1155,6 +1155,26 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
   color: #b5d68f; border: 1px solid #5a7b3f; border-radius: 999px;
   padding: 0.02rem 0.4rem; vertical-align: middle;
 }
+/* Magic-item effects (bonuses from equipped gear) */
+.stat-bonus {
+  font-family: sans-serif; font-size: 0.62rem; font-weight: bold;
+  color: #8fc6e8; vertical-align: middle; margin-left: 0.1rem;
+}
+.prep-toggle.from-item { color: #8fc6e8; border-color: #38607a; background: rgba(56,96,122,0.18); cursor: default; }
+.item-magic, .loot-magic { color: #8fc6e8; }
+.loot-magic { font-family: sans-serif; font-size: 0.78rem; margin-left: 0.5rem; }
+.magic-fields { width: 100%; margin: 0.3rem 0; }
+.magic-fields > summary { cursor: pointer; color: var(--muted); font-family: sans-serif; font-size: 0.8rem; }
+.magic-fields[open] > summary { color: var(--ink); margin-bottom: 0.5rem; }
+.magic-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.magic-grid .coin-input { width: 3.4rem; }
+.magic-spells { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.6rem; font-family: sans-serif; font-size: 0.82rem; color: var(--muted); }
+.magic-spells select {
+  font: inherit; padding: 0.3rem; min-width: 14rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 5px;
+}
+
 /* Coin fields (loot coins + purse adjuster) */
 .coin-field { display: inline-flex; align-items: center; gap: 0.3rem; font-family: sans-serif; font-size: 0.8rem; }
 .coin-input {

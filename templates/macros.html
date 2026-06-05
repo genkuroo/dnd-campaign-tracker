@@ -13,6 +13,29 @@
    (any other non-empty avatar), falling back to a kind-based default emoji. One
    renderer shared by the sheet figure now and the map markers later. `cls` adds
    a size/context modifier class. #}
+{# Optional magic-item properties for the DM item-creation forms (loot + NPC gear):
+   an AC bonus, ability-score bonuses, and granted spells (applied while equipped).
+   Place inside a <form>; expects `abilities` (list of (col, short)) and
+   `spell_options` (list of spell dicts). #}
+{% macro magic_fields(abilities, spell_options) -%}
+  <details class="magic-fields">
+    <summary>✨ Magic (optional)</summary>
+    <div class="magic-grid">
+      <label class="coin-field" title="Bonus to Armor Class while equipped">AC
+        <input type="number" name="ac_bonus" value="0" class="coin-input"></label>
+      {% for col, short in abilities %}
+        <label class="coin-field" title="Bonus to {{ short }} while equipped">{{ short }}
+          <input type="number" name="bonus_{{ col }}" value="0" class="coin-input"></label>
+      {% endfor %}
+    </div>
+    <label class="magic-spells">Grants spells while equipped <span class="muted">(ctrl/⌘-click for multiple)</span>
+      <select name="grants_spells" multiple size="5">
+        {% for s in spell_options %}<option value="{{ s['slug'] }}">{{ s['name'] }} ({{ s['level'] | ordinal_level }})</option>{% endfor %}
+      </select>
+    </label>
+  </details>
+{%- endmacro %}
+
 {% macro avatar(creature, cls='') -%}
   {%- set av = creature['avatar'] -%}
   {%- if av and (av.startswith('/') or av.startswith('http')) -%}

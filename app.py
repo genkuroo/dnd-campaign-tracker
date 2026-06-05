@@ -48,8 +48,11 @@ from models.inventory import (
     SLOTS,
     add_item,
     adjust_quantity,
+    effective_abilities,
+    effective_ac,
     equip_item,
     equipment_panel,
+    equipped_ac_bonus,
     get_item,
     list_items,
     remove_item,
@@ -127,6 +130,7 @@ from models.spellbook import (
     add_spell,
     creature_spell_slugs,
     creature_spells,
+    effective_spells,
     remove_spell,
     set_prepared,
 )
@@ -632,7 +636,7 @@ def character_detail(creature_id):
     creature = get_creature(creature_id)
     if not can_view_creature(creature):  # hidden/forbidden creatures 404 for players
         abort(404)
-    known = creature_spells(creature_id)
+    known = effective_spells(creature_id)            # known + equipped-item grants
     known_slugs = {s["slug"] for s in known}
     next_level = xp_to_next(creature["xp"])
     return render_template(
@@ -641,6 +645,9 @@ def character_detail(creature_id):
         title=creature["name"],
         can_edit=can_edit_creature(creature),
         abilities=ABILITIES,
+        eff_abilities=effective_abilities(creature),   # base + equipped-item bonuses
+        eff_ac=effective_ac(creature),
+        ac_bonus=equipped_ac_bonus(creature_id),
         dispositions=DISPOSITIONS,
         creature=creature,
         spells=known,
@@ -650,6 +657,7 @@ def character_detail(creature_id):
         items=list_items(creature_id),
         slot_labels=SLOT_LABELS,
         slots=SLOTS,
+        spell_options=all_spells(),
         panel=equipment_panel(creature_id),
         actions=list_actions(creature_id),
         action_categories=ACTION_CATEGORIES,
@@ -1202,6 +1210,8 @@ def _gear_response(creature_id, target):
             items=list_items(creature_id),
             slot_labels=SLOT_LABELS,
             slots=SLOTS,
+            abilities=ABILITIES,
+            spell_options=all_spells(),
             panel=equipment_panel(creature_id),
         )
     return redirect(target)
@@ -1210,7 +1220,7 @@ def _gear_response(creature_id, target):
 def _spells_fragment(creature_id):
     """Render the spellbook section for a creature (the #spells AJAX fragment)."""
     creature = get_creature(creature_id)
-    known = creature_spells(creature_id)
+    known = effective_spells(creature_id)
     known_slugs = {s["slug"] for s in known}
     return render_template(
         "_spells.html",
@@ -1247,7 +1257,8 @@ def inventory_add():
              request.form.get("quantity", 1, type=int) or 1,
              request.form.get("description", ""),
              slot=request.form.get("slot", ""),
-             hands=2 if request.form.get("two_handed") else 1)
+             hands=2 if request.form.get("two_handed") else 1,
+             **_magic_fields_from_form())
     return _gear_response(cid, url_for("character_detail", creature_id=cid))
 
 
@@ -1313,6 +1324,8 @@ def loot():
         pcs=[c for c in list_roster() if c["kind"] == "pc"],
         slots=SLOTS,
         slot_labels=SLOT_LABELS,
+        abilities=ABILITIES,
+        spell_options=all_spells(),
         my_pc=my_pc,
         my_items=list_items(my_pc["id"]) if my_pc else [],
     )
@@ -1391,9 +1404,23 @@ def loot_spawn():
         add_loot(aid, item["name"], request.form.get("quantity", 1, type=int) or 1,
                  item["description"], slot=item["slot"], hands=item["hands"],
                  gold=item.get("gold", 0), silver=item.get("silver", 0),
-                 copper=item.get("copper", 0))
+                 copper=item.get("copper", 0), ac_bonus=item.get("ac_bonus", 0),
+                 grants_spells=item.get("grants_spells", ""),
+                 stat_bonuses=item.get("stat_bonuses", ""))
         flash(f"Spawned {item['name']}.")
     return redirect(url_for("loot"))
+
+
+def _magic_fields_from_form():
+    """Read an item's optional magic properties (AC bonus, ability-score bonuses,
+    granted spells) from a submitted form into kwargs for add_item / add_loot."""
+    stat = {col: request.form.get("bonus_" + col, 0, type=int) or 0
+            for col, _ in ABILITIES}
+    return {
+        "ac_bonus": request.form.get("ac_bonus", 0, type=int) or 0,
+        "grants_spells": request.form.getlist("grants_spells"),
+        "stat_bonuses": ", ".join(f"{c}:{v}" for c, v in stat.items() if v),
+    }
 
 
 @app.route("/loot/create", methods=["POST"])
@@ -1407,7 +1434,8 @@ def loot_create():
                  hands=2 if request.form.get("two_handed") else 1,
                  gold=request.form.get("gold", 0, type=int) or 0,
                  silver=request.form.get("silver", 0, type=int) or 0,
-                 copper=request.form.get("copper", 0, type=int) or 0)
+                 copper=request.form.get("copper", 0, type=int) or 0,
+                 **_magic_fields_from_form())
         flash("Item added to loot.")
     return redirect(url_for("loot"))
 

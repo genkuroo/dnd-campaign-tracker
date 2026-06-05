@@ -56,7 +56,7 @@
 
   <section class="vitals">
     <div class="vital"><span class="vital-label">Hit Points {{ info('hit-points') }}</span><span class="vital-value">{{ creature['current_hp'] }} / {{ creature['max_hp'] }}</span></div>
-    <div class="vital"><span class="vital-label">Armor Class {{ info('armor-class') }}</span><span class="vital-value">{{ creature['armor_class'] }}</span></div>
+    <div class="vital"><span class="vital-label">Armor Class {{ info('armor-class') }}</span><span class="vital-value">{{ eff_ac }}{% if ac_bonus %} <span class="stat-bonus" title="{{ creature['armor_class'] }} base {{ '%+d' % ac_bonus }} from items">{{ '%+d' % ac_bonus }}</span>{% endif %}</span></div>
     <div class="vital"><span class="vital-label">Experience</span><span class="vital-value xp-value">{{ '{:,}'.format(creature['xp']) }}</span></div>
     <div class="vital purse">
       <span class="vital-label">Purse</span>
@@ -100,17 +100,18 @@
 
   <section class="ability-grid">
     {% for col, short in abilities %}
+      {% set e = eff_abilities[col] %}
       <div class="ability">
         <span class="ability-short">{{ info(col, short) }}</span>
-        <span class="ability-mod">{{ creature[col] | mod }}</span>
-        <span class="ability-score">{{ creature[col] }}</span>
+        <span class="ability-mod">{{ e.score | mod }}</span>
+        <span class="ability-score">{{ e.score }}{% if e.bonus %} <span class="stat-bonus" title="{{ creature[col] }} base {{ '%+d' % e.bonus }} from items">{{ '%+d' % e.bonus }}</span>{% endif %}</span>
         {% if can_edit %}
           <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
-            <input type="hidden" name="expression" value="1d20{{ creature[col] | mod }}">
+            <input type="hidden" name="expression" value="1d20{{ e.score | mod }}">
             <input type="hidden" name="label" value="{{ creature['name'] }} · {{ short }} check">
             <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
             <button type="submit" class="check-btn"
-                    title="Roll a {{ short }} check: d20 {{ creature[col] | mod }}">Check</button>
+                    title="Roll a {{ short }} check: d20 {{ e.score | mod }}">Check</button>
           </form>
         {% endif %}
       </div>

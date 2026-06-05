@@ -10,7 +10,7 @@ import sqlite3
 
 DB_PATH = "campaign.db"
 
-SCHEMA_VERSION = 18
+SCHEMA_VERSION = 20
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -256,6 +256,25 @@ MIGRATIONS = {
     ALTER TABLE loot_items ADD COLUMN gold   INTEGER NOT NULL DEFAULT 0;
     ALTER TABLE loot_items ADD COLUMN silver INTEGER NOT NULL DEFAULT 0;
     ALTER TABLE loot_items ADD COLUMN copper INTEGER NOT NULL DEFAULT 0;
+    """,
+    19: """
+    -- Magic items. An item can grant an **AC bonus** and/or **spells** while it's
+    -- equipped. These are applied by *computing* the creature's effective AC /
+    -- spell list from its equipped items (not by mutating the sheet), so they
+    -- revert automatically when the item is unequipped or removed. `grants_spells`
+    -- is a comma-separated list of SRD spell slugs.
+    ALTER TABLE creature_items ADD COLUMN ac_bonus      INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE creature_items ADD COLUMN grants_spells TEXT    NOT NULL DEFAULT '';
+    ALTER TABLE loot_items     ADD COLUMN ac_bonus      INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE loot_items     ADD COLUMN grants_spells TEXT    NOT NULL DEFAULT '';
+    """,
+    20: """
+    -- Magic items, continued: an equipped item can also grant **ability-score
+    -- bonuses** (Belt of Giant Strength, Amulet of Health, …). Stored compactly as
+    -- 'ability:amount' pairs (e.g. 'strength:2, constitution:1'); the creature's
+    -- *effective* scores are computed from equipped items, never mutating the base.
+    ALTER TABLE creature_items ADD COLUMN stat_bonuses TEXT NOT NULL DEFAULT '';
+    ALTER TABLE loot_items     ADD COLUMN stat_bonuses TEXT NOT NULL DEFAULT '';
     """,
 }
 
