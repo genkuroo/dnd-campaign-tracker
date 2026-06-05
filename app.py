@@ -32,6 +32,7 @@ from models.creature import (
     get_creature,
     level_from_xp,
     list_monsters,
+    list_npcs,
     list_party,
     list_roster,
     party_rest,
@@ -151,6 +152,7 @@ app.jinja_env.globals["define"] = define
 TABS = [
     {"endpoint": "character", "label": "Character Sheet"},
     {"endpoint": "party", "label": "Party"},
+    {"endpoint": "npcs", "label": "NPCs"},
     {"endpoint": "bestiary", "label": "Bestiary", "dm_only": True},
     {"endpoint": "combat", "label": "Combat"},
     {"endpoint": "loot", "label": "Loot", "dm_only": True},
@@ -239,17 +241,17 @@ def _my_pc_id():
 
 
 def can_view_creature(creature):
-    """DM sees everyone. A player sees their own PC and can **read-only inspect**
-    fellow party members — any PC the DM hasn't hidden (`visibility='visible'`).
-    NPCs/monsters stay DM-only for now (players discover them via the Phase 9
-    entity sidebar; the `visibility` flag gates those when they land)."""
+    """DM sees everyone. A player sees their own PC, can **read-only inspect**
+    fellow party members, and the **encountered NPCs** the DM has revealed — any
+    PC *or* NPC the DM hasn't hidden (`visibility='visible'`). Monsters stay
+    DM-only (players meet them via the inspector / Phase 9 entity surfacing)."""
     if is_dm():
         return True
     if creature is None:
         return False
     if creature["id"] == _my_pc_id():
         return True
-    return creature["kind"] == "pc" and creature["visibility"] == "visible"
+    return creature["kind"] in ("pc", "npc") and creature["visibility"] == "visible"
 
 
 def can_edit_creature(creature):
@@ -529,13 +531,33 @@ def users_delete(user_id):
 
 @app.route("/character")
 def character():
-    # The Character tab is "mine" — a player sees their own PC here (the rest of
-    # the party is on the Party tab); the DM sees the whole cast (PCs + NPCs).
+    """Character Sheet tab. A player jumps straight to their own PC (they only
+    have one); the DM gets the party roster (PCs). NPCs live on their own tab."""
+    if not is_dm():
+        pc_id = _my_pc_id()
+        if pc_id and get_creature(pc_id):
+            return redirect(url_for("character_detail", creature_id=pc_id))
+        # No character yet — show the create-your-character prompt.
+        return render_template(
+            "character.html", active="character", title="Character Sheet", roster=[],
+        )
     return render_template(
         "character.html",
         active="character",
-        title="Character Sheet",
-        roster=editable_roster(),
+        title="Characters",
+        roster=list_party(),
+    )
+
+
+@app.route("/npcs")
+def npcs():
+    """The NPC cast. The DM manages all of them; a player sees the ones they've
+    encountered (NPCs the DM has revealed, i.e. not hidden)."""
+    roster = list_npcs()
+    if not is_dm():
+        roster = [c for c in roster if can_view_creature(c)]
+    return render_template(
+        "npcs.html", active="npcs", title="NPCs", roster=roster,
     )
 
 
@@ -546,11 +568,14 @@ def character_new():
         _apply_avatar(new_id)
         flash("Character created.")
         return redirect(url_for("character_detail", creature_id=new_id))
+    default_kind = request.args.get("kind") if request.args.get("kind") in {"pc", "npc"} else "pc"
     return render_template(
         "character_form.html",
-        active="character",
-        title="New Character",
+        active="npcs" if default_kind == "npc" else "character",
+        title="New NPC" if default_kind == "npc" else "New Character",
         creature=None,
+        default_kind=default_kind,
+        cancel_url=url_for("npcs") if default_kind == "npc" else url_for("character"),
         **_form_vocab(),
     )
 
@@ -597,7 +622,7 @@ def character_detail(creature_id):
     next_level = xp_to_next(creature["xp"])
     return render_template(
         "character_detail.html",
-        active="bestiary" if creature["kind"] == "monster" else "character",
+        active={"monster": "bestiary", "npc": "npcs"}.get(creature["kind"], "character"),
         title=creature["name"],
         can_edit=can_edit_creature(creature),
         abilities=ABILITIES,
@@ -630,7 +655,7 @@ def character_edit(creature_id):
         vocab["kinds"] = MONSTER_KINDS  # keep the Type field as Monster, not pc/npc
     return render_template(
         "character_form.html",
-        active="bestiary" if creature["kind"] == "monster" else "character",
+        active={"monster": "bestiary", "npc": "npcs"}.get(creature["kind"], "character"),
         title=f"Edit {creature['name']}",
         creature=creature,
         cancel_url=url_for("character_detail", creature_id=creature_id),

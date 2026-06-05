@@ -2,33 +2,25 @@
 {% from "macros.html" import avatar %}
 {% block content %}
   <div class="page-head">
-    <h1>{{ 'Characters &amp; NPCs' if is_dm else 'My Character' }}</h1>
+    <h1>{{ 'Characters' if is_dm else 'Your Character' }}</h1>
     {% if is_dm %}<a class="btn" href="{{ url_for('character_new') }}">+ New</a>{% endif %}
   </div>
 
   {% if roster %}
     <div class="roster-filter">
       <input type="search" id="roster-search" placeholder="Search by name…" autocomplete="off" aria-label="Search">
-      <div class="roster-kinds" role="group" aria-label="Filter by type">
-        <button type="button" class="kind-btn active" data-kind="">All</button>
-        <button type="button" class="kind-btn" data-kind="pc">PCs</button>
-        <button type="button" class="kind-btn" data-kind="npc">NPCs</button>
-      </div>
     </div>
 
     <div class="card-grid" id="roster-grid">
       {% for c in roster %}
         <a class="char-card" href="{{ url_for('character_detail', creature_id=c['id']) }}"
-           data-name="{{ c['name'] | lower }}" data-kind="{{ c['kind'] }}">
+           data-name="{{ c['name'] | lower }}">
           <div class="char-card-head">
             <span class="char-card-title">{{ avatar(c, 'avatar-sm') }}<span class="char-name">{{ c['name'] }}</span></span>
             {% if c['visibility'] == 'hidden' %}<span class="badge-dm">DM only</span>{% endif %}
           </div>
           <div class="char-meta">
-            <span class="badge-kind badge-kind-{{ c['kind'] }}">{{ 'NPC' if c['kind'] == 'npc' else 'PC' }}</span>
-            {% if c['kind'] == 'npc' %}
-              <span class="disp disp-{{ c['disposition'] }}">{{ c['disposition'] }}</span>
-            {% endif %}
+            <span class="badge-kind badge-kind-pc">PC</span>
             <span class="muted">Lv {{ c['level'] }}{% if c['player_name'] %} · {{ c['player_name'] }}{% endif %}</span>
           </div>
           <div class="char-card-stats">
@@ -45,34 +37,20 @@
         const search = document.getElementById('roster-search');
         const grid = document.getElementById('roster-grid');
         const empty = document.getElementById('roster-empty');
-        const kindBtns = document.querySelectorAll('.kind-btn');
-        let kind = '';
-
-        function apply() {
+        search.addEventListener('input', function () {
           const q = search.value.trim().toLowerCase();
           let shown = 0;
           grid.querySelectorAll('.char-card').forEach(function (card) {
-            const matchName = card.dataset.name.includes(q);
-            const matchKind = !kind || card.dataset.kind === kind;
-            const show = matchName && matchKind;
+            const show = card.dataset.name.includes(q);
             card.style.display = show ? '' : 'none';
             if (show) shown++;
           });
           empty.hidden = shown !== 0;
-        }
-
-        search.addEventListener('input', apply);
-        kindBtns.forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            kind = btn.dataset.kind;
-            kindBtns.forEach(b => b.classList.toggle('active', b === btn));
-            apply();
-          });
         });
       })();
     </script>
   {% elif is_dm %}
-    <p class="muted">No characters or NPCs yet.</p>
+    <p class="muted">No player characters yet.</p>
     <p class="placeholder-note">Create your first one to start the party.</p>
   {% else %}
     <p class="muted">You don't have a character yet.</p>

@@ -113,6 +113,17 @@ def list_party():
         conn.close()
 
 
+def list_npcs():
+    """Non-player characters (the cast the DM runs), by name."""
+    conn = get_connection()
+    try:
+        return conn.execute(
+            "SELECT * FROM creatures WHERE kind = 'npc' ORDER BY name COLLATE NOCASE"
+        ).fetchall()
+    finally:
+        conn.close()
+
+
 def party_rest(kind):
     """A party-wide rest on the actual character sheets (not a combat snapshot).
     Long rest = everyone to full HP. Short rest = each PC recovers half their

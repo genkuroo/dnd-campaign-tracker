@@ -36,8 +36,10 @@
       {% endif %}
       {% if creature['kind'] == 'monster' %}
         <a class="btn-ghost" href="{{ url_for('bestiary') }}">← Bestiary</a>
-      {% elif can_edit %}
-        <a class="btn-ghost" href="{{ url_for('character') }}">← All characters</a>
+      {% elif creature['kind'] == 'npc' %}
+        <a class="btn-ghost" href="{{ url_for('npcs') }}">← NPCs</a>
+      {% elif is_dm %}
+        <a class="btn-ghost" href="{{ url_for('character') }}">← Characters</a>
       {% else %}
         <a class="btn-ghost" href="{{ url_for('party') }}">← Party</a>
       {% endif %}

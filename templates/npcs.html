@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% from "macros.html" import avatar %}
+{% block content %}
+  <div class="page-head">
+    <h1>NPCs</h1>
+    {% if is_dm %}<a class="btn" href="{{ url_for('character_new', kind='npc') }}">+ New NPC</a>{% endif %}
+  </div>
+  <p class="muted">{% if is_dm %}The non-player cast. Hide an NPC until the party meets them, then reveal it (un-hide) so players can see it here.{% else %}NPCs you've met. Open one to inspect what you know.{% endif %}</p>
+
+  {% if roster %}
+    <div class="roster-filter">
+      <input type="search" id="npc-search" placeholder="Search by name…" autocomplete="off" aria-label="Search">
+    </div>
+
+    <div class="card-grid" id="npc-grid">
+      {% for c in roster %}
+        <a class="char-card" href="{{ url_for('character_detail', creature_id=c['id']) }}"
+           data-name="{{ c['name'] | lower }}">
+          <div class="char-card-head">
+            <span class="char-card-title">{{ avatar(c, 'avatar-sm') }}<span class="char-name">{{ c['name'] }}</span></span>
+            {% if c['visibility'] == 'hidden' %}<span class="badge-dm">Hidden</span>{% endif %}
+          </div>
+          <div class="char-meta">
+            <span class="badge-kind badge-kind-npc">NPC</span>
+            <span class="disp disp-{{ c['disposition'] }}">{{ c['disposition'] }}</span>
+            {% if c['alignment'] %}<span class="muted">{{ c['alignment'] | alignment }}</span>{% endif %}
+          </div>
+          <div class="char-card-stats">
+            <span title="Hit Points">❤️ {{ c['current_hp'] }}/{{ c['max_hp'] }}</span>
+            <span title="Armor Class">🛡️ {{ c['armor_class'] }}</span>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+    <p class="muted roster-empty" id="npc-empty" hidden>No matches.</p>
+
+    <script>
+      (function () {
+        const search = document.getElementById('npc-search');
+        const grid = document.getElementById('npc-grid');
+        const empty = document.getElementById('npc-empty');
+        search.addEventListener('input', function () {
+          const q = search.value.trim().toLowerCase();
+          let shown = 0;
+          grid.querySelectorAll('.char-card').forEach(function (card) {
+            const show = card.dataset.name.includes(q);
+            card.style.display = show ? '' : 'none';
+            if (show) shown++;
+          });
+          empty.hidden = shown !== 0;
+        });
+      })();
+    </script>
+  {% elif is_dm %}
+    <p class="muted">No NPCs yet.</p>
+    <p class="placeholder-note">Create the tavern keeper, the quest giver, the mysterious stranger…</p>
+  {% else %}
+    <p class="muted">You haven't encountered any NPCs yet.</p>
+    <p class="placeholder-note">Ones your DM reveals will show up here.</p>
+  {% endif %}
+{% endblock %}

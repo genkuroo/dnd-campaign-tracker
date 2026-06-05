@@ -40,7 +40,7 @@
         <span>Type</span>
         <select name="kind">
           {% for value, label in kinds %}
-            <option value="{{ value }}" {{ 'selected' if c and c['kind'] == value else '' }}>{{ label }}</option>
+            <option value="{{ value }}" {{ 'selected' if (c and c['kind'] == value) or (not c and value == default_kind|default('pc')) else '' }}>{{ label }}</option>
           {% endfor %}
         </select>
       </label>
