@@ -255,7 +255,7 @@
         if (!form) return;
         e.preventDefault();
         if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) return;
-        post(form.action, new FormData(form));
+        post(form.getAttribute('action'), new FormData(form));
       });
 
       gear.addEventListener('dragstart', function (e) {
@@ -397,7 +397,7 @@
         if (!form) return;
         e.preventDefault();
         if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) return;
-        fetch(form.action, { method: 'POST', body: new FormData(form),
+        fetch(form.getAttribute('action'), { method: 'POST', body: new FormData(form),
                              headers: { 'X-Requested-With': 'fetch' } })
           .then(r => r.text())
           .then(html => { box.innerHTML = html; applyFilter(); });
@@ -459,7 +459,7 @@
         if (!form) return;
         e.preventDefault();
         if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) return;
-        fetch(form.action, { method: 'POST', body: new FormData(form),
+        fetch(form.getAttribute('action'), { method: 'POST', body: new FormData(form),
                              headers: { 'X-Requested-With': 'fetch' } })
           .then(r => r.text())
           .then(html => { box.innerHTML = html; applyFilter(); });

@@ -28,7 +28,7 @@
         if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) return;
         // FormData(form, submitter) keeps the clicked button's value (e.g. the
         // damage-vs-heal mode), which a plain FormData(form) would drop.
-        fetch(form.action, { method: 'POST', body: new FormData(form, e.submitter),
+        fetch(form.getAttribute('action'), { method: 'POST', body: new FormData(form, e.submitter),
                              headers: { 'X-Requested-With': 'fetch' } })
           .then(r => r.text())
           .then(html => { box.innerHTML = html; });

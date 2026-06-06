@@ -6,9 +6,13 @@ version from the `meta` table and applies any pending migrations up to
 schema. See CLAUDE.md for the architecture (the creature engine + the
 visibility-aware model).
 """
+import os
 import sqlite3
 
-DB_PATH = "campaign.db"
+# The campaign database. Defaults to the real local DB, but can be pointed
+# elsewhere via DND_DB_PATH so a throwaway/test DB can be run without touching
+# real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
+DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
 SCHEMA_VERSION = 25
 

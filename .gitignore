@@ -25,3 +25,6 @@ static/avatars/
 .vscode/
 .idea/
 *.swp
+
+# Browser automation session output (throwaway)
+.playwright-mcp/
