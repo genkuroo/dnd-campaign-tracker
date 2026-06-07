@@ -640,6 +640,13 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .feature-next .feature-list { margin-top: 0.7rem; }
 .feature-list.dim .feature-name { font-weight: 500; color: var(--ink); }
 .feature-list.dim .feature-lvl { color: var(--muted); }
+/* Subclass features: a small pill + a tinted level chip to set them apart. */
+.feature-tag { font-family: sans-serif; font-size: 0.62rem; text-transform: uppercase;
+               letter-spacing: 0.05em; vertical-align: middle; margin-left: 0.3rem;
+               color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+               border-radius: 999px; padding: 0.05rem 0.4rem; }
+.feature-sub .feature-lvl { color: var(--accent);
+                            background: color-mix(in srgb, var(--accent) 14%, var(--panel-2)); }
 
 /* Info icon + hover/focus tooltip (reusable glossary component) */
 .info {

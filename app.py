@@ -71,7 +71,8 @@ from models.inventory import (
     unequip_item,
 )
 from models.classes import (all_classes, get_class, hit_die_average,
-                            class_features, class_features_remaining)
+                            class_features, class_features_remaining,
+                            get_subclass, valid_subclass, subclass_level)
 from models.items import all_item_defs, get_item_def
 from models.loot import (
     add_loot,
@@ -487,7 +488,7 @@ def _sync_class_actions(creature_id):
     hand-added ones."""
     c = get_creature(creature_id)
     if c:
-        grant_class_actions(creature_id, c["class_name"], c["level"])
+        grant_class_actions(creature_id, c["class_name"], c["level"], c["subclass"])
 
 
 @app.route("/")
@@ -751,8 +752,10 @@ def character_detail(creature_id):
         can_edit=can_edit_creature(creature),
         abilities=ABILITIES,
         klass=klass,
-        class_features=class_features(creature["class_name"], creature["level"]),
-        class_features_next=class_features_remaining(creature["class_name"], creature["level"])[:4],
+        subclass=get_subclass(creature["class_name"], creature["subclass"]),
+        class_features=class_features(creature["class_name"], creature["level"], creature["subclass"]),
+        class_features_next=class_features_remaining(
+            creature["class_name"], creature["level"], creature["subclass"])[:4],
         level_hp=level_hp,
         eff_abilities=eff_ab,
         saves=save_table(creature, eff_ab),
@@ -1301,6 +1304,10 @@ def _form_to_data(form):
     data = form.to_dict()
     data["visibility"] = "hidden" if form.get("hidden") else "visible"
     data["kind"] = form.get("kind") if form.get("kind") in {"pc", "npc", "monster"} else "pc"
+    # A subclass only sticks if it belongs to the chosen class (a leftover pick from
+    # a previous class is dropped) — the rest of the spine validates against the slug.
+    if not valid_subclass(data.get("class_name"), data.get("subclass")):
+        data["subclass"] = ""
     return data
 
 

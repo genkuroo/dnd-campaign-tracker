@@ -87,7 +87,7 @@ def proficiency_bonus(level):
 _TEXT_FIELDS = [
     "name", "kind", "player_name", "disposition", "alignment",
     "resistances", "immunities", "vulnerabilities", "notes", "visibility",
-    "avatar", "location", "unarmored_defense", "class_name",
+    "avatar", "location", "unarmored_defense", "class_name", "subclass",
 ]
 
 

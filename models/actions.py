@@ -80,15 +80,17 @@ def set_action_hidden(action_id, hidden):
         conn.close()
 
 
-def grant_class_actions(creature_id, slug, level):
-    """Sync a creature's class-granted actions to its class + level by reconciling
-    (not wiping): keep the class actions still desired — preserving each one's
-    `hidden` flag and any per-creature edits — drop the ones no longer granted, and
-    add the newly unlocked ones (Rage, Second Wind, Sneak Attack…). Idempotent and
-    safe on class change / level-up; hand-added actions are never touched. A falsy
+def grant_class_actions(creature_id, slug, level, subclass=None):
+    """Sync a creature's class-granted actions to its class + level (+ chosen
+    `subclass`) by reconciling (not wiping): keep the class actions still desired —
+    preserving each one's `hidden` flag and any per-creature edits — drop the ones no
+    longer granted, and add the newly unlocked ones (Rage, Second Wind, Sneak Attack,
+    plus subclass actions like Cutting Words / Fast Hands). Idempotent and safe on
+    class/subclass change or level-up; hand-added actions are never touched. A falsy
     `slug` clears all class actions (the creature is classless)."""
     from models.classes import grantable_class_features  # local: avoid import cycle
-    desired = {f["name"]: f for f in (grantable_class_features(slug, level) if slug else [])}
+    desired = {f["name"]: f
+               for f in (grantable_class_features(slug, level, subclass) if slug else [])}
     conn = get_connection()
     try:
         existing = conn.execute(

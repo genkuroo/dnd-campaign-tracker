@@ -14,7 +14,7 @@ import sqlite3
 # real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
 DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
-SCHEMA_VERSION = 27
+SCHEMA_VERSION = 28
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -349,6 +349,13 @@ MIGRATIONS = {
     ALTER TABLE creature_actions ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0;
     ALTER TABLE creature_spells  ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0;
     ALTER TABLE creature_items   ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0;
+    """,
+    28: """
+    -- The creature's chosen subclass (archetype) slug, scoped to its class_name —
+    -- '' = none yet. Validated against data/classes.json's per-class `subclasses`
+    -- in the app (a pick that doesn't belong to the class is cleared). Subclass
+    -- features merge into class_features() and auto-grant like base class actions.
+    ALTER TABLE creatures ADD COLUMN subclass TEXT NOT NULL DEFAULT '';
     """,
 }
 

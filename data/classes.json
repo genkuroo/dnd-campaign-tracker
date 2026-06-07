@@ -129,7 +129,41 @@
       "torch"
     ],
     "starting_gold": 10,
-    "description": "A fierce warrior who channels primal rage. Unarmored Defense = 10 + DEX + CON."
+    "description": "A fierce warrior who channels primal rage. Unarmored Defense = 10 + DEX + CON.",
+    "subclass_level": 3,
+    "subclass_label": "Primal Path",
+    "subclasses": [
+      {
+        "slug": "berserker",
+        "name": "Path of the Berserker",
+        "description": "A path of untrammeled fury, slick with blood.",
+        "features": [
+          {
+            "level": 3,
+            "name": "Frenzy",
+            "category": "bonus",
+            "description": "While raging you can make a single melee weapon attack as a bonus action each turn; when the rage ends you suffer one level of exhaustion."
+          },
+          {
+            "level": 6,
+            "name": "Mindless Rage",
+            "description": "You can't be charmed or frightened while raging."
+          },
+          {
+            "level": 10,
+            "name": "Intimidating Presence",
+            "category": "action",
+            "description": "As an action, frighten a creature within 30 ft (WIS save vs 8 + your proficiency + CHA); spend later actions to extend it."
+          },
+          {
+            "level": 14,
+            "name": "Retaliation",
+            "category": "reaction",
+            "description": "When a creature within 5 ft damages you, use your reaction to make a melee weapon attack against it."
+          }
+        ]
+      }
+    ]
   },
   {
     "slug": "bard",
@@ -260,7 +294,40 @@
       "rations"
     ],
     "starting_gold": 15,
-    "description": "A magical performer; spells use Charisma."
+    "description": "A magical performer; spells use Charisma.",
+    "subclass_level": 3,
+    "subclass_label": "Bard College",
+    "subclasses": [
+      {
+        "slug": "lore",
+        "name": "College of Lore",
+        "description": "Bards who collect spells and secrets from every source.",
+        "features": [
+          {
+            "level": 3,
+            "name": "Bonus Proficiencies",
+            "description": "Gain proficiency in three skills of your choice."
+          },
+          {
+            "level": 3,
+            "name": "Cutting Words",
+            "category": "reaction",
+            "dice": "1d6",
+            "description": "When a creature you can see makes an attack, ability check, or damage roll, spend a Bardic Inspiration to subtract the die from its roll."
+          },
+          {
+            "level": 6,
+            "name": "Additional Magical Secrets",
+            "description": "Learn two spells from any class; they don't count against your spells known."
+          },
+          {
+            "level": 14,
+            "name": "Peerless Skill",
+            "description": "Add a Bardic Inspiration die to a failed ability check."
+          }
+        ]
+      }
+    ]
   },
   {
     "slug": "cleric",
@@ -351,7 +418,51 @@
       "longsword"
     ],
     "starting_gold": 15,
-    "description": "A divine caster; spells use Wisdom."
+    "description": "A divine caster; spells use Wisdom.",
+    "subclass_level": 1,
+    "subclass_label": "Divine Domain",
+    "subclasses": [
+      {
+        "slug": "life",
+        "name": "Life Domain",
+        "description": "The life domain focuses on the vibrant positive energy that sustains all life.",
+        "features": [
+          {
+            "level": 1,
+            "name": "Bonus Proficiency",
+            "description": "Gain proficiency with heavy armor."
+          },
+          {
+            "level": 1,
+            "name": "Disciple of Life",
+            "description": "Your healing spells restore extra HP equal to 2 + the spell's level."
+          },
+          {
+            "level": 2,
+            "name": "Channel Divinity: Preserve Life",
+            "category": "action",
+            "description": "Restore a pool of HP equal to 5 × your cleric level, split among creatures within 30 ft (up to half each one's max)."
+          },
+          {
+            "level": 6,
+            "name": "Blessed Healer",
+            "description": "When you heal another creature with a spell, you regain 2 + the spell's level HP."
+          },
+          {
+            "level": 8,
+            "name": "Divine Strike",
+            "category": "trait",
+            "dice": "1d8",
+            "description": "Once per turn a weapon hit deals an extra 1d8 radiant damage (2d8 at 14th)."
+          },
+          {
+            "level": 17,
+            "name": "Supreme Healing",
+            "description": "Maximize the dice of your healing spells instead of rolling them."
+          }
+        ]
+      }
+    ]
   },
   {
     "slug": "druid",
@@ -455,7 +566,48 @@
       "dagger"
     ],
     "starting_gold": 10,
-    "description": "A nature caster; spells use Wisdom."
+    "description": "A nature caster; spells use Wisdom.",
+    "subclass_level": 2,
+    "subclass_label": "Druid Circle",
+    "subclasses": [
+      {
+        "slug": "land",
+        "name": "Circle of the Land",
+        "description": "Mystics and sages who safeguard ancient knowledge and rites.",
+        "features": [
+          {
+            "level": 2,
+            "name": "Bonus Cantrip",
+            "description": "Learn one additional druid cantrip of your choice."
+          },
+          {
+            "level": 2,
+            "name": "Natural Recovery",
+            "description": "On a short rest, recover expended spell slots with a combined level up to half your druid level (once per day)."
+          },
+          {
+            "level": 3,
+            "name": "Circle Spells",
+            "description": "Your chosen land (arctic, desert, forest, …) grants additional always-prepared spells as you level."
+          },
+          {
+            "level": 6,
+            "name": "Land's Stride",
+            "description": "Move through nonmagical difficult terrain and plant hazards without penalty; advantage vs plant-based snares."
+          },
+          {
+            "level": 10,
+            "name": "Nature's Ward",
+            "description": "You can't be charmed or frightened by elementals or fey, and are immune to poison and disease."
+          },
+          {
+            "level": 14,
+            "name": "Nature's Sanctuary",
+            "description": "Beasts and plants must make a WIS save to attack you."
+          }
+        ]
+      }
+    ]
   },
   {
     "slug": "fighter",
@@ -566,7 +718,43 @@
       "longsword"
     ],
     "starting_gold": 15,
-    "description": "A master of weapons and armor."
+    "description": "A master of weapons and armor.",
+    "subclass_level": 3,
+    "subclass_label": "Martial Archetype",
+    "subclasses": [
+      {
+        "slug": "champion",
+        "name": "Champion",
+        "description": "A relentless warrior honed to raw physical perfection.",
+        "features": [
+          {
+            "level": 3,
+            "name": "Improved Critical",
+            "description": "Your weapon attacks score a critical hit on a roll of 19 or 20."
+          },
+          {
+            "level": 7,
+            "name": "Remarkable Athlete",
+            "description": "Add half your proficiency bonus to STR, DEX, and CON checks that don't already include it; your running long jump is longer."
+          },
+          {
+            "level": 10,
+            "name": "Additional Fighting Style",
+            "description": "Choose a second Fighting Style option."
+          },
+          {
+            "level": 15,
+            "name": "Superior Critical",
+            "description": "Your weapon attacks score a critical hit on a roll of 18–20."
+          },
+          {
+            "level": 18,
+            "name": "Survivor",
+            "description": "At the start of each turn you regain HP equal to 5 + your CON modifier if you have less than half your hit points."
+          }
+        ]
+      }
+    ]
   },
   {
     "slug": "monk",
@@ -703,7 +891,40 @@
       "rations"
     ],
     "starting_gold": 10,
-    "description": "A martial artist. Unarmored Defense = 10 + DEX + WIS."
+    "description": "A martial artist. Unarmored Defense = 10 + DEX + WIS.",
+    "subclass_level": 3,
+    "subclass_label": "Monastic Tradition",
+    "subclasses": [
+      {
+        "slug": "open-hand",
+        "name": "Way of the Open Hand",
+        "description": "Masters of martial arts techniques of unarmed combat.",
+        "features": [
+          {
+            "level": 3,
+            "name": "Open Hand Technique",
+            "description": "When you hit with Flurry of Blows you can knock the target prone, push it 15 ft, or deny it reactions until your next turn."
+          },
+          {
+            "level": 6,
+            "name": "Wholeness of Body",
+            "category": "action",
+            "description": "As an action, heal yourself HP equal to three times your monk level, once per long rest."
+          },
+          {
+            "level": 11,
+            "name": "Tranquility",
+            "description": "You begin each day under a sanctuary effect that lasts until you attack, cast a spell, or harm someone."
+          },
+          {
+            "level": 17,
+            "name": "Quivering Palm",
+            "category": "action",
+            "description": "Spend 3 ki on a hit to set up lethal vibrations you can later end with a CON save (reducing the target to 0 HP on a failure)."
+          }
+        ]
+      }
+    ]
   },
   {
     "slug": "paladin",
@@ -827,7 +1048,51 @@
       "longsword"
     ],
     "starting_gold": 15,
-    "description": "A holy warrior; spells use Charisma."
+    "description": "A holy warrior; spells use Charisma.",
+    "subclass_level": 3,
+    "subclass_label": "Sacred Oath",
+    "subclasses": [
+      {
+        "slug": "devotion",
+        "name": "Oath of Devotion",
+        "description": "The paragon of the just and honorable knight.",
+        "features": [
+          {
+            "level": 3,
+            "name": "Channel Divinity: Sacred Weapon",
+            "category": "action",
+            "description": "As an action, add your CHA modifier to attack rolls with a weapon and make it shed bright light for 1 minute."
+          },
+          {
+            "level": 3,
+            "name": "Channel Divinity: Turn the Unholy",
+            "category": "action",
+            "description": "As an action, force nearby fiends and undead to make a WIS save or flee for 1 minute."
+          },
+          {
+            "level": 3,
+            "name": "Oath Spells",
+            "description": "Gain always-prepared oath spells (protection from evil and good, sanctuary, …)."
+          },
+          {
+            "level": 7,
+            "name": "Aura of Devotion",
+            "description": "You and friendly creatures within 10 ft can't be charmed while you're conscious."
+          },
+          {
+            "level": 15,
+            "name": "Purity of Spirit",
+            "description": "You're always under the effect of a protection from evil and good spell."
+          },
+          {
+            "level": 20,
+            "name": "Holy Nimbus",
+            "category": "action",
+            "description": "As an action, become wreathed in sunlight for 1 minute: enemies starting their turn near you take radiant damage, and you have advantage on saves vs fiend/undead spells."
+          }
+        ]
+      }
+    ]
   },
   {
     "slug": "ranger",
@@ -956,7 +1221,39 @@
       "dagger"
     ],
     "starting_gold": 15,
-    "description": "A wilderness hunter; spells use Wisdom."
+    "description": "A wilderness hunter; spells use Wisdom.",
+    "subclass_level": 3,
+    "subclass_label": "Ranger Archetype",
+    "subclasses": [
+      {
+        "slug": "hunter",
+        "name": "Hunter",
+        "description": "A stalker who protects the wilds from monstrous threats.",
+        "features": [
+          {
+            "level": 3,
+            "name": "Hunter's Prey",
+            "description": "Choose Colossus Slayer, Giant Killer, or Horde Breaker for extra damage or reach against your foes."
+          },
+          {
+            "level": 7,
+            "name": "Defensive Tactics",
+            "description": "Choose Escape the Horde, Multiattack Defense, or Steel Will."
+          },
+          {
+            "level": 11,
+            "name": "Multiattack",
+            "category": "action",
+            "description": "Choose Volley (attack any number of creatures in a 10-ft radius) or Whirlwind Attack (every creature within 5 ft)."
+          },
+          {
+            "level": 15,
+            "name": "Superior Hunter's Defense",
+            "description": "Choose a defensive option such as Evasion, Stand Against the Tide, or Uncanny Dodge."
+          }
+        ]
+      }
+    ]
   },
   {
     "slug": "rogue",
@@ -1096,7 +1393,44 @@
       "dagger"
     ],
     "starting_gold": 15,
-    "description": "A stealthy expert and skirmisher."
+    "description": "A stealthy expert and skirmisher.",
+    "subclass_level": 3,
+    "subclass_label": "Roguish Archetype",
+    "subclasses": [
+      {
+        "slug": "thief",
+        "name": "Thief",
+        "description": "A quick hand and a keen eye for treasure and trouble alike.",
+        "features": [
+          {
+            "level": 3,
+            "name": "Fast Hands",
+            "category": "bonus",
+            "description": "Use your Cunning Action bonus action to make a Sleight of Hand check, use thieves' tools to disarm a trap or pick a lock, or use an object."
+          },
+          {
+            "level": 3,
+            "name": "Second-Story Work",
+            "description": "Climbing costs no extra movement, and your running jump distance increases by your DEX modifier in feet."
+          },
+          {
+            "level": 9,
+            "name": "Supreme Sneak",
+            "description": "You have advantage on Stealth checks if you move no more than half your speed on the same turn."
+          },
+          {
+            "level": 13,
+            "name": "Use Magic Device",
+            "description": "Ignore all class, race, and level requirements on the use of magic items."
+          },
+          {
+            "level": 17,
+            "name": "Thief's Reflexes",
+            "description": "Take two turns during the first round of any combat (your normal initiative and again at initiative minus 10)."
+          }
+        ]
+      }
+    ]
   },
   {
     "slug": "sorcerer",
@@ -1186,7 +1520,44 @@
       "potion-of-healing"
     ],
     "starting_gold": 10,
-    "description": "An innate spellcaster; spells use Charisma."
+    "description": "An innate spellcaster; spells use Charisma.",
+    "subclass_level": 1,
+    "subclass_label": "Sorcerous Origin",
+    "subclasses": [
+      {
+        "slug": "draconic",
+        "name": "Draconic Bloodline",
+        "description": "Magic that springs from draconic blood in your veins.",
+        "features": [
+          {
+            "level": 1,
+            "name": "Dragon Ancestor",
+            "description": "Choose a dragon type; you can speak Draconic and double your proficiency bonus on CHA checks dealing with dragons."
+          },
+          {
+            "level": 1,
+            "name": "Draconic Resilience",
+            "description": "Your maximum HP increases by 1 per sorcerer level, and your AC equals 13 + DEX modifier while not wearing armor."
+          },
+          {
+            "level": 6,
+            "name": "Elemental Affinity",
+            "description": "Add your CHA modifier to one damage roll of a spell matching your dragon's element, and optionally spend a sorcery point for resistance to that type."
+          },
+          {
+            "level": 14,
+            "name": "Dragon Wings",
+            "description": "Sprout dragon wings and gain a flying speed equal to your walking speed."
+          },
+          {
+            "level": 18,
+            "name": "Draconic Presence",
+            "category": "action",
+            "description": "Spend 5 sorcery points to radiate an aura of awe or fear for 1 minute; creatures within 60 ft save or are charmed/frightened."
+          }
+        ]
+      }
+    ]
   },
   {
     "slug": "warlock",
@@ -1282,7 +1653,47 @@
       "dagger"
     ],
     "starting_gold": 15,
-    "description": "A pact caster; spells use Charisma."
+    "description": "A pact caster; spells use Charisma.",
+    "subclass_level": 1,
+    "subclass_label": "Otherworldly Patron",
+    "subclasses": [
+      {
+        "slug": "fiend",
+        "name": "The Fiend",
+        "description": "A pact with a fiend from the lower planes of existence.",
+        "features": [
+          {
+            "level": 1,
+            "name": "Dark One's Blessing",
+            "description": "When you reduce a hostile creature to 0 HP, gain temporary HP equal to your CHA modifier + warlock level."
+          },
+          {
+            "level": 1,
+            "name": "Expanded Spell List",
+            "description": "Your patron adds spells such as burning hands, command, blindness/deafness, and scorching ray to your options."
+          },
+          {
+            "level": 6,
+            "name": "Dark One's Own Luck",
+            "category": "reaction",
+            "dice": "1d10",
+            "description": "Add a d10 to one ability check or saving throw, once per short or long rest."
+          },
+          {
+            "level": 10,
+            "name": "Fiendish Resilience",
+            "description": "After each rest, choose one damage type to resist (except magical/silvered weapons)."
+          },
+          {
+            "level": 14,
+            "name": "Hurl Through Hell",
+            "category": "trait",
+            "dice": "10d10",
+            "description": "Once per long rest, when you hit a creature, banish it through the lower planes — it takes 10d10 psychic damage when it returns."
+          }
+        ]
+      }
+    ]
   },
   {
     "slug": "wizard",
@@ -1372,6 +1783,42 @@
       "wand-of-fire-bolt"
     ],
     "starting_gold": 10,
-    "description": "An arcane scholar; spells use Intelligence."
+    "description": "An arcane scholar; spells use Intelligence.",
+    "subclass_level": 2,
+    "subclass_label": "Arcane Tradition",
+    "subclasses": [
+      {
+        "slug": "evocation",
+        "name": "School of Evocation",
+        "description": "Sculpting raw elemental energy into spells of fire, frost, and force.",
+        "features": [
+          {
+            "level": 2,
+            "name": "Evocation Savant",
+            "description": "Halve the gold and time needed to copy evocation spells into your spellbook."
+          },
+          {
+            "level": 2,
+            "name": "Sculpt Spells",
+            "description": "When you cast an evocation spell, chosen creatures automatically succeed their save and take no damage from it."
+          },
+          {
+            "level": 6,
+            "name": "Potent Cantrip",
+            "description": "Your damaging cantrips deal half damage to a creature even when it succeeds on its save."
+          },
+          {
+            "level": 10,
+            "name": "Empowered Evocation",
+            "description": "Add your INT modifier to one damage roll of any wizard evocation spell you cast."
+          },
+          {
+            "level": 14,
+            "name": "Overchannel",
+            "description": "Deal maximum damage with an evocation spell of 5th level or lower; after the first use each day you take rising necrotic backlash."
+          }
+        ]
+      }
+    ]
   }
 ]

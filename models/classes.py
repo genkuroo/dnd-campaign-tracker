@@ -35,30 +35,81 @@ def hit_die_average(hit_die):
     return hit_die // 2 + 1
 
 
-def class_features(slug, level):
+# --- Subclasses -----------------------------------------------------------
+
+def subclasses_for(slug):
+    """The subclass options for a class (e.g. Barbarian → [Path of the Berserker]).
+    Empty for the classless or an unknown class. SRD ships one archetype per class,
+    but the list is open for hand-added ones."""
+    klass = get_class(slug) if slug else None
+    return klass.get("subclasses", []) if klass else []
+
+
+def get_subclass(slug, sub_slug):
+    """The subclass dict for a class, or None."""
+    if not sub_slug:
+        return None
+    return next((s for s in subclasses_for(slug) if s["slug"] == sub_slug), None)
+
+
+def valid_subclass(slug, sub_slug):
+    """True when `sub_slug` is one of `slug`'s subclasses — used to reject a
+    subclass that doesn't belong to the chosen class (e.g. after a class change)."""
+    return get_subclass(slug, sub_slug) is not None
+
+
+def subclass_label(slug):
+    """The class's in-world name for its subclass choice (Primal Path, Divine
+    Domain, …), or 'Subclass' as a fallback."""
+    klass = get_class(slug) if slug else None
+    return (klass.get("subclass_label") if klass else None) or "Subclass"
+
+
+def subclass_level(slug):
+    """The level at which this class chooses its subclass (1, 2, or 3), or 0."""
+    klass = get_class(slug) if slug else None
+    return int(klass.get("subclass_level", 0)) if klass else 0
+
+
+def _subclass_features(slug, sub_slug):
+    """The chosen subclass's features, each shallow-copied with a `subclass` marker
+    (and the subclass name) so callers can merge + tag without mutating the cache."""
+    sub = get_subclass(slug, sub_slug)
+    if not sub:
+        return []
+    return [{**f, "subclass": True, "subclass_name": sub["name"]}
+            for f in sub.get("features", [])]
+
+
+def _all_features(slug, sub_slug):
+    """Base class features + the chosen subclass's features, in level order. Class
+    features carry `subclass: False`; subclass ones carry `subclass: True`."""
+    klass = get_class(slug) if slug else None
+    if not klass:
+        return []
+    base = [{**f, "subclass": False} for f in klass.get("features", [])]
+    merged = base + _subclass_features(slug, sub_slug)
+    return sorted(merged, key=lambda f: f["level"])
+
+
+def class_features(slug, level, subclass=None):
     """The class's features a creature has unlocked at `level` (everything with
-    level ≤ the creature's), in level order. Computed on read — reference only,
-    never stored on the creature. Empty for the classless or an unknown class."""
-    klass = get_class(slug) if slug else None
-    if not klass:
-        return []
+    level ≤ the creature's), in level order — base class plus the chosen `subclass`.
+    Computed on read — reference only, never stored. Empty for the classless."""
     lvl = int(level or 1)
-    return [f for f in klass.get("features", []) if f["level"] <= lvl]
+    return [f for f in _all_features(slug, subclass) if f["level"] <= lvl]
 
 
-def class_features_remaining(slug, level):
+def class_features_remaining(slug, level, subclass=None):
     """Not-yet-unlocked features (level > the creature's), in level order — for a
-    'what's next' preview. Empty for the classless or an unknown class."""
-    klass = get_class(slug) if slug else None
-    if not klass:
-        return []
+    'what's next' preview, including the chosen subclass's upcoming features."""
     lvl = int(level or 1)
-    return [f for f in klass.get("features", []) if f["level"] > lvl]
+    return [f for f in _all_features(slug, subclass) if f["level"] > lvl]
 
 
-def grantable_class_features(slug, level):
-    """The action-type class features unlocked through `level` — the subset tagged
-    with a `category` in classes.json (Rage, Second Wind, Sneak Attack…). These are
-    the ones auto-granted into the creature's actions list; passives without a
-    category (ASI, Spellcasting, subclass markers) stay display-only."""
-    return [f for f in class_features(slug, level) if f.get("category")]
+def grantable_class_features(slug, level, subclass=None):
+    """The action-type features unlocked through `level` — the subset tagged with a
+    `category` in classes.json (Rage, Second Wind, Sneak Attack, plus subclass ones
+    like Cutting Words / Preserve Life / Fast Hands). These are auto-granted into the
+    creature's actions list; passives without a category stay display-only."""
+    return [f for f in class_features(slug, level, subclass) if f.get("category")]

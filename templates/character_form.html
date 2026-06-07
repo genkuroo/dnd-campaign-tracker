@@ -64,6 +64,18 @@
           {% endfor %}
         </select>
       </label>
+      <label class="field" id="subclass-field" hidden>
+        <span>Subclass <span class="muted" id="subclass-label"></span></span>
+        <select name="subclass">
+          <option value="">— none —</option>
+          {% for cl in classes %}
+            {% for s in cl['subclasses'] %}
+              <option value="{{ s['slug'] }}" data-class="{{ cl['slug'] }}"
+                {{ 'selected' if c and c['class_name'] == cl['slug'] and c['subclass'] == s['slug'] else '' }}>{{ s['name'] }}</option>
+            {% endfor %}
+          {% endfor %}
+        </select>
+      </label>
       {% if not c %}
         <label class="checkbox class-kit grow">
           <input type="checkbox" name="apply_kit" checked>
@@ -233,4 +245,44 @@
     })();
   </script>
   {% endif %}
+
+  {# Subclass picker: show only the chosen class's archetypes, label it with the
+     class's term (Primal Path, Divine Domain…), and clear a leftover pick when the
+     class changes. A player choice — not gated to the DM, unlike skills. #}
+  <script>
+    (function () {
+      const meta = {};
+      {% for cl in classes %}
+        meta["{{ cl['slug'] }}"] = { label: {{ cl['subclass_label'] | default('Subclass') | tojson }},
+          level: {{ cl['subclass_level'] | default(0) }} };
+      {% endfor %}
+      const cls = document.querySelector('select[name="class_name"]');
+      const field = document.getElementById('subclass-field');
+      const labelEl = document.getElementById('subclass-label');
+      const sub = field ? field.querySelector('select[name="subclass"]') : null;
+      if (!cls || !field || !sub) return;
+      const opts = Array.from(sub.options);
+
+      function refresh() {
+        const slug = cls.value;
+        const info = meta[slug];
+        let any = false;
+        opts.forEach(function (o) {
+          if (!o.value) return;  // keep the "— none —" option
+          const match = o.dataset.class === slug;
+          o.hidden = !match;
+          if (match) any = true;
+          if (o.selected && !match) { o.selected = false; sub.value = ''; }
+        });
+        field.hidden = !any;
+        if (info) {
+          labelEl.textContent = '(' + info.label
+            + (info.level ? ' — chosen at level ' + info.level : '') + ')';
+        }
+      }
+
+      cls.addEventListener('change', refresh);
+      refresh();
+    })();
+  </script>
 {% endblock %}

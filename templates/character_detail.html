@@ -10,7 +10,7 @@
       </h1>
       <p class="muted">
         <span class="badge-kind">{{ 'NPC' if creature['kind'] == 'npc' else 'PC' }}</span>
-        Level {{ creature['level'] }}{% if klass %} {{ klass['name'] }}{% endif %}{% if creature['player_name'] %} · played by {{ creature['player_name'] }}{% endif %}
+        Level {{ creature['level'] }}{% if klass %} {{ klass['name'] }}{% if subclass %} <span class="muted">({{ subclass['name'] }})</span>{% endif %}{% endif %}{% if creature['player_name'] %} · played by {{ creature['player_name'] }}{% endif %}
         {% if creature['alignment'] %} · {{ creature['alignment'] | alignment }}{% endif %}
         {% if creature['location'] %} · 📍 {{ creature['location'] }}{% endif %}
       </p>
@@ -178,12 +178,13 @@
         <span class="muted">unlocked through level {{ creature['level'] }}</span>
       </div>
       {% if klass['description'] %}<p class="muted class-blurb">{{ klass['description'] }}</p>{% endif %}
+      {% if subclass %}<p class="muted class-blurb"><strong>{{ subclass['name'] }}</strong> — {{ subclass['description'] }}</p>{% endif %}
       <ul class="feature-list">
         {% for f in class_features %}
-          <li class="feature {{ 'feature-asi' if f['name'] == 'Ability Score Improvement' else '' }}">
+          <li class="feature {{ 'feature-asi' if f['name'] == 'Ability Score Improvement' else '' }} {{ 'feature-sub' if f['subclass'] else '' }}">
             <span class="feature-lvl" title="Unlocked at level {{ f['level'] }}">L{{ f['level'] }}</span>
             <div class="feature-body">
-              <span class="feature-name">{{ f['name'] }}</span>
+              <span class="feature-name">{{ f['name'] }}{% if f['subclass'] %} <span class="feature-tag" title="{{ subclass['name'] }} feature">subclass</span>{% endif %}</span>
               <span class="feature-desc">{{ f['description'] | dicetext(mode, f['name']) }}</span>
             </div>
           </li>
@@ -194,10 +195,10 @@
           <summary>Coming up <span class="muted">— next features as you level</span></summary>
           <ul class="feature-list dim">
             {% for f in class_features_next %}
-              <li class="feature">
+              <li class="feature {{ 'feature-sub' if f['subclass'] else '' }}">
                 <span class="feature-lvl">L{{ f['level'] }}</span>
                 <div class="feature-body">
-                  <span class="feature-name">{{ f['name'] }}</span>
+                  <span class="feature-name">{{ f['name'] }}{% if f['subclass'] %} <span class="feature-tag">subclass</span>{% endif %}</span>
                   <span class="feature-desc">{{ f['description'] | dicetext(mode, f['name']) }}</span>
                 </div>
               </li>
