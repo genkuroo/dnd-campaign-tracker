@@ -7,6 +7,7 @@ package (stats, HP from the hit die, starting gear, unarmored defense), and the
 hit die drives level-up HP. Features/subclasses can layer on later.
 """
 import json
+import math
 import os
 
 _PATH = os.path.join(os.path.dirname(__file__), "..", "data", "classes.json")
@@ -92,19 +93,63 @@ def _all_features(slug, sub_slug):
     return sorted(merged, key=lambda f: f["level"])
 
 
+def _scaled_dice(scale, level):
+    """Resolve a feature's `scale` spec to a dice expression at `level`:
+      - dice_count: N d<die>, N from a `steps` table or ceil/floor(level/per_levels)
+      - die_steps : the die expr for the highest level threshold reached
+      - dice_plus_level: "<base>+<level>" (e.g. Second Wind 1d10 + fighter level)
+    Returns '' if nothing applies yet."""
+    kind = scale.get("type")
+    if kind == "dice_count":
+        die = scale["die"]
+        if "steps" in scale:
+            n = 0
+            for lv, count in scale["steps"]:
+                if level >= lv:
+                    n = count
+        else:
+            per = scale.get("per_levels", 1)
+            n = math.ceil(level / per) if scale.get("round") == "up" else max(1, level // per)
+        return f"{n}{die}" if n else ""
+    if kind == "die_steps":
+        expr = ""
+        for lv, value in scale["steps"]:
+            if level >= lv:
+                expr = value
+        return expr
+    if kind == "dice_plus_level":
+        return f"{scale['base']}+{level}"
+    return ""
+
+
+def _apply_scaling(feature, level):
+    """If a feature scales with level, return a copy with its `dice` recomputed for
+    `level` (Sneak Attack 1d6→Nd6, Martial Arts die, Second Wind 1d10+level…).
+    Untouched otherwise."""
+    scale = feature.get("scale")
+    if not scale:
+        return feature
+    expr = _scaled_dice(scale, int(level or 1))
+    return {**feature, "dice": expr} if expr else feature
+
+
 def class_features(slug, level, subclass=None):
     """The class's features a creature has unlocked at `level` (everything with
     level ≤ the creature's), in level order — base class plus the chosen `subclass`.
-    Computed on read — reference only, never stored. Empty for the classless."""
+    Level-scaling features get their `dice` recomputed for `level`. Computed on read
+    — reference only, never stored. Empty for the classless."""
     lvl = int(level or 1)
-    return [f for f in _all_features(slug, subclass) if f["level"] <= lvl]
+    return [_apply_scaling(f, lvl)
+            for f in _all_features(slug, subclass) if f["level"] <= lvl]
 
 
 def class_features_remaining(slug, level, subclass=None):
     """Not-yet-unlocked features (level > the creature's), in level order — for a
-    'what's next' preview, including the chosen subclass's upcoming features."""
+    'what's next' preview, including the chosen subclass's upcoming features. A
+    scaling feature previews at its own unlock level."""
     lvl = int(level or 1)
-    return [f for f in _all_features(slug, subclass) if f["level"] > lvl]
+    return [_apply_scaling(f, f["level"])
+            for f in _all_features(slug, subclass) if f["level"] > lvl]
 
 
 def grantable_class_features(slug, level, subclass=None):

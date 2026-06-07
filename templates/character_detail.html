@@ -184,7 +184,7 @@
           <li class="feature {{ 'feature-asi' if f['name'] == 'Ability Score Improvement' else '' }} {{ 'feature-sub' if f['subclass'] else '' }}">
             <span class="feature-lvl" title="Unlocked at level {{ f['level'] }}">L{{ f['level'] }}</span>
             <div class="feature-body">
-              <span class="feature-name">{{ f['name'] }}{% if f['subclass'] %} <span class="feature-tag" title="{{ subclass['name'] }} feature">subclass</span>{% endif %}</span>
+              <span class="feature-name">{{ f['name'] }}{% if f['subclass'] %} <span class="feature-tag" title="{{ subclass['name'] }} feature">subclass</span>{% endif %}{% if f['dice'] %} {% if mode == 'assist' %}<button type="button" class="rollable" data-expr="{{ f['dice'] }}" data-label="{{ creature['name'] }} · {{ f['name'] }}">{{ f['dice'] }}</button>{% else %}<span class="die-text">{{ f['dice'] }}</span>{% endif %}{% endif %}</span>
               <span class="feature-desc">{{ f['description'] | dicetext(mode, f['name']) }}</span>
             </div>
           </li>
@@ -198,7 +198,7 @@
               <li class="feature {{ 'feature-sub' if f['subclass'] else '' }}">
                 <span class="feature-lvl">L{{ f['level'] }}</span>
                 <div class="feature-body">
-                  <span class="feature-name">{{ f['name'] }}{% if f['subclass'] %} <span class="feature-tag">subclass</span>{% endif %}</span>
+                  <span class="feature-name">{{ f['name'] }}{% if f['subclass'] %} <span class="feature-tag">subclass</span>{% endif %}{% if f['dice'] %} <span class="die-text">{{ f['dice'] }}</span>{% endif %}</span>
                   <span class="feature-desc">{{ f['description'] | dicetext(mode, f['name']) }}</span>
                 </div>
               </li>

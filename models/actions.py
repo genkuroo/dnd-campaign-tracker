@@ -94,7 +94,7 @@ def grant_class_actions(creature_id, slug, level, subclass=None):
     conn = get_connection()
     try:
         existing = conn.execute(
-            "SELECT id, name FROM creature_actions"
+            "SELECT id, name, dice FROM creature_actions"
             " WHERE creature_id = ? AND source = 'class'",
             (creature_id,),
         ).fetchall()
@@ -102,6 +102,17 @@ def grant_class_actions(creature_id, slug, level, subclass=None):
         stale = [(r["id"],) for r in existing if r["name"] not in desired]
         if stale:
             conn.executemany("DELETE FROM creature_actions WHERE id = ?", stale)
+        # Kept class actions: refresh the dice to the (possibly level-scaled) value —
+        # e.g. Sneak Attack 1d6 → 3d6 on level-up. Preserves hidden + everything else.
+        rescale = [
+            ((desired[r["name"]].get("dice", "") or "").strip(), r["id"])
+            for r in existing
+            if r["name"] in desired
+            and (desired[r["name"]].get("dice", "") or "").strip() != (r["dice"] or "")
+        ]
+        if rescale:
+            conn.executemany(
+                "UPDATE creature_actions SET dice = ? WHERE id = ?", rescale)
         new_rows = [
             (creature_id, f["name"], f.get("category", "action") if f.get("category") in _VALID_CATEGORIES else "action",
              (f.get("dice", "") or "").strip(), (f.get("description", "") or "").strip())

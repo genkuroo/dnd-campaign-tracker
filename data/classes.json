@@ -242,9 +242,30 @@
       {
         "level": 1,
         "name": "Bardic Inspiration",
-        "description": "Bonus action: give a creature a d6 (growing with level) to add to one ability check, attack, or save.",
+        "description": "Bonus action: give a creature an inspiration die (it grows with your level) to add to one ability check, attack roll, or save.",
         "category": "bonus",
-        "dice": "1d6"
+        "dice": "1d6",
+        "scale": {
+          "type": "die_steps",
+          "steps": [
+            [
+              1,
+              "1d6"
+            ],
+            [
+              5,
+              "1d8"
+            ],
+            [
+              10,
+              "1d10"
+            ],
+            [
+              15,
+              "1d12"
+            ]
+          ]
+        }
       },
       {
         "level": 2,
@@ -349,7 +370,28 @@
             "name": "Cutting Words",
             "category": "reaction",
             "dice": "1d6",
-            "description": "When a creature you can see makes an attack, ability check, or damage roll, spend a Bardic Inspiration to subtract the die from its roll."
+            "description": "When a creature you can see makes an attack, ability check, or damage roll, spend a Bardic Inspiration to subtract the die from its roll.",
+            "scale": {
+              "type": "die_steps",
+              "steps": [
+                [
+                  3,
+                  "1d6"
+                ],
+                [
+                  5,
+                  "1d8"
+                ],
+                [
+                  10,
+                  "1d10"
+                ],
+                [
+                  15,
+                  "1d12"
+                ]
+              ]
+            }
           },
           {
             "level": 6,
@@ -502,7 +544,21 @@
             "name": "Divine Strike",
             "category": "trait",
             "dice": "1d8",
-            "description": "Once per turn a weapon hit deals an extra 1d8 radiant damage (2d8 at 14th)."
+            "description": "Once per turn a weapon hit deals an extra 1d8 radiant damage (2d8 at 14th).",
+            "scale": {
+              "type": "dice_count",
+              "die": "d8",
+              "steps": [
+                [
+                  8,
+                  1
+                ],
+                [
+                  14,
+                  2
+                ]
+              ]
+            }
           },
           {
             "level": 17,
@@ -737,7 +793,11 @@
         "name": "Second Wind",
         "description": "Bonus action: regain 1d10 + your fighter level hit points, once per rest.",
         "category": "bonus",
-        "dice": "1d10"
+        "dice": "1d10",
+        "scale": {
+          "type": "dice_plus_level",
+          "base": "1d10"
+        }
       },
       {
         "level": 2,
@@ -934,7 +994,28 @@
         "level": 1,
         "name": "Martial Arts",
         "description": "Use DEX for unarmed strikes and monk weapons, and make an unarmed strike as a bonus action (damage die grows with level).",
-        "category": "bonus"
+        "category": "bonus",
+        "scale": {
+          "type": "die_steps",
+          "steps": [
+            [
+              1,
+              "1d4"
+            ],
+            [
+              5,
+              "1d6"
+            ],
+            [
+              11,
+              "1d8"
+            ],
+            [
+              17,
+              "1d10"
+            ]
+          ]
+        }
       },
       {
         "level": 2,
@@ -1482,9 +1563,15 @@
       {
         "level": 1,
         "name": "Sneak Attack",
-        "description": "Once a turn, deal extra damage (1d6, growing with level) when you have advantage or an ally flanks.",
+        "description": "Once a turn, deal extra damage when you have advantage on the attack or an ally is adjacent to the target. The damage grows with your level.",
         "category": "trait",
-        "dice": "1d6"
+        "dice": "1d6",
+        "scale": {
+          "type": "dice_count",
+          "die": "d6",
+          "per_levels": 2,
+          "round": "up"
+        }
       },
       {
         "level": 1,
