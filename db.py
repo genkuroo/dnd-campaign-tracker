@@ -14,7 +14,7 @@ import sqlite3
 # real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
 DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
-SCHEMA_VERSION = 26
+SCHEMA_VERSION = 27
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -339,6 +339,16 @@ MIGRATIONS = {
     -- features (models/actions.grant_class_actions wipes + re-adds these on class
     -- change / level-up). Computed from data/classes.json, never authored here.
     ALTER TABLE creature_actions ADD COLUMN source TEXT NOT NULL DEFAULT '';
+    """,
+    27: """
+    -- "Hide" (soft-delete / declutter) for the per-creature sheet lists. Hidden
+    -- entries are filtered out of their list by default and only shown when the
+    -- viewer toggles "Show hidden" — the persistent answer to dismissing things
+    -- you never use (and to permanently removing an auto-granted class action: the
+    -- class re-sync preserves a hidden flag, so a hidden Rage stays hidden).
+    ALTER TABLE creature_actions ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE creature_spells  ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE creature_items   ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0;
     """,
 }
 

@@ -76,9 +76,10 @@
     <ul class="spellbook">
       {% for s in spells | sort(attribute='prepared', reverse=true) %}
         {% set ct = s['casting_time'] | lower %}
-        <li class="spell-line {{ 'unprepared' if not s.prepared }}"
+        <li class="spell-line {{ 'unprepared' if not s.prepared }} {{ 'is-hidden' if s.hidden }}"
             data-name="{{ s['name'] }}"
             data-prepared="{{ '1' if s.prepared else '0' }}"
+            data-hidden="{{ '1' if s.hidden else '0' }}"
             data-cantrip="{{ '1' if s['level'] == 0 else '0' }}"
             data-cast="{{ 'bonus' if 'bonus' in ct else ('reaction' if 'reaction' in ct else ('action' if 'action' in ct else 'other')) }}">
           {% if s.from_item %}
@@ -133,6 +134,13 @@
             </form>
           {% endif %}
           {% if can_edit and not s.from_item %}
+            <form method="post" action="{{ url_for('spellbook_hidden') }}" class="inline">
+              <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+              <input type="hidden" name="slug" value="{{ s['slug'] }}">
+              <input type="hidden" name="hidden" value="{{ '0' if s.hidden else '1' }}">
+              <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+              <button type="submit" class="hide-toggle" title="{{ 'Show this spell' if s.hidden else 'Hide this spell' }}">{{ 'Show' if s.hidden else 'Hide' }}</button>
+            </form>
             <form method="post" action="{{ url_for('spellbook_remove') }}" class="inline"
                   data-confirm="Remove {{ s['name'] }}?">
               <input type="hidden" name="creature_id" value="{{ creature['id'] }}">

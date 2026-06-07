@@ -55,6 +55,17 @@ def get_item(item_id):
         conn.close()
 
 
+def set_item_hidden(item_id, hidden):
+    """Hide or unhide an inventory item (declutter for the inventory list)."""
+    conn = get_connection()
+    try:
+        conn.execute("UPDATE creature_items SET hidden = ? WHERE id = ?",
+                     (1 if hidden else 0, item_id))
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def add_item(creature_id, name, quantity=1, description="", slot="", hands=1,
              ac_bonus=0, grants_spells="", stat_bonuses="", armor_base=0, armor_type=""):
     name = (name or "").strip()

@@ -501,6 +501,18 @@ form.inline { display: inline; margin: 0; }
 }
 .roll-del:hover { color: var(--accent); opacity: 1; }
 
+/* Per-row Hide / Show toggle (spells, actions, inventory) + dimmed hidden rows */
+.hide-toggle {
+  font: inherit; font-size: 0.72rem; line-height: 1; cursor: pointer;
+  padding: 0.1rem 0.4rem; background: transparent; border: 1px solid var(--border);
+  border-radius: 999px; color: var(--muted); opacity: 0.75; white-space: nowrap;
+}
+.hide-toggle:hover { color: var(--ink); opacity: 1; }
+.is-hidden { opacity: 0.45; }
+.is-hidden:hover { opacity: 0.7; }
+/* "Show hidden" filter-bar toggle reads as a count chip until activated */
+.show-hidden-btn { margin-left: auto; }
+
 /* Gap divider between bursts of rolls separated by a long pause */
 .roll-break {
   list-style: none;

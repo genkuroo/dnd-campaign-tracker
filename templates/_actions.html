@@ -7,7 +7,7 @@
   {% if actions %}
     <ul class="action-list">
       {% for a in actions %}
-        <li class="action-line" data-name="{{ a['name'] | lower }}" data-category="{{ a['category'] }}">
+        <li class="action-line {{ 'is-hidden' if a['hidden'] }}" data-name="{{ a['name'] | lower }}" data-category="{{ a['category'] }}" data-hidden="{{ '1' if a['hidden'] else '0' }}">
           <div class="action-head">
             <span class="action-cat action-cat-{{ a['category'] }}">{{ a['category'] | action_category }}</span>
             <span class="action-name">{{ a['name'] }}</span>
@@ -20,11 +20,18 @@
               {% endif %}
             {% endif %}
             {% if can_edit %}
-              <form method="post" action="{{ url_for('actions_remove', action_id=a['id']) }}" class="inline"
-                    data-confirm="Remove {{ a['name'] }}?">
+              <form method="post" action="{{ url_for('actions_hidden', action_id=a['id']) }}" class="inline">
                 <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-                <button type="submit" class="roll-del" title="Remove action">×</button>
+                <button type="submit" class="hide-toggle" title="{{ 'Show this action' if a['hidden'] else 'Hide this action' }}">{{ 'Show' if a['hidden'] else 'Hide' }}</button>
               </form>
+              {% if a['source'] != 'class' %}
+                {# Class actions can't be truly deleted (they re-sync) — use Hide. #}
+                <form method="post" action="{{ url_for('actions_remove', action_id=a['id']) }}" class="inline"
+                      data-confirm="Remove {{ a['name'] }}?">
+                  <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+                  <button type="submit" class="roll-del" title="Remove action">×</button>
+                </form>
+              {% endif %}
             {% endif %}
           </div>
           {% if a['description'] %}

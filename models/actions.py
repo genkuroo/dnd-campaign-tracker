@@ -68,19 +68,53 @@ def clear_class_actions(creature_id):
         conn.close()
 
 
+def set_action_hidden(action_id, hidden):
+    """Hide or unhide an action (a soft-delete / declutter that survives class
+    re-syncs, unlike a real delete of an auto-granted action)."""
+    conn = get_connection()
+    try:
+        conn.execute("UPDATE creature_actions SET hidden = ? WHERE id = ?",
+                     (1 if hidden else 0, action_id))
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def grant_class_actions(creature_id, slug, level):
-    """Sync a creature's class-granted actions to its class + level: wipe the old
-    class-sourced ones and re-add the action-type features unlocked at this level
-    (Rage, Second Wind, Sneak Attack…). Idempotent, and safe to call on class
-    change / level-up. Hand-added actions are never touched. A falsy `slug` just
-    clears (the creature is classless)."""
+    """Sync a creature's class-granted actions to its class + level by reconciling
+    (not wiping): keep the class actions still desired — preserving each one's
+    `hidden` flag and any per-creature edits — drop the ones no longer granted, and
+    add the newly unlocked ones (Rage, Second Wind, Sneak Attack…). Idempotent and
+    safe on class change / level-up; hand-added actions are never touched. A falsy
+    `slug` clears all class actions (the creature is classless)."""
     from models.classes import grantable_class_features  # local: avoid import cycle
-    clear_class_actions(creature_id)
-    if not slug:
-        return
-    for f in grantable_class_features(slug, level):
-        add_action(creature_id, f["name"], f.get("description", ""),
-                   f.get("dice", ""), f.get("category", "action"), source="class")
+    desired = {f["name"]: f for f in (grantable_class_features(slug, level) if slug else [])}
+    conn = get_connection()
+    try:
+        existing = conn.execute(
+            "SELECT id, name FROM creature_actions"
+            " WHERE creature_id = ? AND source = 'class'",
+            (creature_id,),
+        ).fetchall()
+        existing_names = {r["name"] for r in existing}
+        stale = [(r["id"],) for r in existing if r["name"] not in desired]
+        if stale:
+            conn.executemany("DELETE FROM creature_actions WHERE id = ?", stale)
+        new_rows = [
+            (creature_id, f["name"], f.get("category", "action") if f.get("category") in _VALID_CATEGORIES else "action",
+             (f.get("dice", "") or "").strip(), (f.get("description", "") or "").strip())
+            for name, f in desired.items() if name not in existing_names
+        ]
+        if new_rows:
+            conn.executemany(
+                "INSERT INTO creature_actions"
+                " (creature_id, name, category, dice, description, source)"
+                " VALUES (?, ?, ?, ?, ?, 'class')",
+                new_rows,
+            )
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def get_action(action_id):

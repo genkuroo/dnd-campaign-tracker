@@ -47,12 +47,26 @@ def set_prepared(creature_id, slug, prepared):
         conn.close()
 
 
+def set_spell_hidden(creature_id, slug, hidden):
+    """Hide or unhide a known spell (declutter for the spellbook list)."""
+    conn = get_connection()
+    try:
+        conn.execute(
+            "UPDATE creature_spells SET hidden = ? WHERE creature_id = ? AND spell_slug = ?",
+            (1 if hidden else 0, creature_id, slug),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def creature_spells(creature_id):
-    """Full spell dicts a creature knows (+ a `prepared` flag), by level then name."""
+    """Full spell dicts a creature knows (+ `prepared`/`hidden` flags), by level
+    then name."""
     conn = get_connection()
     try:
         rows = conn.execute(
-            "SELECT spell_slug, prepared FROM creature_spells WHERE creature_id = ?",
+            "SELECT spell_slug, prepared, hidden FROM creature_spells WHERE creature_id = ?",
             (creature_id,),
         ).fetchall()
     finally:
@@ -61,7 +75,8 @@ def creature_spells(creature_id):
     for r in rows:
         spell = get_spell(r["spell_slug"])
         if spell:  # silently skip slugs no longer in the data file
-            out.append({**spell, "prepared": bool(r["prepared"])})
+            out.append({**spell, "prepared": bool(r["prepared"]),
+                        "hidden": bool(r["hidden"])})
     return sorted(out, key=lambda s: (s["level"], s["name"]))
 
 
@@ -80,6 +95,7 @@ def effective_spells(creature_id):
             continue
         spell = get_spell(slug)
         if spell:
-            spells.append({**spell, "prepared": True, "from_item": item_name})
+            spells.append({**spell, "prepared": True, "hidden": False,
+                           "from_item": item_name})
             have.add(slug)
     return sorted(spells, key=lambda s: (s["level"], s["name"]))

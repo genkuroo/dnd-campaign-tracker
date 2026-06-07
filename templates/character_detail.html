@@ -236,6 +236,7 @@
       <button type="button" class="filt-btn" data-cast="bonus">Bonus</button>
       <button type="button" class="filt-btn" data-cast="reaction">Reaction</button>
     </div>
+    <button type="button" class="filt-btn show-hidden-btn" data-showhidden hidden>Show hidden</button>
   </div>
   <div id="spells">
     {% include "_spells.html" %}
@@ -253,6 +254,7 @@
         <button type="button" class="filt-btn" data-cat="{{ value }}">{{ label }}</button>
       {% endfor %}
     </div>
+    <button type="button" class="filt-btn show-hidden-btn" data-showhidden hidden>Show hidden</button>
   </div>
   <div id="actions">
     {% include "_actions.html" %}
@@ -338,24 +340,33 @@
 
       // --- inventory search + filter + height-sync. Filter state lives out
       // here so it survives the fragment being replaced on each AJAX update. ---
-      let invQuery = '', invFilter = 'all';
+      let invQuery = '', invFilter = 'all', invShowHidden = false;
 
       function applyInv() {
         const list = gear.querySelector('.item-list');
         if (!list) return;
         const q = invQuery.trim().toLowerCase();
-        let shown = 0;
+        let shown = 0, hiddenCount = 0;
         list.querySelectorAll('.item-line').forEach(function (li) {
+          const isHidden = li.dataset.hidden === '1';
+          if (isHidden) hiddenCount++;
           const matchName = (li.dataset.name || '').toLowerCase().includes(q);
           let matchFilter = true;
           if (invFilter === 'equipped') matchFilter = li.dataset.equipped === '1';
           else if (invFilter === 'equippable') matchFilter = li.dataset.slotted === '1';
-          const show = matchName && matchFilter;
+          const show = matchName && matchFilter && (invShowHidden || !isHidden);
           li.style.display = show ? '' : 'none';
           if (show) shown++;
         });
         const empty = gear.querySelector('.inv-empty');
         if (empty) empty.hidden = shown !== 0;
+        if (hiddenCount === 0) invShowHidden = false;
+        const sh = gear.querySelector('.show-hidden-btn');
+        if (sh) {
+          sh.hidden = hiddenCount === 0;
+          sh.classList.toggle('active', invShowHidden);
+          sh.textContent = (invShowHidden ? 'Showing hidden' : 'Show hidden') + ' (' + hiddenCount + ')';
+        }
       }
 
       function syncHeight() {
@@ -379,10 +390,11 @@
         if (e.target.closest('.inv-search')) { invQuery = e.target.value; applyInv(); }
       });
       gear.addEventListener('click', function (e) {
+        if (e.target.closest('.show-hidden-btn')) { invShowHidden = !invShowHidden; applyInv(); return; }
         const b = e.target.closest('.invk-btn');
         if (!b) return;
         invFilter = b.dataset.filter;
-        gear.querySelectorAll('.invk-btn').forEach(x => x.classList.toggle('active', x === b));
+        gear.querySelectorAll('.invk-btn:not(.show-hidden-btn)').forEach(x => x.classList.toggle('active', x === b));
         applyInv();
       });
       window.addEventListener('resize', syncHeight);
@@ -398,21 +410,30 @@
       const box = document.getElementById('actions');
       const bar = document.getElementById('actions-filter');
       if (!box) return;
-      let query = '', cat = 'all';
+      let query = '', cat = 'all', showHidden = false;
 
       function applyFilter() {
         const items = box.querySelectorAll('.action-line');
         if (bar) bar.hidden = items.length === 0;
-        let shown = 0;
+        let shown = 0, hiddenCount = 0;
         items.forEach(function (li) {
+          const isHidden = li.dataset.hidden === '1';
+          if (isHidden) hiddenCount++;
           const matchName = (li.dataset.name || '').includes(query);
           const matchCat = cat === 'all' || li.dataset.category === cat;
-          const show = matchName && matchCat;
+          const show = matchName && matchCat && (showHidden || !isHidden);
           li.style.display = show ? '' : 'none';
           if (show) shown++;
         });
         const empty = box.querySelector('.actions-empty');
         if (empty) empty.hidden = shown !== 0 || items.length === 0;
+        if (hiddenCount === 0) showHidden = false;
+        const sh = bar && bar.querySelector('.show-hidden-btn');
+        if (sh) {
+          sh.hidden = hiddenCount === 0;
+          sh.classList.toggle('active', showHidden);
+          sh.textContent = (showHidden ? 'Showing hidden' : 'Show hidden') + ' (' + hiddenCount + ')';
+        }
       }
 
       if (bar) {
@@ -423,6 +444,7 @@
           }
         });
         bar.addEventListener('click', function (e) {
+          if (e.target.closest('.show-hidden-btn')) { showHidden = !showHidden; applyFilter(); return; }
           const b = e.target.closest('.filt-btn');
           if (!b) return;
           b.parentElement.querySelectorAll('.filt-btn').forEach(x => x.classList.toggle('active', x === b));
@@ -454,25 +476,34 @@
       const box = document.getElementById('spells');
       const bar = document.getElementById('spellbook-filter');
       if (!box) return;
-      let query = '', prep = 'all', type = 'all', cast = 'all';
+      let query = '', prep = 'all', type = 'all', cast = 'all', showHidden = false;
 
       function applyFilter() {
         const items = box.querySelectorAll('.spell-line');
         if (bar) bar.hidden = items.length === 0;
-        let shown = 0;
+        let shown = 0, hiddenCount = 0;
         items.forEach(function (li) {
+          const isHidden = li.dataset.hidden === '1';
+          if (isHidden) hiddenCount++;
           const matchName = (li.dataset.name || '').toLowerCase().includes(query);
           const matchPrep = prep === 'all'
             || (prep === 'prepared' ? li.dataset.prepared === '1' : li.dataset.prepared === '0');
           const matchType = type === 'all'
             || (type === 'cantrip' ? li.dataset.cantrip === '1' : li.dataset.cantrip === '0');
           const matchCast = cast === 'all' || li.dataset.cast === cast;
-          const show = matchName && matchPrep && matchType && matchCast;
+          const show = matchName && matchPrep && matchType && matchCast && (showHidden || !isHidden);
           li.style.display = show ? '' : 'none';
           if (show) shown++;
         });
         const empty = box.querySelector('.spellbook-empty');
         if (empty) empty.hidden = shown !== 0 || items.length === 0;
+        if (hiddenCount === 0) showHidden = false;
+        const sh = bar && bar.querySelector('.show-hidden-btn');
+        if (sh) {
+          sh.hidden = hiddenCount === 0;
+          sh.classList.toggle('active', showHidden);
+          sh.textContent = (showHidden ? 'Showing hidden' : 'Show hidden') + ' (' + hiddenCount + ')';
+        }
       }
 
       if (bar) {
@@ -483,6 +514,7 @@
           }
         });
         bar.addEventListener('click', function (e) {
+          if (e.target.closest('.show-hidden-btn')) { showHidden = !showHidden; applyFilter(); return; }
           const b = e.target.closest('.filt-btn');
           if (!b) return;
           b.parentElement.querySelectorAll('.filt-btn').forEach(x => x.classList.toggle('active', x === b));

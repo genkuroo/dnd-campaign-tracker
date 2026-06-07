@@ -67,6 +67,7 @@ from models.inventory import (
     item_effects,
     list_items,
     remove_item,
+    set_item_hidden,
     unequip_item,
 )
 from models.classes import (all_classes, get_class, hit_die_average,
@@ -95,6 +96,7 @@ from models.actions import (
     grant_class_actions,
     list_actions,
     remove_action,
+    set_action_hidden,
 )
 from models.action_catalog import all_catalog_actions, get_catalog_action
 from models.combat import (
@@ -147,6 +149,7 @@ from models.spellbook import (
     effective_spells,
     remove_spell,
     set_prepared,
+    set_spell_hidden,
 )
 from models.spellcasting import (
     caster_type,
@@ -1439,6 +1442,16 @@ def inventory_remove(item_id):
     return _gear_response(cid, target)
 
 
+@app.route("/inventory/<int:item_id>/hidden", methods=["POST"])
+def inventory_hidden(item_id):
+    """Toggle an item's hidden flag (declutter the inventory list)."""
+    item, target = _item_owner_next(item_id)
+    if item is None:
+        return redirect(target)
+    set_item_hidden(item_id, not item["hidden"])
+    return _gear_response(item["creature_id"], target)
+
+
 # --- Loot tab -------------------------------------------------------------
 
 @app.route("/loot")
@@ -1810,6 +1823,17 @@ def spellbook_remove():
     return redirect(_safe_next(request.form.get("next"), url_for("character")))
 
 
+@app.route("/spellbook/hidden", methods=["POST"])
+def spellbook_hidden():
+    """Toggle a known spell's hidden flag (declutter the spellbook list)."""
+    cid = _require_edit_form_creature()
+    set_spell_hidden(cid, request.form.get("slug", ""),
+                     request.form.get("hidden") == "1")
+    if _is_fetch():
+        return _spells_fragment(cid)
+    return redirect(_safe_next(request.form.get("next"), url_for("character")))
+
+
 @app.route("/spellbook/prepared", methods=["POST"])
 def spellbook_prepared():
     cid = _require_edit_form_creature()
@@ -1891,6 +1915,25 @@ def actions_remove(action_id):
         abort(403)
     remove_action(action_id)
     flash("Action removed.")
+    if _is_fetch():
+        return _actions_fragment(cid)
+    return redirect(_safe_next(
+        request.form.get("next"),
+        url_for("character_detail", creature_id=cid),
+    ))
+
+
+@app.route("/actions/<int:action_id>/hidden", methods=["POST"])
+def actions_hidden(action_id):
+    """Toggle an action's hidden flag (soft delete / declutter; survives class
+    re-syncs). Edit-gated by the action's creature."""
+    action = get_action(action_id)
+    if action is None:
+        return redirect(url_for("character"))
+    cid = action["creature_id"]
+    if not can_edit_creature(get_creature(cid)):
+        abort(403)
+    set_action_hidden(action_id, not action["hidden"])
     if _is_fetch():
         return _actions_fragment(cid)
     return redirect(_safe_next(

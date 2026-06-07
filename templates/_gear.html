@@ -69,12 +69,13 @@
         <button type="button" class="invk-btn" data-filter="equipped">Equipped</button>
         <button type="button" class="invk-btn" data-filter="equippable">Equippable</button>
       </div>
+      <button type="button" class="invk-btn show-hidden-btn" data-showhidden hidden>Show hidden</button>
     </div>
     <div class="inv-scroll">
     <ul class="item-list">
       {% for it in items %}
-        <li class="item-line {{ 'equipped' if it['equipped'] }} {{ 'draggable' if it['slot'] and can_edit }}"
-            data-name="{{ it['name'] }}" data-equipped="{{ '1' if it['equipped'] else '0' }}" data-slotted="{{ '1' if it['slot'] else '0' }}"
+        <li class="item-line {{ 'equipped' if it['equipped'] }} {{ 'draggable' if it['slot'] and can_edit }} {{ 'is-hidden' if it['hidden'] }}"
+            data-name="{{ it['name'] }}" data-equipped="{{ '1' if it['equipped'] else '0' }}" data-slotted="{{ '1' if it['slot'] else '0' }}" data-hidden="{{ '1' if it['hidden'] else '0' }}"
             {% if it['slot'] and can_edit %}draggable="true" data-slot="{{ it['slot'] }}" data-equip-url="{{ url_for('inventory_equip', item_id=it['id']) }}"{% endif %}>
           {% if it['slot'] and can_edit %}
             <form method="post" action="{{ url_for('inventory_equipped', item_id=it['id']) }}" class="inline">
@@ -113,6 +114,9 @@
             {% endif %}
           </span>
           {% if can_edit %}
+            <form method="post" action="{{ url_for('inventory_hidden', item_id=it['id']) }}" class="inline">
+              <button type="submit" class="hide-toggle" title="{{ 'Show this item' if it['hidden'] else 'Hide this item' }}">{{ 'Show' if it['hidden'] else 'Hide' }}</button>
+            </form>
             <form method="post" action="{{ url_for('inventory_remove', item_id=it['id']) }}" class="inline"
                   data-confirm="Remove {{ it['name'] }}?">
               <button type="submit" class="roll-del" title="Remove item">×</button>
