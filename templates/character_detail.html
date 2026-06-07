@@ -169,6 +169,45 @@
     {% if is_dm %}<p class="muted check-hint">Set which skills this character is proficient in on the <a href="{{ url_for('character_edit', creature_id=creature['id']) }}">edit page</a> (DM only).</p>{% endif %}
   </section>
 
+  {% if klass and class_features %}
+    <div class="sheet-divider" role="separator"></div>
+
+    <section class="class-features">
+      <div class="section-head">
+        <h2>{{ klass['name'] }} Features</h2>
+        <span class="muted">unlocked through level {{ creature['level'] }}</span>
+      </div>
+      {% if klass['description'] %}<p class="muted class-blurb">{{ klass['description'] }}</p>{% endif %}
+      <ul class="feature-list">
+        {% for f in class_features %}
+          <li class="feature {{ 'feature-asi' if f['name'] == 'Ability Score Improvement' else '' }}">
+            <span class="feature-lvl" title="Unlocked at level {{ f['level'] }}">L{{ f['level'] }}</span>
+            <div class="feature-body">
+              <span class="feature-name">{{ f['name'] }}</span>
+              <span class="feature-desc">{{ f['description'] | dicetext(mode, f['name']) }}</span>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+      {% if class_features_next %}
+        <details class="feature-next">
+          <summary>Coming up <span class="muted">— next features as you level</span></summary>
+          <ul class="feature-list dim">
+            {% for f in class_features_next %}
+              <li class="feature">
+                <span class="feature-lvl">L{{ f['level'] }}</span>
+                <div class="feature-body">
+                  <span class="feature-name">{{ f['name'] }}</span>
+                  <span class="feature-desc">{{ f['description'] | dicetext(mode, f['name']) }}</span>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </details>
+      {% endif %}
+    </section>
+  {% endif %}
+
   <div class="sheet-divider" role="separator"></div>
 
   <div id="gear">

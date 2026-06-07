@@ -19,6 +19,98 @@
       "perception",
       "survival"
     ],
+    "features": [
+      {
+        "level": 1,
+        "name": "Rage",
+        "description": "As a bonus action, enter a rage: bonus melee damage, advantage on STR checks/saves, and resistance to bludgeoning, piercing, and slashing damage."
+      },
+      {
+        "level": 1,
+        "name": "Unarmored Defense",
+        "description": "While not wearing armor your AC = 10 + DEX modifier + CON modifier."
+      },
+      {
+        "level": 2,
+        "name": "Reckless Attack",
+        "description": "Attack with advantage on STR-based melee, but attack rolls against you have advantage until your next turn."
+      },
+      {
+        "level": 2,
+        "name": "Danger Sense",
+        "description": "Advantage on DEX saving throws against effects you can see (traps, spells)."
+      },
+      {
+        "level": 3,
+        "name": "Primal Path",
+        "description": "Choose a subclass that shapes your rage (SRD: Path of the Berserker)."
+      },
+      {
+        "level": 4,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 5,
+        "name": "Extra Attack",
+        "description": "Attack twice, instead of once, when you take the Attack action."
+      },
+      {
+        "level": 5,
+        "name": "Fast Movement",
+        "description": "Your speed increases by 10 feet while you aren't wearing heavy armor."
+      },
+      {
+        "level": 7,
+        "name": "Feral Instinct",
+        "description": "Advantage on initiative, and you can act normally on a surprise round if you rage first."
+      },
+      {
+        "level": 8,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 9,
+        "name": "Brutal Critical",
+        "description": "Roll one extra weapon damage die on a critical hit (two at 13th, three at 17th)."
+      },
+      {
+        "level": 11,
+        "name": "Relentless Rage",
+        "description": "When you'd drop to 0 HP while raging, a DC 10 CON save (rising each use) keeps you at 1 instead."
+      },
+      {
+        "level": 12,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 15,
+        "name": "Persistent Rage",
+        "description": "Your rage ends early only if you fall unconscious or choose to end it."
+      },
+      {
+        "level": 16,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 18,
+        "name": "Indomitable Might",
+        "description": "If your total for a STR check is less than your STR score, use your score instead."
+      },
+      {
+        "level": 19,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 20,
+        "name": "Primal Champion",
+        "description": "Your Strength and Constitution scores increase by 4, to a maximum of 24."
+      }
+    ],
     "unarmored_defense": "barbarian",
     "spell_ability": "",
     "caster_type": "none",
@@ -70,6 +162,83 @@
       "stealth",
       "survival"
     ],
+    "features": [
+      {
+        "level": 1,
+        "name": "Spellcasting",
+        "description": "Cast bard spells using Charisma; you know a set number and cast using spell slots."
+      },
+      {
+        "level": 1,
+        "name": "Bardic Inspiration",
+        "description": "Bonus action: give a creature a d6 (growing with level) to add to one ability check, attack, or save."
+      },
+      {
+        "level": 2,
+        "name": "Jack of All Trades",
+        "description": "Add half your proficiency bonus to any ability check that doesn't already include it."
+      },
+      {
+        "level": 2,
+        "name": "Song of Rest",
+        "description": "Allies who heal during a short rest with you regain extra hit points (a d6, growing with level)."
+      },
+      {
+        "level": 3,
+        "name": "Bard College",
+        "description": "Choose a subclass (SRD: College of Lore)."
+      },
+      {
+        "level": 3,
+        "name": "Expertise",
+        "description": "Double your proficiency bonus on two chosen skills (two more at 10th)."
+      },
+      {
+        "level": 4,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 5,
+        "name": "Font of Inspiration",
+        "description": "You regain all Bardic Inspiration on a short or long rest."
+      },
+      {
+        "level": 6,
+        "name": "Countercharm",
+        "description": "Action: allies near you gain advantage on saves against being frightened or charmed."
+      },
+      {
+        "level": 8,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 10,
+        "name": "Magical Secrets",
+        "description": "Learn spells from any class's spell list (more at 14th and 18th)."
+      },
+      {
+        "level": 12,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 16,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 19,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 20,
+        "name": "Superior Inspiration",
+        "description": "Regain a use of Bardic Inspiration when you roll initiative with none left."
+      }
+    ],
     "unarmored_defense": "",
     "spell_ability": "charisma",
     "caster_type": "full",
@@ -107,6 +276,58 @@
       "medicine",
       "persuasion",
       "religion"
+    ],
+    "features": [
+      {
+        "level": 1,
+        "name": "Spellcasting",
+        "description": "Cast cleric spells using Wisdom; you prepare spells from the cleric list each day."
+      },
+      {
+        "level": 1,
+        "name": "Divine Domain",
+        "description": "Choose a subclass domain granting bonus spells and powers (SRD: Life Domain)."
+      },
+      {
+        "level": 2,
+        "name": "Channel Divinity",
+        "description": "Channel divine energy for set effects, including Turn Undead (more uses at higher levels)."
+      },
+      {
+        "level": 4,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 5,
+        "name": "Destroy Undead",
+        "description": "Your Turn Undead instantly destroys low-CR undead (threshold rises with level)."
+      },
+      {
+        "level": 8,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 10,
+        "name": "Divine Intervention",
+        "description": "Call on your deity for aid; succeed on a percentile roll and they act (automatic at 20th)."
+      },
+      {
+        "level": 12,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 16,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 19,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      }
     ],
     "unarmored_defense": "",
     "spell_ability": "wisdom",
@@ -149,6 +370,68 @@
       "religion",
       "survival"
     ],
+    "features": [
+      {
+        "level": 1,
+        "name": "Druidic",
+        "description": "You know Druidic, the secret language of druids, and can leave hidden messages."
+      },
+      {
+        "level": 1,
+        "name": "Spellcasting",
+        "description": "Cast druid spells using Wisdom; you prepare spells from the druid list each day."
+      },
+      {
+        "level": 2,
+        "name": "Wild Shape",
+        "description": "Magically transform into a beast you've seen (CR and uses improve with level)."
+      },
+      {
+        "level": 2,
+        "name": "Druid Circle",
+        "description": "Choose a subclass (SRD: Circle of the Land)."
+      },
+      {
+        "level": 4,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 8,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 12,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 16,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 18,
+        "name": "Timeless Body",
+        "description": "You age more slowly and ignore some Wild Shape limits."
+      },
+      {
+        "level": 18,
+        "name": "Beast Spells",
+        "description": "You can cast many of your spells while in Wild Shape."
+      },
+      {
+        "level": 19,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 20,
+        "name": "Archdruid",
+        "description": "Use Wild Shape an unlimited number of times."
+      }
+    ],
     "unarmored_defense": "",
     "spell_ability": "wisdom",
     "caster_type": "full",
@@ -190,6 +473,73 @@
       "perception",
       "survival"
     ],
+    "features": [
+      {
+        "level": 1,
+        "name": "Fighting Style",
+        "description": "Adopt a combat specialty (e.g. Defense, Dueling, Great Weapon Fighting, Archery)."
+      },
+      {
+        "level": 1,
+        "name": "Second Wind",
+        "description": "Bonus action: regain 1d10 + your fighter level hit points, once per rest."
+      },
+      {
+        "level": 2,
+        "name": "Action Surge",
+        "description": "Take one additional action on your turn, once per rest (twice at 17th)."
+      },
+      {
+        "level": 3,
+        "name": "Martial Archetype",
+        "description": "Choose a subclass (SRD: Champion)."
+      },
+      {
+        "level": 4,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 5,
+        "name": "Extra Attack",
+        "description": "Attack twice when you take the Attack action (three times at 11th, four at 20th)."
+      },
+      {
+        "level": 6,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 8,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 9,
+        "name": "Indomitable",
+        "description": "Reroll a failed saving throw, once per rest (more uses at 13th and 17th)."
+      },
+      {
+        "level": 12,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 14,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 16,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 19,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      }
+    ],
     "unarmored_defense": "",
     "spell_ability": "",
     "caster_type": "none",
@@ -229,6 +579,103 @@
       "religion",
       "stealth"
     ],
+    "features": [
+      {
+        "level": 1,
+        "name": "Unarmored Defense",
+        "description": "While unarmored your AC = 10 + DEX modifier + WIS modifier."
+      },
+      {
+        "level": 1,
+        "name": "Martial Arts",
+        "description": "Use DEX for unarmed strikes and monk weapons, and make an unarmed strike as a bonus action (damage die grows with level)."
+      },
+      {
+        "level": 2,
+        "name": "Ki",
+        "description": "Spend ki points on Flurry of Blows, Patient Defense, and Step of the Wind (pool = your level)."
+      },
+      {
+        "level": 2,
+        "name": "Unarmored Movement",
+        "description": "Your speed increases while unarmored (growing with level)."
+      },
+      {
+        "level": 3,
+        "name": "Monastic Tradition",
+        "description": "Choose a subclass (SRD: Way of the Open Hand)."
+      },
+      {
+        "level": 3,
+        "name": "Deflect Missiles",
+        "description": "Reaction: reduce ranged weapon damage, and possibly catch and throw the missile."
+      },
+      {
+        "level": 4,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 4,
+        "name": "Slow Fall",
+        "description": "Reaction: reduce falling damage by five times your monk level."
+      },
+      {
+        "level": 5,
+        "name": "Extra Attack",
+        "description": "Attack twice when you take the Attack action."
+      },
+      {
+        "level": 5,
+        "name": "Stunning Strike",
+        "description": "Spend 1 ki on a hit to force a CON save or stun the target until your next turn."
+      },
+      {
+        "level": 7,
+        "name": "Evasion",
+        "description": "Take no damage on a successful DEX save (and half on a failure) against area effects."
+      },
+      {
+        "level": 8,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 10,
+        "name": "Purity of Body",
+        "description": "You're immune to disease and poison."
+      },
+      {
+        "level": 12,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 14,
+        "name": "Diamond Soul",
+        "description": "Proficiency in all saving throws; spend ki to reroll a failed save."
+      },
+      {
+        "level": 16,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 18,
+        "name": "Empty Body",
+        "description": "Spend ki to turn invisible, or to cast astral projection."
+      },
+      {
+        "level": 19,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 20,
+        "name": "Perfect Self",
+        "description": "Regain 4 ki points when you roll initiative with none left."
+      }
+    ],
     "unarmored_defense": "monk",
     "spell_ability": "",
     "caster_type": "none",
@@ -267,6 +714,88 @@
       "medicine",
       "persuasion",
       "religion"
+    ],
+    "features": [
+      {
+        "level": 1,
+        "name": "Divine Sense",
+        "description": "Action: detect celestials, fiends, and undead nearby."
+      },
+      {
+        "level": 1,
+        "name": "Lay on Hands",
+        "description": "Heal a pool of hit points equal to 5 × your level by touch; spend 5 to cure a disease or poison."
+      },
+      {
+        "level": 2,
+        "name": "Fighting Style",
+        "description": "Adopt a combat specialty (e.g. Defense, Dueling, Protection)."
+      },
+      {
+        "level": 2,
+        "name": "Spellcasting",
+        "description": "Cast paladin spells using Charisma; you prepare from the paladin list."
+      },
+      {
+        "level": 2,
+        "name": "Divine Smite",
+        "description": "On a melee hit, spend a spell slot to deal +2d6 radiant damage (more for higher slots / undead)."
+      },
+      {
+        "level": 3,
+        "name": "Sacred Oath",
+        "description": "Choose a subclass oath granting spells and Channel Divinity (SRD: Oath of Devotion)."
+      },
+      {
+        "level": 4,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 5,
+        "name": "Extra Attack",
+        "description": "Attack twice when you take the Attack action."
+      },
+      {
+        "level": 6,
+        "name": "Aura of Protection",
+        "description": "You and nearby allies add your CHA modifier to saving throws."
+      },
+      {
+        "level": 8,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 10,
+        "name": "Aura of Courage",
+        "description": "You and nearby allies can't be frightened."
+      },
+      {
+        "level": 11,
+        "name": "Improved Divine Smite",
+        "description": "All your melee weapon hits deal an extra 1d8 radiant damage."
+      },
+      {
+        "level": 12,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 14,
+        "name": "Cleansing Touch",
+        "description": "Action: end one spell on yourself or a willing creature you touch."
+      },
+      {
+        "level": 16,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 19,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      }
     ],
     "unarmored_defense": "",
     "spell_ability": "charisma",
@@ -309,6 +838,93 @@
       "perception",
       "stealth",
       "survival"
+    ],
+    "features": [
+      {
+        "level": 1,
+        "name": "Favored Enemy",
+        "description": "Choose a type of foe; you have advantage to track and recall lore about them."
+      },
+      {
+        "level": 1,
+        "name": "Natural Explorer",
+        "description": "Choose a favored terrain where your group travels and forages more effectively."
+      },
+      {
+        "level": 2,
+        "name": "Fighting Style",
+        "description": "Adopt a combat specialty (e.g. Archery, Defense, Dueling)."
+      },
+      {
+        "level": 2,
+        "name": "Spellcasting",
+        "description": "Cast ranger spells using Wisdom; you learn a few from the ranger list."
+      },
+      {
+        "level": 3,
+        "name": "Ranger Archetype",
+        "description": "Choose a subclass (SRD: Hunter)."
+      },
+      {
+        "level": 3,
+        "name": "Primeval Awareness",
+        "description": "Spend a spell slot to sense certain creature types within miles."
+      },
+      {
+        "level": 4,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 5,
+        "name": "Extra Attack",
+        "description": "Attack twice when you take the Attack action."
+      },
+      {
+        "level": 8,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 8,
+        "name": "Land's Stride",
+        "description": "Move through nonmagical difficult terrain freely; advantage vs. plant snares."
+      },
+      {
+        "level": 10,
+        "name": "Hide in Plain Sight",
+        "description": "Spend a minute camouflaging to gain a big bonus to hide while you stay still."
+      },
+      {
+        "level": 12,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 14,
+        "name": "Vanish",
+        "description": "Hide as a bonus action; you can't be tracked nonmagically."
+      },
+      {
+        "level": 16,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 18,
+        "name": "Feral Senses",
+        "description": "Sense and fight invisible creatures nearby without sight."
+      },
+      {
+        "level": 19,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 20,
+        "name": "Foe Slayer",
+        "description": "Once a turn add your WIS modifier to an attack or damage roll against a foe."
+      }
     ],
     "unarmored_defense": "",
     "spell_ability": "wisdom",
@@ -354,6 +970,98 @@
       "sleight-of-hand",
       "stealth"
     ],
+    "features": [
+      {
+        "level": 1,
+        "name": "Expertise",
+        "description": "Double your proficiency bonus on two chosen skills (two more at 6th)."
+      },
+      {
+        "level": 1,
+        "name": "Sneak Attack",
+        "description": "Once a turn, deal extra damage (1d6, growing with level) when you have advantage or an ally flanks."
+      },
+      {
+        "level": 1,
+        "name": "Thieves' Cant",
+        "description": "A secret mix of dialect and signs you use to hide messages in plain sight."
+      },
+      {
+        "level": 2,
+        "name": "Cunning Action",
+        "description": "Bonus action each turn to Dash, Disengage, or Hide."
+      },
+      {
+        "level": 3,
+        "name": "Roguish Archetype",
+        "description": "Choose a subclass (SRD: Thief)."
+      },
+      {
+        "level": 4,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 5,
+        "name": "Uncanny Dodge",
+        "description": "Reaction: halve the damage of one attack that hits you."
+      },
+      {
+        "level": 7,
+        "name": "Evasion",
+        "description": "Take no damage on a successful DEX save (and half on a failure) against area effects."
+      },
+      {
+        "level": 8,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 10,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 11,
+        "name": "Reliable Talent",
+        "description": "Treat any d20 of 9 or lower as a 10 on checks you're proficient in."
+      },
+      {
+        "level": 12,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 14,
+        "name": "Blindsense",
+        "description": "Sense hidden or invisible creatures within 10 feet."
+      },
+      {
+        "level": 15,
+        "name": "Slippery Mind",
+        "description": "Gain proficiency in Wisdom saving throws."
+      },
+      {
+        "level": 16,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 18,
+        "name": "Elusive",
+        "description": "No attack roll has advantage against you while you aren't incapacitated."
+      },
+      {
+        "level": 19,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 20,
+        "name": "Stroke of Luck",
+        "description": "Turn a missed attack into a hit, or a failed check into a 20, once per rest."
+      }
+    ],
     "unarmored_defense": "",
     "spell_ability": "",
     "caster_type": "none",
@@ -392,6 +1100,58 @@
       "intimidation",
       "persuasion",
       "religion"
+    ],
+    "features": [
+      {
+        "level": 1,
+        "name": "Spellcasting",
+        "description": "Cast sorcerer spells using Charisma; you know a limited set."
+      },
+      {
+        "level": 1,
+        "name": "Sorcerous Origin",
+        "description": "Choose a subclass that's the source of your magic (SRD: Draconic Bloodline)."
+      },
+      {
+        "level": 2,
+        "name": "Font of Magic",
+        "description": "Gain Sorcery Points you can convert to and from spell slots."
+      },
+      {
+        "level": 3,
+        "name": "Metamagic",
+        "description": "Bend spells with options like Twinned, Quickened, or Subtle Spell (more known later)."
+      },
+      {
+        "level": 4,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 8,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 12,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 16,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 19,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 20,
+        "name": "Sorcerous Restoration",
+        "description": "Regain 4 sorcery points on a short rest."
+      }
     ],
     "unarmored_defense": "",
     "spell_ability": "charisma",
@@ -432,6 +1192,63 @@
       "nature",
       "religion"
     ],
+    "features": [
+      {
+        "level": 1,
+        "name": "Otherworldly Patron",
+        "description": "Choose a subclass patron granting expanded spells and features (SRD: The Fiend)."
+      },
+      {
+        "level": 1,
+        "name": "Pact Magic",
+        "description": "Cast using Charisma with a few slots that recharge on a short rest, always at their highest level."
+      },
+      {
+        "level": 2,
+        "name": "Eldritch Invocations",
+        "description": "Learn magical knacks that reshape your abilities (e.g. Agonizing Blast)."
+      },
+      {
+        "level": 3,
+        "name": "Pact Boon",
+        "description": "Gain a Pact of the Chain, Blade, or Tome boon from your patron."
+      },
+      {
+        "level": 4,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 8,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 11,
+        "name": "Mystic Arcanum",
+        "description": "Cast one 6th-level spell once per long rest (a higher tier at 13th, 15th, 17th)."
+      },
+      {
+        "level": 12,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 16,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 19,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 20,
+        "name": "Eldritch Master",
+        "description": "Regain all Pact Magic slots by entreating your patron for 1 minute, once per long rest."
+      }
+    ],
     "unarmored_defense": "",
     "spell_ability": "charisma",
     "caster_type": "pact",
@@ -469,6 +1286,58 @@
       "investigation",
       "medicine",
       "religion"
+    ],
+    "features": [
+      {
+        "level": 1,
+        "name": "Spellcasting",
+        "description": "Cast wizard spells using Intelligence; you prepare from your spellbook each day."
+      },
+      {
+        "level": 1,
+        "name": "Arcane Recovery",
+        "description": "Recover some spent spell slots once per day on a short rest."
+      },
+      {
+        "level": 2,
+        "name": "Arcane Tradition",
+        "description": "Choose a subclass school of magic (SRD: School of Evocation)."
+      },
+      {
+        "level": 4,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 8,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 12,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 16,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 18,
+        "name": "Spell Mastery",
+        "description": "Cast a chosen 1st- and 2nd-level spell at will, without a slot."
+      },
+      {
+        "level": 19,
+        "name": "Ability Score Improvement",
+        "description": "Raise your ability scores (+2 to one, or +1 to two) — or take a feat."
+      },
+      {
+        "level": 20,
+        "name": "Signature Spells",
+        "description": "Always have two chosen 3rd-level spells prepared, each free once per short rest."
+      }
     ],
     "unarmored_defense": "",
     "spell_ability": "intelligence",

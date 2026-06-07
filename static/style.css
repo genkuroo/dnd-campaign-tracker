@@ -612,6 +612,23 @@ form.inline { display: inline; margin: 0; }
 .skill-opt.is-class-skill .skill-tag { color: var(--accent-2); }
 code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px; }
 
+/* Class features section on the character sheet (computed from class + level) */
+.class-blurb { margin: 0 0 0.9rem; max-width: 60ch; }
+.feature-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.55rem; }
+.feature { display: flex; gap: 0.7rem; align-items: baseline; }
+.feature-lvl { flex: 0 0 auto; min-width: 2.1rem; text-align: center; font-size: 0.78rem;
+               font-weight: 600; color: var(--accent-2); background: var(--panel-2);
+               border-radius: 4px; padding: 0.1rem 0.3rem; }
+.feature-asi .feature-lvl { color: var(--muted); }
+.feature-body { display: flex; flex-direction: column; gap: 0.1rem; }
+.feature-name { font-weight: 600; }
+.feature-desc { color: var(--muted); font-size: 0.92rem; line-height: 1.35; }
+.feature-next { margin-top: 1rem; }
+.feature-next > summary { cursor: pointer; color: var(--accent-2); font-size: 0.92rem; }
+.feature-next .feature-list { margin-top: 0.7rem; }
+.feature-list.dim .feature-name { font-weight: 500; color: var(--ink); }
+.feature-list.dim .feature-lvl { color: var(--muted); }
+
 /* Info icon + hover/focus tooltip (reusable glossary component) */
 .info {
   position: relative;

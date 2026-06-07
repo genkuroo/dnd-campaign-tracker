@@ -69,7 +69,8 @@ from models.inventory import (
     remove_item,
     unequip_item,
 )
-from models.classes import all_classes, get_class, hit_die_average
+from models.classes import (all_classes, get_class, hit_die_average,
+                            class_features, class_features_remaining)
 from models.items import all_item_defs, get_item_def
 from models.loot import (
     add_loot,
@@ -735,6 +736,8 @@ def character_detail(creature_id):
         can_edit=can_edit_creature(creature),
         abilities=ABILITIES,
         klass=klass,
+        class_features=class_features(creature["class_name"], creature["level"]),
+        class_features_next=class_features_remaining(creature["class_name"], creature["level"])[:4],
         level_hp=level_hp,
         eff_abilities=eff_ab,
         saves=save_table(creature, eff_ab),
