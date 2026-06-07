@@ -161,6 +161,12 @@ from models.spellcasting import (
     spell_stats,
     spend_slot,
 )
+from models.resources import (
+    resource_rows,
+    spend_resource,
+    restore_resource,
+)
+from models.resources import rest as resource_rest
 
 # Quick-roll die buttons on the dice page.
 DICE_BUTTONS = [4, 6, 8, 10, 12, 20, 100]
@@ -768,6 +774,7 @@ def character_detail(creature_id):
         creature=creature,
         spells=known,
         addable_spells=[s for s in all_spells() if s["slug"] not in known_slugs],
+        resource_rows=resource_rows(creature, eff_ab),
         **_spellcasting_ctx(creature),
         next_level=next_level,                         # (level, xp_to_go) or None
         xp_level=level_from_xp(creature["xp"]),         # level the XP implies
@@ -1245,12 +1252,14 @@ def party_rest_route():
     kind = request.form.get("kind")
     if kind in ("short", "long"):
         party_rest(kind)
-        # Spell slots refresh with the rest: a long rest clears all expended slots;
-        # a short rest only recharges Warlock pact slots.
+        # Slots + class resources refresh with the rest: a long rest clears all
+        # expended slots & every resource; a short rest recharges Warlock pact slots
+        # and the short-recharging resources (Ki, Channel Divinity, …).
         for pc in list_party():
             restore_all_slots(pc["id"]) if kind == "long" else restore_pact_slots(pc["id"])
-        flash("Long rest — party restored to full HP and spell slots." if kind == "long"
-              else "Short rest — party recovered some HP (and pact slots).")
+            resource_rest(pc, kind)
+        flash("Long rest — party restored to full HP, spell slots & resources." if kind == "long"
+              else "Short rest — party recovered some HP, pact slots & short-rest resources.")
     return redirect(url_for("party"))
 
 
@@ -1358,6 +1367,9 @@ def _spellcasting_ctx(creature):
         "slot_rows": rows,
         "caster_type": caster_type(creature),
         "slots_available": {r["level"]: r["available"] for r in rows},
+        # When a resources panel is showing, it owns the rest buttons (it recharges
+        # slots too) — so the spell panel hides its own to avoid a duplicate control.
+        "has_resources": bool(resource_rows(creature)),
     }
 
 
@@ -1373,6 +1385,17 @@ def _spells_fragment(creature_id):
         spells=known,
         addable_spells=[s for s in all_spells() if s["slug"] not in known_slugs],
         **_spellcasting_ctx(creature),
+    )
+
+
+def _resources_fragment(creature_id):
+    """Render the class-resources panel for a creature (the #resources AJAX fragment)."""
+    creature = get_creature(creature_id)
+    return render_template(
+        "_resources.html",
+        creature=creature,
+        can_edit=can_edit_creature(creature),
+        resource_rows=resource_rows(creature),
     )
 
 
@@ -1869,17 +1892,58 @@ def spellbook_slot():
 @app.route("/spellbook/rest", methods=["POST"])
 def spellbook_rest():
     """Refill a single caster's slots from their own sheet: a long rest clears all,
-    a short rest only recharges Warlock pact slots."""
+    a short rest only recharges Warlock pact slots. Class resources recharge too, so
+    a caster's rest button covers everything in one go."""
     cid = _require_edit_form_creature()
-    if request.form.get("kind") == "long":
+    kind = "long" if request.form.get("kind") == "long" else "short"
+    if kind == "long":
         restore_all_slots(cid)
-        flash("Long rest — spell slots restored.")
     else:
         restore_pact_slots(cid)
-        flash("Short rest — pact slots restored.")
+    resource_rest(get_creature(cid), kind)
+    flash("Long rest — slots & resources restored." if kind == "long"
+          else "Short rest — pact slots & short-rest resources restored.")
     if _is_fetch():
         return _spells_fragment(cid)
     return redirect(_safe_next(request.form.get("next"), url_for("character")))
+
+
+# Class-resource mutations (Rage, Ki, Channel Divinity, …). Keyed by a form
+# `creature_id` + `key`, edit-gated like the spellbook, AJAX-rerender #resources.
+
+@app.route("/resources/adjust", methods=["POST"])
+def resources_adjust():
+    """Spend or restore some of a class resource (action 'spend' | 'restore', an
+    optional `amount` for pool resources like Lay on Hands)."""
+    cid = _require_edit_form_creature()
+    creature = get_creature(cid)
+    key = request.form.get("key", "")
+    amount = max(1, request.form.get("amount", 1, type=int) or 1)
+    if request.form.get("action") == "restore":
+        restore_resource(creature, key, amount)
+    else:
+        spend_resource(creature, key, amount)
+    if _is_fetch():
+        return _resources_fragment(cid)
+    return redirect(_safe_next(request.form.get("next"), url_for("character")))
+
+
+@app.route("/resources/rest", methods=["POST"])
+def resources_rest():
+    """A short/long rest from the resources panel — recharges class resources AND
+    spell slots (so a non-caster's rest button and a caster's behave the same).
+    Full redirect, so both the resources and spell panels refresh."""
+    cid = _require_edit_form_creature()
+    kind = "long" if request.form.get("kind") == "long" else "short"
+    resource_rest(get_creature(cid), kind)
+    if kind == "long":
+        restore_all_slots(cid)
+        flash("Long rest — resources & spell slots restored.")
+    else:
+        restore_pact_slots(cid)
+        flash("Short rest — short-rest resources (& pact slots) restored.")
+    return redirect(_safe_next(request.form.get("next"),
+                               url_for("character_detail", creature_id=cid)))
 
 
 # --- Actions & abilities (on the character/monster sheet) -----------------

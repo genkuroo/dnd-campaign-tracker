@@ -209,6 +209,13 @@
     </section>
   {% endif %}
 
+  {% if resource_rows %}
+    <div class="sheet-divider" role="separator"></div>
+    <div id="resources">
+      {% include "_resources.html" %}
+    </div>
+  {% endif %}
+
   <div class="sheet-divider" role="separator"></div>
 
   <div id="gear">
@@ -538,6 +545,27 @@
       });
 
       applyFilter();
+    })();
+
+    // Class resources: spend/restore re-render the #resources fragment in place.
+    // Rest forms (data-reload) submit normally so the page reloads — that also
+    // refreshes spell slots, which a rest recharges alongside resources.
+    (function () {
+      const box = document.getElementById('resources');
+      if (!box) return;
+      box.addEventListener('submit', function (e) {
+        const form = e.target.closest('form');
+        if (!form || form.dataset.reload) return;
+        e.preventDefault();
+        const body = new FormData(form);
+        // A name="action" submit button (spend/restore) isn't in FormData unless it
+        // was the activator — carry it explicitly.
+        if (e.submitter && e.submitter.name) body.set(e.submitter.name, e.submitter.value);
+        fetch(form.getAttribute('action'), { method: 'POST', body: body,
+                             headers: { 'X-Requested-With': 'fetch' } })
+          .then(r => r.text())
+          .then(html => { box.innerHTML = html; });
+      });
     })();
   </script>
 {% endblock %}

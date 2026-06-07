@@ -47,7 +47,7 @@
               {% endif %}
             </div>
           {% endfor %}
-          {% if can_edit %}
+          {% if can_edit and not has_resources %}
             <div class="slot-rests">
               <form method="post" action="{{ url_for('spellbook_rest') }}" class="inline">
                 <input type="hidden" name="creature_id" value="{{ creature['id'] }}">

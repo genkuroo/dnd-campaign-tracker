@@ -614,6 +614,22 @@ form.inline { display: inline; margin: 0; }
 .cast-slot { color: var(--accent-2); border-color: var(--accent-2); }
 .cast-slot:disabled { opacity: 0.35; cursor: default; color: var(--muted); border-color: var(--border); }
 
+/* Class-resources panel — reuses the slot tracker's pip + button look. */
+.char-resources .resource-tracker { display: flex; flex-direction: column; gap: 0.4rem; max-width: 34rem; }
+.resource-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin: 0; }
+.resource-name { font-weight: 600; min-width: 9.5rem; }
+.recharge-tag { font-family: sans-serif; font-size: 0.6rem; text-transform: uppercase;
+                letter-spacing: 0.05em; margin-left: 0.35rem; padding: 0.05rem 0.4rem;
+                border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+.recharge-tag.short { color: var(--accent-2);
+                      border-color: color-mix(in srgb, var(--accent-2) 45%, transparent); }
+.resource-count { font-family: sans-serif; font-size: 0.82rem; color: var(--muted);
+                  min-width: 2.6rem; text-align: center; }
+.resource-count strong { color: var(--accent-2); font-size: 1.05rem; }
+.res-amount { width: 3.4rem; }
+.res-textbtn { width: auto; padding: 0 0.5rem; }
+.resource-rests { margin-top: 0.5rem; }
+
 /* Skill-proficiency picker on the edit form */
 .skill-checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.25rem 1rem; }
 .skill-budget { margin: 0 0 0.6rem; font-size: 0.9rem; }

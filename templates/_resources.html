@@ -1,0 +1,58 @@
+{# Class-resources panel (Rage, Ki, Channel Divinity, Lay on Hands, Action Surge,
+   …). Rendered inside the character sheet and standalone by the #resources AJAX
+   endpoint, so spend/restore refresh in place. The rest buttons reload the page
+   (marked data-reload) — they also recharge spell slots. Expects: creature,
+   resource_rows, can_edit. #}
+<section class="char-resources">
+  <h2>Class Resources</h2>
+  <p class="muted spell-help">Limited-use abilities that recharge on a rest.{% if can_edit %} − spends, + recovers; a rest refills them.{% endif %}</p>
+  <div class="resource-tracker">
+    {% for r in resource_rows %}
+      <form method="post" action="{{ url_for('resources_adjust') }}" class="resource-row">
+        <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+        <input type="hidden" name="key" value="{{ r.key }}">
+        <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+        <span class="resource-name">{{ r.name }}
+          <span class="recharge-tag {{ 'short' if r.short else 'long' }}" title="Recharges on a {{ 'short or long' if r.short else 'long' }} rest">{{ 'short rest' if r.short else 'long rest' }}</span>
+        </span>
+        {% if r.unlimited %}
+          <span class="resource-count" title="Unlimited at this level">∞</span>
+        {% elif r.pool %}
+          <span class="resource-count"><strong>{{ r.available }}</strong> / {{ r.total }}</span>
+          {% if can_edit %}
+            <input type="number" name="amount" value="1" min="1" max="{{ r.total }}" class="res-amount" aria-label="Amount of {{ r.name }}">
+            <button type="submit" name="action" value="spend" class="slot-btn res-textbtn" {{ 'disabled' if r.available == 0 else '' }} title="Use">Use</button>
+            <button type="submit" name="action" value="restore" class="slot-btn res-textbtn" {{ 'disabled' if r.expended == 0 else '' }} title="Restore">Restore</button>
+          {% endif %}
+        {% else %}
+          {% if r.total <= 10 %}
+            <span class="slot-pips" aria-hidden="true">
+              {% for i in range(r.total) %}<span class="pip {{ 'spent' if i >= r.available else '' }}"></span>{% endfor %}
+            </span>
+          {% endif %}
+          {% if can_edit %}
+            <button type="submit" name="action" value="spend" class="slot-btn" {{ 'disabled' if r.available == 0 else '' }} title="Spend one">−</button>
+          {% endif %}
+          <span class="resource-count">{{ r.available }}/{{ r.total }}</span>
+          {% if can_edit %}
+            <button type="submit" name="action" value="restore" class="slot-btn" {{ 'disabled' if r.expended == 0 else '' }} title="Recover one">+</button>
+          {% endif %}
+        {% endif %}
+      </form>
+    {% endfor %}
+    {% if can_edit %}
+      <div class="resource-rests slot-rests">
+        <form method="post" action="{{ url_for('resources_rest') }}" class="inline" data-reload="1">
+          <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+          <input type="hidden" name="kind" value="short">
+          <button type="submit" class="check-btn" title="Recharge short-rest resources (and pact slots)">Short rest ↺</button>
+        </form>
+        <form method="post" action="{{ url_for('resources_rest') }}" class="inline" data-reload="1">
+          <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+          <input type="hidden" name="kind" value="long">
+          <button type="submit" class="check-btn" title="Recharge all resources (and spell slots)">Long rest ↺</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+</section>

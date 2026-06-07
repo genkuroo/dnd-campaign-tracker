@@ -89,6 +89,11 @@ set_skill_proficiencies(vex, ["stealth", "acrobatics", "sleight-of-hand",
 for _pc in (gandalf, grog, pike, vex):
     app._sync_class_actions(_pc)
 
+# Spend a couple of class resources so the tracker shows partial use on load.
+from models.resources import spend_resource  # noqa: E402
+spend_resource(get_creature(grog), "rage")          # Grog: 1 Rage used
+spend_resource(get_creature(pike), "channel-divinity")  # Pike: Channel Divinity used
+
 # Players linked to their PCs (Vex is left unassigned to demo "Create my character").
 alice = create_user("alice", PASSWORD, "player", creature_id=gandalf)
 bob = create_user("bob", PASSWORD, "player", creature_id=grog)

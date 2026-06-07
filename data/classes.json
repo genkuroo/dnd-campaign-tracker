@@ -163,6 +163,42 @@
           }
         ]
       }
+    ],
+    "resources": [
+      {
+        "key": "rage",
+        "name": "Rage",
+        "recharge": "long",
+        "max": {
+          "type": "steps",
+          "steps": [
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              6,
+              4
+            ],
+            [
+              12,
+              5
+            ],
+            [
+              17,
+              6
+            ],
+            [
+              20,
+              -1
+            ]
+          ]
+        }
+      }
     ]
   },
   {
@@ -327,6 +363,19 @@
           }
         ]
       }
+    ],
+    "resources": [
+      {
+        "key": "bardic-inspiration",
+        "name": "Bardic Inspiration",
+        "recharge": "long",
+        "short_from_level": 5,
+        "max": {
+          "type": "ability_mod",
+          "ability": "charisma",
+          "min": 1
+        }
+      }
     ]
   },
   {
@@ -461,6 +510,31 @@
             "description": "Maximize the dice of your healing spells instead of rolling them."
           }
         ]
+      }
+    ],
+    "resources": [
+      {
+        "key": "channel-divinity",
+        "name": "Channel Divinity",
+        "recharge": "short",
+        "min_level": 2,
+        "max": {
+          "type": "steps",
+          "steps": [
+            [
+              2,
+              1
+            ],
+            [
+              6,
+              2
+            ],
+            [
+              18,
+              3
+            ]
+          ]
+        }
       }
     ]
   },
@@ -606,6 +680,27 @@
             "description": "Beasts and plants must make a WIS save to attack you."
           }
         ]
+      }
+    ],
+    "resources": [
+      {
+        "key": "wild-shape",
+        "name": "Wild Shape",
+        "recharge": "short",
+        "min_level": 2,
+        "max": {
+          "type": "steps",
+          "steps": [
+            [
+              2,
+              2
+            ],
+            [
+              20,
+              -1
+            ]
+          ]
+        }
       }
     ]
   },
@@ -753,6 +848,59 @@
             "description": "At the start of each turn you regain HP equal to 5 + your CON modifier if you have less than half your hit points."
           }
         ]
+      }
+    ],
+    "resources": [
+      {
+        "key": "second-wind",
+        "name": "Second Wind",
+        "recharge": "short",
+        "max": {
+          "type": "fixed",
+          "value": 1
+        }
+      },
+      {
+        "key": "action-surge",
+        "name": "Action Surge",
+        "recharge": "short",
+        "min_level": 2,
+        "max": {
+          "type": "steps",
+          "steps": [
+            [
+              2,
+              1
+            ],
+            [
+              17,
+              2
+            ]
+          ]
+        }
+      },
+      {
+        "key": "indomitable",
+        "name": "Indomitable",
+        "recharge": "long",
+        "min_level": 9,
+        "max": {
+          "type": "steps",
+          "steps": [
+            [
+              9,
+              1
+            ],
+            [
+              13,
+              2
+            ],
+            [
+              17,
+              3
+            ]
+          ]
+        }
       }
     ]
   },
@@ -924,6 +1072,17 @@
           }
         ]
       }
+    ],
+    "resources": [
+      {
+        "key": "ki",
+        "name": "Ki Points",
+        "recharge": "short",
+        "min_level": 2,
+        "max": {
+          "type": "level"
+        }
+      }
     ]
   },
   {
@@ -1092,6 +1251,39 @@
           }
         ]
       }
+    ],
+    "resources": [
+      {
+        "key": "lay-on-hands",
+        "name": "Lay on Hands",
+        "recharge": "long",
+        "pool": true,
+        "max": {
+          "type": "level_times",
+          "factor": 5
+        }
+      },
+      {
+        "key": "channel-divinity",
+        "name": "Channel Divinity",
+        "recharge": "short",
+        "min_level": 3,
+        "max": {
+          "type": "fixed",
+          "value": 1
+        }
+      },
+      {
+        "key": "divine-sense",
+        "name": "Divine Sense",
+        "recharge": "long",
+        "max": {
+          "type": "ability_mod",
+          "ability": "charisma",
+          "plus": 1,
+          "min": 1
+        }
+      }
     ]
   },
   {
@@ -1253,7 +1445,8 @@
           }
         ]
       }
-    ]
+    ],
+    "resources": []
   },
   {
     "slug": "rogue",
@@ -1430,7 +1623,8 @@
           }
         ]
       }
-    ]
+    ],
+    "resources": []
   },
   {
     "slug": "sorcerer",
@@ -1556,6 +1750,17 @@
             "description": "Spend 5 sorcery points to radiate an aura of awe or fear for 1 minute; creatures within 60 ft save or are charmed/frightened."
           }
         ]
+      }
+    ],
+    "resources": [
+      {
+        "key": "sorcery-points",
+        "name": "Sorcery Points",
+        "recharge": "long",
+        "min_level": 2,
+        "max": {
+          "type": "level"
+        }
       }
     ]
   },
@@ -1693,7 +1898,8 @@
           }
         ]
       }
-    ]
+    ],
+    "resources": []
   },
   {
     "slug": "wizard",
@@ -1819,6 +2025,7 @@
           }
         ]
       }
-    ]
+    ],
+    "resources": []
   }
 ]

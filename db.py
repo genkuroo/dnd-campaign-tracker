@@ -14,7 +14,7 @@ import sqlite3
 # real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
 DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
-SCHEMA_VERSION = 28
+SCHEMA_VERSION = 29
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -356,6 +356,18 @@ MIGRATIONS = {
     -- in the app (a pick that doesn't belong to the class is cleared). Subclass
     -- features merge into class_features() and auto-grant like base class actions.
     ALTER TABLE creatures ADD COLUMN subclass TEXT NOT NULL DEFAULT '';
+    """,
+    29: """
+    -- Class resources: limited-use, rest-recharged pools (Rage, Ki, Channel
+    -- Divinity, Lay on Hands, …). Mirrors creature_spell_slots — only the *expended*
+    -- amount is stored; the *max* is computed on read from the class + level
+    -- (data/classes.json `resources`). A short/long rest clears the matching keys.
+    CREATE TABLE creature_resources (
+        creature_id  INTEGER NOT NULL REFERENCES creatures(id) ON DELETE CASCADE,
+        resource_key TEXT    NOT NULL,
+        expended     INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (creature_id, resource_key)
+    );
     """,
 }
 
