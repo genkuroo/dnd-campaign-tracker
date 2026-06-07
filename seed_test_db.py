@@ -53,7 +53,7 @@ set_signup_code("DRAGON")  # players could self-register at /register with this
 # Wizard — full caster: spells, slots, casting stats.
 gandalf = make_pc("Gandalf", "wizard", player="alice", xp=6500, avatar="🧙")
 update_creature(gandalf, {"intelligence": 16, "dexterity": 14, "level": 5,
-                          "alignment": "NG"})
+                          "alignment": "NG", "subclass": "evocation"})
 set_skill_proficiencies(gandalf, ["arcana", "history", "investigation", "insight"])
 for slug in ("fire-bolt", "magic-missile", "shield", "burning-hands", "fireball"):
     add_spell(gandalf, slug)
@@ -62,7 +62,8 @@ spend_slot(gandalf, 3)
 
 # Barbarian — martial, Unarmored Defense, a Rage ability.
 grog = make_pc("Grog", "barbarian", player="bob", xp=6500, avatar="🪓")
-update_creature(grog, {"strength": 17, "constitution": 16, "level": 5, "alignment": "CN"})
+update_creature(grog, {"strength": 17, "constitution": 16, "level": 5,
+                       "alignment": "CN", "subclass": "berserker"})
 set_skill_proficiencies(grog, ["athletics", "intimidation", "survival"])
 # Rage now comes from the class auto-grant; this is a hand-added extra to show
 # class-granted and manual actions side by side.
@@ -71,14 +72,14 @@ add_action(grog, "Reckless Attack", "Advantage on melee attacks this turn; attac
 
 # Cleric — full caster with healing + a save-DC spell.
 pike = make_pc("Pike", "cleric", player="carol", xp=2700, avatar="🛡️")
-update_creature(pike, {"wisdom": 16, "level": 4, "alignment": "LG"})
+update_creature(pike, {"wisdom": 16, "level": 4, "alignment": "LG", "subclass": "life"})
 set_skill_proficiencies(pike, ["medicine", "religion", "persuasion"])
 for slug in ("cure-wounds", "healing-word", "thunderwave"):
     add_spell(pike, slug)
 
 # Rogue — no spells; skill-monkey; equips a dagger.
 vex = make_pc("Vex", "rogue", player=None, xp=900, avatar="🗡️")
-update_creature(vex, {"dexterity": 16, "level": 3, "alignment": "CG"})
+update_creature(vex, {"dexterity": 16, "level": 3, "alignment": "CG", "subclass": "thief"})
 set_skill_proficiencies(vex, ["stealth", "acrobatics", "sleight-of-hand",
                               "perception", "deception"])
 
@@ -183,8 +184,10 @@ print(f"DB file : {os.path.abspath(TEST_DB)}")
 print("Launch  : DND_DB_PATH=%s python app.py   (http://127.0.0.1:5002)" % TEST_DB)
 print("\nLogins (password for all: %s):" % PASSWORD)
 print("  dm     — Dungeon Master (sees & edits everything)")
-print("  alice  — Gandalf (Wizard 5, full caster, spells+slots)")
-print("  bob    — Grog (Barbarian 5, martial, rage)")
-print("  carol  — Pike (Cleric 4, healer/caster)")
+print("  alice  — Gandalf (Wizard 5 / School of Evocation)")
+print("  bob    — Grog (Barbarian 5 / Path of the Berserker — Frenzy)")
+print("  carol  — Pike (Cleric 4 / Life Domain — Preserve Life)")
 print("  dave   — no character yet (demo 'Create my character')")
-print("Vex (Rogue 3) is unassigned. Signup code for /register: DRAGON")
+print("Vex (Rogue 3 / Thief — Fast Hands) is unassigned. Signup code for /register: DRAGON")
+print("Subclasses show in each sheet's <Class> Features section (SUBCLASS pill);")
+print("action-type ones are auto-granted into Actions & Abilities.")
