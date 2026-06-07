@@ -10,6 +10,15 @@
       "STR",
       "CON"
     ],
+    "skill_count": 2,
+    "skills": [
+      "animal-handling",
+      "athletics",
+      "intimidation",
+      "nature",
+      "perception",
+      "survival"
+    ],
     "unarmored_defense": "barbarian",
     "spell_ability": "",
     "caster_type": "none",
@@ -39,6 +48,27 @@
     "saves": [
       "DEX",
       "CHA"
+    ],
+    "skill_count": 3,
+    "skills": [
+      "acrobatics",
+      "animal-handling",
+      "arcana",
+      "athletics",
+      "deception",
+      "history",
+      "insight",
+      "intimidation",
+      "investigation",
+      "medicine",
+      "nature",
+      "perception",
+      "performance",
+      "persuasion",
+      "religion",
+      "sleight-of-hand",
+      "stealth",
+      "survival"
     ],
     "unarmored_defense": "",
     "spell_ability": "charisma",
@@ -70,6 +100,14 @@
       "WIS",
       "CHA"
     ],
+    "skill_count": 2,
+    "skills": [
+      "history",
+      "insight",
+      "medicine",
+      "persuasion",
+      "religion"
+    ],
     "unarmored_defense": "",
     "spell_ability": "wisdom",
     "caster_type": "full",
@@ -99,6 +137,17 @@
     "saves": [
       "INT",
       "WIS"
+    ],
+    "skill_count": 2,
+    "skills": [
+      "arcana",
+      "animal-handling",
+      "insight",
+      "medicine",
+      "nature",
+      "perception",
+      "religion",
+      "survival"
     ],
     "unarmored_defense": "",
     "spell_ability": "wisdom",
@@ -130,6 +179,17 @@
       "STR",
       "CON"
     ],
+    "skill_count": 2,
+    "skills": [
+      "acrobatics",
+      "animal-handling",
+      "athletics",
+      "history",
+      "insight",
+      "intimidation",
+      "perception",
+      "survival"
+    ],
     "unarmored_defense": "",
     "spell_ability": "",
     "caster_type": "none",
@@ -160,6 +220,15 @@
       "STR",
       "DEX"
     ],
+    "skill_count": 2,
+    "skills": [
+      "acrobatics",
+      "athletics",
+      "history",
+      "insight",
+      "religion",
+      "stealth"
+    ],
     "unarmored_defense": "monk",
     "spell_ability": "",
     "caster_type": "none",
@@ -189,6 +258,15 @@
     "saves": [
       "WIS",
       "CHA"
+    ],
+    "skill_count": 2,
+    "skills": [
+      "athletics",
+      "insight",
+      "intimidation",
+      "medicine",
+      "persuasion",
+      "religion"
     ],
     "unarmored_defense": "",
     "spell_ability": "charisma",
@@ -221,6 +299,17 @@
       "STR",
       "DEX"
     ],
+    "skill_count": 3,
+    "skills": [
+      "animal-handling",
+      "athletics",
+      "insight",
+      "investigation",
+      "nature",
+      "perception",
+      "stealth",
+      "survival"
+    ],
     "unarmored_defense": "",
     "spell_ability": "wisdom",
     "caster_type": "half",
@@ -250,6 +339,20 @@
     "saves": [
       "DEX",
       "INT"
+    ],
+    "skill_count": 4,
+    "skills": [
+      "acrobatics",
+      "athletics",
+      "deception",
+      "insight",
+      "intimidation",
+      "investigation",
+      "perception",
+      "performance",
+      "persuasion",
+      "sleight-of-hand",
+      "stealth"
     ],
     "unarmored_defense": "",
     "spell_ability": "",
@@ -281,6 +384,15 @@
       "CON",
       "CHA"
     ],
+    "skill_count": 2,
+    "skills": [
+      "arcana",
+      "deception",
+      "insight",
+      "intimidation",
+      "persuasion",
+      "religion"
+    ],
     "unarmored_defense": "",
     "spell_ability": "charisma",
     "caster_type": "full",
@@ -310,6 +422,16 @@
       "WIS",
       "CHA"
     ],
+    "skill_count": 2,
+    "skills": [
+      "arcana",
+      "deception",
+      "history",
+      "intimidation",
+      "investigation",
+      "nature",
+      "religion"
+    ],
     "unarmored_defense": "",
     "spell_ability": "charisma",
     "caster_type": "pact",
@@ -338,6 +460,15 @@
     "saves": [
       "INT",
       "WIS"
+    ],
+    "skill_count": 2,
+    "skills": [
+      "arcana",
+      "history",
+      "insight",
+      "investigation",
+      "medicine",
+      "religion"
     ],
     "unarmored_defense": "",
     "spell_ability": "intelligence",

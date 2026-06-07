@@ -111,12 +111,13 @@
       {# Skill proficiencies are DM-controlled (players can't reset their own). #}
       <fieldset>
         <legend>Skill Proficiencies <span class="muted">(DM only — add proficiency bonus to these checks)</span></legend>
+        <p class="muted skill-budget" id="skill-budget" hidden></p>
         {% set prof = proficient_skills | default([]) %}
-        <div class="skill-checks">
+        <div class="skill-checks" id="skill-checks">
           {% for slug, name, col, short in skill_options %}
-            <label class="checkbox">
+            <label class="checkbox skill-opt" data-slug="{{ slug }}">
               <input type="checkbox" name="skills" value="{{ slug }}" {{ 'checked' if slug in prof else '' }}>
-              <span>{{ name }} <span class="muted">{{ short }}</span></span>
+              <span>{{ name }} <span class="muted">{{ short }}</span><span class="skill-tag"></span></span>
             </label>
           {% endfor %}
         </div>
@@ -185,4 +186,51 @@
       {% endif %}
     </div>
   </form>
+
+  {% if is_dm %}
+  {# Guided skill picker: highlight the chosen class's skill list + show a
+     "choose N" budget. Guidance only — the DM can still pick off-list (other 5e
+     skill sources are background/race/feat, which we don't model). #}
+  <script>
+    (function () {
+      const byClass = {};
+      {% for cl in classes %}
+        byClass["{{ cl['slug'] }}"] = { count: {{ cl['skill_count'] | default(0) }},
+          skills: {{ cl['skills'] | default([]) | tojson }} };
+      {% endfor %}
+      const sel = document.querySelector('select[name="class_name"]');
+      const wrap = document.getElementById('skill-checks');
+      const budget = document.getElementById('skill-budget');
+      if (!sel || !wrap || !budget) return;
+      const opts = Array.from(wrap.querySelectorAll('.skill-opt'));
+
+      function refresh() {
+        const info = byClass[sel.value];
+        const allowed = info ? new Set(info.skills) : null;
+        let chosen = 0, off = 0;
+        opts.forEach(function (label) {
+          const isClass = allowed ? allowed.has(label.dataset.slug) : false;
+          const checked = label.querySelector('input').checked;
+          label.classList.toggle('is-class-skill', isClass);
+          label.querySelector('.skill-tag').textContent =
+            !allowed ? '' : (isClass ? ' · class' : ' · off-list');
+          if (checked && isClass) chosen++;
+          else if (checked && allowed) off++;
+        });
+        if (!info) { budget.hidden = true; return; }
+        budget.hidden = false;
+        const name = sel.options[sel.selectedIndex].text.replace(/\s*\(d\d+\)/, '');
+        let msg = name + ' — choose ' + info.count + '  ·  '
+                + chosen + ' of ' + info.count + ' class skills';
+        if (off) msg += ' (+' + off + ' off-list)';
+        budget.textContent = msg;
+        budget.classList.toggle('over', chosen > info.count);
+      }
+
+      sel.addEventListener('change', refresh);
+      wrap.addEventListener('change', refresh);
+      refresh();
+    })();
+  </script>
+  {% endif %}
 {% endblock %}

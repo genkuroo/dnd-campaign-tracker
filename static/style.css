@@ -604,6 +604,12 @@ form.inline { display: inline; margin: 0; }
 
 /* Skill-proficiency picker on the edit form */
 .skill-checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.25rem 1rem; }
+.skill-budget { margin: 0 0 0.6rem; font-size: 0.9rem; }
+.skill-budget.over { color: var(--warn, #e0a33d); }
+.skill-opt { border-radius: 4px; padding: 0.05rem 0.3rem; }
+.skill-opt.is-class-skill { background: color-mix(in srgb, var(--accent-2) 14%, transparent); }
+.skill-tag { color: var(--muted); font-size: 0.78rem; }
+.skill-opt.is-class-skill .skill-tag { color: var(--accent-2); }
 code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px; }
 
 /* Info icon + hover/focus tooltip (reusable glossary component) */
