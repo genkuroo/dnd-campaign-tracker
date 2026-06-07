@@ -92,6 +92,7 @@ from models.actions import (
     add_action,
     category_label as action_category_label,
     get_action,
+    grant_class_actions,
     list_actions,
     remove_action,
 )
@@ -460,6 +461,7 @@ def _apply_class(creature_id, class_slug, starting_kit=False):
         hp = max(1, klass["hit_die"] + ability_modifier(stats.get("constitution", 10)))
         fields.update({"max_hp": hp, "current_hp": hp, "gold": klass.get("starting_gold", 0)})
     update_creature(creature_id, fields)
+    _sync_class_actions(creature_id)  # auto-grant the class's usable abilities
     if starting_kit:
         for slug in klass.get("starting_equipment", []):
             item = get_item_def(slug)
@@ -473,6 +475,16 @@ def _apply_class(creature_id, class_slug, starting_kit=False):
                 armor_type=item.get("armor_type", ""))
             if item.get("slot"):
                 equip_item(new_id)  # auto-equip starting gear
+
+
+def _sync_class_actions(creature_id):
+    """Re-sync a creature's class-granted actions to its *current* class + level
+    (reads the creature fresh). Called after anything that can change either — class
+    apply, edit, or level-up. Clears class actions for the classless; never touches
+    hand-added ones."""
+    c = get_creature(creature_id)
+    if c:
+        grant_class_actions(creature_id, c["class_name"], c["level"])
 
 
 @app.route("/")
@@ -770,6 +782,7 @@ def character_edit(creature_id):
     if request.method == "POST":
         update_creature(creature_id, _form_to_data(request.form))
         _apply_avatar(creature_id)
+        _sync_class_actions(creature_id)  # class/level may have changed → resync
         if is_dm():  # skill proficiencies are DM-controlled; players can't reset them
             set_skill_proficiencies(creature_id, request.form.getlist("skills"))
         flash("Character updated.")
@@ -823,6 +836,7 @@ def character_levelup(creature_id):
             "max_hp": creature["max_hp"] + hp_gain,
             "current_hp": creature["current_hp"] + hp_gain,
         })
+        _sync_class_actions(creature_id)  # unlock any features gained at the new level
         flash(f"Leveled up to {new_level}." + (f" +{hp_gain} HP." if hp_gain else ""))
     return redirect(url_for("character_detail", creature_id=creature_id))
 

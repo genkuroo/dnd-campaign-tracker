@@ -54,3 +54,11 @@ def class_features_remaining(slug, level):
         return []
     lvl = int(level or 1)
     return [f for f in klass.get("features", []) if f["level"] > lvl]
+
+
+def grantable_class_features(slug, level):
+    """The action-type class features unlocked through `level` — the subset tagged
+    with a `category` in classes.json (Rage, Second Wind, Sneak Attack…). These are
+    the ones auto-granted into the creature's actions list; passives without a
+    category (ASI, Spellcasting, subclass markers) stay display-only."""
+    return [f for f in class_features(slug, level) if f.get("category")]

@@ -23,7 +23,8 @@
       {
         "level": 1,
         "name": "Rage",
-        "description": "As a bonus action, enter a rage: bonus melee damage, advantage on STR checks/saves, and resistance to bludgeoning, piercing, and slashing damage."
+        "description": "As a bonus action, enter a rage: bonus melee damage, advantage on STR checks/saves, and resistance to bludgeoning, piercing, and slashing damage.",
+        "category": "bonus"
       },
       {
         "level": 1,
@@ -171,7 +172,9 @@
       {
         "level": 1,
         "name": "Bardic Inspiration",
-        "description": "Bonus action: give a creature a d6 (growing with level) to add to one ability check, attack, or save."
+        "description": "Bonus action: give a creature a d6 (growing with level) to add to one ability check, attack, or save.",
+        "category": "bonus",
+        "dice": "1d6"
       },
       {
         "level": 2,
@@ -206,7 +209,8 @@
       {
         "level": 6,
         "name": "Countercharm",
-        "description": "Action: allies near you gain advantage on saves against being frightened or charmed."
+        "description": "Action: allies near you gain advantage on saves against being frightened or charmed.",
+        "category": "action"
       },
       {
         "level": 8,
@@ -291,7 +295,8 @@
       {
         "level": 2,
         "name": "Channel Divinity",
-        "description": "Channel divine energy for set effects, including Turn Undead (more uses at higher levels)."
+        "description": "Channel divine energy for set effects, including Turn Undead (more uses at higher levels).",
+        "category": "action"
       },
       {
         "level": 4,
@@ -384,7 +389,8 @@
       {
         "level": 2,
         "name": "Wild Shape",
-        "description": "Magically transform into a beast you've seen (CR and uses improve with level)."
+        "description": "Magically transform into a beast you've seen (CR and uses improve with level).",
+        "category": "action"
       },
       {
         "level": 2,
@@ -482,12 +488,15 @@
       {
         "level": 1,
         "name": "Second Wind",
-        "description": "Bonus action: regain 1d10 + your fighter level hit points, once per rest."
+        "description": "Bonus action: regain 1d10 + your fighter level hit points, once per rest.",
+        "category": "bonus",
+        "dice": "1d10"
       },
       {
         "level": 2,
         "name": "Action Surge",
-        "description": "Take one additional action on your turn, once per rest (twice at 17th)."
+        "description": "Take one additional action on your turn, once per rest (twice at 17th).",
+        "category": "action"
       },
       {
         "level": 3,
@@ -588,7 +597,8 @@
       {
         "level": 1,
         "name": "Martial Arts",
-        "description": "Use DEX for unarmed strikes and monk weapons, and make an unarmed strike as a bonus action (damage die grows with level)."
+        "description": "Use DEX for unarmed strikes and monk weapons, and make an unarmed strike as a bonus action (damage die grows with level).",
+        "category": "bonus"
       },
       {
         "level": 2,
@@ -608,7 +618,8 @@
       {
         "level": 3,
         "name": "Deflect Missiles",
-        "description": "Reaction: reduce ranged weapon damage, and possibly catch and throw the missile."
+        "description": "Reaction: reduce ranged weapon damage, and possibly catch and throw the missile.",
+        "category": "reaction"
       },
       {
         "level": 4,
@@ -719,12 +730,14 @@
       {
         "level": 1,
         "name": "Divine Sense",
-        "description": "Action: detect celestials, fiends, and undead nearby."
+        "description": "Action: detect celestials, fiends, and undead nearby.",
+        "category": "action"
       },
       {
         "level": 1,
         "name": "Lay on Hands",
-        "description": "Heal a pool of hit points equal to 5 × your level by touch; spend 5 to cure a disease or poison."
+        "description": "Heal a pool of hit points equal to 5 × your level by touch; spend 5 to cure a disease or poison.",
+        "category": "action"
       },
       {
         "level": 2,
@@ -979,7 +992,9 @@
       {
         "level": 1,
         "name": "Sneak Attack",
-        "description": "Once a turn, deal extra damage (1d6, growing with level) when you have advantage or an ally flanks."
+        "description": "Once a turn, deal extra damage (1d6, growing with level) when you have advantage or an ally flanks.",
+        "category": "trait",
+        "dice": "1d6"
       },
       {
         "level": 1,
@@ -989,7 +1004,8 @@
       {
         "level": 2,
         "name": "Cunning Action",
-        "description": "Bonus action each turn to Dash, Disengage, or Hide."
+        "description": "Bonus action each turn to Dash, Disengage, or Hide.",
+        "category": "bonus"
       },
       {
         "level": 3,
@@ -1004,7 +1020,8 @@
       {
         "level": 5,
         "name": "Uncanny Dodge",
-        "description": "Reaction: halve the damage of one attack that hits you."
+        "description": "Reaction: halve the damage of one attack that hits you.",
+        "category": "reaction"
       },
       {
         "level": 7,

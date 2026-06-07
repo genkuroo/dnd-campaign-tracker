@@ -14,7 +14,7 @@ import sqlite3
 # real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
 DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
-SCHEMA_VERSION = 25
+SCHEMA_VERSION = 26
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -331,6 +331,14 @@ MIGRATIONS = {
         used        INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY (creature_id, slot_level)
     );
+    """,
+    26: """
+    -- Where an action came from, so class-granted ones can be re-synced without
+    -- touching hand-added ones. '' = manual (the existing default: custom entries
+    -- and action-book grabs); 'class' = auto-granted from the creature's class
+    -- features (models/actions.grant_class_actions wipes + re-adds these on class
+    -- change / level-up). Computed from data/classes.json, never authored here.
+    ALTER TABLE creature_actions ADD COLUMN source TEXT NOT NULL DEFAULT '';
     """,
 }
 

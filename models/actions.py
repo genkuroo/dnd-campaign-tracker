@@ -29,8 +29,11 @@ def category_label(value):
     return CATEGORY_LABELS.get(value, value)
 
 
-def add_action(creature_id, name, description="", dice="", category="action"):
-    """Add an action to a creature. Returns the new id, or None if unnamed."""
+def add_action(creature_id, name, description="", dice="", category="action",
+               source=""):
+    """Add an action to a creature. Returns the new id, or None if unnamed.
+    `source` marks provenance: '' = hand-added/grabbed, 'class' = auto-granted from
+    a class feature (see grant_class_actions)."""
     name = (name or "").strip()
     if not name:
         return None
@@ -39,15 +42,45 @@ def add_action(creature_id, name, description="", dice="", category="action"):
     conn = get_connection()
     try:
         cur = conn.execute(
-            "INSERT INTO creature_actions (creature_id, name, category, dice, description)"
-            " VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO creature_actions"
+            " (creature_id, name, category, dice, description, source)"
+            " VALUES (?, ?, ?, ?, ?, ?)",
             (creature_id, name, category, (dice or "").strip(),
-             (description or "").strip()),
+             (description or "").strip(), source),
         )
         conn.commit()
         return cur.lastrowid
     finally:
         conn.close()
+
+
+def clear_class_actions(creature_id):
+    """Remove a creature's class-granted actions (source='class'), leaving the
+    hand-added ones (source='') untouched."""
+    conn = get_connection()
+    try:
+        conn.execute(
+            "DELETE FROM creature_actions WHERE creature_id = ? AND source = 'class'",
+            (creature_id,),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def grant_class_actions(creature_id, slug, level):
+    """Sync a creature's class-granted actions to its class + level: wipe the old
+    class-sourced ones and re-add the action-type features unlocked at this level
+    (Rage, Second Wind, Sneak Attack…). Idempotent, and safe to call on class
+    change / level-up. Hand-added actions are never touched. A falsy `slug` just
+    clears (the creature is classless)."""
+    from models.classes import grantable_class_features  # local: avoid import cycle
+    clear_class_actions(creature_id)
+    if not slug:
+        return
+    for f in grantable_class_features(slug, level):
+        add_action(creature_id, f["name"], f.get("description", ""),
+                   f.get("dice", ""), f.get("category", "action"), source="class")
 
 
 def get_action(action_id):

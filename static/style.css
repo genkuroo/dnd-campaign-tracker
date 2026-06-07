@@ -809,6 +809,10 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .action-cat-bonus     { color: #8fc6e8; border-color: #38607a; }
 .action-cat-reaction  { color: #e8b58f; border-color: #7a5a38; }
 .action-cat-legendary { color: #d59ae0; border-color: #6b3f7a; }
+.action-src { font-family: sans-serif; font-size: 0.62rem; text-transform: uppercase;
+              letter-spacing: 0.05em; color: var(--accent-2);
+              border: 1px solid color-mix(in srgb, var(--accent-2) 45%, transparent);
+              border-radius: 999px; padding: 0.05rem 0.4rem; }
 .action-desc { margin: 0.4rem 0 0; max-width: 680px; line-height: 1.6; color: var(--ink); }
 
 .add-action { display: flex; flex-direction: column; gap: 0.5rem; max-width: 680px; }

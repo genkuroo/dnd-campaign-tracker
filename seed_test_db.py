@@ -64,8 +64,8 @@ spend_slot(gandalf, 3)
 grog = make_pc("Grog", "barbarian", player="bob", xp=6500, avatar="🪓")
 update_creature(grog, {"strength": 17, "constitution": 16, "level": 5, "alignment": "CN"})
 set_skill_proficiencies(grog, ["athletics", "intimidation", "survival"])
-add_action(grog, "Rage", "Advantage on STR checks/saves; +2 melee damage; resistance to "
-           "bludgeoning/piercing/slashing.", dice="", category="bonus")
+# Rage now comes from the class auto-grant; this is a hand-added extra to show
+# class-granted and manual actions side by side.
 add_action(grog, "Reckless Attack", "Advantage on melee attacks this turn; attacks "
            "against you have advantage until your next turn.", category="action")
 
@@ -81,6 +81,12 @@ vex = make_pc("Vex", "rogue", player=None, xp=900, avatar="🗡️")
 update_creature(vex, {"dexterity": 16, "level": 3, "alignment": "CG"})
 set_skill_proficiencies(vex, ["stealth", "acrobatics", "sleight-of-hand",
                               "perception", "deception"])
+
+# The starting kit auto-granted class actions at level 1; we bumped levels above
+# with update_creature (which doesn't resync). Re-sync so each PC's class actions
+# match their final level — the app does this via the level-up / edit routes.
+for _pc in (gandalf, grog, pike, vex):
+    app._sync_class_actions(_pc)
 
 # Players linked to their PCs (Vex is left unassigned to demo "Create my character").
 alice = create_user("alice", PASSWORD, "player", creature_id=gandalf)

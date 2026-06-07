@@ -11,6 +11,7 @@
           <div class="action-head">
             <span class="action-cat action-cat-{{ a['category'] }}">{{ a['category'] | action_category }}</span>
             <span class="action-name">{{ a['name'] }}</span>
+            {% if a['source'] == 'class' %}<span class="action-src" title="Granted by this character's class">class</span>{% endif %}
             {% if a['dice'] %}
               {% if mode == 'assist' %}
                 <button type="button" class="rollable" data-expr="{{ a['dice'] }}" data-label="{{ creature['name'] }} · {{ a['name'] }}">{{ a['dice'] }}</button>
