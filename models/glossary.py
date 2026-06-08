@@ -40,6 +40,7 @@ GLOSSARY = {
     "half-proficiency": "Half proficiency — add half your proficiency bonus (rounded down) to checks you're not proficient in. Bards get this on every check (Jack of All Trades); Champion fighters on STR/DEX/CON checks (Remarkable Athlete, rounded up).",
     "saving-throw-prof": "Saving throw proficiency — your class makes you reliably good at resisting two kinds of effect (e.g. a Barbarian's STR & CON saves), adding your proficiency bonus.",
     "hit-die": "Hit die — the die you roll for hit points each level (e.g. d8 for many classes). Level-up HP = that roll (or its average) + your Constitution modifier.",
+    "race": "Race / species — what kind of being your character is (Elf, Dwarf, Human…). It grants ability-score increases, a base speed, a size, and special traits; many have subraces.",
     "ability-score-improvement": "Ability Score Improvement (ASI) — at certain levels (4, 8, 12, 16, 19; a few classes get extra) you gain 2 points to raise your ability scores, as +2 to one or +1 to two, capped at 20.",
     "feat": "Feat — a special talent you can take instead of an Ability Score Improvement, granting a distinctive ability (extra reactions, combat tricks, skill boosts…).",
     # Spell vocabulary

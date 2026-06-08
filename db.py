@@ -14,7 +14,7 @@ import sqlite3
 # real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
 DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
-SCHEMA_VERSION = 32
+SCHEMA_VERSION = 33
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -403,6 +403,14 @@ MIGRATIONS = {
     -- expertise always implies proficiency. Half-proficiency (Jack of All Trades /
     -- Remarkable Athlete) is computed from class/subclass features, not stored.
     ALTER TABLE creature_skills ADD COLUMN expertise INTEGER NOT NULL DEFAULT 0;
+    """,
+    33: """
+    -- Race / species (the other half of character building). Scoped like
+    -- class_name/subclass: a `race` slug + an optional `subrace` slug validated
+    -- against data/races.json. Racial ability-score increases fold into
+    -- effective_abilities on read (like ASI); traits are a display layer.
+    ALTER TABLE creatures ADD COLUMN race    TEXT NOT NULL DEFAULT '';
+    ALTER TABLE creatures ADD COLUMN subrace TEXT NOT NULL DEFAULT '';
     """,
 }
 

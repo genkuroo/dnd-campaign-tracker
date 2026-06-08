@@ -10,7 +10,7 @@
       </h1>
       <p class="muted">
         <span class="badge-kind">{{ 'NPC' if creature['kind'] == 'npc' else 'PC' }}</span>
-        Level {{ creature['level'] }}{% if klass %} {{ klass['name'] }}{% if subclass %} <span class="muted">({{ subclass['name'] }})</span>{% endif %}{% endif %}{% if creature['player_name'] %} · played by {{ creature['player_name'] }}{% endif %}
+        Level {{ creature['level'] }}{% if race_label %} {{ race_label }}{% endif %}{% if klass %} {{ klass['name'] }}{% if subclass %} <span class="muted">({{ subclass['name'] }})</span>{% endif %}{% endif %}{% if creature['player_name'] %} · played by {{ creature['player_name'] }}{% endif %}
         {% if creature['alignment'] %} · {{ creature['alignment'] | alignment }}{% endif %}
         {% if creature['location'] %} · 📍 {{ creature['location'] }}{% endif %}
       </p>
@@ -59,6 +59,7 @@
     <div class="vital"><span class="vital-label">Armor Class {{ info('armor-class') }}</span><span class="vital-value" title="{{ ac_breakdown }}">{{ eff_ac }}{% if ac_bonus %} <span class="stat-bonus">{{ '%+d' % ac_bonus }}</span>{% endif %}</span>
       {% if armor_issue %}<span class="armor-warn" title="Your class isn't proficient with {{ armor_issue.armor_type }} armor. While wearing {{ armor_issue.name }} you have disadvantage on ability checks, attacks, and saves using STR or DEX{{ ', and you can’t cast spells' if spell_stats else '' }}.">⚠ not proficient</span>{% endif %}
     </div>
+    {% if race_speed %}<div class="vital"><span class="vital-label">Speed</span><span class="vital-value">{{ race_speed }} ft{% if race_size %} <span class="muted">· {{ race_size }}</span>{% endif %}</span></div>{% endif %}
     <div class="vital"><span class="vital-label">Experience</span><span class="vital-value xp-value">{{ '{:,}'.format(creature['xp']) }}</span></div>
     <div class="vital purse">
       <span class="vital-label">Purse</span>
@@ -108,7 +109,7 @@
       <div class="ability">
         <span class="ability-short">{{ info(col, short) }}</span>
         <span class="ability-mod">{{ e.score | mod }}</span>
-        <span class="ability-score">{{ e.score }}{% if e.bonus %} <span class="stat-bonus" title="{{ creature[col] }} base {{ '%+d' % e.bonus }} from items">{{ '%+d' % e.bonus }}</span>{% endif %}</span>
+        <span class="ability-score" title="{{ e.base }} base{% if e.race %} +{{ e.race }} race{% endif %}{% if e.asi %} +{{ e.asi }} ASI{% endif %}{% if e.bonus %} {{ '%+d' % e.bonus }} items{% endif %}">{{ e.score }}{% if e.bonus %} <span class="stat-bonus">{{ '%+d' % e.bonus }}</span>{% endif %}</span>
         <span class="ability-save {{ 'is-prof' if sv.proficient else '' }}"
               title="{{ short }} saving throw: d20 {{ sv.modifier | signed }}{{ ' (proficient)' if sv.proficient else '' }}">
           {% if sv.proficient %}<span class="prof-dot" aria-hidden="true">●</span>{% endif %}save {{ sv.modifier | signed }}</span>
@@ -193,6 +194,27 @@
           <span class="prof-vals">{% if proficiencies.weapons %}{% for w in proficiencies.weapons %}<span class="prof-chip">{{ w }}</span>{% endfor %}{% else %}<span class="muted">none</span>{% endif %}</span>
         </div>
       </div>
+    </section>
+  {% endif %}
+
+  {% if race_traits %}
+    <div class="sheet-divider" role="separator"></div>
+    <section class="class-features race-traits">
+      <div class="section-head">
+        <h2>{{ race_label }} Traits</h2>
+        <span class="muted">racial features{% if race_speed %} · speed {{ race_speed }} ft{% endif %}</span>
+      </div>
+      <ul class="feature-list">
+        {% for t in race_traits %}
+          <li class="feature {{ 'feature-sub' if t['source'] == 'subrace' else '' }}">
+            <span class="feature-lvl" title="{{ 'Subrace trait' if t['source'] == 'subrace' else 'Race trait' }}">{{ '◆' if t['source'] == 'subrace' else '✦' }}</span>
+            <div class="feature-body">
+              <span class="feature-name">{{ t['name'] }}{% if t['source'] == 'subrace' %} <span class="feature-tag">subrace</span>{% endif %}</span>
+              <span class="feature-desc">{{ t['description'] }}</span>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
     </section>
   {% endif %}
 

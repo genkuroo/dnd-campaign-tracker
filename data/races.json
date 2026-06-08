@@ -1,0 +1,160 @@
+[
+  {
+    "slug": "dwarf",
+    "name": "Dwarf",
+    "ability_bonuses": {"constitution": 2},
+    "speed": 25,
+    "size": "Medium",
+    "traits": [
+      {"name": "Darkvision", "description": "See in dim light within 60 ft as if bright, and in darkness as if dim (shades of grey)."},
+      {"name": "Dwarven Resilience", "description": "Advantage on saving throws against poison, and resistance to poison damage."},
+      {"name": "Dwarven Combat Training", "description": "Proficiency with the battleaxe, handaxe, light hammer, and warhammer."},
+      {"name": "Stonecunning", "description": "Count as proficient (double bonus) on History checks about stonework."}
+    ],
+    "subraces": [
+      {"slug": "hill-dwarf", "name": "Hill Dwarf", "ability_bonuses": {"wisdom": 1},
+       "traits": [{"name": "Dwarven Toughness", "description": "Your hit-point maximum increases by 1, and by 1 again every level."}]},
+      {"slug": "mountain-dwarf", "name": "Mountain Dwarf", "ability_bonuses": {"strength": 2},
+       "traits": [{"name": "Dwarven Armor Training", "description": "Proficiency with light and medium armor."}]}
+    ]
+  },
+  {
+    "slug": "elf",
+    "name": "Elf",
+    "ability_bonuses": {"dexterity": 2},
+    "speed": 30,
+    "size": "Medium",
+    "traits": [
+      {"name": "Darkvision", "description": "See in dim light within 60 ft as if bright, and in darkness as if dim."},
+      {"name": "Keen Senses", "description": "Proficiency in the Perception skill."},
+      {"name": "Fey Ancestry", "description": "Advantage on saves against being charmed, and magic can't put you to sleep."},
+      {"name": "Trance", "description": "You meditate 4 hours instead of sleeping 8 for a long rest."}
+    ],
+    "subraces": [
+      {"slug": "high-elf", "name": "High Elf", "ability_bonuses": {"intelligence": 1},
+       "traits": [
+         {"name": "Elf Weapon Training", "description": "Proficiency with the longsword, shortsword, shortbow, and longbow."},
+         {"name": "Cantrip", "description": "You know one cantrip from the wizard spell list (Intelligence is its ability)."},
+         {"name": "Extra Language", "description": "You can speak, read, and write one extra language of your choice."}
+       ]},
+      {"slug": "wood-elf", "name": "Wood Elf", "ability_bonuses": {"wisdom": 1}, "speed": 35,
+       "traits": [
+         {"name": "Elf Weapon Training", "description": "Proficiency with the longsword, shortsword, shortbow, and longbow."},
+         {"name": "Mask of the Wild", "description": "You can attempt to hide even when only lightly obscured by foliage, rain, snow, mist, etc."}
+       ]},
+      {"slug": "drow", "name": "Dark Elf (Drow)", "ability_bonuses": {"charisma": 1},
+       "traits": [
+         {"name": "Superior Darkvision", "description": "Your darkvision has a range of 120 ft."},
+         {"name": "Sunlight Sensitivity", "description": "Disadvantage on attacks and sight-based Perception in direct sunlight."},
+         {"name": "Drow Magic", "description": "You know Dancing Lights; gain Faerie Fire at level 3 and Darkness at level 5, each once per long rest (Charisma)."},
+         {"name": "Drow Weapon Training", "description": "Proficiency with rapiers, shortswords, and hand crossbows."}
+       ]}
+    ]
+  },
+  {
+    "slug": "halfling",
+    "name": "Halfling",
+    "ability_bonuses": {"dexterity": 2},
+    "speed": 25,
+    "size": "Small",
+    "traits": [
+      {"name": "Lucky", "description": "When you roll a 1 on a d20 attack, check, or save, you may reroll and must use the new roll."},
+      {"name": "Brave", "description": "Advantage on saving throws against being frightened."},
+      {"name": "Halfling Nimbleness", "description": "You can move through the space of any creature larger than you."}
+    ],
+    "subraces": [
+      {"slug": "lightfoot", "name": "Lightfoot Halfling", "ability_bonuses": {"charisma": 1},
+       "traits": [{"name": "Naturally Stealthy", "description": "You can hide even when obscured only by a creature at least one size larger."}]},
+      {"slug": "stout", "name": "Stout Halfling", "ability_bonuses": {"constitution": 1},
+       "traits": [{"name": "Stout Resilience", "description": "Advantage on saves against poison, and resistance to poison damage."}]}
+    ]
+  },
+  {
+    "slug": "human",
+    "name": "Human",
+    "ability_bonuses": {"strength": 1, "dexterity": 1, "constitution": 1, "intelligence": 1, "wisdom": 1, "charisma": 1},
+    "speed": 30,
+    "size": "Medium",
+    "traits": [
+      {"name": "Extra Language", "description": "You can speak, read, and write one extra language of your choice."}
+    ],
+    "subraces": []
+  },
+  {
+    "slug": "dragonborn",
+    "name": "Dragonborn",
+    "ability_bonuses": {"strength": 2, "charisma": 1},
+    "speed": 30,
+    "size": "Medium",
+    "traits": [
+      {"name": "Draconic Ancestry", "description": "Choose a dragon type; it sets your breath weapon's shape and damage type, and your resistance."},
+      {"name": "Breath Weapon", "description": "Exhale destructive energy (a save for half) — 2d6, scaling with level; recharges on a rest."},
+      {"name": "Damage Resistance", "description": "Resistance to the damage type tied to your draconic ancestry."}
+    ],
+    "subraces": []
+  },
+  {
+    "slug": "gnome",
+    "name": "Gnome",
+    "ability_bonuses": {"intelligence": 2},
+    "speed": 25,
+    "size": "Small",
+    "traits": [
+      {"name": "Darkvision", "description": "See in dim light within 60 ft as if bright, and in darkness as if dim."},
+      {"name": "Gnome Cunning", "description": "Advantage on all INT, WIS, and CHA saving throws against magic."}
+    ],
+    "subraces": [
+      {"slug": "rock-gnome", "name": "Rock Gnome", "ability_bonuses": {"constitution": 1},
+       "traits": [
+         {"name": "Artificer's Lore", "description": "Add twice your proficiency bonus to History checks about magic/alchemical/technological items."},
+         {"name": "Tinker", "description": "Proficiency with tinker's tools; build tiny clockwork devices."}
+       ]},
+      {"slug": "forest-gnome", "name": "Forest Gnome", "ability_bonuses": {"dexterity": 1},
+       "traits": [
+         {"name": "Natural Illusionist", "description": "You know the Minor Illusion cantrip (Intelligence is its ability)."},
+         {"name": "Speak with Small Beasts", "description": "Communicate simple ideas with Small or smaller beasts."}
+       ]}
+    ]
+  },
+  {
+    "slug": "half-elf",
+    "name": "Half-Elf",
+    "ability_bonuses": {"charisma": 2},
+    "speed": 30,
+    "size": "Medium",
+    "traits": [
+      {"name": "Ability Score Increase", "description": "Two different ability scores of your choice increase by 1 (in addition to the +2 Charisma)."},
+      {"name": "Darkvision", "description": "See in dim light within 60 ft as if bright, and in darkness as if dim."},
+      {"name": "Fey Ancestry", "description": "Advantage on saves against being charmed, and magic can't put you to sleep."},
+      {"name": "Skill Versatility", "description": "Proficiency in two skills of your choice."}
+    ],
+    "subraces": []
+  },
+  {
+    "slug": "half-orc",
+    "name": "Half-Orc",
+    "ability_bonuses": {"strength": 2, "constitution": 1},
+    "speed": 30,
+    "size": "Medium",
+    "traits": [
+      {"name": "Darkvision", "description": "See in dim light within 60 ft as if bright, and in darkness as if dim."},
+      {"name": "Menacing", "description": "Proficiency in the Intimidation skill."},
+      {"name": "Relentless Endurance", "description": "When dropped to 0 HP (but not killed outright), drop to 1 instead — once per long rest."},
+      {"name": "Savage Attacks", "description": "On a melee weapon crit, roll one of the weapon's damage dice an extra time."}
+    ],
+    "subraces": []
+  },
+  {
+    "slug": "tiefling",
+    "name": "Tiefling",
+    "ability_bonuses": {"intelligence": 1, "charisma": 2},
+    "speed": 30,
+    "size": "Medium",
+    "traits": [
+      {"name": "Darkvision", "description": "See in dim light within 60 ft as if bright, and in darkness as if dim."},
+      {"name": "Hellish Resistance", "description": "Resistance to fire damage."},
+      {"name": "Infernal Legacy", "description": "You know Thaumaturgy; gain Hellish Rebuke at level 3 and Darkness at level 5, each once per long rest (Charisma)."}
+    ],
+    "subraces": []
+  }
+]

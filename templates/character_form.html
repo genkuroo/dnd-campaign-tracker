@@ -86,6 +86,31 @@
 
     <div class="field-row">
       <label class="field">
+        <span>Race</span>
+        <select name="race" id="race-field">
+          <option value="">— none —</option>
+          {% for rc in races %}
+            <option value="{{ rc['slug'] }}" {{ 'selected' if c and c['race'] == rc['slug'] else '' }}>{{ rc['name'] }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="field" id="subrace-field" hidden>
+        <span>Subrace</span>
+        <select name="subrace" id="subrace-select">
+          <option value="">— none —</option>
+          {% for rc in races %}
+            {% for s in rc['subraces'] %}
+              <option value="{{ s['slug'] }}" data-race="{{ rc['slug'] }}"
+                {{ 'selected' if c and c['race'] == rc['slug'] and c['subrace'] == s['slug'] else '' }}>{{ s['name'] }}</option>
+            {% endfor %}
+          {% endfor %}
+        </select>
+      </label>
+      <span class="muted field grow race-note">Race grants ability bonuses (applied automatically) + traits.</span>
+    </div>
+
+    <div class="field-row">
+      <label class="field">
         <span>Alignment</span>
         <select name="alignment">
           {% for value, label in alignments %}
@@ -296,6 +321,32 @@
       }
 
       cls.addEventListener('change', refresh);
+      refresh();
+    })();
+  </script>
+
+  {# Subrace picker: show only the chosen race's subraces, clear a leftover pick on
+     a race change (mirrors the subclass picker). #}
+  <script>
+    (function () {
+      const race = document.getElementById('race-field');
+      const field = document.getElementById('subrace-field');
+      const sub = document.getElementById('subrace-select');
+      if (!race || !field || !sub) return;
+      const opts = Array.from(sub.options);
+      function refresh() {
+        const slug = race.value;
+        let any = false;
+        opts.forEach(function (o) {
+          if (!o.value) return;
+          const match = o.dataset.race === slug;
+          o.hidden = !match;
+          if (match) any = true;
+          if (o.selected && !match) { o.selected = false; sub.value = ''; }
+        });
+        field.hidden = !any;
+      }
+      race.addEventListener('change', refresh);
       refresh();
     })();
   </script>

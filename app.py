@@ -76,6 +76,8 @@ from models.inventory import (
 from models.classes import (all_classes, get_class, hit_die_average,
                             class_features, class_features_remaining,
                             get_subclass, valid_subclass, subclass_level)
+from models.races import (all_races, race_label, race_traits, race_speed,
+                          race_size, valid_subrace)
 from models.items import all_item_defs, get_item_def
 from models.loot import (
     add_loot,
@@ -464,7 +466,7 @@ def _form_vocab():
     return {"abilities": ABILITIES, "kinds": KINDS,
             "dispositions": DISPOSITIONS, "alignments": ALIGNMENTS,
             "unarmored_defenses": UNARMORED_DEFENSE, "classes": all_classes(),
-            "skill_options": SKILL_OPTIONS}
+            "races": all_races(), "skill_options": SKILL_OPTIONS}
 
 
 def _apply_class(creature_id, class_slug, starting_kit=False):
@@ -773,6 +775,10 @@ def character_detail(creature_id):
         abilities=ABILITIES,
         klass=klass,
         subclass=get_subclass(creature["class_name"], creature["subclass"]),
+        race_label=race_label(creature),
+        race_traits=race_traits(creature),
+        race_speed=race_speed(creature),
+        race_size=race_size(creature),
         class_features=class_features(creature["class_name"], creature["level"], creature["subclass"]),
         class_features_next=class_features_remaining(
             creature["class_name"], creature["level"], creature["subclass"])[:4],
@@ -1339,6 +1345,9 @@ def _form_to_data(form):
     # a previous class is dropped) — the rest of the spine validates against the slug.
     if not valid_subclass(data.get("class_name"), data.get("subclass")):
         data["subclass"] = ""
+    # Same for subrace vs the chosen race.
+    if not valid_subrace(data.get("race"), data.get("subrace")):
+        data["subrace"] = ""
     return data
 
 

@@ -16,7 +16,7 @@
       {% set e = eff_abilities[col] %}
       <div class="asi-row {{ 'has-asi' if e.asi else '' }}">
         <span class="asi-ability">{{ short }}</span>
-        <span class="asi-value" title="{{ e.base }} base{% if e.asi %} +{{ e.asi }} ASI{% endif %}{% if e.bonus %} {{ '%+d' % e.bonus }} items{% endif %}">
+        <span class="asi-value" title="{{ e.base }} base{% if e.race %} +{{ e.race }} race{% endif %}{% if e.asi %} +{{ e.asi }} ASI{% endif %}{% if e.bonus %} {{ '%+d' % e.bonus }} items{% endif %}">
           {{ e.score }}<span class="asi-mod muted">{{ e.score | mod }}</span>
         </span>
         {% if e.asi %}<span class="asi-tag">+{{ e.asi }}</span>{% else %}<span class="asi-tag-blank"></span>{% endif %}
