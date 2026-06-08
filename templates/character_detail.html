@@ -133,6 +133,12 @@
   </section>
   {% if can_edit %}<p class="muted check-hint">A <strong>check</strong> rolls d20 + the ability modifier; a <strong>save</strong> adds the {{ info('proficiency-bonus', 'proficiency bonus') }} (+{{ prof_bonus }}) when the class is proficient ({{ info('saving-throw-prof', '●') }}).</p>{% endif %}
 
+  {% if asi.slots %}
+    <div id="asi">
+      {% include "_asi.html" %}
+    </div>
+  {% endif %}
+
   {% set res = creature['resistances'] | commalist %}
   {% set imm = creature['immunities'] | commalist %}
   {% set vul = creature['vulnerabilities'] | commalist %}
@@ -546,6 +552,10 @@
 
       applyFilter();
     })();
+
+    // (ASI +/- submit as a normal POST → redirect: a bump ripples into AC, saves,
+    // skills and spell DCs across the whole sheet, so a full reload keeps every
+    // derived number consistent rather than re-rendering just the one panel.)
 
     // Class resources: spend/restore re-render the #resources fragment in place.
     // Rest forms (data-reload) submit normally so the page reloads — that also

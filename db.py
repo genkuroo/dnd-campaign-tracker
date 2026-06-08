@@ -14,7 +14,7 @@ import sqlite3
 # real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
 DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
-SCHEMA_VERSION = 29
+SCHEMA_VERSION = 30
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -367,6 +367,20 @@ MIGRATIONS = {
         resource_key TEXT    NOT NULL,
         expended     INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY (creature_id, resource_key)
+    );
+    """,
+    30: """
+    -- Ability Score Improvements: the permanent +1/+2 ability bumps a class grants
+    -- at its ASI levels (4/8/12/16/19, plus Fighter 6/14, Rogue 10). The *number*
+    -- of points available is computed on read from the class features list; only the
+    -- *allocation* (which abilities got bumped) is stored. Effective ability scores
+    -- fold it in on read (models/inventory.effective_abilities), so the base sheet is
+    -- never mutated and a respec is just a row edit.
+    CREATE TABLE creature_asi (
+        creature_id INTEGER NOT NULL REFERENCES creatures(id) ON DELETE CASCADE,
+        ability     TEXT    NOT NULL,
+        bonus       INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (creature_id, ability)
     );
     """,
 }

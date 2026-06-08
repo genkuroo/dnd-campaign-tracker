@@ -2,6 +2,7 @@
 from db import get_connection
 from models.creature import ability_modifier
 from models.spells import get_spell
+from models.asi import asi_bonuses
 
 # 5e armor: how much of your Dexterity modifier applies while wearing each type.
 ARMOR_TYPES = ("light", "medium", "heavy")
@@ -182,7 +183,8 @@ def equipped_set_armor(creature_id):
 
 
 def _ability_with_items(creature, col, bonuses):
-    return ability_modifier(creature[col] + bonuses.get(col, 0))
+    asi = asi_bonuses(creature["id"]).get(col, 0)
+    return ability_modifier(creature[col] + bonuses.get(col, 0) + asi)
 
 
 def effective_ac(creature):
@@ -261,11 +263,15 @@ def equipped_stat_bonuses(creature_id):
 
 
 def effective_abilities(creature):
-    """{ability_col: {'score': effective, 'bonus': from_items}} for the six scores,
-    base never mutated."""
+    """{ability_col: {'score', 'bonus', 'asi', 'base'}} for the six scores, base
+    never mutated. `score` = base + permanent ASI bumps + equipped-item bonuses;
+    `bonus` is the equipment portion (the sheet's +N tag), `asi` the ASI portion."""
     bonuses = equipped_stat_bonuses(creature["id"])
-    return {col: {"score": creature[col] + bonuses.get(col, 0),
-                  "bonus": bonuses.get(col, 0)}
+    asi = asi_bonuses(creature["id"])
+    return {col: {"score": creature[col] + asi.get(col, 0) + bonuses.get(col, 0),
+                  "bonus": bonuses.get(col, 0),
+                  "asi": asi.get(col, 0),
+                  "base": creature[col]}
             for col in _ABILITY_COLS}
 
 

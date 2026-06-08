@@ -630,6 +630,23 @@ form.inline { display: inline; margin: 0; }
 .res-textbtn { width: auto; padding: 0 0.5rem; }
 .resource-rests { margin-top: 0.5rem; }
 
+/* Ability Score Improvement allocator on the character sheet */
+.char-asi { max-width: 34rem; }
+.asi-budget { font-family: sans-serif; font-size: 0.82rem; color: var(--muted); }
+.asi-budget strong { color: var(--accent-2); font-size: 1.05rem; }
+.asi-budget.full strong { color: var(--muted); }
+.asi-budget.over { color: var(--warn, #e0a33d); }
+.asi-budget.over strong { color: var(--warn, #e0a33d); }
+.asi-grid { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.5rem; }
+.asi-row { display: flex; align-items: center; gap: 0.6rem; }
+.asi-ability { font-weight: 600; min-width: 3rem; letter-spacing: 0.03em; }
+.asi-value { min-width: 4.2rem; font-variant-numeric: tabular-nums; }
+.asi-mod { margin-left: 0.35rem; font-size: 0.82rem; }
+.asi-tag { color: var(--accent-2); font-size: 0.82rem; min-width: 1.6rem; }
+.asi-tag-blank { min-width: 1.6rem; }
+.asi-row.has-asi .asi-value { color: var(--accent-2); }
+.asi-controls { display: inline-flex; gap: 0.3rem; margin: 0; }
+
 /* Skill-proficiency picker on the edit form */
 .skill-checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.25rem 1rem; }
 .skill-budget { margin: 0 0 0.6rem; font-size: 0.9rem; }

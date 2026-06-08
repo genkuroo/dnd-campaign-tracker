@@ -167,6 +167,7 @@ from models.resources import (
     restore_resource,
 )
 from models.resources import rest as resource_rest
+from models.asi import asi_summary, adjust_asi
 
 # Quick-roll die buttons on the dice page.
 DICE_BUTTONS = [4, 6, 8, 10, 12, 20, 100]
@@ -775,6 +776,7 @@ def character_detail(creature_id):
         spells=known,
         addable_spells=[s for s in all_spells() if s["slug"] not in known_slugs],
         resource_rows=resource_rows(creature, eff_ab),
+        asi=asi_summary(creature),
         **_spellcasting_ctx(creature),
         next_level=next_level,                         # (level, xp_to_go) or None
         xp_level=level_from_xp(creature["xp"]),         # level the XP implies
@@ -1926,6 +1928,19 @@ def resources_adjust():
     if _is_fetch():
         return _resources_fragment(cid)
     return redirect(_safe_next(request.form.get("next"), url_for("character")))
+
+
+@app.route("/asi/adjust", methods=["POST"])
+def asi_adjust():
+    """Raise or lower one ability's Ability Score Improvement bump (delta ±1), within
+    the class+level budget and the 20 cap. Edit-gated to the creature's owner/DM.
+    A full redirect, since a bump ripples into AC / saves / skills / spell DCs all
+    over the sheet — re-rendering one panel would leave the rest stale."""
+    cid = _require_edit_form_creature()
+    delta = 1 if request.form.get("delta", type=int) and request.form.get("delta", type=int) > 0 else -1
+    adjust_asi(get_creature(cid), request.form.get("ability", ""), delta)
+    return redirect(_safe_next(request.form.get("next"),
+                               url_for("character_detail", creature_id=cid)))
 
 
 @app.route("/resources/rest", methods=["POST"])

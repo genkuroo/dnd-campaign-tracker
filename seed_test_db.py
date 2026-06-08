@@ -94,6 +94,15 @@ from models.resources import spend_resource  # noqa: E402
 spend_resource(get_creature(grog), "rage")          # Grog: 1 Rage used
 spend_resource(get_creature(pike), "channel-divinity")  # Pike: Channel Divinity used
 
+# Allocate Ability Score Improvements (each of these PCs has hit level 4+, so the
+# class granted 2 points to spend; the sheet shows the allocator + folds it into
+# the effective scores). Gandalf/Grog spend their full +2; Pike splits +1/+1.
+from models.asi import adjust_asi  # noqa: E402
+for _ in range(2): adjust_asi(get_creature(gandalf), "intelligence", 1)  # 16 → 18 INT
+for _ in range(2): adjust_asi(get_creature(grog), "strength", 1)          # 17 → 19 STR
+adjust_asi(get_creature(pike), "wisdom", 1)
+adjust_asi(get_creature(pike), "constitution", 1)
+
 # Players linked to their PCs (Vex is left unassigned to demo "Create my character").
 alice = create_user("alice", PASSWORD, "player", creature_id=gandalf)
 bob = create_user("bob", PASSWORD, "player", creature_id=grog)
