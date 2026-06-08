@@ -1364,6 +1364,22 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .combatant.downed { opacity: 0.6; }
 .combatant.downed .combatant-name { text-decoration: line-through; }
 
+/* Death saving throws (a downed PC) */
+.death-saves { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem;
+               font-family: sans-serif; font-size: 0.8rem; }
+.death-status { color: var(--muted); }
+.death-saves.is-dead .death-status { color: #e0796b; font-weight: bold; }
+.death-saves.is-stable .death-status { color: #b5d68f; font-weight: bold; }
+.ds-pips { display: inline-flex; gap: 0.1rem; }
+.ds-pip { width: 1rem; height: 1rem; line-height: 1rem; text-align: center; font-size: 0.7rem;
+          border-radius: 999px; border: 1px solid var(--border); color: var(--border); }
+.ds-succ .ds-pip.on { color: #b5d68f; border-color: #5a7b3f; background: rgba(90,123,63,0.18); }
+.ds-fail .ds-pip.on { color: #e0796b; border-color: #8a3f33; background: rgba(138,63,51,0.18); }
+.ds-mark { font: inherit; font-family: sans-serif; font-size: 0.72rem; cursor: pointer;
+           background: transparent; color: var(--muted); border: 1px solid var(--border);
+           border-radius: 999px; padding: 0.05rem 0.4rem; }
+.ds-mark:hover { color: var(--ink); border-color: var(--accent-2); }
+
 .init-badge { flex: none; }
 .init-static {
   display: inline-block; width: 3rem; text-align: center;

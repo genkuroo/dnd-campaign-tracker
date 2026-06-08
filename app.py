@@ -123,6 +123,9 @@ from models.combat import (
     set_status as set_combat_status,
     set_temp_hp,
     toggle_condition,
+    clear_death_saves,
+    roll_death_save,
+    set_death_save,
 )
 from models.encounters import (
     add_member,
@@ -263,7 +266,7 @@ _DM_ONLY_ENDPOINTS = {
     "combat_delete", "combat_add", "combat_load_encounter",
     "combat_roll_initiative", "combat_next_turn",
     "combatant_initiative", "combatant_hp", "combatant_temp",
-    "combatant_condition", "combatant_remove",
+    "combatant_condition", "combatant_remove", "combatant_death_save",
     "loot_area_new", "loot_area_switch", "loot_area_delete",
     "loot_area_clear", "loot_spawn", "loot_create", "loot_give", "loot_remove",
     "party_rest_route", "party_hp",
@@ -1246,6 +1249,27 @@ def combatant_condition(combatant_id):
     cid = _combatant_combat_id(combatant_id)
     if cid:
         toggle_condition(combatant_id, request.form.get("condition", ""))
+        return _combat_response(cid)
+    return redirect(url_for("combat"))
+
+
+@app.route("/combatant/<int:combatant_id>/death-save", methods=["POST"])
+def combatant_death_save(combatant_id):
+    """Death saving throws for a combatant at 0 HP. `action`: 'roll' (d20),
+    'success+'/'failure+' (mark one manually), or 'reset'."""
+    cid = _combatant_combat_id(combatant_id)
+    if cid:
+        action = request.form.get("action", "")
+        if action == "roll":
+            res = roll_death_save(combatant_id)
+            if res and res["outcome"] == "revive":
+                flash("Nat 20 — back up at 1 HP!")
+        elif action == "success+":
+            set_death_save(combatant_id, "success", 1)
+        elif action == "failure+":
+            set_death_save(combatant_id, "failure", 1)
+        elif action == "reset":
+            clear_death_saves(combatant_id)
         return _combat_response(cid)
     return redirect(url_for("combat"))
 

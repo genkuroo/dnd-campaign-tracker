@@ -103,6 +103,36 @@
               {% endfor %}
             </div>
           {% endif %}
+
+          {# Death saving throws — only for a downed PC (monsters just drop). #}
+          {% if m['kind'] == 'pc' and m['current_hp'] == 0 %}
+            {% set dead = m['death_failures'] >= 3 %}
+            {% set stable = m['death_successes'] >= 3 %}
+            <div class="death-saves {{ 'is-dead' if dead else ('is-stable' if stable else 'is-dying') }}">
+              <span class="death-status">
+                {% if dead %}💀 Dead{% elif stable %}✓ Stabilized{% else %}{{ info('death-save', 'Death saves') }}{% endif %}
+              </span>
+              {% if not dead and not stable %}
+                <span class="ds-pips ds-succ" title="Successes ({{ m['death_successes'] }}/3)">
+                  {% for i in range(3) %}<span class="ds-pip {{ 'on' if i < m['death_successes'] }}">✓</span>{% endfor %}
+                </span>
+                <span class="ds-pips ds-fail" title="Failures ({{ m['death_failures'] }}/3)">
+                  {% for i in range(3) %}<span class="ds-pip {{ 'on' if i < m['death_failures'] }}">✕</span>{% endfor %}
+                </span>
+                {% if is_dm %}
+                  <form method="post" action="{{ url_for('combatant_death_save', combatant_id=m['id']) }}" class="inline">
+                    <button type="submit" name="action" value="roll" class="btn-small" title="Roll a death saving throw (d20: 10+ succeeds; nat 20 revives at 1 HP; nat 1 = two fails)">🎲 Save</button>
+                    <button type="submit" name="action" value="success+" class="ds-mark" title="Mark a success">+✓</button>
+                    <button type="submit" name="action" value="failure+" class="ds-mark" title="Mark a failure">+✕</button>
+                  </form>
+                {% endif %}
+              {% elif is_dm %}
+                <form method="post" action="{{ url_for('combatant_death_save', combatant_id=m['id']) }}" class="inline">
+                  <button type="submit" name="action" value="reset" class="btn-small" title="Clear death saves">Reset</button>
+                </form>
+              {% endif %}
+            </div>
+          {% endif %}
         </div>
 
         {% if is_dm %}

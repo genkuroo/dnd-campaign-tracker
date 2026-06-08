@@ -14,7 +14,7 @@ import sqlite3
 # real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
 DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
-SCHEMA_VERSION = 34
+SCHEMA_VERSION = 35
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -420,6 +420,13 @@ MIGRATIONS = {
     -- On both tables so weapons keep their stats through loot give/take/drop.
     ALTER TABLE creature_items ADD COLUMN weapon TEXT NOT NULL DEFAULT '';
     ALTER TABLE loot_items     ADD COLUMN weapon TEXT NOT NULL DEFAULT '';
+    """,
+    35: """
+    -- Death saving throws for a combatant at 0 HP (5e): 3 successes = stable,
+    -- 3 failures = dead. Only the counts are stored; the dying/stable/dead state is
+    -- derived from current_hp + these. Reset when healed above 0.
+    ALTER TABLE combatants ADD COLUMN death_successes INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE combatants ADD COLUMN death_failures  INTEGER NOT NULL DEFAULT 0;
     """,
 }
 

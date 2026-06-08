@@ -187,28 +187,108 @@ def roll_initiative_all(combat_id):
 
 def apply_hp(combatant_id, delta):
     """Apply damage (delta < 0) or healing (delta > 0). Damage is absorbed by
-    temp HP first; healing is capped at max HP and never touches temp HP."""
+    temp HP first; healing is capped at max HP and never touches temp HP.
+
+    Death saves (5e): taking damage *while already at 0 HP* adds a death-save
+    failure; healing back above 0 clears the death-save counters (you're conscious
+    again)."""
     c = get_combatant(combatant_id)
     if c is None:
         return
     temp, cur = c["temp_hp"], c["current_hp"]
+    succ, fail = c["death_successes"], c["death_failures"]
+    was_down = cur == 0
     if delta < 0:
         dmg = -delta
         absorbed = min(temp, dmg)
         temp -= absorbed
         dmg -= absorbed
+        if was_down and dmg > 0:        # a hit while dying = one failed death save
+            fail = min(3, fail + 1)
         cur = max(0, cur - dmg)
     else:
         cur = min(c["max_hp"], cur + delta)
+        if was_down and cur > 0:        # healed back up — no longer dying
+            succ, fail = 0, 0
     conn = get_connection()
     try:
         conn.execute(
-            "UPDATE combatants SET current_hp = ?, temp_hp = ? WHERE id = ?",
-            (cur, temp, combatant_id),
+            "UPDATE combatants SET current_hp = ?, temp_hp = ?, "
+            "death_successes = ?, death_failures = ? WHERE id = ?",
+            (cur, temp, succ, fail, combatant_id),
         )
         conn.commit()
     finally:
         conn.close()
+
+
+def death_state(combatant):
+    """Derived life state of a combatant: 'alive' (HP > 0), else 'dead' (3 failed
+    saves), 'stable' (3 successes), or 'dying'. Computed, never stored."""
+    if combatant["current_hp"] > 0:
+        return "alive"
+    if combatant["death_failures"] >= 3:
+        return "dead"
+    if combatant["death_successes"] >= 3:
+        return "stable"
+    return "dying"
+
+
+def set_death_save(combatant_id, kind, delta):
+    """Manually nudge a death-save counter (`kind` 'success'|'failure', `delta` ±1),
+    clamped to 0..3."""
+    col = "death_successes" if kind == "success" else "death_failures"
+    c = get_combatant(combatant_id)
+    if c is None:
+        return
+    new = max(0, min(3, c[col] + int(delta)))
+    conn = get_connection()
+    try:
+        conn.execute(
+            f"UPDATE combatants SET {col} = ? WHERE id = ?", (new, combatant_id))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def clear_death_saves(combatant_id):
+    conn = get_connection()
+    try:
+        conn.execute(
+            "UPDATE combatants SET death_successes = 0, death_failures = 0 WHERE id = ?",
+            (combatant_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def roll_death_save(combatant_id):
+    """Roll a death saving throw (d20, no modifier). 10+ = a success; under 10 = a
+    failure; a nat 20 revives the creature at 1 HP (and clears saves); a nat 1 counts
+    as two failures. Returns {roll, outcome, successes, failures, current_hp} or None."""
+    c = get_combatant(combatant_id)
+    if c is None or c["current_hp"] > 0:
+        return None
+    roll = random.randint(1, 20)
+    succ, fail, cur = c["death_successes"], c["death_failures"], c["current_hp"]
+    if roll == 20:
+        cur, succ, fail, outcome = 1, 0, 0, "revive"     # back up at 1 HP
+    elif roll == 1:
+        fail, outcome = min(3, fail + 2), "crit-fail"     # two failures
+    elif roll >= 10:
+        succ, outcome = min(3, succ + 1), "success"
+    else:
+        fail, outcome = min(3, fail + 1), "failure"
+    conn = get_connection()
+    try:
+        conn.execute(
+            "UPDATE combatants SET current_hp = ?, death_successes = ?, "
+            "death_failures = ? WHERE id = ?", (cur, succ, fail, combatant_id))
+        conn.commit()
+    finally:
+        conn.close()
+    return {"roll": roll, "outcome": outcome, "successes": succ,
+            "failures": fail, "current_hp": cur}
 
 
 def set_temp_hp(combatant_id, value):
