@@ -66,6 +66,59 @@ def save_table(creature, eff_abilities):
     return out
 
 
+# --- Weapon & armor proficiency (derived from the class) ------------------
+# Armor categories a class can be proficient with. Equipped body armor carries an
+# `armor_type` (light/medium/heavy) we check against these; 'shields' is separate
+# (and not auto-checked yet — items have no reliable shield flag).
+ARMOR_CATEGORIES = [("light", "Light"), ("medium", "Medium"),
+                    ("heavy", "Heavy"), ("shields", "Shields")]
+_ARMOR_LABELS = dict(ARMOR_CATEGORIES)
+
+
+def armor_proficiencies(creature):
+    """The armor categories the creature's class is proficient with (a set of
+    'light'/'medium'/'heavy'/'shields'). Empty for the classless and for armorless
+    casters (Wizard/Sorcerer/Monk)."""
+    klass = get_class(creature["class_name"]) if creature["class_name"] else None
+    return set(klass.get("armor_prof", [])) if klass else set()
+
+
+def weapon_proficiencies(creature):
+    """The class's weapon proficiencies as stored tokens ('simple'/'martial' or
+    named weapons). Empty for the classless."""
+    klass = get_class(creature["class_name"]) if creature["class_name"] else None
+    return list(klass.get("weapon_prof", [])) if klass else []
+
+
+def proficiency_summary(creature):
+    """A compact {'armor': [labels], 'weapons': [labels]} for the sheet's
+    Proficiencies line, or None for a classless creature (most NPCs/monsters)."""
+    klass = get_class(creature["class_name"]) if creature["class_name"] else None
+    if not klass:
+        return None
+    prof = armor_proficiencies(creature)
+    armor = [label for key, label in ARMOR_CATEGORIES if key in prof]
+    weapons = [w.capitalize() if w in ("simple", "martial") else w
+               for w in weapon_proficiencies(creature)]
+    return {"armor": armor, "weapons": weapons}
+
+
+def armor_proficiency_issue(creature):
+    """If the creature wears body armor its class isn't proficient with, return
+    {'name', 'armor_type'} (the 5e penalty: disadvantage on STR/DEX d20 rolls, and a
+    caster can't cast in it). Else None. Only **classed** creatures are checked — an
+    NPC/monster has no class proficiencies to violate. Shields aren't checked yet."""
+    if not creature["class_name"]:
+        return None
+    from models.inventory import equipped_set_armor  # local: avoid import cycle
+    armor = equipped_set_armor(creature["id"])
+    if not armor or not armor["armor_type"]:
+        return None
+    if armor["armor_type"] in armor_proficiencies(creature):
+        return None
+    return {"name": armor["name"], "armor_type": armor["armor_type"]}
+
+
 def proficient_skills(creature_id):
     """The set of skill slugs a creature is proficient in."""
     conn = get_connection()

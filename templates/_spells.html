@@ -30,6 +30,9 @@
           {% if over %}<span class="limit-warn">over limit</span>{% endif %}
         </div>
       {% endif %}
+      {% if armor_block %}
+        <div class="cast-block" role="alert">⚠ Can’t cast — you’re wearing {{ armor_block.name }} ({{ armor_block.armor_type }} armor) without proficiency.</div>
+      {% endif %}
       {% if slot_rows %}
         <div class="slot-tracker">
           {% for r in slot_rows %}

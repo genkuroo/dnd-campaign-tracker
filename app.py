@@ -44,6 +44,8 @@ from models.creature import (
 )
 from models.proficiency import (
     SKILL_OPTIONS,
+    armor_proficiency_issue,
+    proficiency_summary,
     proficient_skills,
     save_table,
     set_skill_proficiencies,
@@ -776,6 +778,8 @@ def character_detail(creature_id):
         eff_abilities=eff_ab,
         saves=save_table(creature, eff_ab),
         skills=skill_table(creature, eff_ab),
+        proficiencies=proficiency_summary(creature),
+        armor_issue=armor_proficiency_issue(creature),
         prof_bonus=proficiency_bonus(creature["level"]),
         eff_ac=effective_ac(creature),
         ac_bonus=equipped_ac_bonus(creature_id),
@@ -1383,6 +1387,8 @@ def _spellcasting_ctx(creature):
         "caster_type": caster_type(creature),
         "slots_available": {r["level"]: r["available"] for r in rows},
         "spell_limits": spell_limits(creature, eff_ab),
+        # 5e: wearing armor you're not proficient with bars spellcasting.
+        "armor_block": armor_proficiency_issue(creature),
         # When a resources panel is showing, it owns the rest buttons (it recharges
         # slots too) — so the spell panel hides its own to avoid a duplicate control.
         "has_resources": bool(resource_rows(creature)),

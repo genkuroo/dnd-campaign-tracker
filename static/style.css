@@ -843,6 +843,30 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
   border: 1px solid var(--border); min-width: 5.5rem;
 }
 .prep-toggle.on { color: #b5d68f; border-color: #5a7b3f; background: rgba(90,123,63,0.18); }
+/* Unprepared *leveled* spells can't be cast right now — flag the badge red so it's
+   obviously "off", not just muted. Cantrips are always castable, so they stay
+   neutral (a cantrip is never wrongly shown as unusable). */
+.spell-line[data-cantrip="0"] .prep-toggle:not(.on) {
+  color: #e0796b; border-color: #8a3f33; background: rgba(138,63,51,0.18);
+}
+.spell-line[data-cantrip="0"] button.prep-toggle:not(.on):hover { border-color: #b5503f; color: #f0a08f; }
+
+/* Weapon & armor proficiencies (from the class) + the non-proficient-armor flag */
+.proficiencies { margin-top: 1.25rem; }
+.prof-rows { display: flex; flex-direction: column; gap: 0.4rem; }
+.prof-row { display: flex; gap: 0.6rem; align-items: baseline; }
+.prof-key { min-width: 5rem; font-weight: 600; color: var(--muted); font-family: sans-serif;
+            font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.prof-vals { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.prof-chip { font-family: sans-serif; font-size: 0.78rem; padding: 0.1rem 0.5rem;
+             border-radius: 999px; border: 1px solid var(--border); color: var(--ink); }
+.armor-warn { display: inline-block; margin-top: 0.2rem; font-family: sans-serif;
+              font-size: 0.7rem; color: #e0796b; border: 1px solid #8a3f33;
+              background: rgba(138,63,51,0.16); padding: 0.05rem 0.45rem;
+              border-radius: 999px; cursor: help; white-space: nowrap; }
+.cast-block { width: 100%; font-family: sans-serif; font-size: 0.82rem; color: #e0796b;
+              border: 1px solid #8a3f33; background: rgba(138,63,51,0.14);
+              border-radius: 6px; padding: 0.4rem 0.6rem; }
 
 .add-spell { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .add-spell select {

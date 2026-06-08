@@ -10,6 +10,15 @@
       "STR",
       "CON"
     ],
+    "armor_prof": [
+      "light",
+      "medium",
+      "shields"
+    ],
+    "weapon_prof": [
+      "simple",
+      "martial"
+    ],
     "skill_count": 2,
     "skills": [
       "animal-handling",
@@ -211,6 +220,16 @@
     "saves": [
       "DEX",
       "CHA"
+    ],
+    "armor_prof": [
+      "light"
+    ],
+    "weapon_prof": [
+      "simple",
+      "Hand crossbows",
+      "Longswords",
+      "Rapiers",
+      "Shortswords"
     ],
     "skill_count": 3,
     "skills": [
@@ -476,6 +495,14 @@
       "WIS",
       "CHA"
     ],
+    "armor_prof": [
+      "light",
+      "medium",
+      "shields"
+    ],
+    "weapon_prof": [
+      "simple"
+    ],
     "skill_count": 2,
     "skills": [
       "history",
@@ -673,6 +700,23 @@
       "INT",
       "WIS"
     ],
+    "armor_prof": [
+      "light",
+      "medium",
+      "shields"
+    ],
+    "weapon_prof": [
+      "Clubs",
+      "Daggers",
+      "Darts",
+      "Javelins",
+      "Maces",
+      "Quarterstaffs",
+      "Scimitars",
+      "Sickles",
+      "Slings",
+      "Spears"
+    ],
     "skill_count": 2,
     "skills": [
       "arcana",
@@ -861,6 +905,16 @@
     "saves": [
       "STR",
       "CON"
+    ],
+    "armor_prof": [
+      "light",
+      "medium",
+      "heavy",
+      "shields"
+    ],
+    "weapon_prof": [
+      "simple",
+      "martial"
     ],
     "skill_count": 2,
     "skills": [
@@ -1066,6 +1120,11 @@
       "STR",
       "DEX"
     ],
+    "armor_prof": [],
+    "weapon_prof": [
+      "simple",
+      "Shortswords"
+    ],
     "skill_count": 2,
     "skills": [
       "acrobatics",
@@ -1269,6 +1328,16 @@
       "WIS",
       "CHA"
     ],
+    "armor_prof": [
+      "light",
+      "medium",
+      "heavy",
+      "shields"
+    ],
+    "weapon_prof": [
+      "simple",
+      "martial"
+    ],
     "skill_count": 2,
     "skills": [
       "athletics",
@@ -1471,6 +1540,15 @@
       "STR",
       "DEX"
     ],
+    "armor_prof": [
+      "light",
+      "medium",
+      "shields"
+    ],
+    "weapon_prof": [
+      "simple",
+      "martial"
+    ],
     "skill_count": 3,
     "skills": [
       "animal-handling",
@@ -1654,6 +1732,16 @@
     "saves": [
       "DEX",
       "INT"
+    ],
+    "armor_prof": [
+      "light"
+    ],
+    "weapon_prof": [
+      "simple",
+      "Hand crossbows",
+      "Longswords",
+      "Rapiers",
+      "Shortswords"
     ],
     "skill_count": 4,
     "skills": [
@@ -1839,6 +1927,14 @@
       "CON",
       "CHA"
     ],
+    "armor_prof": [],
+    "weapon_prof": [
+      "Daggers",
+      "Darts",
+      "Slings",
+      "Quarterstaffs",
+      "Light crossbows"
+    ],
     "skill_count": 2,
     "skills": [
       "arcana",
@@ -2022,6 +2118,12 @@
       "WIS",
       "CHA"
     ],
+    "armor_prof": [
+      "light"
+    ],
+    "weapon_prof": [
+      "simple"
+    ],
     "skill_count": 2,
     "skills": [
       "arcana",
@@ -2203,6 +2305,14 @@
     "saves": [
       "INT",
       "WIS"
+    ],
+    "armor_prof": [],
+    "weapon_prof": [
+      "Daggers",
+      "Darts",
+      "Slings",
+      "Quarterstaffs",
+      "Light crossbows"
     ],
     "skill_count": 2,
     "skills": [

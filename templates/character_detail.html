@@ -56,7 +56,9 @@
 
   <section class="vitals">
     <div class="vital"><span class="vital-label">Hit Points {{ info('hit-points') }}</span><span class="vital-value">{{ creature['current_hp'] }} / {{ creature['max_hp'] }}</span></div>
-    <div class="vital"><span class="vital-label">Armor Class {{ info('armor-class') }}</span><span class="vital-value" title="{{ ac_breakdown }}">{{ eff_ac }}{% if ac_bonus %} <span class="stat-bonus">{{ '%+d' % ac_bonus }}</span>{% endif %}</span></div>
+    <div class="vital"><span class="vital-label">Armor Class {{ info('armor-class') }}</span><span class="vital-value" title="{{ ac_breakdown }}">{{ eff_ac }}{% if ac_bonus %} <span class="stat-bonus">{{ '%+d' % ac_bonus }}</span>{% endif %}</span>
+      {% if armor_issue %}<span class="armor-warn" title="Your class isn't proficient with {{ armor_issue.armor_type }} armor. While wearing {{ armor_issue.name }} you have disadvantage on ability checks, attacks, and saves using STR or DEX{{ ', and you can’t cast spells' if spell_stats else '' }}.">⚠ not proficient</span>{% endif %}
+    </div>
     <div class="vital"><span class="vital-label">Experience</span><span class="vital-value xp-value">{{ '{:,}'.format(creature['xp']) }}</span></div>
     <div class="vital purse">
       <span class="vital-label">Purse</span>
@@ -174,6 +176,25 @@
     </div>
     {% if is_dm %}<p class="muted check-hint">Set which skills this character is proficient in on the <a href="{{ url_for('character_edit', creature_id=creature['id']) }}">edit page</a> (DM only).</p>{% endif %}
   </section>
+
+  {% if proficiencies and (proficiencies.armor or proficiencies.weapons) %}
+    <section class="proficiencies">
+      <div class="section-head">
+        <h2>{{ info('proficiency', 'Proficiencies') }}</h2>
+        <span class="muted">from your class — proficient weapon attacks add +{{ prof_bonus }}</span>
+      </div>
+      <div class="prof-rows">
+        <div class="prof-row">
+          <span class="prof-key">Armor</span>
+          <span class="prof-vals">{% if proficiencies.armor %}{% for a in proficiencies.armor %}<span class="prof-chip">{{ a }}</span>{% endfor %}{% else %}<span class="muted">none</span>{% endif %}</span>
+        </div>
+        <div class="prof-row">
+          <span class="prof-key">Weapons</span>
+          <span class="prof-vals">{% if proficiencies.weapons %}{% for w in proficiencies.weapons %}<span class="prof-chip">{{ w }}</span>{% endfor %}{% else %}<span class="muted">none</span>{% endif %}</span>
+        </div>
+      </div>
+    </section>
+  {% endif %}
 
   {% if klass and class_features %}
     <div class="sheet-divider" role="separator"></div>
