@@ -179,5 +179,77 @@
     "name": "Keen Mind",
     "prerequisite": "",
     "description": "+1 INT, always know which way is north and hours until sunrise/sunset, and recall anything you've seen or heard in the past month."
+  },
+  {
+    "slug": "dungeon-delver",
+    "name": "Dungeon Delver",
+    "prerequisite": "",
+    "description": "Advantage to spot secret doors and traps, advantage on saves against traps, resistance to trap damage, and you can search for traps at full travel pace."
+  },
+  {
+    "slug": "durable",
+    "name": "Durable",
+    "prerequisite": "",
+    "description": "+1 CON, and whenever you spend a hit die to regain HP, the minimum you recover is twice your Constitution modifier."
+  },
+  {
+    "slug": "heavily-armored",
+    "name": "Heavily Armored",
+    "prerequisite": "Proficiency with medium armor",
+    "description": "+1 STR, and you gain proficiency with heavy armor."
+  },
+  {
+    "slug": "heavy-armor-master",
+    "name": "Heavy Armor Master",
+    "prerequisite": "Proficiency with heavy armor",
+    "description": "+1 STR, and while wearing heavy armor you reduce nonmagical bludgeoning, piercing, and slashing damage by 3."
+  },
+  {
+    "slug": "lightly-armored",
+    "name": "Lightly Armored",
+    "prerequisite": "",
+    "description": "+1 STR or DEX, and you gain proficiency with light armor."
+  },
+  {
+    "slug": "linguist",
+    "name": "Linguist",
+    "prerequisite": "",
+    "description": "+1 INT, learn three languages, and you can craft written ciphers others can't decode without the key or a hard check."
+  },
+  {
+    "slug": "martial-adept",
+    "name": "Martial Adept",
+    "prerequisite": "",
+    "description": "Learn two combat maneuvers and gain one superiority die (d6) to fuel them, recharging on a rest."
+  },
+  {
+    "slug": "medium-armor-master",
+    "name": "Medium Armor Master",
+    "prerequisite": "Proficiency with medium armor",
+    "description": "Medium armor no longer imposes disadvantage on Stealth, and you can add up to +3 DEX (instead of +2) to your AC in it."
+  },
+  {
+    "slug": "moderately-armored",
+    "name": "Moderately Armored",
+    "prerequisite": "Proficiency with light armor",
+    "description": "+1 STR or DEX, and you gain proficiency with medium armor and shields."
+  },
+  {
+    "slug": "mounted-combatant",
+    "name": "Mounted Combatant",
+    "prerequisite": "",
+    "description": "Advantage on melee attacks against unmounted creatures smaller than your mount, you can force attacks aimed at your mount onto yourself, and your mount takes reduced damage on DEX saves."
+  },
+  {
+    "slug": "skulker",
+    "name": "Skulker",
+    "prerequisite": "Dexterity 13 or higher",
+    "description": "You can hide when only lightly obscured, a missed ranged attack doesn't reveal your position, and dim light doesn't hinder your sight-based Perception."
+  },
+  {
+    "slug": "weapon-master",
+    "name": "Weapon Master",
+    "prerequisite": "",
+    "description": "+1 STR or DEX, and you gain proficiency with four weapons of your choice."
   }
 ]
