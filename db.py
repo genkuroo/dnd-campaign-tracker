@@ -14,7 +14,7 @@ import sqlite3
 # real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
 DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
-SCHEMA_VERSION = 33
+SCHEMA_VERSION = 34
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -411,6 +411,15 @@ MIGRATIONS = {
     -- effective_abilities on read (like ASI); traits are a display layer.
     ALTER TABLE creatures ADD COLUMN race    TEXT NOT NULL DEFAULT '';
     ALTER TABLE creatures ADD COLUMN subrace TEXT NOT NULL DEFAULT '';
+    """,
+    34: """
+    -- Weapon stats for an item, so an equipped weapon yields an attack + damage
+    -- roll. Packed (like stat_bonuses) into one column: "damage|type|ability|
+    -- category", e.g. "1d8|slashing|str|martial" ('' = not a weapon). `ability` is
+    -- str/dex/finesse; `category` simple/martial drives the proficiency check.
+    -- On both tables so weapons keep their stats through loot give/take/drop.
+    ALTER TABLE creature_items ADD COLUMN weapon TEXT NOT NULL DEFAULT '';
+    ALTER TABLE loot_items     ADD COLUMN weapon TEXT NOT NULL DEFAULT '';
     """,
 }
 

@@ -272,6 +272,42 @@
     </div>
   {% endif %}
 
+  {% if weapon_attacks %}
+    <div class="sheet-divider" role="separator"></div>
+    <section class="char-attacks">
+      <div class="section-head">
+        <h2>Attacks</h2>
+        <span class="muted">equipped weapons — d20 + ability {{ info('proficiency-bonus', '+ proficiency') }} to hit, then damage{% if can_edit and mode != 'assist' %} · switch to Assist to roll{% endif %}</span>
+      </div>
+      <ul class="attack-list">
+        {% for a in weapon_attacks %}
+          <li class="attack-line">
+            <span class="attack-name">{{ a.name }}{% if a.type %} <span class="muted attack-type">{{ a.type }}</span>{% endif %} <span class="muted attack-abil">({{ a.ability }})</span>{% if not a.proficient %} <span class="attack-warn" title="Your class isn't proficient with this weapon, so the attack roll doesn't add your proficiency bonus.">not proficient</span>{% endif %}</span>
+            <span class="attack-rolls">
+              {% if mode == 'assist' and can_edit %}
+                <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
+                  <input type="hidden" name="expression" value="{{ a.to_hit }}">
+                  <input type="hidden" name="label" value="{{ creature['name'] }} · {{ a.name }} attack">
+                  <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+                  <button type="submit" class="check-btn" title="Attack roll: {{ a.to_hit }}">Attack {{ '%+d' % a.attack }}</button>
+                </form>
+                <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
+                  <input type="hidden" name="expression" value="{{ a.damage }}">
+                  <input type="hidden" name="label" value="{{ creature['name'] }} · {{ a.name }} damage">
+                  <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+                  <button type="submit" class="check-btn" title="Damage roll: {{ a.damage }}">Damage {{ a.damage }}</button>
+                </form>
+              {% else %}
+                <span class="attack-stat">{{ '%+d' % a.attack }} to hit</span>
+                <span class="attack-stat">{{ a.damage }}{% if a.type %} {{ a.type }}{% endif %}</span>
+              {% endif %}
+            </span>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
   <div class="sheet-divider" role="separator"></div>
 
   <div id="gear">

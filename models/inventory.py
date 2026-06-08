@@ -69,7 +69,8 @@ def set_item_hidden(item_id, hidden):
 
 
 def add_item(creature_id, name, quantity=1, description="", slot="", hands=1,
-             ac_bonus=0, grants_spells="", stat_bonuses="", armor_base=0, armor_type=""):
+             ac_bonus=0, grants_spells="", stat_bonuses="", armor_base=0, armor_type="",
+             weapon=""):
     name = (name or "").strip()
     if not name:
         return None
@@ -83,12 +84,12 @@ def add_item(creature_id, name, quantity=1, description="", slot="", hands=1,
         cur = conn.execute(
             "INSERT INTO creature_items "
             "(creature_id, name, quantity, description, slot, hands, ac_bonus, "
-            " grants_spells, stat_bonuses, armor_base, armor_type) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            " grants_spells, stat_bonuses, armor_base, armor_type, weapon) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (creature_id, name, max(1, int(quantity or 1)), (description or "").strip(),
              slot, 2 if int(hands or 1) == 2 else 1,
              int(ac_bonus or 0), _clean_slugs(grants_spells), _clean_stat_bonuses(stat_bonuses),
-             int(armor_base or 0), armor_type),
+             int(armor_base or 0), armor_type, (weapon or "").strip()),
         )
         conn.commit()
         return cur.lastrowid
@@ -110,6 +111,10 @@ def item_effects(item):
     """Human-readable list of an item's magic effects, e.g. ['Heavy armor: AC 16
     (no DEX)', '+2 AC', 'STR +2', 'grants Fire Bolt']. Empty for a mundane item."""
     out = []
+    from models.weapons import parse_weapon  # local: avoid import cycle
+    w = parse_weapon(item)
+    if w:
+        out.append("⚔ " + w["damage"] + (f" {w['type']}" if w["type"] else ""))
     if item["armor_type"] and item["armor_base"] > 0:
         out.append(f"{item['armor_type'].title()} armor: AC {item['armor_base']} "
                    f"({_ARMOR_DEX_LABEL.get(item['armor_type'], '')})")

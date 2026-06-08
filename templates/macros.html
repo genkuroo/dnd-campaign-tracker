@@ -46,6 +46,26 @@
         {% for s in spell_options %}<option value="{{ s['slug'] }}">{{ s['name'] }} ({{ s['level'] | ordinal_level }})</option>{% endfor %}
       </select>
     </label>
+    <div class="magic-grid weapon-row">
+      <label class="coin-field" title="Damage dice — makes this a weapon with an Attack roll (e.g. 1d8). Leave blank for non-weapons.">⚔ Damage
+        <input type="text" name="weapon_damage" value="" placeholder="e.g. 1d8" class="dice-input"></label>
+      <label class="coin-field" title="Damage type">Type
+        <input type="text" name="weapon_type" value="" placeholder="slashing" class="dice-input"></label>
+      <label class="coin-field" title="Which ability the attack & damage use">Ability
+        <select name="weapon_ability">
+          <option value="str">STR (melee)</option>
+          <option value="dex">DEX (ranged)</option>
+          <option value="finesse">Finesse (best of STR/DEX)</option>
+        </select>
+      </label>
+      <label class="coin-field" title="Drives the proficiency check against the wielder's class">Category
+        <select name="weapon_category">
+          <option value="">—</option>
+          <option value="simple">Simple</option>
+          <option value="martial">Martial</option>
+        </select>
+      </label>
+    </div>
   </details>
 {%- endmacro %}
 

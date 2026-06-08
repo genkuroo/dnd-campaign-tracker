@@ -78,6 +78,7 @@ from models.classes import (all_classes, get_class, hit_die_average,
                             get_subclass, valid_subclass, subclass_level)
 from models.races import (all_races, race_label, race_traits, race_speed,
                           race_size, valid_subrace)
+from models.weapons import pack_weapon, weapon_attacks
 from models.items import all_item_defs, get_item_def
 from models.loot import (
     add_loot,
@@ -497,7 +498,7 @@ def _apply_class(creature_id, class_slug, starting_kit=False):
                 slot=item["slot"], hands=item["hands"],
                 ac_bonus=item.get("ac_bonus", 0), grants_spells=item.get("grants_spells", ""),
                 stat_bonuses=item.get("stat_bonuses", ""), armor_base=item.get("armor_base", 0),
-                armor_type=item.get("armor_type", ""))
+                armor_type=item.get("armor_type", ""), weapon=item.get("weapon", ""))
             if item.get("slot"):
                 equip_item(new_id)  # auto-equip starting gear
 
@@ -779,6 +780,7 @@ def character_detail(creature_id):
         race_traits=race_traits(creature),
         race_speed=race_speed(creature),
         race_size=race_size(creature),
+        weapon_attacks=weapon_attacks(creature, eff_ab),
         class_features=class_features(creature["class_name"], creature["level"], creature["subclass"]),
         class_features_next=class_features_remaining(
             creature["class_name"], creature["level"], creature["subclass"])[:4],
@@ -1634,7 +1636,8 @@ def loot_spawn():
                  grants_spells=item.get("grants_spells", ""),
                  stat_bonuses=item.get("stat_bonuses", ""),
                  armor_base=item.get("armor_base", 0),
-                 armor_type=item.get("armor_type", ""))
+                 armor_type=item.get("armor_type", ""),
+                 weapon=item.get("weapon", ""))
         flash(f"Spawned {item['name']}.")
     return redirect(url_for("loot"))
 
@@ -1650,6 +1653,10 @@ def _magic_fields_from_form():
         "stat_bonuses": ", ".join(f"{c}:{v}" for c, v in stat.items() if v),
         "armor_base": request.form.get("armor_base", 0, type=int) or 0,
         "armor_type": request.form.get("armor_type", ""),
+        "weapon": pack_weapon(request.form.get("weapon_damage", ""),
+                              request.form.get("weapon_type", ""),
+                              request.form.get("weapon_ability", "str"),
+                              request.form.get("weapon_category", "")),
     }
 
 
