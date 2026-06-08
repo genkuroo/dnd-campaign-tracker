@@ -168,6 +168,14 @@ from models.resources import (
 )
 from models.resources import rest as resource_rest
 from models.asi import asi_summary, adjust_asi
+from models.feats import (
+    all_catalog_feats,
+    get_catalog_feat,
+    list_feats,
+    add_feat,
+    get_feat,
+    remove_feat,
+)
 
 # Quick-roll die buttons on the dice page.
 DICE_BUTTONS = [4, 6, 8, 10, 12, 20, 100]
@@ -777,6 +785,8 @@ def character_detail(creature_id):
         addable_spells=[s for s in all_spells() if s["slug"] not in known_slugs],
         resource_rows=resource_rows(creature, eff_ab),
         asi=asi_summary(creature),
+        feats=list_feats(creature_id),
+        feat_book=all_catalog_feats(),
         **_spellcasting_ctx(creature),
         next_level=next_level,                         # (level, xp_to_go) or None
         xp_level=level_from_xp(creature["xp"]),         # level the XP implies
@@ -1401,6 +1411,18 @@ def _resources_fragment(creature_id):
     )
 
 
+def _feats_fragment(creature_id):
+    """Render the feats section for a creature (the #feats AJAX fragment)."""
+    creature = get_creature(creature_id)
+    return render_template(
+        "_feats.html",
+        creature=creature,
+        can_edit=can_edit_creature(creature),
+        feats=list_feats(creature_id),
+        feat_book=all_catalog_feats(),
+    )
+
+
 def _actions_fragment(creature_id):
     """Render the actions section for a creature (the #actions AJAX fragment)."""
     creature = get_creature(creature_id)
@@ -2022,6 +2044,47 @@ def actions_hidden(action_id):
     set_action_hidden(action_id, not action["hidden"])
     if _is_fetch():
         return _actions_fragment(cid)
+    return redirect(_safe_next(
+        request.form.get("next"),
+        url_for("character_detail", creature_id=cid),
+    ))
+
+
+# --- Feats (on the character sheet; skeleton — tracked, no mechanics) ------
+# Keyed by the form's creature_id + `next`, mirroring the actions routes.
+
+@app.route("/feats/add", methods=["POST"])
+def feats_add():
+    """Add a feat to a creature. The primary path grabs a catalog entry (a `slug`,
+    copied onto the creature); a blank `slug` falls back to a custom feat from the
+    form fields."""
+    cid = _require_edit_form_creature()
+    entry = get_catalog_feat(request.form.get("slug", ""))
+    if entry:
+        add_feat(cid, entry["name"], entry["description"], entry.get("prerequisite", ""))
+        flash(f"Added {entry['name']}.")
+    elif (request.form.get("name") or "").strip():
+        add_feat(cid, request.form.get("name", ""),
+                 request.form.get("description", ""),
+                 request.form.get("prerequisite", ""))
+        flash("Custom feat added.")
+    if _is_fetch():
+        return _feats_fragment(cid)
+    return redirect(_safe_next(request.form.get("next"), url_for("character")))
+
+
+@app.route("/feats/<int:feat_id>/remove", methods=["POST"])
+def feats_remove(feat_id):
+    feat = get_feat(feat_id)
+    if feat is None:
+        return redirect(url_for("character"))
+    cid = feat["creature_id"]
+    if not can_edit_creature(get_creature(cid)):
+        abort(403)
+    remove_feat(feat_id)
+    flash("Feat removed.")
+    if _is_fetch():
+        return _feats_fragment(cid)
     return redirect(_safe_next(
         request.form.get("next"),
         url_for("character_detail", creature_id=cid),

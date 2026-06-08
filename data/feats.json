@@ -1,0 +1,183 @@
+[
+  {
+    "slug": "grappler",
+    "name": "Grappler",
+    "prerequisite": "Strength 13 or higher",
+    "source": "SRD 5.1 (CC-BY-4.0)",
+    "description": "You have advantage on attack rolls against a creature you're grappling, and can try to pin a grappled creature (both restrained until the grapple ends)."
+  },
+  {
+    "slug": "tavern-brawler",
+    "name": "Tavern Brawler",
+    "prerequisite": "",
+    "description": "+1 STR or CON. You're proficient with improvised weapons, your unarmed strike die becomes a d4, and on an unarmed/improvised hit you can try to grapple as a bonus action."
+  },
+  {
+    "slug": "great-weapon-master",
+    "name": "Great Weapon Master",
+    "prerequisite": "",
+    "description": "On a crit or a kill with a melee weapon, make a bonus-action attack. With a heavy weapon you may take -5 to hit for +10 damage."
+  },
+  {
+    "slug": "sharpshooter",
+    "name": "Sharpshooter",
+    "prerequisite": "",
+    "description": "Long-range shots don't suffer disadvantage, cover doesn't hinder your ranged attacks, and you may take -5 to hit for +10 damage."
+  },
+  {
+    "slug": "lucky",
+    "name": "Lucky",
+    "prerequisite": "",
+    "description": "3 luck points per long rest. Spend one to roll an extra d20 on an attack, check, or save (yours or an attacker's) and pick which die to use."
+  },
+  {
+    "slug": "alert",
+    "name": "Alert",
+    "prerequisite": "",
+    "description": "+5 to initiative, you can't be surprised while conscious, and hidden attackers gain no advantage against you."
+  },
+  {
+    "slug": "mobile",
+    "name": "Mobile",
+    "prerequisite": "",
+    "description": "+10 ft speed; Dashing ignores difficult terrain; after a melee attack on a creature, you don't provoke opportunity attacks from it."
+  },
+  {
+    "slug": "tough",
+    "name": "Tough",
+    "prerequisite": "",
+    "description": "Your hit-point maximum increases by 2 per character level."
+  },
+  {
+    "slug": "resilient",
+    "name": "Resilient",
+    "prerequisite": "",
+    "description": "+1 to one ability score, and you gain saving-throw proficiency in that same ability."
+  },
+  {
+    "slug": "war-caster",
+    "name": "War Caster",
+    "prerequisite": "The ability to cast at least one spell",
+    "description": "Advantage on concentration saves, you can cast with hands full of weapon/shield, and you can cast a spell as an opportunity attack."
+  },
+  {
+    "slug": "magic-initiate",
+    "name": "Magic Initiate",
+    "prerequisite": "",
+    "description": "Learn two cantrips and one 1st-level spell from a chosen class; the 1st-level spell is castable once per long rest without a slot."
+  },
+  {
+    "slug": "ritual-caster",
+    "name": "Ritual Caster",
+    "prerequisite": "Intelligence or Wisdom 13 or higher",
+    "description": "You gain a ritual book and can cast spells from it as rituals; you can add more ritual spells you find."
+  },
+  {
+    "slug": "sentinel",
+    "name": "Sentinel",
+    "prerequisite": "",
+    "description": "Opportunity-attack hits stop a target's movement; foes that Disengage still provoke from you; you can react when a nearby creature attacks someone else."
+  },
+  {
+    "slug": "polearm-master",
+    "name": "Polearm Master",
+    "prerequisite": "",
+    "description": "Bonus-action butt-end attack (1d4) with a polearm, and creatures provoke an opportunity attack when they enter your reach."
+  },
+  {
+    "slug": "shield-master",
+    "name": "Shield Master",
+    "prerequisite": "",
+    "description": "Bonus-action shove with your shield, add the shield's AC to DEX saves against single-target effects, and turn a failed save into no damage."
+  },
+  {
+    "slug": "dual-wielder",
+    "name": "Dual Wielder",
+    "prerequisite": "",
+    "description": "+1 AC while wielding two weapons, you can two-weapon-fight with non-light weapons, and you can draw/stow two weapons at once."
+  },
+  {
+    "slug": "crossbow-expert",
+    "name": "Crossbow Expert",
+    "prerequisite": "",
+    "description": "Ignore the loading property, no disadvantage for ranged attacks in melee, and a bonus-action hand-crossbow shot after a one-handed attack."
+  },
+  {
+    "slug": "defensive-duelist",
+    "name": "Defensive Duelist",
+    "prerequisite": "Dexterity 13 or higher",
+    "description": "When hit while wielding a finesse weapon, react to add your proficiency bonus to AC, possibly turning the hit into a miss."
+  },
+  {
+    "slug": "savage-attacker",
+    "name": "Savage Attacker",
+    "prerequisite": "",
+    "description": "Once per turn you may reroll a melee weapon's damage dice and use either total."
+  },
+  {
+    "slug": "mage-slayer",
+    "name": "Mage Slayer",
+    "prerequisite": "",
+    "description": "React to attack a caster who casts in your reach, impose disadvantage on their concentration saves, and gain advantage on saves against their spells."
+  },
+  {
+    "slug": "spell-sniper",
+    "name": "Spell Sniper",
+    "prerequisite": "The ability to cast at least one spell",
+    "description": "Double the range of your attack-roll spells, ignore half/three-quarters cover, and learn one attack-roll cantrip."
+  },
+  {
+    "slug": "elemental-adept",
+    "name": "Elemental Adept",
+    "prerequisite": "The ability to cast at least one spell",
+    "description": "Spells of a chosen damage type ignore resistance to it, and treat any 1 rolled on their damage dice as a 2."
+  },
+  {
+    "slug": "inspiring-leader",
+    "name": "Inspiring Leader",
+    "prerequisite": "Charisma 13 or higher",
+    "description": "Spend 10 minutes to give up to six allies temporary hit points equal to your level + your Charisma modifier."
+  },
+  {
+    "slug": "healer",
+    "name": "Healer",
+    "prerequisite": "",
+    "description": "Use a healer's kit to restore 1d6+4 HP plus the target's hit dice, and stabilize-and-heal a downed creature for 1 HP."
+  },
+  {
+    "slug": "skilled",
+    "name": "Skilled",
+    "prerequisite": "",
+    "description": "Gain proficiency in any three skills or tools of your choice."
+  },
+  {
+    "slug": "observant",
+    "name": "Observant",
+    "prerequisite": "",
+    "description": "+1 INT or WIS, read lips, and a +5 bonus to passive Perception and passive Investigation."
+  },
+  {
+    "slug": "actor",
+    "name": "Actor",
+    "prerequisite": "",
+    "description": "+1 CHA, advantage on Deception/Performance to pass as someone else, and you can mimic speech or sounds you've heard."
+  },
+  {
+    "slug": "athlete",
+    "name": "Athlete",
+    "prerequisite": "",
+    "description": "+1 STR or DEX, stand from prone with little movement, climb at full speed, and make running jumps after only 5 ft of movement."
+  },
+  {
+    "slug": "charger",
+    "name": "Charger",
+    "prerequisite": "",
+    "description": "After a Dash, use a bonus action to attack for +5 damage or shove a creature 10 ft."
+  },
+  {
+    "slug": "keen-mind",
+    "name": "Keen Mind",
+    "prerequisite": "",
+    "description": "+1 INT, always know which way is north and hours until sunrise/sunset, and recall anything you've seen or heard in the past month."
+  }
+]

@@ -10,7 +10,7 @@
       <strong>{{ asi.remaining }}</strong> of {{ asi.budget }} point{{ '' if asi.budget == 1 else 's' }} left
     </span>
   </div>
-  <p class="muted spell-help">Permanent ability bumps from leveling — spend a point to raise a score (max 20).{% if can_edit %} They fold into your scores above and everything derived from them (AC, modifiers, DCs).{% endif %}</p>
+  <p class="muted spell-help">Permanent ability bumps from leveling — spend a point to raise a score (max 20).{% if can_edit %} They fold into your scores above and everything derived from them (AC, modifiers, DCs). You can take a <a href="#feats">feat</a> instead (tracked separately for now).{% endif %}</p>
   <div class="asi-grid">
     {% for col, short in abilities %}
       {% set e = eff_abilities[col] %}

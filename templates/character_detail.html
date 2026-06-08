@@ -215,6 +215,13 @@
     </section>
   {% endif %}
 
+  {% if feats or can_edit %}
+    <div class="sheet-divider" role="separator"></div>
+    <div id="feats">
+      {% include "_feats.html" %}
+    </div>
+  {% endif %}
+
   {% if resource_rows %}
     <div class="sheet-divider" role="separator"></div>
     <div id="resources">
@@ -556,6 +563,24 @@
     // (ASI +/- submit as a normal POST → redirect: a bump ripples into AC, saves,
     // skills and spell DCs across the whole sheet, so a full reload keeps every
     // derived number consistent rather than re-rendering just the one panel.)
+
+    // Feats: add/remove re-render the #feats fragment in place (display-only, so
+    // nothing else on the sheet depends on it). Handlers delegate on #feats, which
+    // persists across replacement; no-JS falls back to a normal POST + redirect.
+    (function () {
+      const box = document.getElementById('feats');
+      if (!box) return;
+      box.addEventListener('submit', function (e) {
+        const form = e.target.closest('form');
+        if (!form) return;
+        e.preventDefault();
+        if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) return;
+        fetch(form.getAttribute('action'), { method: 'POST', body: new FormData(form),
+                             headers: { 'X-Requested-With': 'fetch' } })
+          .then(r => r.text())
+          .then(html => { box.innerHTML = html; });
+      });
+    })();
 
     // Class resources: spend/restore re-render the #resources fragment in place.
     // Rest forms (data-reload) submit normally so the page reloads — that also

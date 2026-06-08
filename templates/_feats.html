@@ -1,0 +1,60 @@
+{# Feats — a tracked list (skeleton, no mechanics). Rendered inside the character
+   sheet and standalone by the #feats AJAX endpoints, so add/remove refresh in
+   place. Mirrors the action book: grab from the catalog or hand-add a custom one.
+   Expects: creature, feats, feat_book, can_edit. #}
+{% from "macros.html" import info %}
+<section class="char-feats">
+  <h2>{{ info('feat', 'Feats') }}</h2>
+  {% if feats %}
+    <ul class="feat-list">
+      {% for f in feats %}
+        <li class="feat-line">
+          <div class="feat-head">
+            <span class="feat-name">{{ f['name'] }}</span>
+            {% if f['prerequisite'] %}<span class="feat-prereq" title="Prerequisite">{{ f['prerequisite'] }}</span>{% endif %}
+            {% if can_edit %}
+              <form method="post" action="{{ url_for('feats_remove', feat_id=f['id']) }}" class="inline"
+                    data-confirm="Remove {{ f['name'] }}?">
+                <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+                <button type="submit" class="roll-del" title="Remove feat">×</button>
+              </form>
+            {% endif %}
+          </div>
+          {% if f['description'] %}<p class="feat-desc">{{ f['description'] }}</p>{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">No feats yet.{% if can_edit %} A character may take a feat instead of an Ability Score Improvement.{% endif %}</p>
+  {% endif %}
+
+  {% if can_edit %}
+  {# Primary path: grab a feat from the catalog (copied onto the creature). #}
+  <form method="post" action="{{ url_for('feats_add') }}" class="add-action add-from-book">
+    <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+    <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+    <div class="field-row">
+      <select name="slug" aria-label="Feat catalog">
+        {% for f in feat_book %}
+          <option value="{{ f['slug'] }}">{{ f['name'] }}{% if f['prerequisite'] %} — {{ f['prerequisite'] }}{% endif %}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn">Add feat</button>
+    </div>
+  </form>
+
+  <details class="add-custom-action">
+    <summary>Add a custom feat</summary>
+    <form method="post" action="{{ url_for('feats_add') }}" class="add-action">
+      <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+      <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+      <div class="field-row">
+        <input type="text" name="name" placeholder="Name (e.g. Drunken Brawler)" required>
+        <input type="text" name="prerequisite" placeholder="Prerequisite (optional)">
+      </div>
+      <textarea name="description" rows="2" placeholder="What it does (optional)"></textarea>
+      <button type="submit" class="btn">Add custom feat</button>
+    </form>
+  </details>
+  {% endif %}
+</section>

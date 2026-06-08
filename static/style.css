@@ -867,6 +867,18 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
               border-radius: 999px; padding: 0.05rem 0.4rem; }
 .action-desc { margin: 0.4rem 0 0; max-width: 680px; line-height: 1.6; color: var(--ink); }
 
+/* Feats list on the character sheet (tracked; no mechanics yet) */
+.char-feats h2 { color: var(--accent-2); font-size: 1.1rem; }
+.feat-list { list-style: none; padding: 0; margin: 0 0 1rem; }
+.feat-line { padding: 0.55rem 0.2rem; border-bottom: 1px solid var(--border); }
+.feat-head { display: flex; align-items: center; gap: 0.7rem; }
+.feat-name { font-weight: bold; }
+.feat-prereq { font-family: sans-serif; font-size: 0.66rem; text-transform: uppercase;
+               letter-spacing: 0.05em; padding: 0.1rem 0.5rem; border-radius: 999px;
+               border: 1px solid var(--border); color: var(--muted); white-space: nowrap; }
+.feat-line .roll-del { margin-left: auto; }
+.feat-desc { margin: 0.4rem 0 0; max-width: 680px; line-height: 1.6; color: var(--ink); }
+
 .add-action { display: flex; flex-direction: column; gap: 0.5rem; max-width: 680px; }
 .add-action .field-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .add-action input, .add-action select, .add-action textarea {

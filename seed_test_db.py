@@ -103,6 +103,14 @@ for _ in range(2): adjust_asi(get_creature(grog), "strength", 1)          # 17 â
 adjust_asi(get_creature(pike), "wisdom", 1)
 adjust_asi(get_creature(pike), "constitution", 1)
 
+# Feats are tracked separately (skeleton) â€” grab one from the catalog onto Vex and
+# a custom one onto Gandalf, to show both add paths on the sheet.
+from models.feats import add_feat, get_catalog_feat  # noqa: E402
+_alert = get_catalog_feat("alert")
+add_feat(vex, _alert["name"], _alert["description"], _alert["prerequisite"])
+add_feat(gandalf, "Arcane Savant", "Custom: advantage on checks to identify magic items.",
+         "Spellcaster")
+
 # Players linked to their PCs (Vex is left unassigned to demo "Create my character").
 alice = create_user("alice", PASSWORD, "player", creature_id=gandalf)
 bob = create_user("bob", PASSWORD, "player", creature_id=grog)

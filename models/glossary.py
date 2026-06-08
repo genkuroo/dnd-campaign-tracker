@@ -39,6 +39,7 @@ GLOSSARY = {
     "saving-throw-prof": "Saving throw proficiency — your class makes you reliably good at resisting two kinds of effect (e.g. a Barbarian's STR & CON saves), adding your proficiency bonus.",
     "hit-die": "Hit die — the die you roll for hit points each level (e.g. d8 for many classes). Level-up HP = that roll (or its average) + your Constitution modifier.",
     "ability-score-improvement": "Ability Score Improvement (ASI) — at certain levels (4, 8, 12, 16, 19; a few classes get extra) you gain 2 points to raise your ability scores, as +2 to one or +1 to two, capped at 20.",
+    "feat": "Feat — a special talent you can take instead of an Ability Score Improvement, granting a distinctive ability (extra reactions, combat tricks, skill boosts…).",
     # Spell vocabulary
     "cantrip": "Cantrip — a level-0 spell you can cast at will, without spending a spell slot.",
     "spell-level": "Spell level (1–9) — a spell's power tier; casting it spends a spell slot of that level or higher.",

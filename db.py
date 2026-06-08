@@ -14,7 +14,7 @@ import sqlite3
 # real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
 DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
-SCHEMA_VERSION = 30
+SCHEMA_VERSION = 31
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -381,6 +381,20 @@ MIGRATIONS = {
         ability     TEXT    NOT NULL,
         bonus       INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY (creature_id, ability)
+    );
+    """,
+    31: """
+    -- Feats a creature has taken (skeleton: tracked, no mechanics yet). A character
+    -- may take a feat *instead* of an Ability Score Improvement; for now the two
+    -- aren't budget-linked. Mirrors the action book — entries are grabbed from a
+    -- premade catalog (data/feats.json) or hand-added, then copied here so they can
+    -- be edited/removed per-creature.
+    CREATE TABLE creature_feats (
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        creature_id  INTEGER NOT NULL REFERENCES creatures(id) ON DELETE CASCADE,
+        name         TEXT    NOT NULL,
+        description  TEXT    NOT NULL DEFAULT '',
+        prerequisite TEXT    NOT NULL DEFAULT ''
     );
     """,
 }
