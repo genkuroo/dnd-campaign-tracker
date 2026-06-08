@@ -595,6 +595,14 @@ form.inline { display: inline; margin: 0; }
 .cast-stats { display: flex; flex-wrap: wrap; gap: 0.4rem 1.25rem; align-items: center; }
 .cast-stat { font-family: sans-serif; font-size: 0.85rem; color: var(--muted); }
 .cast-stat strong { color: var(--accent-2); font-size: 1.05rem; margin-left: 0.15rem; }
+.spell-limits { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; align-items: center; width: 100%; }
+.limit { font-family: sans-serif; font-size: 0.85rem; color: var(--muted); }
+.limit strong { color: var(--accent-2); font-size: 1.05rem; margin-left: 0.15rem; }
+.limit.over strong { color: var(--warn, #e0a33d); }
+.limit-warn { font-family: sans-serif; font-size: 0.66rem; text-transform: uppercase;
+              letter-spacing: 0.05em; padding: 0.1rem 0.5rem; border-radius: 999px;
+              color: var(--warn, #e0a33d);
+              border: 1px solid color-mix(in srgb, var(--warn, #e0a33d) 45%, transparent); }
 .slot-tracker { display: flex; flex-direction: column; gap: 0.3rem; flex: 1; min-width: 16rem; }
 .slot-row { display: flex; align-items: center; gap: 0.5rem; }
 .slot-label { font-family: sans-serif; font-size: 0.75rem; color: var(--muted); width: 4.5rem; }

@@ -158,6 +158,7 @@ from models.spellcasting import (
     restore_pact_slots,
     restore_slot,
     slot_rows,
+    spell_limits,
     spell_stats,
     spend_slot,
 )
@@ -1371,14 +1372,17 @@ def _gear_response(creature_id, target):
 
 def _spellcasting_ctx(creature):
     """Computed spellcasting context for the spellbook fragment: casting stats
-    (attack/DC), the slot pool, and a level→available lookup (for per-spell Cast
-    buttons). Reused by the sheet and the #spells fragment."""
+    (attack/DC), the slot pool, a level→available lookup (for per-spell Cast
+    buttons), and the spells-known/prepared limits. Reused by the sheet and the
+    #spells fragment."""
+    eff_ab = effective_abilities(creature)
     rows = slot_rows(creature)
     return {
-        "spell_stats": spell_stats(creature, effective_abilities(creature)),
+        "spell_stats": spell_stats(creature, eff_ab),
         "slot_rows": rows,
         "caster_type": caster_type(creature),
         "slots_available": {r["level"]: r["available"] for r in rows},
+        "spell_limits": spell_limits(creature, eff_ab),
         # When a resources panel is showing, it owns the rest buttons (it recharges
         # slots too) — so the spell panel hides its own to avoid a duplicate control.
         "has_resources": bool(resource_rows(creature)),

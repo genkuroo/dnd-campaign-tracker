@@ -18,6 +18,18 @@
           <span class="cast-stat">{{ info('spell-save-dc', 'Save DC') }} <strong>{{ spell_stats.dc }}</strong></span>
         </div>
       {% endif %}
+      {% if spell_limits %}
+        {% set L = spell_limits.leveled %}
+        {% set c = spell_limits.cantrips %}
+        {% set over = (c and c.max is not none and c.count > c.max) or (L.max is not none and L.count > L.max) %}
+        <div class="spell-limits" title="How many spells you have vs your class limit at this level (a guide — going over still works).">
+          {% if c %}
+            <span class="limit {{ 'over' if c.max is not none and c.count > c.max }}">{{ info('cantrip', 'Cantrips') }} <strong>{{ c.count }}{% if c.max is not none %} / {{ c.max }}{% endif %}</strong></span>
+          {% endif %}
+          <span class="limit {{ 'over' if L.max is not none and L.count > L.max }}">{{ info(L.label, L.label | capitalize) }} <strong>{{ L.count }}{% if L.max is not none %} / {{ L.max }}{% endif %}</strong></span>
+          {% if over %}<span class="limit-warn">over limit</span>{% endif %}
+        </div>
+      {% endif %}
       {% if slot_rows %}
         <div class="slot-tracker">
           {% for r in slot_rows %}

@@ -100,6 +100,59 @@ def spell_stats(creature, eff_abilities):
     return {"ability": col, "mod": mod, "attack": pb + mod, "dc": 8 + pb + mod}
 
 
+def is_prepared_caster(creature):
+    """True for a prepared caster (Cleric/Druid/Wizard/Paladin — prepare a subset of
+    a large list each day) vs a known caster (Bard/Sorcerer/Ranger/Warlock — learn a
+    fixed set). From `prepared_caster` in data/classes.json; False for non-casters."""
+    klass = _klass(creature)
+    return bool(klass.get("prepared_caster")) if klass else False
+
+
+def _table_at(arr, level):
+    """The level-indexed value from a 20-long class table (cantrips_known /
+    spells_known), or None if the class has no such table."""
+    if not arr:
+        return None
+    return arr[max(1, min(20, int(level))) - 1]
+
+
+def spell_limits(creature, eff_abilities):
+    """Spell-count limits for a caster, or None for a non-caster. Shape:
+      {'mode': 'prepared'|'known',
+       'cantrips': {'count','max'} | None,     # None if the class has no cantrips
+       'leveled':  {'count','max','label'}}    # label = 'prepared' | 'known'
+    Counts come from the creature's *own spellbook* (item-granted spells don't count
+    toward a limit). A `max` of None means the class publishes no cap (we don't
+    invent one). Guided, not enforced — the UI flags going over, adding still works."""
+    klass = _klass(creature)
+    if not klass or caster_type(creature) in ("", "none"):
+        return None
+    from models.spellbook import creature_spells  # local: avoid import cycle
+    known = creature_spells(creature["id"])
+    cantrip_count = sum(1 for s in known if s["level"] == 0)
+    leveled = [s for s in known if s["level"] >= 1]
+    lvl = creature["level"]
+
+    cmax = _table_at(klass.get("cantrips_known"), lvl)
+    cantrips = ({"count": cantrip_count, "max": cmax}
+                if klass.get("cantrips_known") else None)
+
+    if is_prepared_caster(creature):
+        col = spellcasting_ability(creature)
+        mod = ability_modifier(eff_abilities[col]["score"]) if col else 0
+        # prepared = ability mod + caster level (full) or half level rounded down
+        # (Paladin); minimum 1.
+        base = lvl if caster_type(creature) == "full" else lvl // 2
+        leveled_block = {"count": sum(1 for s in leveled if s["prepared"]),
+                         "max": max(1, mod + base), "label": "prepared"}
+    else:
+        leveled_block = {"count": len(leveled),
+                         "max": _table_at(klass.get("spells_known"), lvl),
+                         "label": "known"}
+    return {"mode": "prepared" if is_prepared_caster(creature) else "known",
+            "cantrips": cantrips, "leveled": leveled_block}
+
+
 def max_slots(creature):
     """{slot_level: count} of a creature's maximum spell slots (only non-zero
     levels), from its caster type + level. Empty for non-casters."""
