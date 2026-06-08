@@ -45,6 +45,7 @@ from models.creature import (
 from models.proficiency import (
     SKILL_OPTIONS,
     armor_proficiency_issue,
+    expertise_skills,
     proficiency_summary,
     proficient_skills,
     save_table,
@@ -695,7 +696,8 @@ def character_new():
     if request.method == "POST":
         new_id = create_creature(_form_to_data(request.form))
         _apply_avatar(new_id)
-        set_skill_proficiencies(new_id, request.form.getlist("skills"))
+        set_skill_proficiencies(new_id, request.form.getlist("skills"),
+                                request.form.getlist("skills_expertise"))
         if request.form.get("class_name"):
             _apply_class(new_id, request.form.get("class_name"),
                          starting_kit=bool(request.form.get("apply_kit")))
@@ -814,7 +816,8 @@ def character_edit(creature_id):
         _apply_avatar(creature_id)
         _sync_class_actions(creature_id)  # class/level may have changed → resync
         if is_dm():  # skill proficiencies are DM-controlled; players can't reset them
-            set_skill_proficiencies(creature_id, request.form.getlist("skills"))
+            set_skill_proficiencies(creature_id, request.form.getlist("skills"),
+                                    request.form.getlist("skills_expertise"))
         flash("Character updated.")
         return redirect(url_for("character_detail", creature_id=creature_id))
     vocab = _form_vocab()
@@ -826,6 +829,7 @@ def character_edit(creature_id):
         title=f"Edit {creature['name']}",
         creature=creature,
         proficient_skills=proficient_skills(creature_id),
+        expertise_skills=expertise_skills(creature_id),
         cancel_url=url_for("character_detail", creature_id=creature_id),
         **vocab,
     )
@@ -922,7 +926,8 @@ def monster_new():
         data["kind"] = "monster"  # the Bestiary only makes monsters
         new_id = create_creature(data)
         _apply_avatar(new_id)
-        set_skill_proficiencies(new_id, request.form.getlist("skills"))
+        set_skill_proficiencies(new_id, request.form.getlist("skills"),
+                                request.form.getlist("skills_expertise"))
         flash("Monster created.")
         return redirect(url_for("character_detail", creature_id=new_id))
     return render_template(

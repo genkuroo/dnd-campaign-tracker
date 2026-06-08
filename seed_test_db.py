@@ -81,7 +81,8 @@ for slug in ("cure-wounds", "healing-word", "thunderwave"):
 vex = make_pc("Vex", "rogue", player=None, xp=900, avatar="🗡️")
 update_creature(vex, {"dexterity": 16, "level": 3, "alignment": "CG", "subclass": "thief"})
 set_skill_proficiencies(vex, ["stealth", "acrobatics", "sleight-of-hand",
-                              "perception", "deception"])
+                              "perception", "deception"],
+                        expertise_slugs=["stealth", "sleight-of-hand"])  # Rogue expertise
 
 # The starting kit auto-granted class actions at level 1; we bumped levels above
 # with update_creature (which doesn't resync). Re-sync so each PC's class actions

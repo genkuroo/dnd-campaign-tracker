@@ -14,7 +14,7 @@ import sqlite3
 # real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
 DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
-SCHEMA_VERSION = 31
+SCHEMA_VERSION = 32
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -396,6 +396,13 @@ MIGRATIONS = {
         description  TEXT    NOT NULL DEFAULT '',
         prerequisite TEXT    NOT NULL DEFAULT ''
     );
+    """,
+    32: """
+    -- Expertise: a proficient skill marked for *double* proficiency bonus
+    -- (Rogue/Bard picks). A flag on the existing per-creature skill row, so
+    -- expertise always implies proficiency. Half-proficiency (Jack of All Trades /
+    -- Remarkable Athlete) is computed from class/subclass features, not stored.
+    ALTER TABLE creature_skills ADD COLUMN expertise INTEGER NOT NULL DEFAULT 0;
     """,
 }
 

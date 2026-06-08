@@ -122,15 +122,22 @@
     {% if is_dm %}
       {# Skill proficiencies are DM-controlled (players can't reset their own). #}
       <fieldset>
-        <legend>Skill Proficiencies <span class="muted">(DM only — add proficiency bonus to these checks)</span></legend>
+        <legend>Skill Proficiencies <span class="muted">(DM only — proficient adds +bonus; expertise doubles it)</span></legend>
         <p class="muted skill-budget" id="skill-budget" hidden></p>
         {% set prof = proficient_skills | default([]) %}
+        {% set exp = expertise_skills | default([]) %}
         <div class="skill-checks" id="skill-checks">
           {% for slug, name, col, short in skill_options %}
-            <label class="checkbox skill-opt" data-slug="{{ slug }}">
-              <input type="checkbox" name="skills" value="{{ slug }}" {{ 'checked' if slug in prof else '' }}>
-              <span>{{ name }} <span class="muted">{{ short }}</span><span class="skill-tag"></span></span>
-            </label>
+            <div class="skill-opt" data-slug="{{ slug }}">
+              <label class="checkbox">
+                <input type="checkbox" name="skills" value="{{ slug }}" {{ 'checked' if slug in prof else '' }}>
+                <span>{{ name }} <span class="muted">{{ short }}</span><span class="skill-tag"></span></span>
+              </label>
+              <label class="checkbox exp-check" title="Expertise — double the proficiency bonus (Rogue/Bard)">
+                <input type="checkbox" name="skills_expertise" value="{{ slug }}" {{ 'checked' if slug in exp else '' }} {{ 'disabled' if slug not in prof else '' }}>
+                <span class="exp-label">✦ exp</span>
+              </label>
+            </div>
           {% endfor %}
         </div>
       </fieldset>
@@ -222,7 +229,14 @@
         let chosen = 0, off = 0;
         opts.forEach(function (label) {
           const isClass = allowed ? allowed.has(label.dataset.slug) : false;
-          const checked = label.querySelector('input').checked;
+          const profCb = label.querySelector('input[name="skills"]');
+          const checked = profCb.checked;
+          // Expertise only makes sense on a proficient skill — gate the exp box.
+          const expCb = label.querySelector('input[name="skills_expertise"]');
+          if (expCb) {
+            expCb.disabled = !checked;
+            if (!checked) expCb.checked = false;
+          }
           label.classList.toggle('is-class-skill', isClass);
           label.querySelector('.skill-tag').textContent =
             !allowed ? '' : (isClass ? ' · class' : ' · off-list');

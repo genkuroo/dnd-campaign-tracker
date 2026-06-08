@@ -155,13 +155,13 @@
   <section class="skills">
     <div class="section-head">
       <h2>{{ info('skill', 'Skills') }}</h2>
-      <span class="muted">proficient (<span class="prof-dot">●</span>) skills add +{{ prof_bonus }}</span>
+      <span class="muted">{{ info('proficiency', 'proficient') }} (<span class="prof-dot">●</span>) +{{ prof_bonus }} · {{ info('expertise', 'expertise') }} (<span class="prof-dot exp">◉</span>) +{{ prof_bonus * 2 }}{% if skills | selectattr('tier','equalto','half') | first %} · {{ info('half-proficiency', 'half') }} (<span class="prof-dot">◐</span>){% endif %}</span>
     </div>
     <div class="skill-grid">
       {% for s in skills %}
-        <div class="skill {{ 'is-prof' if s.proficient else '' }}">
-          <span class="skill-dot" title="{{ 'Proficient' if s.proficient else 'Not proficient' }}">{{ '●' if s.proficient else '○' }}</span>
-          <span class="skill-name">{{ s.name }} <span class="skill-ability muted">{{ s.ability }}</span></span>
+        <div class="skill {{ 'is-prof' if s.proficient else '' }} {{ 'is-exp' if s.expertise else '' }} {{ 'is-half' if s.tier == 'half' else '' }}">
+          <span class="skill-dot" title="{{ {'expertise':'Expertise — double proficiency','proficient':'Proficient','half':'Half proficiency'}.get(s.tier, 'Not proficient') }}">{{ {'expertise':'◉','proficient':'●','half':'◐'}.get(s.tier, '○') }}</span>
+          <span class="skill-name">{{ s.name }} <span class="skill-ability muted">{{ s.ability }}</span>{% if s.tier == 'expertise' %} <span class="skill-flag exp">expertise</span>{% endif %}</span>
           <span class="skill-mod">{{ s.modifier | signed }}</span>
           {% if can_edit %}
             <form method="post" action="{{ url_for('dice_roll') }}" class="inline">

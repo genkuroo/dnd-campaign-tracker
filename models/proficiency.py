@@ -13,7 +13,7 @@ sheet, so it tracks the creature's level and ability scores live.
 """
 from db import get_connection
 from models.creature import ABILITIES, ability_modifier, proficiency_bonus
-from models.classes import get_class
+from models.classes import get_class, class_features
 
 # The 18 SRD skills: (slug, display name, governing ability column). Fixed list.
 SKILLS = [
@@ -132,32 +132,94 @@ def proficient_skills(creature_id):
     return {r["skill_slug"] for r in rows}
 
 
-def set_skill_proficiencies(creature_id, slugs):
-    """Replace a creature's proficient skills with `slugs` (ignoring unknown ones)."""
+def expertise_skills(creature_id):
+    """The set of skill slugs a creature has **expertise** in (double proficiency).
+    A subset of the proficient skills (expertise is a flag on the same row)."""
+    conn = get_connection()
+    try:
+        rows = conn.execute(
+            "SELECT skill_slug FROM creature_skills "
+            "WHERE creature_id = ? AND expertise = 1",
+            (creature_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+    return {r["skill_slug"] for r in rows}
+
+
+def set_skill_proficiencies(creature_id, slugs, expertise_slugs=()):
+    """Replace a creature's proficient skills with `slugs` (ignoring unknown ones);
+    mark expertise for any of `expertise_slugs` that are also proficient (expertise
+    always implies proficiency)."""
     chosen = [s for s in dict.fromkeys(slugs) if s in _SKILL_SLUGS]
+    exp = {s for s in expertise_slugs if s in chosen}
     conn = get_connection()
     try:
         conn.execute("DELETE FROM creature_skills WHERE creature_id = ?", (creature_id,))
         conn.executemany(
-            "INSERT INTO creature_skills (creature_id, skill_slug) VALUES (?, ?)",
-            [(creature_id, s) for s in chosen],
+            "INSERT INTO creature_skills (creature_id, skill_slug, expertise) "
+            "VALUES (?, ?, ?)",
+            [(creature_id, s, 1 if s in exp else 0) for s in chosen],
         )
         conn.commit()
     finally:
         conn.close()
 
 
+def _has_feature(creature, name):
+    """True if the creature's class/subclass has unlocked a named feature at its
+    level (used to detect Jack of All Trades / Remarkable Athlete)."""
+    slug = creature["class_name"]
+    if not slug:
+        return False
+    return any(f["name"] == name
+               for f in class_features(slug, creature["level"], creature["subclass"]))
+
+
+def has_jack_of_all_trades(creature):
+    """Bard (level 2+): add half proficiency (rounded down) to any ability/skill
+    check not already proficient."""
+    return _has_feature(creature, "Jack of All Trades")
+
+
+def has_remarkable_athlete(creature):
+    """Champion fighter (level 7+): add half proficiency (rounded up) to STR/DEX/CON
+    checks not already proficient."""
+    return _has_feature(creature, "Remarkable Athlete")
+
+
+_PHYSICAL = {"strength", "dexterity", "constitution"}
+
+
 def skill_table(creature, eff_abilities):
-    """Per-skill display rows: {slug, name, ability (short), proficient, modifier}.
-    The modifier already folds in the proficiency bonus when proficient."""
+    """Per-skill display rows: {slug, name, ability (short), proficient, expertise,
+    tier, modifier}. `tier` is 'expertise' | 'proficient' | 'half' | None; the
+    modifier folds in the right bonus: 2×PB (expertise), PB (proficient), or half PB
+    from Jack of All Trades (any skill, rounded down) / Remarkable Athlete (STR/DEX/
+    CON, rounded up) when not proficient."""
     prof = proficient_skills(creature["id"])
+    exp = expertise_skills(creature["id"])
     pb = proficiency_bonus(creature["level"])
+    joat = has_jack_of_all_trades(creature)
+    ra = has_remarkable_athlete(creature)
+    half_floor, half_ceil = pb // 2, (pb + 1) // 2
     out = []
     for slug, name, col in SKILLS:
         mod = ability_modifier(eff_abilities[col]["score"])
-        is_prof = slug in prof
+        if slug in exp:
+            bonus, tier = 2 * pb, "expertise"
+        elif slug in prof:
+            bonus, tier = pb, "proficient"
+        else:
+            half = 0
+            if ra and col in _PHYSICAL:
+                half = max(half, half_ceil)
+            if joat:
+                half = max(half, half_floor)
+            bonus, tier = half, ("half" if half else None)
         out.append({
             "slug": slug, "name": name, "ability": _SHORT_BY_COL[col],
-            "proficient": is_prof, "modifier": mod + (pb if is_prof else 0),
+            "proficient": slug in prof, "expertise": slug in exp,
+            "tier": tier, "modifier": mod + bonus,
         })
     return out
