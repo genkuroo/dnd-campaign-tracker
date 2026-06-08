@@ -79,6 +79,7 @@ from models.classes import (all_classes, get_class, hit_die_average,
 from models.races import (all_races, race_label, race_traits, race_speed,
                           race_size, valid_subrace)
 from models.weapons import pack_weapon, weapon_attacks
+from models.movement import effective_speed, speed_breakdown
 from models.items import all_item_defs, get_item_def
 from models.loot import (
     add_loot,
@@ -783,6 +784,8 @@ def character_detail(creature_id):
         race_traits=race_traits(creature),
         race_speed=race_speed(creature),
         race_size=race_size(creature),
+        speed=effective_speed(creature),
+        speed_breakdown=speed_breakdown(creature),
         weapon_attacks=weapon_attacks(creature, eff_ab),
         class_features=class_features(creature["class_name"], creature["level"], creature["subclass"]),
         class_features_next=class_features_remaining(

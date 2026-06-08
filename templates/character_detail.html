@@ -59,7 +59,7 @@
     <div class="vital"><span class="vital-label">Armor Class {{ info('armor-class') }}</span><span class="vital-value" title="{{ ac_breakdown }}">{{ eff_ac }}{% if ac_bonus %} <span class="stat-bonus">{{ '%+d' % ac_bonus }}</span>{% endif %}</span>
       {% if armor_issue %}<span class="armor-warn" title="Your class isn't proficient with {{ armor_issue.armor_type }} armor. While wearing {{ armor_issue.name }} you have disadvantage on ability checks, attacks, and saves using STR or DEX{{ ', and you can’t cast spells' if spell_stats else '' }}.">⚠ not proficient</span>{% endif %}
     </div>
-    {% if race_speed %}<div class="vital"><span class="vital-label">Speed</span><span class="vital-value">{{ race_speed }} ft{% if race_size %} <span class="muted">· {{ race_size }}</span>{% endif %}</span></div>{% endif %}
+    <div class="vital"><span class="vital-label">Speed</span><span class="vital-value" title="{{ speed_breakdown }}">{{ speed }} ft{% if race_size %} <span class="muted">· {{ race_size }}</span>{% endif %}</span></div>
     <div class="vital"><span class="vital-label">Experience</span><span class="vital-value xp-value">{{ '{:,}'.format(creature['xp']) }}</span></div>
     <div class="vital purse">
       <span class="vital-label">Purse</span>

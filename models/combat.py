@@ -111,17 +111,18 @@ def get_combatant(combatant_id):
 
 def add_combatant(combat_id, creature, name=None):
     """Add one combatant from a creature row, snapshotting its current stats —
-    including AC and DEX bonuses from equipped magic items."""
+    including AC, DEX, and walking speed (with race + class/feat modifiers)."""
+    from models.movement import effective_speed  # local: avoid import cycle
     dex = creature["dexterity"] + equipped_stat_bonuses(creature["id"]).get("dexterity", 0)
     conn = get_connection()
     try:
         conn.execute(
             "INSERT INTO combatants "
-            "(combat_id, creature_id, name, max_hp, current_hp, armor_class, dex_mod) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "(combat_id, creature_id, name, max_hp, current_hp, armor_class, dex_mod, speed) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             (combat_id, creature["id"], name or creature["name"],
              creature["max_hp"], creature["current_hp"], effective_ac(creature),
-             ability_modifier(dex)),
+             ability_modifier(dex), effective_speed(creature)),
         )
         conn.commit()
     finally:

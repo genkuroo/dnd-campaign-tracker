@@ -177,6 +177,8 @@
           <input type="number" name="current_hp" value="{{ c['current_hp'] if c else '' }}" placeholder="full"></label>
         <label class="field narrow"><span>Armor Class <span class="muted">(natural / NPCs)</span></span>
           <input type="number" name="armor_class" value="{{ c['armor_class'] if c else 10 }}"></label>
+        <label class="field narrow"><span>Speed <span class="muted">(ft; PCs use race)</span></span>
+          <input type="number" name="speed" min="0" step="5" value="{{ c['speed'] if c else 30 }}"></label>
         <label class="field"><span>Unarmored Defense <span class="muted">(PC, no armor)</span></span>
           <select name="unarmored_defense">
             {% for value, label in unarmored_defenses %}
