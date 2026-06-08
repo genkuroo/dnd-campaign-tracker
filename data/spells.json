@@ -148,5 +148,50 @@
     "roll": "8d6",
     "damage_type": "lightning",
     "description": "A stroke of lightning forming a line 100 feet long and 5 feet wide blasts out from you. Each creature in the line must make a Dexterity saving throw, taking 8d6 lightning damage on a failed save, or half as much on a successful one. When cast with a higher-level slot, the damage increases by 1d6 for each slot level above 3rd."
+  },
+  {
+    "slug": "bless",
+    "name": "Bless",
+    "level": 1,
+    "school": "Enchantment",
+    "casting_time": "1 action",
+    "range": "30 feet",
+    "components": "V, S, M",
+    "duration": "Concentration, up to 1 minute",
+    "attack": null,
+    "save": null,
+    "roll": "1d4",
+    "damage_type": "",
+    "description": "Up to three creatures of your choice within range add 1d4 to each attack roll and saving throw they make until the spell ends. When cast with a higher-level slot, target one extra creature for each slot level above 1st."
+  },
+  {
+    "slug": "hold-person",
+    "name": "Hold Person",
+    "level": 2,
+    "school": "Enchantment",
+    "casting_time": "1 action",
+    "range": "60 feet",
+    "components": "V, S, M",
+    "duration": "Concentration, up to 1 minute",
+    "attack": null,
+    "save": "WIS",
+    "roll": "",
+    "damage_type": "",
+    "description": "Choose a humanoid you can see within range. It must succeed on a Wisdom saving throw or be paralyzed for the duration. At the end of each of its turns, the target can repeat the save, ending the effect on a success. When cast with a higher-level slot, target one extra humanoid for each slot level above 2nd."
+  },
+  {
+    "slug": "hunters-mark",
+    "name": "Hunter's Mark",
+    "level": 1,
+    "school": "Divination",
+    "casting_time": "1 bonus action",
+    "range": "90 feet",
+    "components": "V",
+    "duration": "Concentration, up to 1 hour",
+    "attack": null,
+    "save": null,
+    "roll": "1d6",
+    "damage_type": "",
+    "description": "Mark a creature you can see within range. You deal an extra 1d6 damage to it whenever you hit it with a weapon attack, and you have advantage on Perception and Survival checks made to find it. If it drops to 0 hit points before the spell ends, you can re-mark a new creature on a later turn."
   }
 ]

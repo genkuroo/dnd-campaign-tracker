@@ -913,6 +913,15 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
               border-radius: 999px; padding: 0.05rem 0.4rem; }
 .action-desc { margin: 0.4rem 0 0; max-width: 680px; line-height: 1.6; color: var(--ink); }
 
+/* Concentration (the one concentration spell a caster is holding) */
+.concentration-banner { width: 100%; display: flex; align-items: center; gap: 0.5rem;
+  font-family: sans-serif; font-size: 0.85rem; color: #c9a9e0;
+  border: 1px solid color-mix(in srgb, #9a6fb0 45%, transparent);
+  background: rgba(120,80,150,0.14); border-radius: 6px; padding: 0.3rem 0.6rem; }
+.conc-tag { font-family: sans-serif; font-size: 0.66rem; text-transform: uppercase;
+  letter-spacing: 0.04em; padding: 0.05rem 0.45rem; border-radius: 999px; white-space: nowrap;
+  color: #c9a9e0; border: 1px solid color-mix(in srgb, #9a6fb0 45%, transparent); }
+
 /* Attacks (equipped weapons → to-hit + damage rolls) */
 .char-attacks h2 { color: var(--accent-2); font-size: 1.1rem; }
 .attack-list { list-style: none; padding: 0; margin: 0; }

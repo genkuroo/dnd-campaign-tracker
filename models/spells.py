@@ -29,6 +29,11 @@ def get_spell(slug):
     return next((s for s in _load() if s["slug"] == slug), None)
 
 
+def requires_concentration(spell):
+    """True if a spell needs concentration to maintain (from its duration text)."""
+    return "concentration" in (spell.get("duration") or "").lower()
+
+
 def search_spells(query):
     """Filter by name or school (case-insensitive); empty query returns all."""
     q = (query or "").strip().lower()

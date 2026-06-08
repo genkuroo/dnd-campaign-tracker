@@ -14,7 +14,7 @@ import sqlite3
 # real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
 DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
-SCHEMA_VERSION = 36
+SCHEMA_VERSION = 37
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -435,6 +435,12 @@ MIGRATIONS = {
     -- Movement, Mobile) on read. Combatants snapshot the effective speed like AC/DEX.
     ALTER TABLE creatures  ADD COLUMN speed INTEGER NOT NULL DEFAULT 30;
     ALTER TABLE combatants ADD COLUMN speed INTEGER NOT NULL DEFAULT 30;
+    """,
+    37: """
+    -- Concentration: the one concentration spell a caster is currently maintaining
+    -- (stored as its display name; '' = none). 5e allows only one at a time; casting
+    -- another replaces it, and damage prompts a CON save to keep it.
+    ALTER TABLE creatures ADD COLUMN concentration TEXT NOT NULL DEFAULT '';
     """,
 }
 

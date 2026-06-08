@@ -164,9 +164,12 @@ from models.spellbook import (
 )
 from models.spellcasting import (
     caster_type,
+    concentration_dc,
+    drop_concentration,
     restore_all_slots,
     restore_pact_slots,
     restore_slot,
+    set_concentration,
     slot_rows,
     spell_limits,
     spell_stats,
@@ -1233,7 +1236,25 @@ def combatant_hp(combatant_id):
         amount = request.form.get("amount", 0, type=int) or 0
         if amount:
             delta = -amount if request.form.get("mode") == "damage" else amount
+            # Concentration: damage to a concentrating caster prompts a CON save; a
+            # drop to 0 HP ends it outright.
+            conc_creature = None
+            if delta < 0:
+                m = get_combatant(combatant_id)
+                cr = get_creature(m["creature_id"]) if m and m["creature_id"] else None
+                if cr and cr["concentration"]:
+                    conc_creature = cr
             apply_hp(combatant_id, delta)
+            if conc_creature is not None:
+                after = get_combatant(combatant_id)
+                if after and after["current_hp"] == 0:
+                    drop_concentration(conc_creature["id"])
+                    flash(f"{conc_creature['name']} is down — concentration on "
+                          f"{conc_creature['concentration']} ends.")
+                else:
+                    flash(f"{conc_creature['name']}: DC {concentration_dc(amount)} "
+                          f"Constitution save or lose concentration on "
+                          f"{conc_creature['concentration']}.")
         return _combat_response(cid)
     return redirect(url_for("combat"))
 
@@ -1966,6 +1987,26 @@ def spellbook_slot():
             restore_slot(cid, level)
         elif not spend_slot(cid, level):
             flash(f"No level-{level} slots left.")
+        else:
+            # Casting a concentration spell starts (and replaces) concentration.
+            conc = (request.form.get("concentration") or "").strip()
+            if conc:
+                set_concentration(cid, conc)
+                flash(f"Concentrating on {conc}.")
+    if _is_fetch():
+        return _spells_fragment(cid)
+    return redirect(_safe_next(request.form.get("next"), url_for("character")))
+
+
+@app.route("/spellbook/concentrate", methods=["POST"])
+def spellbook_concentrate():
+    """Set or drop the concentration spell a caster is maintaining (without spending
+    a slot — e.g. you cast last turn, or you let it go). Edit-gated to the owner/DM."""
+    cid = _require_edit_form_creature()
+    if request.form.get("action") == "drop":
+        drop_concentration(cid)
+    else:
+        set_concentration(cid, request.form.get("label", ""))
     if _is_fetch():
         return _spells_fragment(cid)
     return redirect(_safe_next(request.form.get("next"), url_for("character")))

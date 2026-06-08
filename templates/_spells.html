@@ -33,6 +33,19 @@
       {% if armor_block %}
         <div class="cast-block" role="alert">⚠ Can’t cast — you’re wearing {{ armor_block.name }} ({{ armor_block.armor_type }} armor) without proficiency.</div>
       {% endif %}
+      {% if creature['concentration'] %}
+        <div class="concentration-banner">
+          🧠 {{ info('concentration', 'Concentrating') }} on <strong>{{ creature['concentration'] }}</strong>
+          {% if can_edit %}
+            <form method="post" action="{{ url_for('spellbook_concentrate') }}" class="inline">
+              <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+              <input type="hidden" name="action" value="drop">
+              <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+              <button type="submit" class="btn-small" title="Stop concentrating">Drop</button>
+            </form>
+          {% endif %}
+        </div>
+      {% endif %}
       {% if slot_rows %}
         <div class="slot-tracker">
           {% for r in slot_rows %}
@@ -137,15 +150,25 @@
               <span class="die-text">{{ s['roll'] }}</span>
             {% endif %}
           {% endif %}
+          {% if s['concentration'] %}<span class="conc-tag" title="This spell requires concentration — you can hold only one at a time, and damage can break it.">🧠 conc</span>{% endif %}
           {% if can_edit and s['level'] > 0 %}
             {% set avail = slots_available.get(s['level'], 0) %}
             <form method="post" action="{{ url_for('spellbook_slot') }}" class="inline">
               <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
               <input type="hidden" name="slot_level" value="{{ s['level'] }}">
               <input type="hidden" name="action" value="spend">
+              {% if s['concentration'] %}<input type="hidden" name="concentration" value="{{ s['name'] }}">{% endif %}
               <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
               <button type="submit" class="check-btn cast-slot" {{ 'disabled' if avail == 0 else '' }}
-                      title="Cast — spend a {{ s['level'] | ordinal_level }} slot ({{ avail }} available)">Cast ▸</button>
+                      title="Cast — spend a {{ s['level'] | ordinal_level }} slot{% if s['concentration'] %}, start concentrating{% endif %} ({{ avail }} available)">Cast ▸</button>
+            </form>
+          {% endif %}
+          {% if can_edit and s['concentration'] and creature['concentration'] != s['name'] %}
+            <form method="post" action="{{ url_for('spellbook_concentrate') }}" class="inline">
+              <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
+              <input type="hidden" name="label" value="{{ s['name'] }}">
+              <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+              <button type="submit" class="check-btn" title="Mark concentration on {{ s['name'] }} without spending a slot">Concentrate</button>
             </form>
           {% endif %}
           {% if can_edit and not s.from_item %}

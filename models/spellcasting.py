@@ -100,6 +100,28 @@ def spell_stats(creature, eff_abilities):
     return {"ability": col, "mod": mod, "attack": pb + mod, "dc": 8 + pb + mod}
 
 
+def set_concentration(creature_id, label):
+    """Set (or replace) the concentration spell a creature is maintaining. 5e allows
+    only one at a time, so this overwrites; '' drops it."""
+    conn = get_connection()
+    try:
+        conn.execute("UPDATE creatures SET concentration = ? WHERE id = ?",
+                     ((label or "").strip(), creature_id))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def drop_concentration(creature_id):
+    set_concentration(creature_id, "")
+
+
+def concentration_dc(damage):
+    """The CON-save DC to keep concentration after taking `damage`: 10, or half the
+    damage taken (rounded down), whichever is higher."""
+    return max(10, int(damage) // 2)
+
+
 def is_prepared_caster(creature):
     """True for a prepared caster (Cleric/Druid/Wizard/Paladin — prepare a subset of
     a large list each day) vs a known caster (Bard/Sorcerer/Ranger/Warlock — learn a

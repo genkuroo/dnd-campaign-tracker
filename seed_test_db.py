@@ -76,8 +76,10 @@ add_action(grog, "Reckless Attack", "Advantage on melee attacks this turn; attac
 pike = make_pc("Pike", "cleric", player="carol", xp=2700, avatar="🛡️")
 update_creature(pike, {"wisdom": 16, "level": 4, "alignment": "LG", "subclass": "life", "race": "human"})
 set_skill_proficiencies(pike, ["medicine", "religion", "persuasion"])
-for slug in ("cure-wounds", "healing-word", "thunderwave"):
+for slug in ("cure-wounds", "healing-word", "thunderwave", "bless", "hold-person"):
     add_spell(pike, slug)
+from models.spellcasting import set_concentration  # noqa: E402
+set_concentration(pike, "Bless")  # show the concentration banner on load
 
 # Rogue — no spells; skill-monkey; equips a dagger.
 vex = make_pc("Vex", "rogue", player=None, xp=900, avatar="🗡️")

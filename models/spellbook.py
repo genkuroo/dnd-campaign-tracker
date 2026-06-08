@@ -5,7 +5,7 @@ data/spells.json (models/spells.py). This module resolves the two together.
 """
 from db import get_connection
 from models.inventory import equipped_granted_spells
-from models.spells import get_spell
+from models.spells import get_spell, requires_concentration
 
 
 def add_spell(creature_id, slug):
@@ -76,7 +76,8 @@ def creature_spells(creature_id):
         spell = get_spell(r["spell_slug"])
         if spell:  # silently skip slugs no longer in the data file
             out.append({**spell, "prepared": bool(r["prepared"]),
-                        "hidden": bool(r["hidden"])})
+                        "hidden": bool(r["hidden"]),
+                        "concentration": requires_concentration(spell)})
     return sorted(out, key=lambda s: (s["level"], s["name"]))
 
 
@@ -96,6 +97,7 @@ def effective_spells(creature_id):
         spell = get_spell(slug)
         if spell:
             spells.append({**spell, "prepared": True, "hidden": False,
+                           "concentration": requires_concentration(spell),
                            "from_item": item_name})
             have.add(slug)
     return sorted(spells, key=lambda s: (s["level"], s["name"]))

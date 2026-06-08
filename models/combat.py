@@ -89,7 +89,8 @@ def list_combatants(combat_id):
     conn = get_connection()
     try:
         rows = conn.execute(
-            "SELECT m.*, c.avatar AS avatar, c.kind AS kind "
+            "SELECT m.*, c.avatar AS avatar, c.kind AS kind, "
+            "c.concentration AS concentration "
             "FROM combatants m LEFT JOIN creatures c ON c.id = m.creature_id "
             "WHERE m.combat_id = ?",
             (combat_id,),
