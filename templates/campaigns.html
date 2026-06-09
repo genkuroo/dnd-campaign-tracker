@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head"><h1>Campaigns</h1></div>
+  <p class="muted">
+    Each campaign is its own self-contained save — characters, NPCs, loot, combat,
+    everything. Switching is global: the whole table moves to the active campaign.
+    Duplicate a campaign to keep a snapshot you can return to later.
+  </p>
+
+  <ul class="user-list campaign-list">
+    {% for c in campaigns %}
+      <li class="user-row">
+        <div class="user-head">
+          <span class="user-name">📖 {{ c['name'] }}</span>
+          {% if c['is_active'] %}
+            <span class="badge-kind active-badge">Active</span>
+          {% endif %}
+        </div>
+        <span class="muted">
+          created {{ c['created_at'] }}{% if c['last_played_at'] %} · last played {{ c['last_played_at'] }}{% endif %}
+        </span>
+
+        {% if not c['is_active'] %}
+          <form method="post" action="{{ url_for('campaign_switch') }}" class="inline">
+            <input type="hidden" name="campaign_id" value="{{ c['id'] }}">
+            <button type="submit" class="btn">Switch to this</button>
+          </form>
+        {% endif %}
+
+        <details class="user-manage">
+          <summary class="btn-small">Manage</summary>
+          <div class="user-manage-body">
+            <form method="post" action="{{ url_for('campaign_rename', campaign_id=c['id']) }}" class="inline">
+              <input type="text" name="name" value="{{ c['name'] }}" aria-label="Campaign name" required>
+              <button type="submit" class="btn-small">Rename</button>
+            </form>
+            <form method="post" action="{{ url_for('campaign_duplicate', campaign_id=c['id']) }}" class="inline">
+              <input type="text" name="name" placeholder="{{ c['name'] }} (copy)" aria-label="Snapshot name">
+              <button type="submit" class="btn-small" title="Copy this campaign into a new save (snapshot)">Duplicate / snapshot</button>
+            </form>
+            {% if not c['is_active'] and campaigns|length > 1 %}
+              <form method="post" action="{{ url_for('campaign_delete', campaign_id=c['id']) }}" class="inline"
+                    onsubmit="return confirm('Permanently delete “{{ c['name'] }}” and its data? This cannot be undone.')">
+                <button type="submit" class="btn-danger">Delete</button>
+              </form>
+            {% endif %}
+          </div>
+        </details>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <section class="signup-code">
+    <h2>New campaign</h2>
+    <p class="muted">Starts empty, with your DM account already set up. Players register per campaign.</p>
+    <form method="post" action="{{ url_for('campaign_new') }}" class="inline code-form">
+      <input type="text" name="name" placeholder="Campaign name" required>
+      <button type="submit" name="switch" value="1" class="btn">Create &amp; switch</button>
+      <button type="submit" class="btn-small">Create only</button>
+    </form>
+  </section>
+{% endblock %}

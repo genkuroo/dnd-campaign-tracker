@@ -10,8 +10,9 @@ app = "dnd-campaign-tracker"
 primary_region = "sjc"
 
 [env]
-  # SQLite DB lives on the persistent volume (see [mounts]).
-  DND_DB_PATH = "/data/campaign.db"
+  # All campaign data lives on the persistent volume (see [mounts]): the
+  # campaigns/ folder of per-campaign SQLite files + the registry + avatars.
+  DND_DATA_DIR = "/data"
 
 [mounts]
   source = "dnd_data"

@@ -15,6 +15,10 @@ env/
 # Database (local campaign data)
 *.db
 
+# Multi-campaign storage (local; prod keeps these on the Fly volume)
+campaigns/
+active_campaign
+
 # Uploaded character portraits (local user data)
 static/avatars/
 

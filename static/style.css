@@ -1621,6 +1621,16 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .whoami-name { font-family: sans-serif; font-size: 0.85rem; color: var(--ink); white-space: nowrap; }
 .logout-btn { padding: 0.2rem 0.2rem; }
 
+.campaign-chip {
+  font-family: sans-serif; font-size: 0.85rem; color: var(--ink);
+  text-decoration: none; white-space: nowrap;
+  padding: 0.2rem 0.6rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--panel);
+}
+.campaign-chip:hover { border-color: var(--accent); color: var(--accent); }
+.active-badge { color: #8fd0a0; border-color: #3f6b4c; }
+.campaign-list .user-row { gap: 0.5rem; }
+
 .auth-body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1.5rem; }
 .auth-card {
   width: 100%; max-width: 380px;

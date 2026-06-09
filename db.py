@@ -9,10 +9,30 @@ visibility-aware model).
 import os
 import sqlite3
 
-# The campaign database. Defaults to the real local DB, but can be pointed
-# elsewhere via DND_DB_PATH so a throwaway/test DB can be run without touching
-# real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
-DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
+import shutil
+
+# --- Storage layout --------------------------------------------------------
+#
+# The app supports MULTIPLE campaigns, each its own SQLite file. They live in
+# `campaigns/` under the data dir; a small `registry.db` tracks the list and an
+# `active_campaign` pointer file names the one currently in play. `get_connection`
+# resolves the *active* campaign per call, so the DM can toggle between campaigns
+# (one table at a time — see CLAUDE.md). `DND_DATA_DIR` relocates all of this onto
+# the Fly persistent volume in production (default '.' for local dev).
+DATA_DIR = os.environ.get("DND_DATA_DIR", ".")
+CAMPAIGNS_DIR = os.path.join(DATA_DIR, "campaigns")
+REGISTRY_PATH = os.path.join(DATA_DIR, "registry.db")
+ACTIVE_POINTER = os.path.join(DATA_DIR, "active_campaign")  # text file: active filename
+
+# An EXISTING single-file DB (pre-multi-campaign) to adopt as the first campaign
+# on first run, so nobody loses their data on upgrade.
+LEGACY_DB_PATH = os.path.join(DATA_DIR, "campaign.db")
+
+# Single-DB / test escape hatch. When DND_DB_PATH is set (the seed + test scripts
+# do this), the whole multi-campaign layer is bypassed and every connection goes
+# straight to this one file — preserving the old behaviour for throwaway DBs.
+# Unset in normal app runs, which then use the multi-campaign layout above.
+DB_PATH = os.environ.get("DND_DB_PATH")
 
 SCHEMA_VERSION = 44
 
@@ -497,16 +517,125 @@ MIGRATIONS = {
 }
 
 
-def get_connection():
-    """Return a SQLite connection with row access by column name."""
-    conn = sqlite3.connect(DB_PATH)
+def _connect(path):
+    """Open a SQLite connection to `path` with our standard settings."""
+    conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     # Wait briefly instead of erroring if another process holds a write lock.
-    # Matters once multiple gunicorn workers share the one SQLite file in prod.
+    # Matters once multiple gunicorn workers share one SQLite file in prod.
     conn.execute("PRAGMA busy_timeout = 5000")
     return conn
 
+
+def current_db_path():
+    """The campaign-DB file this request should use. In single-DB/test mode
+    (DND_DB_PATH set) it's that fixed file; otherwise it's the active campaign."""
+    if DB_PATH:
+        return DB_PATH
+    return os.path.join(CAMPAIGNS_DIR, active_campaign_filename())
+
+
+def get_connection():
+    """Return a connection to the active campaign DB (rows keyed by column name)."""
+    return _connect(current_db_path())
+
+
+# --- Campaign registry + active-campaign pointer ---------------------------
+
+def get_registry_connection():
+    """Connection to the small registry DB (the campaign list + active marker)."""
+    return _connect(REGISTRY_PATH)
+
+
+def active_campaign_filename():
+    """The filename of the active campaign. Read from the pointer file (cheap,
+    shared across gunicorn workers); falls back to the registry, then the first
+    campaign, so a missing/stale pointer self-heals."""
+    try:
+        with open(ACTIVE_POINTER) as fh:
+            name = fh.read().strip()
+        if name and os.path.exists(os.path.join(CAMPAIGNS_DIR, name)):
+            return name
+    except OSError:
+        pass
+    # Fall back to the registry's record, then the first campaign on file.
+    conn = get_registry_connection()
+    try:
+        row = conn.execute(
+            "SELECT value FROM reg_meta WHERE key = 'active_filename'"
+        ).fetchone()
+        name = row["value"] if row else ""
+        if not name:
+            first = conn.execute(
+                "SELECT filename FROM campaigns ORDER BY id LIMIT 1"
+            ).fetchone()
+            name = first["filename"] if first else ""
+    finally:
+        conn.close()
+    if name:
+        set_active_filename(name)  # repair the pointer
+    return name
+
+
+def set_active_filename(filename):
+    """Mark `filename` as the active campaign in both the pointer file (the hot
+    path) and the registry (the source of truth)."""
+    tmp = ACTIVE_POINTER + ".tmp"
+    with open(tmp, "w") as fh:
+        fh.write(filename)
+    os.replace(tmp, ACTIVE_POINTER)  # atomic
+    conn = get_registry_connection()
+    try:
+        conn.execute(
+            "INSERT INTO reg_meta (key, value) VALUES ('active_filename', ?) "
+            "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+            (filename,),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def _init_registry():
+    """Create the registry schema if absent."""
+    conn = get_registry_connection()
+    try:
+        conn.executescript(
+            """
+            CREATE TABLE IF NOT EXISTS campaigns (
+                id            INTEGER PRIMARY KEY,
+                name          TEXT NOT NULL,
+                filename      TEXT NOT NULL UNIQUE,
+                created_at    TEXT NOT NULL DEFAULT (datetime('now')),
+                last_played_at TEXT
+            );
+            CREATE TABLE IF NOT EXISTS reg_meta (
+                key   TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            );
+            """
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def register_campaign(name, filename):
+    """Insert a campaign into the registry. Returns the new id."""
+    conn = get_registry_connection()
+    try:
+        cur = conn.execute(
+            "INSERT INTO campaigns (name, filename) VALUES (?, ?)",
+            (name, filename),
+        )
+        conn.commit()
+        return cur.lastrowid
+    finally:
+        conn.close()
+
+
+# --- Schema migrations -----------------------------------------------------
 
 def _current_version(conn):
     row = conn.execute(
@@ -515,29 +644,83 @@ def _current_version(conn):
     return int(row["value"]) if row else 0
 
 
-def init_db():
-    """Create the DB if needed and apply pending migrations up to SCHEMA_VERSION."""
-    conn = get_connection()
-    try:
+def _apply_migrations(conn):
+    """Bring one campaign DB up to SCHEMA_VERSION (idempotent)."""
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS meta ("
+        "  key TEXT PRIMARY KEY,"
+        "  value TEXT NOT NULL"
+        ")"
+    )
+    conn.execute(
+        "INSERT INTO meta (key, value) VALUES ('schema_version', '0')"
+        "  ON CONFLICT(key) DO NOTHING"
+    )
+    conn.commit()
+    current = _current_version(conn)
+    for version in range(current + 1, SCHEMA_VERSION + 1):
+        conn.executescript(MIGRATIONS[version])
         conn.execute(
-            "CREATE TABLE IF NOT EXISTS meta ("
-            "  key TEXT PRIMARY KEY,"
-            "  value TEXT NOT NULL"
-            ")"
-        )
-        conn.execute(
-            "INSERT INTO meta (key, value) VALUES ('schema_version', '0')"
-            "  ON CONFLICT(key) DO NOTHING"
+            "UPDATE meta SET value = ? WHERE key = 'schema_version'",
+            (str(version),),
         )
         conn.commit()
 
-        current = _current_version(conn)
-        for version in range(current + 1, SCHEMA_VERSION + 1):
-            conn.executescript(MIGRATIONS[version])
-            conn.execute(
-                "UPDATE meta SET value = ? WHERE key = 'schema_version'",
-                (str(version),),
-            )
-            conn.commit()
+
+def migrate_path(path):
+    """Apply pending migrations to the campaign DB at `path`."""
+    conn = _connect(path)
+    try:
+        _apply_migrations(conn)
     finally:
         conn.close()
+
+
+def init_db():
+    """Bootstrap storage and apply pending migrations.
+
+    Single-DB/test mode (DND_DB_PATH set): just migrate that one file, as before.
+    Multi-campaign mode: ensure the registry + at least one campaign exist (adopting
+    a legacy single-file DB on first run), then migrate every campaign to the
+    current schema so older saves upgrade cleanly too.
+    """
+    if DB_PATH:
+        migrate_path(DB_PATH)
+        return
+
+    os.makedirs(CAMPAIGNS_DIR, exist_ok=True)
+    _init_registry()
+    _bootstrap_campaigns()
+    # Migrate every registered campaign (covers older saves switched to later).
+    conn = get_registry_connection()
+    try:
+        files = [r["filename"] for r in
+                 conn.execute("SELECT filename FROM campaigns").fetchall()]
+    finally:
+        conn.close()
+    for filename in files:
+        migrate_path(os.path.join(CAMPAIGNS_DIR, filename))
+
+
+def _bootstrap_campaigns():
+    """Ensure at least one campaign is registered + active. On first run, adopt an
+    existing legacy `campaign.db` (so no data is lost on upgrade); otherwise create
+    a fresh, empty 'My Campaign'."""
+    conn = get_registry_connection()
+    try:
+        count = conn.execute("SELECT COUNT(*) AS n FROM campaigns").fetchone()["n"]
+    finally:
+        conn.close()
+
+    if count == 0:
+        dest = os.path.join(CAMPAIGNS_DIR, "campaign.db")
+        if os.path.exists(LEGACY_DB_PATH) and not os.path.exists(dest):
+            # Adopt the pre-multi-campaign DB as the first campaign (copy, leaving
+            # the original in place as an untouched backup).
+            shutil.copy2(LEGACY_DB_PATH, dest)
+        register_campaign("My Campaign", "campaign.db")
+        # `migrate_path` in init_db() will create the schema for a fresh file.
+        set_active_filename("campaign.db")
+    else:
+        # Make sure the active pointer resolves to a real campaign.
+        active_campaign_filename()

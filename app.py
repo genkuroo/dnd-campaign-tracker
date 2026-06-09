@@ -15,6 +15,7 @@ from flask import (
 from markupsafe import Markup, escape
 from werkzeug.utils import secure_filename
 
+import db
 from db import init_db
 from models.creature import (
     ABILITIES,
@@ -149,12 +150,22 @@ from models.encounters import (
     rename_encounter,
     set_member_quantity,
 )
+from models.campaigns import (
+    active_campaign,
+    create_campaign,
+    delete_campaign,
+    duplicate_campaign,
+    list_campaigns,
+    rename_campaign,
+    switch_campaign,
+)
 from models.spells import all_spells, get_spell, level_label, search_spells
 from models.user import (
     create_user,
     delete_user,
     get_signup_code,
     get_user,
+    get_user_by_username,
     list_users,
     set_password,
     set_signup_code,
@@ -242,6 +253,7 @@ TABS = [
     {"endpoint": "dice", "label": "Dice"},
     {"endpoint": "map", "label": "Map"},
     {"endpoint": "blog", "label": "Campaign Blog"},
+    {"endpoint": "campaigns", "label": "Campaigns", "dm_only": True},
     {"endpoint": "users", "label": "Users", "dm_only": True},
 ]
 
@@ -253,10 +265,14 @@ def inject_nav():
 
 
 def current_user():
-    """The logged-in user row for this request, or None. Cached on flask.g."""
+    """The logged-in user row for this request, or None. Cached on flask.g.
+
+    Keyed on **username** (not the row id) because ids aren't stable across
+    campaign DBs — resolving by username lets the DM stay logged in when the
+    active campaign is switched (the DM account is seeded into every campaign)."""
     if "user" not in g:
-        uid = session.get("user_id")
-        g.user = get_user(uid) if uid else None
+        username = session.get("username")
+        g.user = get_user_by_username(username) if username else None
     return g.user
 
 
@@ -295,6 +311,8 @@ _DM_ONLY_ENDPOINTS = {
     "party_rest_route", "party_hp",
     "users", "users_set_code", "users_set_character", "users_reset_password",
     "users_set_color", "users_delete",
+    "campaigns", "campaign_switch", "campaign_new", "campaign_rename",
+    "campaign_duplicate", "campaign_delete",
 }
 
 
@@ -391,6 +409,18 @@ def _require_edit_form_creature():
 def inject_auth():
     """Expose the current user + is_dm() to every template (topbar, DM-only UI)."""
     return {"is_dm": is_dm(), "current_user": current_user()}
+
+
+@app.context_processor
+def inject_campaign():
+    """Expose the active campaign (for the topbar switcher). None in single-DB/test
+    mode, where there's no campaign registry."""
+    if db.DB_PATH:
+        return {"active_campaign": None}
+    try:
+        return {"active_campaign": active_campaign()}
+    except Exception:
+        return {"active_campaign": None}
 
 
 @app.context_processor
@@ -551,6 +581,68 @@ def index():
     return redirect(url_for("character"))
 
 
+# --- Campaigns ("saves") — DM only ----------------------------------------
+# Multiple self-contained campaigns; the DM toggles which one is active (global
+# switch — the whole table moves). See models/campaigns.py + db.py.
+
+@app.route("/campaigns")
+def campaigns():
+    _require_dm()
+    return render_template(
+        "campaigns.html", active="campaigns", title="Campaigns",
+        campaigns=list_campaigns(),
+    )
+
+
+@app.route("/campaigns/switch", methods=["POST"])
+def campaign_switch():
+    _require_dm()
+    cid = request.form.get("campaign_id", type=int)
+    if cid and switch_campaign(cid):
+        flash("Switched campaign.")
+        return redirect(url_for("character"))
+    return redirect(url_for("campaigns"))
+
+
+@app.route("/campaigns/new", methods=["POST"])
+def campaign_new():
+    _require_dm()
+    # Seed the new campaign with the DM's own account so it's playable immediately.
+    cid = create_campaign(request.form.get("name", ""), dm=current_user())
+    if request.form.get("switch"):
+        switch_campaign(cid)
+        flash("Created and switched to the new campaign.")
+        return redirect(url_for("character"))
+    flash("Campaign created.")
+    return redirect(url_for("campaigns"))
+
+
+@app.route("/campaigns/<int:campaign_id>/rename", methods=["POST"])
+def campaign_rename(campaign_id):
+    _require_dm()
+    rename_campaign(campaign_id, request.form.get("name", ""))
+    flash("Campaign renamed.")
+    return redirect(url_for("campaigns"))
+
+
+@app.route("/campaigns/<int:campaign_id>/duplicate", methods=["POST"])
+def campaign_duplicate(campaign_id):
+    _require_dm()
+    if duplicate_campaign(campaign_id, request.form.get("name", "")):
+        flash("Snapshot saved as a new campaign.")
+    else:
+        flash("Couldn't duplicate that campaign.")
+    return redirect(url_for("campaigns"))
+
+
+@app.route("/campaigns/<int:campaign_id>/delete", methods=["POST"])
+def campaign_delete(campaign_id):
+    _require_dm()
+    _ok, msg = delete_campaign(campaign_id)
+    flash(msg)
+    return redirect(url_for("campaigns"))
+
+
 # --- Auth (Phase 7) -------------------------------------------------------
 
 def _safe_next_or(default):
@@ -569,7 +661,7 @@ def setup():
         new_id = create_user(username, password, role="dm")
         if new_id:
             session.clear()
-            session["user_id"] = new_id
+            session["username"] = username.strip()
             flash("DM account created — welcome, Dungeon Master.")
             return redirect(url_for("character"))
         flash("Couldn't create the account. Pick a username and password.")
@@ -586,7 +678,7 @@ def login():
         user = verify_login(request.form.get("username", ""), request.form.get("password", ""))
         if user:
             session.clear()
-            session["user_id"] = user["id"]
+            session["username"] = user["username"]
             return redirect(_safe_next_or(url_for("character")))
         flash("Wrong username or password.")
     return render_template(
@@ -615,11 +707,11 @@ def register():
         if (request.form.get("code") or "").strip() != code:
             flash("That signup code isn't right.")
         else:
-            new_id = create_user(request.form.get("username", ""),
-                                  request.form.get("password", ""), role="player")
+            uname = request.form.get("username", "")
+            new_id = create_user(uname, request.form.get("password", ""), role="player")
             if new_id:
                 session.clear()
-                session["user_id"] = new_id
+                session["username"] = uname.strip()
                 flash("Account created. Your DM will link you to your character.")
                 return redirect(url_for("character"))
             flash("That username is taken or invalid.")
