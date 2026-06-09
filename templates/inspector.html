@@ -54,6 +54,8 @@
         <span class="vital-value">{{ '?' if mask else (creature | eff_ac) }}</span></div>
       <div class="vital"><span class="vital-label">Hit Points {{ info('hit-points') }}</span>
         <span class="vital-value">{{ '?' if mask else '%d / %d' % (creature['current_hp'], creature['max_hp']) }}</span></div>
+      <div class="vital"><span class="vital-label">Challenge</span>
+        <span class="vital-value">{{ '?' if mask else 'CR ' ~ (creature['cr'] | cr) }}</span></div>
     </div>
 
     <div class="ability-grid inspect-abilities">

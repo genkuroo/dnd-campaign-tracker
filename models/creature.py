@@ -49,9 +49,39 @@ def alignment_label(code):
 # Fields a creature form may set, with the type to coerce each to.
 _INT_FIELDS = [
     "level", "max_hp", "current_hp", "armor_class", "speed", "exhaustion",
-    "xp", "gold", "silver", "copper", "stats_revealed",
+    "xp", "gold", "silver", "copper", "stats_revealed", "inspiration",
     *[col for col, _ in ABILITIES],
 ]
+_FLOAT_FIELDS = ["cr"]   # Challenge Rating (fractional: 0.125 = CR 1/8)
+
+# D&D 5e Challenge Rating → XP value (DMG). Keys are floats so the fractional CRs
+# (1/8, 1/4, 1/2) work; the encounter difficulty calculator sums these.
+CR_XP = {
+    0.0: 10, 0.125: 25, 0.25: 50, 0.5: 100, 1.0: 200, 2.0: 450, 3.0: 700,
+    4.0: 1100, 5.0: 1800, 6.0: 2300, 7.0: 2900, 8.0: 3900, 9.0: 5000,
+    10.0: 5900, 11.0: 7200, 12.0: 8400, 13.0: 10000, 14.0: 11500, 15.0: 13000,
+    16.0: 15000, 17.0: 18000, 18.0: 20000, 19.0: 22000, 20.0: 25000, 21.0: 33000,
+    22.0: 41000, 23.0: 50000, 24.0: 62000, 25.0: 75000, 26.0: 90000, 27.0: 105000,
+    28.0: 120000, 29.0: 135000, 30.0: 155000,
+}
+_CR_FRACTION_LABEL = {0.125: "1/8", 0.25: "1/4", 0.5: "1/2"}
+
+
+def cr_label(cr):
+    """Display a Challenge Rating: fractions as '1/8', whole numbers as '5'."""
+    cr = float(cr or 0)
+    if cr in _CR_FRACTION_LABEL:
+        return _CR_FRACTION_LABEL[cr]
+    return str(int(cr)) if cr == int(cr) else str(cr)
+
+
+def cr_xp(cr):
+    """The XP value of a Challenge Rating (0 for an unknown CR)."""
+    return CR_XP.get(float(cr or 0), 0)
+
+
+# (value, label) options for the form's CR picker, low → high.
+CR_CHOICES = [(cr, cr_label(cr)) for cr in sorted(CR_XP)]
 
 # D&D 5e: total XP required to reach each level (index = level).
 XP_THRESHOLDS = [
@@ -242,6 +272,9 @@ def _clean(data):
     for col in _INT_FIELDS:
         if col in data and str(data.get(col)).strip() != "":
             fields[col] = int(data[col])
+    for col in _FLOAT_FIELDS:
+        if col in data and str(data.get(col)).strip() != "":
+            fields[col] = float(data[col])
     return fields
 
 

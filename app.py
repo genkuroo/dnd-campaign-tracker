@@ -24,10 +24,12 @@ from models.creature import (
     MAX_LEVEL,
     MONSTER_KINDS,
     UNARMORED_DEFENSE,
+    CR_CHOICES,
     ability_modifier,
     adjust_coins,
     adjust_hp,
     alignment_label,
+    cr_label,
     create_creature,
     delete_creature,
     format_modifier,
@@ -139,6 +141,7 @@ from models.encounters import (
     add_member,
     create_encounter,
     delete_encounter,
+    encounter_difficulty,
     encounter_members,
     get_encounter,
     list_encounters,
@@ -430,6 +433,12 @@ def _ordinal_level_filter(level):
     return level_label(level)
 
 
+@app.template_filter("cr")
+def _cr_filter(cr):
+    """Jinja filter: a Challenge Rating value -> display label ('0.25' -> '1/4')."""
+    return cr_label(cr)
+
+
 @app.template_filter("action_category")
 def _action_category_filter(value):
     """Jinja filter: action category code -> label (e.g. 'bonus' -> 'Bonus Action')."""
@@ -482,7 +491,7 @@ def _form_vocab():
             "dispositions": DISPOSITIONS, "alignments": ALIGNMENTS,
             "unarmored_defenses": UNARMORED_DEFENSE, "classes": all_classes(),
             "races": all_races(), "backgrounds": all_backgrounds(),
-            "skill_options": SKILL_OPTIONS}
+            "skill_options": SKILL_OPTIONS, "cr_choices": CR_CHOICES}
 
 
 def _apply_class(creature_id, class_slug, starting_kit=False):
@@ -1059,6 +1068,7 @@ def encounter_detail(encounter_id):
         members=members,
         total_creatures=sum(m["quantity"] for m in members),
         monsters=list_monsters(),
+        difficulty=encounter_difficulty(members, list_party()),
     )
 
 

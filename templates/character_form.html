@@ -52,6 +52,14 @@
         <span>Level</span>
         <input type="number" name="level" min="1" value="{{ c['level'] if c else 1 }}">
       </label>
+      <label class="field narrow">
+        <span>CR <span class="muted">(monsters)</span></span>
+        <select name="cr">
+          {% for cr_val, cr_lbl in cr_choices %}
+            <option value="{{ cr_val }}" {{ 'selected' if c and c['cr'] == cr_val else '' }}>{{ cr_lbl }}</option>
+          {% endfor %}
+        </select>
+      </label>
     </div>
 
     <div class="field-row">

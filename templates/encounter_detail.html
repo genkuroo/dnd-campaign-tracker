@@ -20,7 +20,7 @@
       {% for m in members %}
         <li class="encounter-member">
           <a class="encounter-member-name" href="{{ url_for('character_detail', creature_id=m['creature_id']) }}">{{ m['name'] }}</a>
-          <span class="muted encounter-member-stats" title="HP · AC">❤️ {{ m['max_hp'] }} · 🛡️ {{ m['armor_class'] }}</span>
+          <span class="muted encounter-member-stats" title="HP · AC · Challenge Rating">❤️ {{ m['max_hp'] }} · 🛡️ {{ m['armor_class'] }} · CR {{ m['cr'] | cr }}</span>
           <form method="post" action="{{ url_for('encounter_member_quantity', member_id=m['id']) }}" class="inline qty-form">
             <input type="hidden" name="encounter_id" value="{{ encounter['id'] }}">
             <input type="hidden" name="quantity" value="{{ m['quantity'] - 1 }}">
@@ -42,6 +42,29 @@
     </ul>
   {% else %}
     <p class="muted">No monsters in this encounter yet.</p>
+  {% endif %}
+
+  {% if members %}
+    <div class="enc-difficulty">
+      {% if difficulty.rating %}
+        <span class="enc-rating enc-rating-{{ difficulty.rating | lower }}">{{ difficulty.rating }}</span>
+      {% else %}
+        <span class="muted">Add a player character to the party to rate difficulty.</span>
+      {% endif %}
+      <span class="enc-xp">
+        {{ '{:,}'.format(difficulty.raw_xp) }} XP{% if difficulty.multiplier != 1.0 %}
+        × {{ difficulty.multiplier }} ({{ difficulty.count }} monsters) =
+        <strong>{{ '{:,}'.format(difficulty.adjusted_xp) }}</strong> adjusted{% endif %}
+      </span>
+      {% if difficulty.rating %}
+        <span class="muted enc-thresholds" title="Your party's XP budget — the sum of each PC's thresholds">
+          party of {{ difficulty.party_size }} · easy {{ '{:,}'.format(difficulty.thresholds.easy) }}
+          · medium {{ '{:,}'.format(difficulty.thresholds.medium) }}
+          · hard {{ '{:,}'.format(difficulty.thresholds.hard) }}
+          · deadly {{ '{:,}'.format(difficulty.thresholds.deadly) }}
+        </span>
+      {% endif %}
+    </div>
   {% endif %}
 
   {% if monsters %}

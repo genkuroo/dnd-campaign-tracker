@@ -14,7 +14,7 @@ import sqlite3
 # real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
 DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
-SCHEMA_VERSION = 43
+SCHEMA_VERSION = 44
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -487,6 +487,12 @@ MIGRATIONS = {
     -- (distinct from Bardic Inspiration, a class resource). A simple have/spend
     -- boolean; the DM grants it, the owner spends it for advantage on a roll.
     ALTER TABLE creatures ADD COLUMN inspiration INTEGER NOT NULL DEFAULT 0;
+    """,
+    44: """
+    -- Challenge Rating: a monster's difficulty (0, 1/8 … 30), stored as a float so
+    -- the fractional CRs work. Drives the XP value (CR_XP table) that the encounter
+    -- difficulty calculator sums. 0 for PCs/NPCs (only monsters use it).
+    ALTER TABLE creatures ADD COLUMN cr REAL NOT NULL DEFAULT 0;
     """,
 }
 
