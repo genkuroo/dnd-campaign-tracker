@@ -81,6 +81,7 @@ from models.races import (all_races, race_label, race_traits, race_speed,
                           race_size, valid_subrace)
 from models.weapons import pack_weapon, weapon_attacks
 from models.movement import effective_speed, speed_breakdown
+from models.exhaustion import exhaustion_effects, set_exhaustion, MAX_EXHAUSTION
 from models.items import all_item_defs, get_item_def
 from models.loot import (
     add_loot,
@@ -790,6 +791,9 @@ def character_detail(creature_id):
         race_size=race_size(creature),
         speed=effective_speed(creature),
         speed_breakdown=speed_breakdown(creature),
+        exhaustion=creature["exhaustion"],
+        exhaustion_effects=exhaustion_effects(creature["exhaustion"]),
+        max_exhaustion=MAX_EXHAUSTION,
         weapon_attacks=weapon_attacks(creature, eff_ab),
         class_features=class_features(creature["class_name"], creature["level"], creature["subclass"]),
         class_features_next=class_features_remaining(
@@ -907,6 +911,17 @@ def character_coins(creature_id):
     )
     flash("Purse updated.")
     return redirect(url_for("character_detail", creature_id=creature_id))
+
+
+@app.route("/character/<int:creature_id>/exhaustion", methods=["POST"])
+def character_exhaustion(creature_id):
+    """Adjust a creature's exhaustion level by ±1 (a loose tracker — no mechanics are
+    auto-applied). Owner or DM."""
+    creature = _require_edit(creature_id)
+    delta = 1 if request.form.get("delta", type=int) and request.form.get("delta", type=int) > 0 else -1
+    set_exhaustion(creature_id, creature["exhaustion"] + delta)
+    return redirect(_safe_next(request.form.get("next"),
+                               url_for("character_detail", creature_id=creature_id)))
 
 
 @app.route("/character/<int:creature_id>/delete", methods=["POST"])

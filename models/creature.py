@@ -48,7 +48,7 @@ def alignment_label(code):
 
 # Fields a creature form may set, with the type to coerce each to.
 _INT_FIELDS = [
-    "level", "max_hp", "current_hp", "armor_class", "speed",
+    "level", "max_hp", "current_hp", "armor_class", "speed", "exhaustion",
     "xp", "gold", "silver", "copper", "stats_revealed",
     *[col for col, _ in ABILITIES],
 ]

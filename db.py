@@ -14,7 +14,7 @@ import sqlite3
 # real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
 DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
-SCHEMA_VERSION = 37
+SCHEMA_VERSION = 38
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -441,6 +441,12 @@ MIGRATIONS = {
     -- (stored as its display name; '' = none). 5e allows only one at a time; casting
     -- another replaces it, and damage prompts a CON save to keep it.
     ALTER TABLE creatures ADD COLUMN concentration TEXT NOT NULL DEFAULT '';
+    """,
+    38: """
+    -- Exhaustion level (0..6, 5e's six-step track). Tracked as a *loose display*
+    -- only — the sheet shows the level and what each step would mean, but the app
+    -- never auto-applies the penalties or kills a character at level 6.
+    ALTER TABLE creatures ADD COLUMN exhaustion INTEGER NOT NULL DEFAULT 0;
     """,
 }
 

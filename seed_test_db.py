@@ -65,7 +65,8 @@ spend_slot(gandalf, 3)
 grog = make_pc("Grog", "barbarian", player="bob", xp=6500, avatar="🪓")
 update_creature(grog, {"strength": 17, "constitution": 16, "level": 5,
                        "alignment": "CN", "subclass": "berserker",
-                       "race": "dwarf", "subrace": "mountain-dwarf"})
+                       "race": "dwarf", "subrace": "mountain-dwarf",
+                       "exhaustion": 1})  # a Berserker's Frenzy leaves him exhausted
 set_skill_proficiencies(grog, ["athletics", "intimidation", "survival"])
 # Rage now comes from the class auto-grant; this is a hand-added extra to show
 # class-granted and manual actions side by side.
