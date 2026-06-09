@@ -38,6 +38,7 @@ GLOSSARY = {
     "skill": "Skill — a specific kind of ability check (Stealth, Perception, Persuasion…), each tied to one ability. If you're proficient in it, add your proficiency bonus.",
     "passive-perception": "Passive Perception — your 'always-on' awareness, 10 + your Perception bonus. The DM compares it against how hidden something is (a sneaking creature, a trap) without asking you to roll.",
     "exhaustion": "Exhaustion — a six-level fatigue track (forced marches, no sleep, some effects). Each level stacks a worse penalty, up to death at level 6; a long rest removes one level. Here it's a loose reminder — the app shows it but doesn't auto-apply the penalties.",
+    "inspiration": "Heroic Inspiration — a reward the DM hands out for good play. While you have it, you can spend it to roll one d20 with **advantage** (roll twice, keep the higher). You either have it or you don't — it doesn't stack. (Different from a Bard's Bardic Inspiration die.)",
     "expertise": "Expertise — for a chosen skill you're proficient in, add **double** your proficiency bonus (a Rogue/Bard specialty).",
     "half-proficiency": "Half proficiency — add half your proficiency bonus (rounded down) to checks you're not proficient in. Bards get this on every check (Jack of All Trades); Champion fighters on STR/DEX/CON checks (Remarkable Athlete, rounded up).",
     "saving-throw-prof": "Saving throw proficiency — your class makes you reliably good at resisting two kinds of effect (e.g. a Barbarian's STR & CON saves), adding your proficiency bonus.",

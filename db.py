@@ -14,7 +14,7 @@ import sqlite3
 # real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
 DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
-SCHEMA_VERSION = 42
+SCHEMA_VERSION = 43
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -481,6 +481,12 @@ MIGRATIONS = {
     ALTER TABLE combatants ADD COLUMN resistances     TEXT NOT NULL DEFAULT '';
     ALTER TABLE combatants ADD COLUMN immunities      TEXT NOT NULL DEFAULT '';
     ALTER TABLE combatants ADD COLUMN vulnerabilities TEXT NOT NULL DEFAULT '';
+    """,
+    43: """
+    -- Heroic Inspiration: the universal advantage token a DM grants for good play
+    -- (distinct from Bardic Inspiration, a class resource). A simple have/spend
+    -- boolean; the DM grants it, the owner spends it for advantage on a roll.
+    ALTER TABLE creatures ADD COLUMN inspiration INTEGER NOT NULL DEFAULT 0;
     """,
 }
 

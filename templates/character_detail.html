@@ -60,6 +60,19 @@
       {% if armor_issue %}<span class="armor-warn" title="Your class isn't proficient with {{ armor_issue.armor_type }} armor. While wearing {{ armor_issue.name }} you have disadvantage on ability checks, attacks, and saves using STR or DEX{{ ', and you can’t cast spells' if spell_stats else '' }}.">⚠ not proficient</span>{% endif %}
     </div>
     <div class="vital"><span class="vital-label">Speed</span><span class="vital-value" title="{{ speed_breakdown }}">{{ speed }} ft{% if race_size %} <span class="muted">· {{ race_size }}</span>{% endif %}</span></div>
+    {% if creature['kind'] == 'pc' %}
+    <div class="vital inspiration {{ 'has-inspiration' if creature['inspiration'] }}">
+      <span class="vital-label">{{ info('inspiration', 'Inspiration') }}</span>
+      <span class="vital-value">
+        {% if creature['inspiration'] %}<span class="insp-on">✨ Yes</span>{% else %}<span class="muted">—</span>{% endif %}
+        {% if can_edit %}
+          <form method="post" action="{{ url_for('character_inspiration', creature_id=creature['id']) }}" class="inline">
+            <button type="submit" class="btn-small" title="{{ 'Spend it — use for advantage on a roll' if creature['inspiration'] else 'Grant inspiration' }}">{{ 'Use' if creature['inspiration'] else 'Grant' }}</button>
+          </form>
+        {% endif %}
+      </span>
+    </div>
+    {% endif %}
     <div class="vital"><span class="vital-label">Experience</span><span class="vital-value xp-value">{{ '{:,}'.format(creature['xp']) }}</span></div>
     <div class="vital purse">
       <span class="vital-label">Purse</span>

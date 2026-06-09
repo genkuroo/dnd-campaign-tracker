@@ -39,6 +39,7 @@ from models.creature import (
     list_roster,
     party_rest,
     proficiency_bonus,
+    set_inspiration,
     update_creature,
     xp_to_next,
 )
@@ -927,6 +928,15 @@ def character_exhaustion(creature_id):
     creature = _require_edit(creature_id)
     delta = 1 if request.form.get("delta", type=int) and request.form.get("delta", type=int) > 0 else -1
     set_exhaustion(creature_id, creature["exhaustion"] + delta)
+    return redirect(_safe_next(request.form.get("next"),
+                               url_for("character_detail", creature_id=creature_id)))
+
+
+@app.route("/character/<int:creature_id>/inspiration", methods=["POST"])
+def character_inspiration(creature_id):
+    """Toggle Heroic Inspiration (the DM grants it, the owner spends it). Owner or DM."""
+    creature = _require_edit(creature_id)
+    set_inspiration(creature_id, not creature["inspiration"])
     return redirect(_safe_next(request.form.get("next"),
                                url_for("character_detail", creature_id=creature_id)))
 

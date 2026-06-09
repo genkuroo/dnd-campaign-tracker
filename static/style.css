@@ -302,6 +302,9 @@ body {
 .vital-label { display: block; font-size: 0.75rem; font-family: sans-serif; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
 .vital-value { display: block; font-size: 1.6rem; font-weight: bold; }
 .xp-value { font-size: 1.3rem; }
+.inspiration .vital-value { font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem; justify-content: center; }
+.inspiration.has-inspiration { border-color: color-mix(in srgb, var(--accent-2) 55%, transparent); background: color-mix(in srgb, var(--accent-2) 10%, var(--panel)); }
+.insp-on { color: var(--accent-2); }
 .purse { text-align: left; }
 .coins { display: flex; gap: 0.5rem; margin-top: 0.3rem; }
 .coin { font-family: sans-serif; font-weight: bold; font-size: 1rem; padding: 0.1rem 0.4rem; border-radius: 4px; }
