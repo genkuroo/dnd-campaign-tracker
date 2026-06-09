@@ -417,9 +417,16 @@
                   <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
                   <button type="submit" class="check-btn" title="Damage roll: {{ a.damage }}">Damage {{ a.damage }}</button>
                 </form>
+                <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
+                  <input type="hidden" name="expression" value="{{ a.crit }}">
+                  <input type="hidden" name="label" value="{{ creature['name'] }} · {{ a.name }} critical hit">
+                  <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+                  <button type="submit" class="check-btn crit-btn" title="Critical hit (natural 20) — damage dice doubled: {{ a.crit }}">💥 Crit {{ a.crit }}</button>
+                </form>
               {% else %}
                 <span class="attack-stat">{{ '%+d' % a.attack }} to hit</span>
                 <span class="attack-stat">{{ a.damage }}{% if a.type %} {{ a.type }}{% endif %}</span>
+                <span class="attack-stat muted" title="On a natural 20, damage dice are doubled">crit {{ a.crit }}</span>
               {% endif %}
             </span>
           </li>

@@ -10,9 +10,12 @@ Computed on read (nothing stored beyond the weapon stats themselves):
   - **Damage** = the weapon's dice + the same ability mod.
   - **ability** is `str` (melee), `dex` (ranged), or `finesse` (best of STR/DEX).
 """
+import re
+
 from models.creature import ability_modifier, proficiency_bonus
 
 _VALID_ABILITY = ("str", "dex", "finesse")
+_DICE_TERM = re.compile(r"(\d*)d(\d+)")
 _ABILITY_COL = {"str": "strength", "dex": "dexterity"}
 _ABILITY_LABEL = {"str": "STR", "dex": "DEX", "finesse": "finesse"}
 
@@ -49,6 +52,15 @@ def parse_weapon(item):
             "category": category}
 
 
+def _double_dice(damage):
+    """Double each dice term's count for a critical hit (5e: roll the damage dice
+    twice; the flat modifier is *not* doubled). '1d8' -> '2d8', '2d6' -> '4d6'."""
+    def repl(m):
+        count = int(m.group(1)) if m.group(1) else 1
+        return f"{count * 2}d{m.group(2)}"
+    return _DICE_TERM.sub(repl, damage)
+
+
 def _ability_mod(weapon, eff_abilities):
     """The ability modifier a weapon uses (finesse = the better of STR/DEX)."""
     a = weapon["ability"]
@@ -80,7 +92,8 @@ def weapon_is_proficient(creature, item, weapon):
 def weapon_attacks(creature, eff_abilities):
     """Attack rows for the creature's *equipped* weapons:
     [{name, type, ability, proficient, mod, attack, to_hit, damage}], where
-    `to_hit` is a 'd20+N' expression and `damage` a 'NdM+mod' expression."""
+    `to_hit` is a 'd20+N' expression, `damage` a 'NdM+mod' expression, and `crit`
+    the same with the dice doubled (for a natural-20 hit)."""
     from models.inventory import list_items  # local: avoid import cycle
     pb = proficiency_bonus(creature["level"])
     out = []
@@ -99,5 +112,6 @@ def weapon_attacks(creature, eff_abilities):
             "proficient": prof, "mod": mod, "attack": atk,
             "to_hit": f"1d20{atk:+d}",
             "damage": weapon["damage"] + (f"{mod:+d}" if mod else ""),
+            "crit": _double_dice(weapon["damage"]) + (f"{mod:+d}" if mod else ""),
         })
     return out

@@ -970,6 +970,8 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .attack-type { font-family: sans-serif; font-size: 0.78rem; text-transform: capitalize; }
 .attack-abil { font-family: sans-serif; font-size: 0.72rem; }
 .attack-rolls { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+.crit-btn { border-color: color-mix(in srgb, #e0a84a 55%, transparent) !important; color: #e0a84a !important; }
+.crit-btn:hover { background: color-mix(in srgb, #e0a84a 16%, transparent) !important; }
 .attack-stat { font-family: sans-serif; font-size: 0.85rem; color: var(--muted); }
 .attack-stat + .attack-stat { color: var(--accent-2); }
 .attack-warn { font-family: sans-serif; font-size: 0.6rem; text-transform: uppercase;
