@@ -118,6 +118,13 @@ add_feat(vex, _alert["name"], _alert["description"], _alert["prerequisite"])
 add_feat(gandalf, "Arcane Savant", "Custom: advantage on checks to identify magic items.",
          "Spellcaster")
 
+# Tool proficiencies + languages (free-form; from race / class / background).
+update_creature(gandalf, {"languages": "Common, Elvish, Draconic"})
+update_creature(grog, {"tools": "Dice set, Vehicles (land)", "languages": "Common, Dwarvish"})
+update_creature(pike, {"languages": "Common, Celestial"})
+update_creature(vex, {"tools": "Thieves' tools, Dice set",
+                      "languages": "Common, Halfling, Thieves' Cant"})
+
 # Players linked to their PCs (Vex is left unassigned to demo "Create my character").
 alice = create_user("alice", PASSWORD, "player", creature_id=gandalf)
 bob = create_user("bob", PASSWORD, "player", creature_id=grog)

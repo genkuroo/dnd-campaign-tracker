@@ -200,6 +200,16 @@
     </fieldset>
 
     <fieldset>
+      <legend>Tools &amp; Languages <span class="muted">(comma-separated; granted by race / class / background)</span></legend>
+      <div class="field-row">
+        <label class="field"><span>Tool proficiencies</span>
+          <input type="text" name="tools" value="{{ c['tools'] if c else '' }}" placeholder="e.g. Thieves' tools, Lute"></label>
+        <label class="field"><span>Languages</span>
+          <input type="text" name="languages" value="{{ c['languages'] if c else '' }}" placeholder="e.g. Common, Elvish"></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
       <legend>Progression &amp; Currency</legend>
       <div class="field-row">
         <label class="field narrow"><span>XP</span>

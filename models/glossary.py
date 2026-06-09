@@ -44,6 +44,7 @@ GLOSSARY = {
     "hit-die": "Hit die — the die you roll for hit points each level (e.g. d8 for many classes). Level-up HP = that roll (or its average) + your Constitution modifier.",
     "race": "Race / species — what kind of being your character is (Elf, Dwarf, Human…). It grants ability-score increases, a base speed, a size, and special traits; many have subraces.",
     "background": "Background — who your character was before adventuring (Soldier, Sage, Criminal…). It grants two skill proficiencies, some tools and/or languages, and a roleplay feature.",
+    "language": "Languages — the tongues your character can speak, read, and write (Common, Elvish, Dwarvish, Thieves' Cant…). Granted by race, class, and background.",
     "death-save": "Death saving throw — at 0 HP you roll a d20 each turn (no modifier): 10+ is a success, under 10 a failure. Three successes = stable; three failures = dead. A nat 20 revives you at 1 HP; a nat 1 counts as two failures; taking damage while down is an automatic failure.",
     "ability-score-improvement": "Ability Score Improvement (ASI) — at certain levels (4, 8, 12, 16, 19; a few classes get extra) you gain 2 points to raise your ability scores, as +2 to one or +1 to two, capped at 20.",
     "feat": "Feat — a special talent you can take instead of an Ability Score Improvement, granting a distinctive ability (extra reactions, combat tricks, skill boosts…).",

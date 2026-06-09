@@ -213,22 +213,40 @@
     {% if is_dm %}<p class="muted check-hint">Set which skills this character is proficient in on the <a href="{{ url_for('character_edit', creature_id=creature['id']) }}">edit page</a> (DM only).</p>{% endif %}
   </section>
 
-  {% if proficiencies and (proficiencies.armor or proficiencies.weapons) %}
+  {% set tools_list = creature['tools'] | commalist %}
+  {% set languages_list = creature['languages'] | commalist %}
+  {% set has_class_prof = proficiencies and (proficiencies.armor or proficiencies.weapons) %}
+  {% if has_class_prof or tools_list or languages_list %}
     <section class="proficiencies">
       <div class="section-head">
         <h2>{{ info('proficiency', 'Proficiencies') }}</h2>
-        <span class="muted">from your class — proficient weapon attacks add +{{ prof_bonus }}</span>
+        {% if has_class_prof %}<span class="muted">from class / background — proficient weapon attacks add +{{ prof_bonus }}</span>{% endif %}
       </div>
       <div class="prof-rows">
-        <div class="prof-row">
-          <span class="prof-key">Armor</span>
-          <span class="prof-vals">{% if proficiencies.armor %}{% for a in proficiencies.armor %}<span class="prof-chip">{{ a }}</span>{% endfor %}{% else %}<span class="muted">none</span>{% endif %}</span>
-        </div>
-        <div class="prof-row">
-          <span class="prof-key">Weapons</span>
-          <span class="prof-vals">{% if proficiencies.weapons %}{% for w in proficiencies.weapons %}<span class="prof-chip">{{ w }}</span>{% endfor %}{% else %}<span class="muted">none</span>{% endif %}</span>
-        </div>
+        {% if has_class_prof %}
+          <div class="prof-row">
+            <span class="prof-key">Armor</span>
+            <span class="prof-vals">{% if proficiencies.armor %}{% for a in proficiencies.armor %}<span class="prof-chip">{{ a }}</span>{% endfor %}{% else %}<span class="muted">none</span>{% endif %}</span>
+          </div>
+          <div class="prof-row">
+            <span class="prof-key">Weapons</span>
+            <span class="prof-vals">{% if proficiencies.weapons %}{% for w in proficiencies.weapons %}<span class="prof-chip">{{ w }}</span>{% endfor %}{% else %}<span class="muted">none</span>{% endif %}</span>
+          </div>
+        {% endif %}
+        {% if tools_list %}
+          <div class="prof-row">
+            <span class="prof-key">Tools</span>
+            <span class="prof-vals">{% for t in tools_list %}<span class="prof-chip">{{ t }}</span>{% endfor %}</span>
+          </div>
+        {% endif %}
+        {% if languages_list %}
+          <div class="prof-row">
+            <span class="prof-key">{{ info('language', 'Languages') }}</span>
+            <span class="prof-vals">{% for l in languages_list %}<span class="prof-chip">{{ l }}</span>{% endfor %}</span>
+          </div>
+        {% endif %}
       </div>
+      {% if is_dm %}<p class="muted check-hint">Edit tools &amp; languages on the <a href="{{ url_for('character_edit', creature_id=creature['id']) }}">edit page</a>.</p>{% endif %}
     </section>
   {% endif %}
 

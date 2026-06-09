@@ -14,7 +14,7 @@ import sqlite3
 # real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
 DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
-SCHEMA_VERSION = 39
+SCHEMA_VERSION = 40
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -453,6 +453,14 @@ MIGRATIONS = {
     -- data/backgrounds.json. The third character pillar beside race + class; grants
     -- skills/tools/languages + a roleplay feature (display + guidance, not enforced).
     ALTER TABLE creatures ADD COLUMN background TEXT NOT NULL DEFAULT '';
+    """,
+    40: """
+    -- Tool proficiencies and known languages — comma-separated free-form lists
+    -- (e.g. "Thieves' tools, Lute" / "Common, Elvish"). They come from race / class
+    -- / background, but are tracked as plain text the DM/player edits; shown as chips
+    -- in the sheet's Proficiencies section.
+    ALTER TABLE creatures ADD COLUMN tools     TEXT NOT NULL DEFAULT '';
+    ALTER TABLE creatures ADD COLUMN languages TEXT NOT NULL DEFAULT '';
     """,
 }
 
