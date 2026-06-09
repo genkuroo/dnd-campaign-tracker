@@ -1,0 +1,31 @@
+# Fly.io config for the D&D Campaign Tracker.
+#
+# This runs ONE machine with ONE persistent volume — the right model for a
+# stateful Flask + SQLite app (SQLite is a single file; running multiple
+# machines would give each its own divergent copy). Fine for a small group.
+#
+# `app` must be globally unique on Fly — `fly launch` will set/confirm it, or
+# change it here if the name is taken. Set `primary_region` to one near you.
+app = "dnd-campaign-tracker"
+primary_region = "sjc"
+
+[env]
+  # SQLite DB lives on the persistent volume (see [mounts]).
+  DND_DB_PATH = "/data/campaign.db"
+
+[mounts]
+  source = "dnd_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # Cost-saver: stop the machine when idle, auto-start on the next request
+  # (a few-second cold start). Set min_machines_running = 1 to keep it always warm.
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

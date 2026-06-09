@@ -208,13 +208,22 @@ DICE_BUTTONS = [4, 6, 8, 10, 12, 20, 100]
 ROLL_GAP_SECONDS = 5 * 60
 
 app = Flask(__name__)
-app.secret_key = "dnd-campaign-tracker-local-only"  # local dev only; not a secret
+# In production the secret is supplied via the SECRET_KEY env var (e.g.
+# `fly secrets set SECRET_KEY=...`); the fallback is for local dev only.
+app.secret_key = os.environ.get("SECRET_KEY", "dnd-campaign-tracker-local-only")
 app.config["MAX_CONTENT_LENGTH"] = 3 * 1024 * 1024  # cap uploads (avatars) at 3 MB
 
 # Uploaded character portraits live under static/avatars (served by Flask's
 # static route). Kept out of git; the dir is created on demand.
 AVATAR_DIR = os.path.join(app.static_folder, "avatars")
 ALLOWED_AVATAR_EXT = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
+
+# Apply any pending schema migrations at import time. This covers BOTH ways the
+# app boots: `python app.py` locally and a WSGI server (gunicorn) in production,
+# where the `__main__` block never runs. init_db() is idempotent. Under gunicorn
+# we use --preload so this runs once in the master before workers fork, avoiding
+# a migration race between workers on first deploy.
+init_db()
 
 # Exposed as a Jinja global (not a context processor) so imported macros — which
 # don't receive template context — can still look up glossary terms.
@@ -2293,5 +2302,6 @@ def _not_found(_e):
 
 
 if __name__ == "__main__":
-    init_db()
+    # Local dev only. Migrations already ran at import (see init_db() above).
+    # Production is served by gunicorn (see Dockerfile), which never reaches here.
     app.run(debug=True, port=5002)

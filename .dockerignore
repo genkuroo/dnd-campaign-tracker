@@ -1,0 +1,25 @@
+# Keep the image lean and free of local/host-only state. Real campaign data
+# (the SQLite DB + uploaded avatars) lives on the Fly volume, never in the image.
+.git
+.gitignore
+.venv
+venv
+env
+__pycache__
+*.pyc
+*.pyo
+
+# Local databases — prod uses /data/campaign.db on the persistent volume.
+*.db
+
+# Local uploads — prod stores avatars on the volume (/data/avatars).
+static/avatars/
+
+# Dev/test artifacts
+seed_test_db.py
+seed_demo.py
+scripts/
+.playwright-mcp/
+.DS_Store
+.vscode
+.idea

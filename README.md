@@ -4,7 +4,7 @@ A web app for running a Dungeons & Dragons 5e campaign. The **Dungeon Master** m
 the whole world; **players** log in to track their own characters and look up how their
 spells and abilities work — handy for a table that's new to D&D.
 
-> Status: **Phase 4 complete** — creature engine + character sheets (PCs & NPCs, alignment, live disposition, XP/leveling, currency, inventory), a dice roller (expressions, advantage/disadvantage, persisted log with timestamps), and SRD spells: a searchable reference, per-character spellbooks, an Assist/Track mode toggle, and glossary tooltips that teach D&D jargon. See [CLAUDE.md](./CLAUDE.md) for the full architecture and phased plan.
+> Status: **Phases 0–7 complete; Phase 8 (hosting) in progress.** Creature engine + character sheets (PCs/NPCs/monsters, classes/subclasses/races/backgrounds, leveling, ASI/feats, inventory + magic items, weapon attacks), a dice roller, SRD spells + spellcasting, a combat tracker, accounts with DM/player roles and server-side fog-of-war, and now a Fly.io deploy setup (see below). See [CLAUDE.md](./CLAUDE.md) for the full architecture and phased plan.
 
 ## Running
 
@@ -14,6 +14,41 @@ source .venv/bin/activate
 pip install -r requirements.txt
 python app.py    # http://127.0.0.1:5002
 ```
+
+## Deploying (Fly.io)
+
+The app is a stateful Flask + SQLite app with local file uploads, so it runs as
+**one machine with one persistent volume** (`/data` holds `campaign.db` and the
+uploaded avatars). Production is served by **gunicorn** (see `Dockerfile`);
+`fly.toml` declares the machine + volume.
+
+First-time setup (requires the [`flyctl`](https://fly.io/docs/flyctl/install/) CLI):
+
+```bash
+fly auth login                         # opens a browser
+fly launch --no-deploy                 # reuses fly.toml; pick a unique app name + region
+fly volumes create dnd_data --size 1   # 1 GB persistent volume, in the app's region
+fly secrets set SECRET_KEY="$(python3 -c 'import secrets; print(secrets.token_hex(32))')"
+fly deploy
+```
+
+`fly deploy` builds the image, ships it, and gunicorn's `--preload` runs the DB
+migrations once before serving. The first visit lands on `/setup` to create the
+DM account. Subsequent updates are just `fly deploy`.
+
+**Bringing existing local data up** (optional — to keep the campaign you've been
+running locally instead of starting fresh):
+
+```bash
+# Copy the local DB + avatar files onto the volume (machine must be running):
+fly ssh console -C "mkdir -p /data/avatars"
+fly ssh sftp shell                     # then: put campaign.db /data/campaign.db
+                                       #       (and put each static/avatars/* into /data/avatars/)
+fly apps restart                       # pick up the uploaded DB
+```
+
+**Backups:** the DB is a single file — `fly ssh console -C "cat /data/campaign.db" > backup.db`
+(or use `fly ssh sftp get`). Worth doing before big changes.
 
 ## What it does (planned)
 
