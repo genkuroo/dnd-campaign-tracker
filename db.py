@@ -34,7 +34,7 @@ LEGACY_DB_PATH = os.path.join(DATA_DIR, "campaign.db")
 # Unset in normal app runs, which then use the multi-campaign layout above.
 DB_PATH = os.environ.get("DND_DB_PATH")
 
-SCHEMA_VERSION = 47
+SCHEMA_VERSION = 48
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -586,6 +586,31 @@ MIGRATIONS = {
         PRIMARY KEY (note_id, entity_type, entity_id)
     );
     CREATE INDEX idx_note_mentions_entity ON note_mentions(entity_type, entity_id);
+    """,
+    48: """
+    -- Phase 9c — the quest / objective log. A quest is a DM-authored goal with a
+    -- `status` (active|completed|failed) and the same `visibility` fog-of-war
+    -- spine as locations/factions (default hidden — revealed when the party picks
+    -- it up). Each quest has ordered sub-objectives, themselves status-tracked and
+    -- individually hide-able (a secret objective inside a known quest). ON DELETE
+    -- CASCADE drops a quest's objectives with it.
+    CREATE TABLE quests (
+        id          INTEGER PRIMARY KEY,
+        title       TEXT    NOT NULL,
+        description TEXT    NOT NULL DEFAULT '',
+        status      TEXT    NOT NULL DEFAULT 'active',   -- 'active' | 'completed' | 'failed'
+        visibility  TEXT    NOT NULL DEFAULT 'hidden',   -- 'visible' | 'hidden'
+        created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE TABLE quest_objectives (
+        id          INTEGER PRIMARY KEY,
+        quest_id    INTEGER NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
+        description TEXT    NOT NULL,
+        status      TEXT    NOT NULL DEFAULT 'open',      -- 'open' | 'done' | 'failed'
+        visibility  TEXT    NOT NULL DEFAULT 'visible',   -- 'visible' | 'hidden'
+        position    INTEGER NOT NULL DEFAULT 0,
+        created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
     """,
 }
 

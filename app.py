@@ -183,6 +183,25 @@ from models.factions import (
     update_faction,
     visible_factions,
 )
+from models.quests import (
+    QUEST_STATUSES,
+    add_objective,
+    create_quest,
+    delete_objective,
+    delete_quest,
+    get_objective,
+    get_quest,
+    list_quests,
+    objective_progress,
+    objectives_for,
+    set_objective_status,
+    set_objective_visibility,
+    set_quest_status,
+    set_quest_visibility,
+    update_objective,
+    update_quest,
+    visible_quests,
+)
 from models.journal import (
     create_folder,
     create_note,
@@ -291,6 +310,7 @@ TABS = [
     {"endpoint": "dice", "label": "Dice"},
     {"endpoint": "map", "label": "Map"},
     {"endpoint": "journal", "label": "Journal"},
+    {"endpoint": "quests", "label": "Quests"},
 ]
 # NPCs, Locations, and Factions are the "Known Entities" — they live in the left
 # sidebar (inject_sidebar) rather than the top tab row.
@@ -376,6 +396,10 @@ _DM_ONLY_ENDPOINTS = {
     # gated in the route); only authoring mutations are DM-only.
     "location_new", "location_edit", "location_delete", "location_visibility",
     "faction_new", "faction_edit", "faction_delete", "faction_visibility",
+    # Quests are DM-authored; list/detail views are shared (visibility-gated).
+    "quest_new", "quest_edit", "quest_delete", "quest_status", "quest_visibility",
+    "objective_new", "objective_status", "objective_edit", "objective_visibility",
+    "objective_delete",
 }
 
 
@@ -2689,6 +2713,134 @@ def faction_delete(faction_id):
     delete_faction(faction_id)
     flash("Faction deleted.")
     return redirect(url_for("factions"))
+
+
+# --- Quest / objective log (Phase 9c) --------------------------------------
+
+def _visible_objectives(quest_id):
+    """A quest's objectives the current viewer may see (DM sees hidden ones too)."""
+    objs = objectives_for(quest_id)
+    return objs if is_dm() else [o for o in objs if o["visibility"] == "visible"]
+
+
+def _require_quest(quest_id):
+    """Fetch a quest, 404 if the viewer can't see it (players: visible only)."""
+    quest = get_quest(quest_id)
+    if not can_view_entity(quest):
+        abort(404)
+    return quest
+
+
+def _objective_quest_id(objective_id):
+    """The quest id owning an objective, or abort 404."""
+    obj = get_objective(objective_id)
+    if obj is None:
+        abort(404)
+    return obj["quest_id"]
+
+
+@app.route("/quests")
+def quests():
+    """The quest log. DM sees all; players see revealed quests. Grouped by status."""
+    rows = list_quests() if is_dm() else visible_quests()
+    quest_list = []
+    for q in rows:
+        done, total = objective_progress(_visible_objectives(q["id"]))
+        quest_list.append({"q": q, "done": done, "total": total})
+    return render_template(
+        "quests.html", active="quests", title="Quests",
+        active_quests=[x for x in quest_list if x["q"]["status"] == "active"],
+        done_quests=[x for x in quest_list if x["q"]["status"] == "completed"],
+        failed_quests=[x for x in quest_list if x["q"]["status"] == "failed"],
+    )
+
+
+@app.route("/quests/<int:quest_id>")
+def quest_detail(quest_id):
+    quest = _require_quest(quest_id)
+    return render_template(
+        "quest_detail.html", active="quests", title=quest["title"],
+        quest=quest, objectives=_visible_objectives(quest_id),
+        statuses=QUEST_STATUSES,
+    )
+
+
+@app.route("/quests/new", methods=["GET", "POST"])
+def quest_new():
+    if request.method == "POST":
+        new_id = create_quest(request.form)
+        flash("Quest created." if new_id else "A quest needs a title.")
+        return redirect(url_for("quest_detail", quest_id=new_id) if new_id
+                        else url_for("quest_new"))
+    return render_template("quest_form.html", active="quests", title="New Quest",
+                           quest=None, statuses=QUEST_STATUSES)
+
+
+@app.route("/quests/<int:quest_id>/edit", methods=["GET", "POST"])
+def quest_edit(quest_id):
+    quest = get_quest(quest_id)
+    if quest is None:
+        abort(404)
+    if request.method == "POST":
+        update_quest(quest_id, request.form)
+        flash("Quest updated.")
+        return redirect(url_for("quest_detail", quest_id=quest_id))
+    return render_template("quest_form.html", active="quests", title="Edit Quest",
+                           quest=quest, statuses=QUEST_STATUSES)
+
+
+@app.route("/quests/<int:quest_id>/status", methods=["POST"])
+def quest_status(quest_id):
+    set_quest_status(quest_id, request.form.get("status"))
+    return redirect(_safe_next_or(url_for("quest_detail", quest_id=quest_id)))
+
+
+@app.route("/quests/<int:quest_id>/visibility", methods=["POST"])
+def quest_visibility(quest_id):
+    set_quest_visibility(quest_id, request.form.get("visibility"))
+    return redirect(_safe_next_or(url_for("quest_detail", quest_id=quest_id)))
+
+
+@app.route("/quests/<int:quest_id>/delete", methods=["POST"])
+def quest_delete(quest_id):
+    delete_quest(quest_id)
+    flash("Quest deleted.")
+    return redirect(url_for("quests"))
+
+
+@app.route("/quests/<int:quest_id>/objective/new", methods=["POST"])
+def objective_new(quest_id):
+    add_objective(quest_id, request.form.get("description"),
+                  request.form.get("visibility", "visible"))
+    return redirect(url_for("quest_detail", quest_id=quest_id))
+
+
+@app.route("/objective/<int:objective_id>/status", methods=["POST"])
+def objective_status(objective_id):
+    quest_id = _objective_quest_id(objective_id)
+    set_objective_status(objective_id, request.form.get("status"))
+    return redirect(url_for("quest_detail", quest_id=quest_id))
+
+
+@app.route("/objective/<int:objective_id>/edit", methods=["POST"])
+def objective_edit(objective_id):
+    quest_id = _objective_quest_id(objective_id)
+    update_objective(objective_id, request.form.get("description"))
+    return redirect(url_for("quest_detail", quest_id=quest_id))
+
+
+@app.route("/objective/<int:objective_id>/visibility", methods=["POST"])
+def objective_visibility(objective_id):
+    quest_id = _objective_quest_id(objective_id)
+    set_objective_visibility(objective_id, request.form.get("visibility"))
+    return redirect(url_for("quest_detail", quest_id=quest_id))
+
+
+@app.route("/objective/<int:objective_id>/delete", methods=["POST"])
+def objective_delete(objective_id):
+    quest_id = _objective_quest_id(objective_id)
+    delete_objective(objective_id)
+    return redirect(url_for("quest_detail", quest_id=quest_id))
 
 
 @app.route("/map")

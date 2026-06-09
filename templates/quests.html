@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head">
+    <h1>Quests</h1>
+    {% if is_dm %}<a class="btn" href="{{ url_for('quest_new') }}">+ New Quest</a>{% endif %}
+  </div>
+  <p class="muted">
+    {% if is_dm %}The party's goals. New quests start hidden — reveal one once the party takes it on.{% else %}The goals you're pursuing. Open one to see its objectives.{% endif %}
+  </p>
+
+  {% macro quest_grid(items) %}
+    <div class="card-grid">
+      {% for x in items %}
+        {% set q = x.q %}
+        <a class="char-card quest-card quest-{{ q['status'] }}" href="{{ url_for('quest_detail', quest_id=q['id']) }}">
+          <div class="char-card-head">
+            <span class="char-card-title"><span class="char-name">🗺 {{ q['title'] }}</span></span>
+            {% if q['visibility'] == 'hidden' %}<span class="badge-dm">Hidden</span>{% endif %}
+          </div>
+          <div class="char-meta">
+            <span class="quest-status quest-status-{{ q['status'] }}">{{ q['status'] }}</span>
+            {% if x.total %}<span class="muted">{{ x.done }}/{{ x.total }} objectives</span>{% endif %}
+          </div>
+          {% if q['description'] %}<div class="char-loc muted">{{ q['description'] | truncate(90) }}</div>{% endif %}
+        </a>
+      {% endfor %}
+    </div>
+  {% endmacro %}
+
+  {% if not active_quests and not done_quests and not failed_quests %}
+    {% if is_dm %}
+      <p class="muted">No quests yet.</p>
+      <p class="placeholder-note">Lay out the main quest, side quests, and the party's objectives…</p>
+    {% else %}
+      <p class="muted">No quests yet. Your DM will reveal them as you go.</p>
+    {% endif %}
+  {% endif %}
+
+  {% if active_quests %}
+    <section class="sheet-section"><h2>Active</h2>{{ quest_grid(active_quests) }}</section>
+  {% endif %}
+  {% if done_quests %}
+    <section class="sheet-section"><h2>Completed</h2>{{ quest_grid(done_quests) }}</section>
+  {% endif %}
+  {% if failed_quests %}
+    <section class="sheet-section"><h2>Failed</h2>{{ quest_grid(failed_quests) }}</section>
+  {% endif %}
+{% endblock %}

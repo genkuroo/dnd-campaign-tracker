@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head"><h1>{{ title }}</h1></div>
+
+  <form method="post" class="entity-form"
+        action="{{ url_for('quest_edit', quest_id=quest['id']) if quest else url_for('quest_new') }}">
+    <fieldset>
+      <div class="field-row">
+        <label class="field grow">
+          <span>Title</span>
+          <input type="text" name="title" value="{{ quest['title'] if quest else '' }}"
+                 placeholder="Clear the goblin cave" required autofocus>
+        </label>
+        <label class="field">
+          <span>Status</span>
+          <select name="status">
+            {% for s in statuses %}
+              <option value="{{ s }}" {{ 'selected' if quest and quest['status'] == s else '' }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <label class="field grow">
+        <span>Description</span>
+        <textarea name="description" rows="6" placeholder="What the party needs to do, and why…">{{ quest['description'] if quest else '' }}</textarea>
+      </label>
+      <div class="field">
+        <span>Visibility</span>
+        <div class="radio-row">
+          <label class="radio"><input type="radio" name="visibility" value="hidden"
+            {{ 'checked' if not quest or quest['visibility'] != 'visible' else '' }}> Hidden <span class="muted">(until the party takes it on)</span></label>
+          <label class="radio"><input type="radio" name="visibility" value="visible"
+            {{ 'checked' if quest and quest['visibility'] == 'visible' else '' }}> Visible to players</label>
+        </div>
+      </div>
+    </fieldset>
+    <div class="form-actions">
+      <button type="submit" class="btn">{{ 'Save' if quest else 'Create quest' }}</button>
+      <a class="btn-ghost" href="{{ url_for('quest_detail', quest_id=quest['id']) if quest else url_for('quests') }}">Cancel</a>
+    </div>
+  </form>
+{% endblock %}

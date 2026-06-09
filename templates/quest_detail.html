@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+  {% set ICON = {'open': '○', 'done': '✓', 'failed': '✕'} %}
+  <div class="page-head">
+    <div>
+      <p class="muted breadcrumb"><a href="{{ url_for('quests') }}">Quests</a></p>
+      <h1 class="sheet-name">🗺 {{ quest['title'] }}</h1>
+      <p class="sheet-sub muted">
+        <span class="quest-status quest-status-{{ quest['status'] }}">{{ quest['status'] }}</span>
+        {% if quest['visibility'] == 'hidden' %} · <span class="badge-dm">Hidden from players</span>{% endif %}
+      </p>
+    </div>
+    {% if is_dm %}
+      <div class="area-actions">
+        <form method="post" action="{{ url_for('quest_status', quest_id=quest['id']) }}" class="inline">
+          <input type="hidden" name="next" value="{{ request.path }}">
+          <select name="status" onchange="this.form.submit()" title="Quest status">
+            {% for s in statuses %}<option value="{{ s }}" {{ 'selected' if quest['status'] == s }}>{{ s }}</option>{% endfor %}
+          </select>
+          <noscript><button type="submit" class="btn-ghost">Set</button></noscript>
+        </form>
+        <form method="post" action="{{ url_for('quest_visibility', quest_id=quest['id']) }}" class="inline">
+          <input type="hidden" name="next" value="{{ request.path }}">
+          {% if quest['visibility'] == 'visible' %}
+            <input type="hidden" name="visibility" value="hidden">
+            <button type="submit" class="btn-ghost" title="Hide from players">🙈 Hide</button>
+          {% else %}
+            <input type="hidden" name="visibility" value="visible">
+            <button type="submit" class="btn" title="Reveal to players">👁 Reveal</button>
+          {% endif %}
+        </form>
+        <a class="btn-ghost" href="{{ url_for('quest_edit', quest_id=quest['id']) }}">Edit</a>
+        <form method="post" action="{{ url_for('quest_delete', quest_id=quest['id']) }}" class="inline"
+              onsubmit="return confirm('Delete this quest and its objectives?');">
+          <button type="submit" class="btn-danger">Delete</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if quest['description'] %}<p class="prose">{{ quest['description'] }}</p>{% endif %}
+
+  <section class="sheet-section">
+    <h2>Objectives</h2>
+    {% if objectives %}
+      <ul class="obj-list">
+        {% for o in objectives %}
+          <li class="obj-row obj-{{ o['status'] }} {{ 'obj-hidden' if o['visibility'] == 'hidden' else '' }}">
+            <span class="obj-ico">{{ ICON[o['status']] }}</span>
+            <span class="obj-desc">{{ o['description'] }}</span>
+            {% if is_dm %}
+              {% if o['visibility'] == 'hidden' %}<span class="badge-dm obj-hidden-tag">hidden</span>{% endif %}
+              <div class="obj-actions">
+                <form method="post" action="{{ url_for('objective_status', objective_id=o['id']) }}" class="inline">
+                  <select name="status" onchange="this.form.submit()" title="Objective status">
+                    <option value="open"   {{ 'selected' if o['status'] == 'open' }}>open</option>
+                    <option value="done"   {{ 'selected' if o['status'] == 'done' }}>done</option>
+                    <option value="failed" {{ 'selected' if o['status'] == 'failed' }}>failed</option>
+                  </select>
+                </form>
+                <form method="post" action="{{ url_for('objective_visibility', objective_id=o['id']) }}" class="inline">
+                  <input type="hidden" name="visibility" value="{{ 'visible' if o['visibility'] == 'hidden' else 'hidden' }}">
+                  <button type="submit" class="btn-icon" title="{{ 'Reveal to players' if o['visibility'] == 'hidden' else 'Hide from players' }}">{{ '👁' if o['visibility'] == 'hidden' else '🙈' }}</button>
+                </form>
+                <details class="obj-edit">
+                  <summary title="Edit text">✏️</summary>
+                  <form method="post" action="{{ url_for('objective_edit', objective_id=o['id']) }}" class="obj-edit-form">
+                    <input type="text" name="description" value="{{ o['description'] }}" required>
+                    <button type="submit" class="btn-ghost">Save</button>
+                  </form>
+                </details>
+                <form method="post" action="{{ url_for('objective_delete', objective_id=o['id']) }}" class="inline"
+                      onsubmit="return confirm('Delete this objective?');">
+                  <button type="submit" class="btn-icon" title="Delete">✕</button>
+                </form>
+              </div>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No objectives{% if not is_dm %} revealed{% endif %} yet.</p>
+    {% endif %}
+
+    {% if is_dm %}
+      <form method="post" action="{{ url_for('objective_new', quest_id=quest['id']) }}" class="obj-add">
+        <input type="text" name="description" placeholder="Add an objective…" required>
+        <label class="obj-add-hidden"><input type="checkbox" name="visibility" value="hidden"> secret</label>
+        <button type="submit" class="btn">Add</button>
+      </form>
+    {% endif %}
+  </section>
+{% endblock %}
