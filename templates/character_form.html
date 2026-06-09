@@ -111,6 +111,15 @@
 
     <div class="field-row">
       <label class="field">
+        <span>Background</span>
+        <select name="background">
+          <option value="">— none —</option>
+          {% for bg in backgrounds %}
+            <option value="{{ bg['slug'] }}" {{ 'selected' if c and c['background'] == bg['slug'] else '' }}>{{ bg['name'] }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="field">
         <span>Alignment</span>
         <select name="alignment">
           {% for value, label in alignments %}

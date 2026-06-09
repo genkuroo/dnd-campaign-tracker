@@ -10,7 +10,7 @@
       </h1>
       <p class="muted">
         <span class="badge-kind">{{ 'NPC' if creature['kind'] == 'npc' else 'PC' }}</span>
-        Level {{ creature['level'] }}{% if race_label %} {{ race_label }}{% endif %}{% if klass %} {{ klass['name'] }}{% if subclass %} <span class="muted">({{ subclass['name'] }})</span>{% endif %}{% endif %}{% if creature['player_name'] %} · played by {{ creature['player_name'] }}{% endif %}
+        Level {{ creature['level'] }}{% if race_label %} {{ race_label }}{% endif %}{% if klass %} {{ klass['name'] }}{% if subclass %} <span class="muted">({{ subclass['name'] }})</span>{% endif %}{% endif %}{% if background %} · {{ background['name'] }}{% endif %}{% if creature['player_name'] %} · played by {{ creature['player_name'] }}{% endif %}
         {% if creature['alignment'] %} · {{ creature['alignment'] | alignment }}{% endif %}
         {% if creature['location'] %} · 📍 {{ creature['location'] }}{% endif %}
       </p>
@@ -250,6 +250,46 @@
           </li>
         {% endfor %}
       </ul>
+    </section>
+  {% endif %}
+
+  {% if background %}
+    <div class="sheet-divider" role="separator"></div>
+    <section class="class-features background-section">
+      <div class="section-head">
+        <h2>{{ info('background', 'Background') }}: {{ background['name'] }}</h2>
+      </div>
+      {% if background['description'] %}<p class="muted class-blurb">{{ background['description'] }}</p>{% endif %}
+      <div class="prof-rows">
+        <div class="prof-row">
+          <span class="prof-key">Skills</span>
+          <span class="prof-vals">{% for slug in background['skills'] %}{% set sn = skills | selectattr('slug','equalto',slug) | first %}<span class="prof-chip">{{ sn.name if sn else slug }}</span>{% endfor %}</span>
+        </div>
+        {% if background['tools'] %}
+          <div class="prof-row">
+            <span class="prof-key">Tools</span>
+            <span class="prof-vals">{% for t in background['tools'] %}<span class="prof-chip">{{ t }}</span>{% endfor %}</span>
+          </div>
+        {% endif %}
+        {% if background['languages'] %}
+          <div class="prof-row">
+            <span class="prof-key">Languages</span>
+            <span class="prof-vals"><span class="prof-chip">{{ background['languages'] }} of your choice</span></span>
+          </div>
+        {% endif %}
+      </div>
+      {% if background['feature'] %}
+        <ul class="feature-list" style="margin-top:0.6rem">
+          <li class="feature">
+            <span class="feature-lvl" title="Background feature">✦</span>
+            <div class="feature-body">
+              <span class="feature-name">{{ background['feature']['name'] }}</span>
+              <span class="feature-desc">{{ background['feature']['description'] }}</span>
+            </div>
+          </li>
+        </ul>
+      {% endif %}
+      {% if is_dm %}<p class="muted check-hint">A background grants its two skills (assign them on the <a href="{{ url_for('character_edit', creature_id=creature['id']) }}">edit page</a>) — they're guidance here, not auto-applied.</p>{% endif %}
     </section>
   {% endif %}
 

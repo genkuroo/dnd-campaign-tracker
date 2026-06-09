@@ -14,7 +14,7 @@ import sqlite3
 # real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
 DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
-SCHEMA_VERSION = 38
+SCHEMA_VERSION = 39
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -447,6 +447,12 @@ MIGRATIONS = {
     -- only — the sheet shows the level and what each step would mean, but the app
     -- never auto-applies the penalties or kills a character at level 6.
     ALTER TABLE creatures ADD COLUMN exhaustion INTEGER NOT NULL DEFAULT 0;
+    """,
+    39: """
+    -- Background slug (Acolyte, Criminal, Sage…), validated against
+    -- data/backgrounds.json. The third character pillar beside race + class; grants
+    -- skills/tools/languages + a roleplay feature (display + guidance, not enforced).
+    ALTER TABLE creatures ADD COLUMN background TEXT NOT NULL DEFAULT '';
     """,
 }
 

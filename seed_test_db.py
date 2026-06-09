@@ -54,7 +54,7 @@ set_signup_code("DRAGON")  # players could self-register at /register with this
 gandalf = make_pc("Gandalf", "wizard", player="alice", xp=6500, avatar="🧙")
 update_creature(gandalf, {"intelligence": 16, "dexterity": 14, "level": 5,
                           "alignment": "NG", "subclass": "evocation",
-                          "race": "elf", "subrace": "high-elf"})
+                          "race": "elf", "subrace": "high-elf", "background": "sage"})
 set_skill_proficiencies(gandalf, ["arcana", "history", "investigation", "insight"])
 for slug in ("fire-bolt", "magic-missile", "shield", "burning-hands", "fireball"):
     add_spell(gandalf, slug)
@@ -66,7 +66,7 @@ grog = make_pc("Grog", "barbarian", player="bob", xp=6500, avatar="🪓")
 update_creature(grog, {"strength": 17, "constitution": 16, "level": 5,
                        "alignment": "CN", "subclass": "berserker",
                        "race": "dwarf", "subrace": "mountain-dwarf",
-                       "exhaustion": 1})  # a Berserker's Frenzy leaves him exhausted
+                       "exhaustion": 1, "background": "soldier"})  # a Berserker's Frenzy leaves him exhausted
 set_skill_proficiencies(grog, ["athletics", "intimidation", "survival"])
 # Rage now comes from the class auto-grant; this is a hand-added extra to show
 # class-granted and manual actions side by side.
@@ -75,7 +75,7 @@ add_action(grog, "Reckless Attack", "Advantage on melee attacks this turn; attac
 
 # Cleric — full caster with healing + a save-DC spell.
 pike = make_pc("Pike", "cleric", player="carol", xp=2700, avatar="🛡️")
-update_creature(pike, {"wisdom": 16, "level": 4, "alignment": "LG", "subclass": "life", "race": "human"})
+update_creature(pike, {"wisdom": 16, "level": 4, "alignment": "LG", "subclass": "life", "race": "human", "background": "acolyte"})
 set_skill_proficiencies(pike, ["medicine", "religion", "persuasion"])
 for slug in ("cure-wounds", "healing-word", "thunderwave", "bless", "hold-person"):
     add_spell(pike, slug)
@@ -85,7 +85,7 @@ set_concentration(pike, "Bless")  # show the concentration banner on load
 # Rogue — no spells; skill-monkey; equips a dagger.
 vex = make_pc("Vex", "rogue", player=None, xp=900, avatar="🗡️")
 update_creature(vex, {"dexterity": 16, "level": 3, "alignment": "CG", "subclass": "thief",
-                      "race": "halfling", "subrace": "lightfoot"})
+                      "race": "halfling", "subrace": "lightfoot", "background": "criminal"})
 set_skill_proficiencies(vex, ["stealth", "acrobatics", "sleight-of-hand",
                               "perception", "deception"],
                         expertise_slugs=["stealth", "sleight-of-hand"])  # Rogue expertise

@@ -88,7 +88,7 @@ _TEXT_FIELDS = [
     "name", "kind", "player_name", "disposition", "alignment",
     "resistances", "immunities", "vulnerabilities", "notes", "visibility",
     "avatar", "location", "unarmored_defense", "class_name", "subclass",
-    "race", "subrace",
+    "race", "subrace", "background",
 ]
 
 

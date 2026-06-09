@@ -82,6 +82,7 @@ from models.races import (all_races, race_label, race_traits, race_speed,
 from models.weapons import pack_weapon, weapon_attacks
 from models.movement import effective_speed, speed_breakdown
 from models.exhaustion import exhaustion_effects, set_exhaustion, MAX_EXHAUSTION
+from models.backgrounds import all_backgrounds, get_background, valid_background
 from models.items import all_item_defs, get_item_def
 from models.loot import (
     add_loot,
@@ -476,7 +477,8 @@ def _form_vocab():
     return {"abilities": ABILITIES, "kinds": KINDS,
             "dispositions": DISPOSITIONS, "alignments": ALIGNMENTS,
             "unarmored_defenses": UNARMORED_DEFENSE, "classes": all_classes(),
-            "races": all_races(), "skill_options": SKILL_OPTIONS}
+            "races": all_races(), "backgrounds": all_backgrounds(),
+            "skill_options": SKILL_OPTIONS}
 
 
 def _apply_class(creature_id, class_slug, starting_kit=False):
@@ -789,6 +791,7 @@ def character_detail(creature_id):
         race_traits=race_traits(creature),
         race_speed=race_speed(creature),
         race_size=race_size(creature),
+        background=get_background(creature["background"]),
         speed=effective_speed(creature),
         speed_breakdown=speed_breakdown(creature),
         exhaustion=creature["exhaustion"],
@@ -1415,6 +1418,9 @@ def _form_to_data(form):
     # Same for subrace vs the chosen race.
     if not valid_subrace(data.get("race"), data.get("subrace")):
         data["subrace"] = ""
+    # Background must be a known slug, else cleared.
+    if data.get("background") and not valid_background(data.get("background")):
+        data["background"] = ""
     return data
 
 

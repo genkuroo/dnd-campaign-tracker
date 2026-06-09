@@ -1,0 +1,120 @@
+[
+  {
+    "slug": "acolyte",
+    "name": "Acolyte",
+    "source": "SRD 5.1 (CC-BY-4.0)",
+    "description": "You spent your life in service to a temple, mediating between the divine and the mortal.",
+    "skills": ["insight", "religion"],
+    "tools": [],
+    "languages": 2,
+    "feature": {"name": "Shelter of the Faithful", "description": "You and your companions can receive free healing and care at temples of your faith, and you can call on the support of fellow believers."}
+  },
+  {
+    "slug": "charlatan",
+    "name": "Charlatan",
+    "description": "You have a way with people and a talent for telling them what they want to hear.",
+    "skills": ["deception", "sleight-of-hand"],
+    "tools": ["Disguise kit", "Forgery kit"],
+    "languages": 0,
+    "feature": {"name": "False Identity", "description": "You have a second persona with documents and contacts, and you can forge believable papers."}
+  },
+  {
+    "slug": "criminal",
+    "name": "Criminal",
+    "description": "You are an experienced lawbreaker with ties to a criminal underworld.",
+    "skills": ["deception", "stealth"],
+    "tools": ["Thieves' tools", "Gaming set"],
+    "languages": 0,
+    "feature": {"name": "Criminal Contact", "description": "You have a reliable contact who acts as your liaison to a network of other criminals."}
+  },
+  {
+    "slug": "entertainer",
+    "name": "Entertainer",
+    "description": "You thrive in front of an audience, knowing how to entrance and inspire them.",
+    "skills": ["acrobatics", "performance"],
+    "tools": ["Disguise kit", "Musical instrument"],
+    "languages": 0,
+    "feature": {"name": "By Popular Demand", "description": "You can always find a place to perform for food and lodging, and locals tend to recognize and favor you."}
+  },
+  {
+    "slug": "folk-hero",
+    "name": "Folk Hero",
+    "description": "You come from humble origins but are destined for much more — the common folk see you as their champion.",
+    "skills": ["animal-handling", "survival"],
+    "tools": ["Artisan's tools", "Vehicles (land)"],
+    "languages": 0,
+    "feature": {"name": "Rustic Hospitality", "description": "Common folk will shelter and hide you (short of risking their lives), since you're one of them."}
+  },
+  {
+    "slug": "guild-artisan",
+    "name": "Guild Artisan",
+    "description": "You are a member of an artisan's guild, skilled in a particular craft and tied to other crafters.",
+    "skills": ["insight", "persuasion"],
+    "tools": ["Artisan's tools"],
+    "languages": 1,
+    "feature": {"name": "Guild Membership", "description": "Your guild offers lodging, support, and connections in exchange for dues; fellow guild members will assist you."}
+  },
+  {
+    "slug": "hermit",
+    "name": "Hermit",
+    "description": "You lived in seclusion, seeking enlightenment, isolation, or a hidden truth.",
+    "skills": ["medicine", "religion"],
+    "tools": ["Herbalism kit"],
+    "languages": 1,
+    "feature": {"name": "Discovery", "description": "Your seclusion gave you a unique and powerful insight — a great secret about the cosmos, a person, or an organization."}
+  },
+  {
+    "slug": "noble",
+    "name": "Noble",
+    "description": "You were born into wealth, power, and privilege, and people treat you accordingly.",
+    "skills": ["history", "persuasion"],
+    "tools": ["Gaming set"],
+    "languages": 1,
+    "feature": {"name": "Position of Privilege", "description": "People assume you have the right to be wherever you are; you're welcomed in high society and can secure audiences with the powerful."}
+  },
+  {
+    "slug": "outlander",
+    "name": "Outlander",
+    "description": "You grew up in the wilds, far from civilization and its comforts.",
+    "skills": ["athletics", "survival"],
+    "tools": ["Musical instrument"],
+    "languages": 1,
+    "feature": {"name": "Wanderer", "description": "You have an excellent memory for terrain and can always find food and fresh water for yourself and up to five others in the wild."}
+  },
+  {
+    "slug": "sage",
+    "name": "Sage",
+    "description": "You spent years learning the lore of the multiverse, poring over books and scrolls.",
+    "skills": ["arcana", "history"],
+    "tools": [],
+    "languages": 2,
+    "feature": {"name": "Researcher", "description": "When you don't know something, you often know where and from whom you can learn it."}
+  },
+  {
+    "slug": "sailor",
+    "name": "Sailor",
+    "description": "You sailed on a seagoing vessel for years, weathering storms and brushes with sea monsters.",
+    "skills": ["athletics", "perception"],
+    "tools": ["Navigator's tools", "Vehicles (water)"],
+    "languages": 0,
+    "feature": {"name": "Ship's Passage", "description": "You can secure free passage on a sailing ship for yourself and your companions, working off the cost as crew."}
+  },
+  {
+    "slug": "soldier",
+    "name": "Soldier",
+    "description": "War has been your life — you trained, fought, and bled as part of an army.",
+    "skills": ["athletics", "intimidation"],
+    "tools": ["Gaming set", "Vehicles (land)"],
+    "languages": 0,
+    "feature": {"name": "Military Rank", "description": "Soldiers loyal to your former organization still recognize your authority; you can invoke your rank for access and influence."}
+  },
+  {
+    "slug": "urchin",
+    "name": "Urchin",
+    "description": "You grew up on the streets, alone and orphaned, learning to survive by your wits.",
+    "skills": ["sleight-of-hand", "stealth"],
+    "tools": ["Disguise kit", "Thieves' tools"],
+    "languages": 0,
+    "feature": {"name": "City Secrets", "description": "You know the secret patterns and flow of cities and can find passages through the urban sprawl twice as fast as others."}
+  }
+]
