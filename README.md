@@ -4,7 +4,7 @@ A web app for running a Dungeons & Dragons 5e campaign. The **Dungeon Master** m
 the whole world; **players** log in to track their own characters and look up how their
 spells and abilities work — handy for a table that's new to D&D.
 
-> Status: **Phases 0–7 complete; Phase 8 (hosting) in progress.** Creature engine + character sheets (PCs/NPCs/monsters, classes/subclasses/races/backgrounds, leveling, ASI/feats, inventory + magic items, weapon attacks), a dice roller, SRD spells + spellcasting, a combat tracker, accounts with DM/player roles and server-side fog-of-war, and now a Fly.io deploy setup (see below). See [CLAUDE.md](./CLAUDE.md) for the full architecture and phased plan.
+> Status: **Phases 0–8 complete** — live on Fly.io with multiple campaigns ("saves"). Creature engine + character sheets (PCs/NPCs/monsters, classes/subclasses/races/backgrounds, leveling, ASI/feats, inventory + magic items, weapon attacks), a dice roller, SRD spells + spellcasting, a combat tracker, accounts with DM/player roles and server-side fog-of-war, and now a Fly.io deploy setup (see below). See [CLAUDE.md](./CLAUDE.md) for the full architecture and phased plan.
 
 ## Running
 
