@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head"><h1>{{ title }}</h1></div>
+
+  <form method="post" class="entity-form"
+        action="{{ url_for('journal_folder_edit', folder_id=folder['id']) if folder else url_for('journal_folder_new') }}">
+    <fieldset>
+      <label class="field grow">
+        <span>Title</span>
+        <input type="text" name="title" value="{{ folder['title'] if folder else '' }}"
+               placeholder="The Goblin Cave Arc" required autofocus>
+      </label>
+      <label class="field grow">
+        <span>Description <span class="muted">(optional)</span></span>
+        <textarea name="description" rows="4" placeholder="What this folder is about…">{{ folder['description'] if folder else '' }}</textarea>
+      </label>
+    </fieldset>
+    <div class="form-actions">
+      <button type="submit" class="btn">{{ 'Save' if folder else 'Create folder' }}</button>
+      <a class="btn-ghost" href="{{ url_for('journal_folder', folder_id=folder['id']) if folder else url_for('journal') }}">Cancel</a>
+    </div>
+  </form>
+{% endblock %}

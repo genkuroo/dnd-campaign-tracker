@@ -183,6 +183,19 @@ from models.factions import (
     update_faction,
     visible_factions,
 )
+from models.journal import (
+    create_folder,
+    create_note,
+    delete_folder,
+    delete_note,
+    get_folder,
+    get_note,
+    list_folders,
+    notes_in_folder,
+    set_note_visibility,
+    update_folder,
+    update_note,
+)
 from models.user import (
     create_user,
     delete_user,
@@ -274,7 +287,7 @@ TABS = [
     {"endpoint": "spells", "label": "Spells & Actions"},
     {"endpoint": "dice", "label": "Dice"},
     {"endpoint": "map", "label": "Map"},
-    {"endpoint": "blog", "label": "Campaign Blog"},
+    {"endpoint": "journal", "label": "Journal"},
 ]
 # NPCs, Locations, and Factions are the "Known Entities" — they live in the left
 # sidebar (inject_sidebar) rather than the top tab row.
@@ -426,6 +439,47 @@ def can_view_entity(entity):
     if is_dm():
         return True
     return entity is not None and entity["visibility"] == "visible"
+
+
+# --- Journal permissions (Phase 9b) ----------------------------------------
+
+def _my_user_id():
+    u = current_user()
+    return u["id"] if u else None
+
+
+def can_view_note(note):
+    """A note is visible to its owner, the DM (omniscient), and — when 'shared' —
+    the whole party."""
+    if note is None:
+        return False
+    if is_dm() or note["owner_id"] == _my_user_id():
+        return True
+    return note["visibility"] == "shared"
+
+
+def can_edit_note(note):
+    """Only the note's author (or the DM) may edit/share/delete it."""
+    return note is not None and (is_dm() or note["owner_id"] == _my_user_id())
+
+
+def can_edit_folder(folder):
+    """Only a folder's owner (or the DM) may rename/delete it or add notes to it."""
+    return folder is not None and (is_dm() or folder["owner_id"] == _my_user_id())
+
+
+def can_view_folder(folder):
+    """A folder shows to its owner, the DM, or anyone who can see a note inside it."""
+    if folder is None:
+        return False
+    if can_edit_folder(folder):
+        return True
+    return any(can_view_note(n) for n in notes_in_folder(folder["id"]))
+
+
+def _visible_notes(folder_id):
+    """Notes in a folder the current viewer may see, newest-relevant order kept."""
+    return [n for n in notes_in_folder(folder_id) if can_view_note(n)]
 
 
 def visible_roster():
@@ -2576,9 +2630,136 @@ def map():
     return render_template("map.html", active="map", title="Map")
 
 
-@app.route("/blog")
-def blog():
-    return render_template("blog.html", active="blog", title="Campaign Blog")
+# --- Campaign journal (Phase 9b) -------------------------------------------
+
+def _require_folder(folder_id, *, edit=False):
+    """Fetch a folder, 404 if the viewer can't see it, 403 if edit needed and
+    they're not the owner/DM. Returns the folder row."""
+    folder = get_folder(folder_id)
+    if not can_view_folder(folder):
+        abort(404)
+    if edit and not can_edit_folder(folder):
+        abort(403)
+    return folder
+
+
+def _require_note(note_id, *, edit=False):
+    note = get_note(note_id)
+    if not can_view_note(note):
+        abort(404)
+    if edit and not can_edit_note(note):
+        abort(403)
+    return note
+
+
+@app.route("/journal")
+def journal():
+    """The campaign journal home: folders split into the viewer's own and those
+    shared by the rest of the party (the DM sees everyone's)."""
+    folders = [f for f in list_folders() if can_view_folder(f)]
+    me = _my_user_id()
+    mine = [f for f in folders if f["owner_id"] == me]
+    others = [f for f in folders if f["owner_id"] != me]
+    # Show each folder's count *as the viewer sees it* (not the raw total).
+    counts = {f["id"]: len(_visible_notes(f["id"])) for f in folders}
+    return render_template(
+        "journal.html", active="journal", title="Journal",
+        mine=mine, others=others, counts=counts,
+    )
+
+
+@app.route("/journal/folder/new", methods=["GET", "POST"])
+def journal_folder_new():
+    if request.method == "POST":
+        new_id = create_folder(_my_user_id(), request.form.get("title"),
+                               request.form.get("description"))
+        flash("Folder created." if new_id else "A folder needs a title.")
+        return redirect(url_for("journal_folder", folder_id=new_id) if new_id
+                        else url_for("journal_folder_new"))
+    return render_template("journal_folder_form.html", active="journal",
+                           title="New Folder", folder=None)
+
+
+@app.route("/journal/folder/<int:folder_id>")
+def journal_folder(folder_id):
+    folder = _require_folder(folder_id)
+    return render_template(
+        "journal_folder.html", active="journal", title=folder["title"],
+        folder=folder, notes=_visible_notes(folder_id),
+        can_edit=can_edit_folder(folder),
+    )
+
+
+@app.route("/journal/folder/<int:folder_id>/edit", methods=["GET", "POST"])
+def journal_folder_edit(folder_id):
+    folder = _require_folder(folder_id, edit=True)
+    if request.method == "POST":
+        update_folder(folder_id, request.form.get("title"),
+                      request.form.get("description"))
+        flash("Folder updated.")
+        return redirect(url_for("journal_folder", folder_id=folder_id))
+    return render_template("journal_folder_form.html", active="journal",
+                           title="Edit Folder", folder=folder)
+
+
+@app.route("/journal/folder/<int:folder_id>/delete", methods=["POST"])
+def journal_folder_delete(folder_id):
+    _require_folder(folder_id, edit=True)
+    delete_folder(folder_id)
+    flash("Folder deleted.")
+    return redirect(url_for("journal"))
+
+
+@app.route("/journal/folder/<int:folder_id>/note/new", methods=["GET", "POST"])
+def journal_note_new(folder_id):
+    folder = _require_folder(folder_id, edit=True)
+    if request.method == "POST":
+        new_id = create_note(folder_id, _my_user_id(), request.form.get("title"),
+                             request.form.get("body"),
+                             request.form.get("visibility", "private"))
+        flash("Note saved." if new_id else "A note needs a title.")
+        return redirect(url_for("journal_note", note_id=new_id) if new_id
+                        else url_for("journal_note_new", folder_id=folder_id))
+    return render_template("journal_note_form.html", active="journal",
+                           title="New Note", folder=folder, note=None)
+
+
+@app.route("/journal/note/<int:note_id>")
+def journal_note(note_id):
+    note = _require_note(note_id)
+    return render_template(
+        "journal_note.html", active="journal", title=note["title"],
+        note=note, can_edit=can_edit_note(note),
+    )
+
+
+@app.route("/journal/note/<int:note_id>/edit", methods=["GET", "POST"])
+def journal_note_edit(note_id):
+    note = _require_note(note_id, edit=True)
+    if request.method == "POST":
+        update_note(note_id, request.form.get("title"), request.form.get("body"),
+                    request.form.get("visibility"))
+        flash("Note updated.")
+        return redirect(url_for("journal_note", note_id=note_id))
+    return render_template("journal_note_form.html", active="journal",
+                           title="Edit Note", folder=get_folder(note["folder_id"]),
+                           note=note)
+
+
+@app.route("/journal/note/<int:note_id>/visibility", methods=["POST"])
+def journal_note_visibility(note_id):
+    _require_note(note_id, edit=True)
+    set_note_visibility(note_id, request.form.get("visibility"))
+    return redirect(_safe_next_or(url_for("journal_note", note_id=note_id)))
+
+
+@app.route("/journal/note/<int:note_id>/delete", methods=["POST"])
+def journal_note_delete(note_id):
+    note = _require_note(note_id, edit=True)
+    folder_id = note["folder_id"]
+    delete_note(note_id)
+    flash("Note deleted.")
+    return redirect(url_for("journal_folder", folder_id=folder_id))
 
 
 # --- Friendly error pages (no more bare white screens on 403/404) ----------

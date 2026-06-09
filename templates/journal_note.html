@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head">
+    <div>
+      <p class="muted breadcrumb">
+        <a href="{{ url_for('journal') }}">Journal</a>
+        › <a href="{{ url_for('journal_folder', folder_id=note['folder_id']) }}">{{ note['folder_title'] }}</a>
+      </p>
+      <h1 class="sheet-name">📝 {{ note['title'] }}</h1>
+      <p class="sheet-sub muted">
+        {% if note['owner_name'] %}by {{ note['owner_name'] }} · {% endif %}{{ note['updated_at'] }}
+        {% if note['visibility'] == 'shared' %}<span class="vis-badge vis-shared">shared with party</span>
+        {% else %}<span class="vis-badge vis-private">private</span>{% endif %}
+      </p>
+    </div>
+    {% if can_edit %}
+      <div class="area-actions">
+        <form method="post" action="{{ url_for('journal_note_visibility', note_id=note['id']) }}" class="inline">
+          <input type="hidden" name="next" value="{{ request.path }}">
+          {% if note['visibility'] == 'shared' %}
+            <input type="hidden" name="visibility" value="private">
+            <button type="submit" class="btn-ghost" title="Make private again">🙈 Make private</button>
+          {% else %}
+            <input type="hidden" name="visibility" value="shared">
+            <button type="submit" class="btn" title="Share with the party">👁 Share with party</button>
+          {% endif %}
+        </form>
+        <a class="btn-ghost" href="{{ url_for('journal_note_edit', note_id=note['id']) }}">Edit</a>
+        <form method="post" action="{{ url_for('journal_note_delete', note_id=note['id']) }}" class="inline"
+              onsubmit="return confirm('Delete this note?');">
+          <button type="submit" class="btn-danger">Delete</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if note['body'] %}
+    <p class="prose">{{ note['body'] }}</p>
+  {% else %}
+    <p class="muted">(empty note)</p>
+  {% endif %}
+{% endblock %}

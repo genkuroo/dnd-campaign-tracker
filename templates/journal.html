@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head">
+    <h1>Journal</h1>
+    <a class="btn" href="{{ url_for('journal_folder_new') }}">+ New Folder</a>
+  </div>
+  <p class="muted">
+    Organize your campaign in folders (an adventure, a backstory, a session) and write notes inside.
+    Each note is <strong>private</strong> until you mark it <strong>shared</strong> with the party.
+  </p>
+
+  {% macro folder_grid(folders) %}
+    <div class="card-grid">
+      {% for f in folders %}
+        <a class="char-card" href="{{ url_for('journal_folder', folder_id=f['id']) }}">
+          <div class="char-card-head">
+            <span class="char-card-title"><span class="char-name">📓 {{ f['title'] }}</span></span>
+          </div>
+          <div class="char-meta">
+            <span class="muted">{{ counts[f['id']] }} note{{ 's' if counts[f['id']] != 1 else '' }}</span>
+            {% if f['owner_name'] %}<span class="muted">· {{ f['owner_name'] }}</span>{% endif %}
+          </div>
+          {% if f['description'] %}<div class="char-loc muted">{{ f['description'] | truncate(90) }}</div>{% endif %}
+        </a>
+      {% endfor %}
+    </div>
+  {% endmacro %}
+
+  <section class="sheet-section">
+    <h2>{{ 'My notes' if not is_dm else 'My DM notes' }}</h2>
+    {% if mine %}{{ folder_grid(mine) }}{% else %}
+      <p class="muted">No folders yet. Create one to start writing.</p>
+    {% endif %}
+  </section>
+
+  <section class="sheet-section">
+    <h2>{{ "Players' journals" if is_dm else 'Shared by the party' }}</h2>
+    {% if others %}{{ folder_grid(others) }}{% else %}
+      <p class="muted">{% if is_dm %}No player journals yet.{% else %}Nothing's been shared with the party yet.{% endif %}</p>
+    {% endif %}
+  </section>
+{% endblock %}

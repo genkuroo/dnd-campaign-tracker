@@ -34,7 +34,7 @@ LEGACY_DB_PATH = os.path.join(DATA_DIR, "campaign.db")
 # Unset in normal app runs, which then use the multi-campaign layout above.
 DB_PATH = os.environ.get("DND_DB_PATH")
 
-SCHEMA_VERSION = 45
+SCHEMA_VERSION = 46
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -545,6 +545,32 @@ MIGRATIONS = {
     -- orphans the pointer, resolved as "none" on read — mirrors meta.current_area_id).
     ALTER TABLE creatures ADD COLUMN location_id INTEGER NOT NULL DEFAULT 0;
     ALTER TABLE creatures ADD COLUMN faction_id  INTEGER NOT NULL DEFAULT 0;
+    """,
+    46: """
+    -- Phase 9b — the campaign journal: a two-level notes system (folders → notes)
+    -- with both a DM side and a player side. Every folder/note has an `owner_id`
+    -- (the user who wrote it); a note carries a private|shared visibility. A note
+    -- is visible to its owner, the DM (omniscient), and — when 'shared' — the whole
+    -- party. A folder surfaces to a viewer when they own it or it holds a note they
+    -- can see. ON DELETE CASCADE: deleting a user drops their journal; deleting a
+    -- folder drops its notes.
+    CREATE TABLE journal_folders (
+        id          INTEGER PRIMARY KEY,
+        owner_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        title       TEXT    NOT NULL,
+        description TEXT    NOT NULL DEFAULT '',
+        created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE TABLE journal_notes (
+        id          INTEGER PRIMARY KEY,
+        folder_id   INTEGER NOT NULL REFERENCES journal_folders(id) ON DELETE CASCADE,
+        owner_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        title       TEXT    NOT NULL,
+        body        TEXT    NOT NULL DEFAULT '',
+        visibility  TEXT    NOT NULL DEFAULT 'private',  -- 'private' | 'shared'
+        created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
+        updated_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
     """,
 }
 

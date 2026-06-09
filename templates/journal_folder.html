@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head">
+    <div>
+      <p class="muted breadcrumb"><a href="{{ url_for('journal') }}">Journal</a></p>
+      <h1 class="sheet-name">📓 {{ folder['title'] }}</h1>
+      {% if folder['owner_name'] %}<p class="sheet-sub muted">by {{ folder['owner_name'] }}</p>{% endif %}
+    </div>
+    {% if can_edit %}
+      <div class="area-actions">
+        <a class="btn" href="{{ url_for('journal_note_new', folder_id=folder['id']) }}">+ New Note</a>
+        <a class="btn-ghost" href="{{ url_for('journal_folder_edit', folder_id=folder['id']) }}">Edit folder</a>
+        <form method="post" action="{{ url_for('journal_folder_delete', folder_id=folder['id']) }}" class="inline"
+              onsubmit="return confirm('Delete this folder and all its notes? This cannot be undone.');">
+          <button type="submit" class="btn-danger">Delete</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if folder['description'] %}<p class="prose muted">{{ folder['description'] }}</p>{% endif %}
+
+  <section class="sheet-section">
+    {% if notes %}
+      <ul class="note-list">
+        {% for n in notes %}
+          <li>
+            <a class="note-row" href="{{ url_for('journal_note', note_id=n['id']) }}">
+              <span class="note-row-main">
+                <span class="note-row-title">📝 {{ n['title'] }}</span>
+                {% if n['body'] %}<span class="note-row-snip muted">{{ n['body'] | truncate(120) }}</span>{% endif %}
+              </span>
+              <span class="note-row-meta">
+                {% if n['visibility'] == 'shared' %}<span class="vis-badge vis-shared">shared</span>
+                {% else %}<span class="vis-badge vis-private">private</span>{% endif %}
+                {% if n['owner_name'] %}<span class="muted">{{ n['owner_name'] }}</span>{% endif %}
+              </span>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No notes in this folder yet.{% if can_edit %} Add the first one.{% endif %}</p>
+    {% endif %}
+  </section>
+{% endblock %}
