@@ -79,3 +79,34 @@
     <span class="avatar-emoji {{ cls }}">{{ av or ('👤' if creature['kind'] == 'npc' else ('🐉' if creature['kind'] == 'monster' else '🧝')) }}</span>
   {%- endif -%}
 {%- endmacro %}
+
+{# Journal mentions: render a note's tagged entities as link chips. `links` is a
+   list of {icon, name, url} dicts (already viewer-filtered in the app). #}
+{% macro mention_chips(links) -%}
+  {%- if links %}
+  <div class="mention-chips">
+    {% for m in links %}
+      <a class="mention-chip" href="{{ m.url }}"><span class="mention-ico">{{ m.icon }}</span>{{ m.name }}</a>
+    {% endfor %}
+  </div>
+  {%- endif %}
+{%- endmacro %}
+
+{# The "Mentioned in" back-reference for an entity page: journal notes that tag
+   this entity (already filtered to what the viewer may read). #}
+{% macro mentioned_in_section(notes) -%}
+  {%- if notes %}
+  <section class="sheet-section mentioned-in">
+    <h2>Mentioned in</h2>
+    <ul class="mentioned-list">
+      {% for n in notes %}
+        <li>
+          <a href="{{ url_for('journal_note', note_id=n['id']) }}">📝 {{ n['title'] }}</a>
+          {% if n['visibility'] == 'shared' %}<span class="vis-badge vis-shared">shared</span>{% else %}<span class="vis-badge vis-private">private</span>{% endif %}
+          {% if n['owner_name'] %}<span class="muted">{{ n['owner_name'] }}</span>{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {%- endif %}
+{%- endmacro %}

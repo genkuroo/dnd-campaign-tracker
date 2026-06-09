@@ -34,7 +34,7 @@ LEGACY_DB_PATH = os.path.join(DATA_DIR, "campaign.db")
 # Unset in normal app runs, which then use the multi-campaign layout above.
 DB_PATH = os.environ.get("DND_DB_PATH")
 
-SCHEMA_VERSION = 46
+SCHEMA_VERSION = 47
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -571,6 +571,21 @@ MIGRATIONS = {
         created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
         updated_at  TEXT    NOT NULL DEFAULT (datetime('now'))
     );
+    """,
+    47: """
+    -- Phase 9b mentions: a journal note can tag the world entities it features
+    -- (NPCs/PCs = creatures, locations, factions). Polymorphic by (entity_type,
+    -- entity_id) — no FK on entity_id since it spans three tables; a deleted
+    -- entity just orphans the row, skipped on read. ON DELETE CASCADE drops a
+    -- note's mentions with the note. The index serves the "Mentioned in" back-
+    -- reference query on an entity's page.
+    CREATE TABLE note_mentions (
+        note_id     INTEGER NOT NULL REFERENCES journal_notes(id) ON DELETE CASCADE,
+        entity_type TEXT    NOT NULL,   -- 'creature' | 'location' | 'faction'
+        entity_id   INTEGER NOT NULL,
+        PRIMARY KEY (note_id, entity_type, entity_id)
+    );
+    CREATE INDEX idx_note_mentions_entity ON note_mentions(entity_type, entity_id);
     """,
 }
 

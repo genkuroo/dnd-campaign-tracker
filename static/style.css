@@ -1750,3 +1750,26 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 }
 .vis-private { background: rgba(150,150,150,0.18); color: var(--muted); border: 1px solid var(--border); }
 .vis-shared { background: rgba(90,170,110,0.18); color: #8fcf9e; border: 1px solid rgba(90,170,110,0.4); }
+
+/* --- Journal entity mentions (Phase 9b) ---------------------------------- */
+.mention-picker { display: flex; flex-wrap: wrap; gap: 1rem; }
+.mention-group {
+  flex: 1 1 12rem; min-width: 11rem; border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.6rem 0.75rem; max-height: 14rem; overflow-y: auto;
+}
+.mention-group-label {
+  display: block; font-family: sans-serif; font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+.mention-opt { display: flex; align-items: center; gap: 0.45rem; padding: 0.15rem 0; font-size: 0.92rem; }
+.mention-opt input { width: auto; }
+.mention-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.mention-chip {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.25rem 0.65rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--panel); color: var(--ink); font-size: 0.9rem;
+}
+.mention-chip:hover { border-color: var(--accent-2); color: var(--accent-2); }
+.mentioned-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.35rem; }
+.mentioned-list li { display: flex; align-items: center; gap: 0.5rem; font-size: 0.92rem; }

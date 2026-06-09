@@ -191,3 +191,57 @@ def delete_note(note_id):
         conn.commit()
     finally:
         conn.close()
+
+
+# --- Mentions (note ↔ world entity links) ----------------------------------
+
+MENTION_TYPES = ("creature", "location", "faction")
+
+
+def set_mentions(note_id, mentions):
+    """Replace a note's mentions. `mentions` = iterable of (entity_type, entity_id)."""
+    conn = get_connection()
+    try:
+        conn.execute("DELETE FROM note_mentions WHERE note_id = ?", (note_id,))
+        for etype, eid in mentions:
+            if etype in MENTION_TYPES:
+                conn.execute(
+                    "INSERT OR IGNORE INTO note_mentions "
+                    "(note_id, entity_type, entity_id) VALUES (?, ?, ?)",
+                    (note_id, etype, int(eid)),
+                )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def mentions_for_note(note_id):
+    """The (entity_type, entity_id) rows a note mentions."""
+    conn = get_connection()
+    try:
+        return conn.execute(
+            "SELECT entity_type, entity_id FROM note_mentions WHERE note_id = ?",
+            (note_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+
+
+def notes_mentioning(entity_type, entity_id):
+    """Notes that mention a given entity (author name joined). App layer filters
+    by viewer (can_view_note)."""
+    conn = get_connection()
+    try:
+        return conn.execute(
+            """
+            SELECT n.*, u.username AS owner_name
+            FROM note_mentions m
+            JOIN journal_notes n ON n.id = m.note_id
+            LEFT JOIN users u ON u.id = n.owner_id
+            WHERE m.entity_type = ? AND m.entity_id = ?
+            ORDER BY n.updated_at DESC, n.id DESC
+            """,
+            (entity_type, entity_id),
+        ).fetchall()
+    finally:
+        conn.close()

@@ -25,6 +25,32 @@
         </div>
       </div>
     </fieldset>
+
+    {% set mc = mention_options.creatures %}
+    {% set ml = mention_options.locations %}
+    {% set mf = mention_options.factions %}
+    {% if mc or ml or mf %}
+      <fieldset>
+        <legend>Mentions <span class="muted">(tag the NPCs, places, and factions this note features)</span></legend>
+        <div class="mention-picker">
+          {% set groups = [('creature', 'NPCs & PCs', mc), ('location', 'Locations', ml), ('faction', 'Factions', mf)] %}
+          {% for etype, label, items in groups %}
+            {% if items %}
+              <div class="mention-group">
+                <span class="mention-group-label">{{ label }}</span>
+                {% for it in items %}
+                  <label class="mention-opt">
+                    <input type="checkbox" name="mention_{{ etype }}" value="{{ it['id'] }}"
+                           {{ 'checked' if (etype ~ ':' ~ it['id']) in selected_mentions else '' }}>
+                    <span>{{ it['name'] }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </fieldset>
+    {% endif %}
     <div class="form-actions">
       <button type="submit" class="btn">{{ 'Save' if note else 'Save note' }}</button>
       <a class="btn-ghost" href="{{ url_for('journal_note', note_id=note['id']) if note else url_for('journal_folder', folder_id=folder['id']) }}">Cancel</a>

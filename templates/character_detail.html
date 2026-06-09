@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import info %}
+{% from "macros.html" import info, mentioned_in_section %}
 {% block content %}
   <div class="page-head">
     <div>
@@ -497,6 +497,8 @@
       <p>{{ creature['notes'] }}</p>
     </section>
   {% endif %}
+
+  {{ mentioned_in_section(mentioned_in) }}
 
   <script>
     // Gear interactions (equip/unequip/quantity/remove + drag-to-equip) update

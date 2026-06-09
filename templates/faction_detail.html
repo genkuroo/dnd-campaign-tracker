@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import avatar %}
+{% from "macros.html" import avatar, mentioned_in_section %}
 {% block content %}
   <div class="page-head">
     <div>
@@ -58,4 +58,6 @@
       <p class="muted">{% if is_dm %}No members yet — set a creature's Faction on its edit page.{% else %}You haven't met any known members.{% endif %}</p>
     {% endif %}
   </section>
+
+  {{ mentioned_in_section(mentioned_in) }}
 {% endblock %}

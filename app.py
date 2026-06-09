@@ -191,7 +191,10 @@ from models.journal import (
     get_folder,
     get_note,
     list_folders,
+    mentions_for_note,
     notes_in_folder,
+    notes_mentioning,
+    set_mentions,
     set_note_visibility,
     update_folder,
     update_note,
@@ -480,6 +483,66 @@ def can_view_folder(folder):
 def _visible_notes(folder_id):
     """Notes in a folder the current viewer may see, newest-relevant order kept."""
     return [n for n in notes_in_folder(folder_id) if can_view_note(n)]
+
+
+# --- Journal ↔ entity mentions (Phase 9b) ----------------------------------
+
+def _mention_options():
+    """The entities the current viewer may tag in a note (the form picker) —
+    scoped to what they can see, so a player can't mention a hidden entity."""
+    return {
+        "creatures": visible_roster(),  # PCs + NPCs the viewer can see (DM: all)
+        "locations": list_locations() if is_dm() else visible_locations(),
+        "factions": list_factions() if is_dm() else visible_factions(),
+    }
+
+
+def _form_mentions(form):
+    """Pull (entity_type, entity_id) pairs from a submitted note form, keeping only
+    entities the author may actually see (defends against a crafted POST)."""
+    opts = _mention_options()
+    allowed = {
+        "creature": {c["id"] for c in opts["creatures"]},
+        "location": {l["id"] for l in opts["locations"]},
+        "faction": {f["id"] for f in opts["factions"]},
+    }
+    out = []
+    for etype in ("creature", "location", "faction"):
+        for raw in form.getlist("mention_" + etype):
+            if str(raw).strip().isdigit() and int(raw) in allowed[etype]:
+                out.append((etype, int(raw)))
+    return out
+
+
+def _note_mention_links(note_id):
+    """Resolve a note's mentions to link dicts, filtered to what the *viewer* may
+    see (so a DM-shared note can't leak a hidden NPC to a player)."""
+    links = []
+    for m in mentions_for_note(note_id):
+        etype, eid = m["entity_type"], m["entity_id"]
+        if etype == "creature":
+            c = get_creature(eid)
+            if can_view_creature(c):
+                icon = "👹" if c["kind"] == "monster" else ("🧑" if c["kind"] == "npc" else "🛡")
+                links.append({"icon": icon, "name": c["name"],
+                              "url": url_for("character_detail", creature_id=eid)})
+        elif etype == "location":
+            loc = get_location(eid)
+            if can_view_entity(loc):
+                links.append({"icon": "📍", "name": loc["name"],
+                              "url": url_for("location_detail", location_id=eid)})
+        elif etype == "faction":
+            fac = get_faction(eid)
+            if can_view_entity(fac):
+                links.append({"icon": "🏛", "name": fac["name"],
+                              "url": url_for("faction_detail", faction_id=eid)})
+    return links
+
+
+def _mentioned_in(entity_type, entity_id):
+    """The journal notes that mention an entity, filtered to what the viewer may
+    read — the 'Mentioned in' back-reference for an entity's page."""
+    return [n for n in notes_mentioning(entity_type, entity_id) if can_view_note(n)]
 
 
 def visible_roster():
@@ -1040,6 +1103,7 @@ def character_detail(creature_id):
         # Fog of war: only surface the home/faction link if the viewer may see it.
         home=(lambda l: l if can_view_entity(l) else None)(get_location(creature["location_id"])),
         faction=(lambda f: f if can_view_entity(f) else None)(get_faction(creature["faction_id"])),
+        mentioned_in=_mentioned_in("creature", creature_id),
         creature=creature,
         spells=known,
         addable_spells=[s for s in all_spells() if s["slug"] not in known_slugs],
@@ -2515,6 +2579,7 @@ def location_detail(location_id):
         "location_detail.html", active="locations", title=loc["name"],
         loc=loc, parent=get_location(loc["parent_id"]),
         here=here, subs=subs, kind_label=location_kind_label,
+        mentioned_in=_mentioned_in("location", location_id),
     )
 
 
@@ -2581,6 +2646,7 @@ def faction_detail(faction_id):
     return render_template(
         "faction_detail.html", active="factions", title=fac["name"],
         fac=fac, members=members,
+        mentioned_in=_mentioned_in("faction", faction_id),
     )
 
 
@@ -2717,11 +2783,14 @@ def journal_note_new(folder_id):
         new_id = create_note(folder_id, _my_user_id(), request.form.get("title"),
                              request.form.get("body"),
                              request.form.get("visibility", "private"))
+        if new_id:
+            set_mentions(new_id, _form_mentions(request.form))
         flash("Note saved." if new_id else "A note needs a title.")
         return redirect(url_for("journal_note", note_id=new_id) if new_id
                         else url_for("journal_note_new", folder_id=folder_id))
     return render_template("journal_note_form.html", active="journal",
-                           title="New Note", folder=folder, note=None)
+                           title="New Note", folder=folder, note=None,
+                           mention_options=_mention_options(), selected_mentions=set())
 
 
 @app.route("/journal/note/<int:note_id>")
@@ -2730,6 +2799,7 @@ def journal_note(note_id):
     return render_template(
         "journal_note.html", active="journal", title=note["title"],
         note=note, can_edit=can_edit_note(note),
+        mentions=_note_mention_links(note_id),
     )
 
 
@@ -2739,11 +2809,16 @@ def journal_note_edit(note_id):
     if request.method == "POST":
         update_note(note_id, request.form.get("title"), request.form.get("body"),
                     request.form.get("visibility"))
+        set_mentions(note_id, _form_mentions(request.form))
         flash("Note updated.")
         return redirect(url_for("journal_note", note_id=note_id))
+    # Pre-select the note's current mentions in the picker ("type:id" keys).
+    selected = {"%s:%d" % (m["entity_type"], m["entity_id"])
+                for m in mentions_for_note(note_id)}
     return render_template("journal_note_form.html", active="journal",
                            title="Edit Note", folder=get_folder(note["folder_id"]),
-                           note=note)
+                           note=note, mention_options=_mention_options(),
+                           selected_mentions=selected)
 
 
 @app.route("/journal/note/<int:note_id>/visibility", methods=["POST"])

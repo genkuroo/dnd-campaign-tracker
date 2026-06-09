@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import mention_chips %}
 {% block content %}
   <div class="page-head">
     <div>
@@ -38,5 +39,12 @@
     <p class="prose">{{ note['body'] }}</p>
   {% else %}
     <p class="muted">(empty note)</p>
+  {% endif %}
+
+  {% if mentions %}
+    <section class="sheet-section">
+      <h2>Featuring</h2>
+      {{ mention_chips(mentions) }}
+    </section>
   {% endif %}
 {% endblock %}
