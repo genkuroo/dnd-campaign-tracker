@@ -1692,15 +1692,29 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 /* --- Known Entities sidebar nav (NPCs / locations / factions) ------------- */
 .entity-nav { display: flex; flex-direction: column; gap: 1rem; }
 .entity-group-head {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center; gap: 0.35rem;
   margin-bottom: 0.3rem;
 }
+.entity-toggle {
+  background: none; border: none; cursor: pointer; padding: 0;
+  color: var(--muted); font-size: 0.7rem; line-height: 1;
+  width: 1rem; text-align: center; transition: transform 0.12s ease;
+}
+.entity-toggle:hover { color: var(--accent-2); }
+.entity-group.collapsed .entity-toggle { transform: rotate(-90deg); }
+.entity-group.collapsed .entity-group-body { display: none; }
 .entity-group-link {
   font-family: sans-serif; font-size: 0.78rem; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted);
 }
 .entity-group-link:hover, .entity-group-link.active { color: var(--accent-2); }
+.entity-count {
+  font-family: sans-serif; font-size: 0.68rem; color: var(--muted);
+  background: var(--bg); border: 1px solid var(--border); border-radius: 999px;
+  padding: 0.02rem 0.4rem; line-height: 1.4;
+}
 .entity-add {
+  margin-left: auto;
   font-size: 1rem; line-height: 1; color: var(--muted); padding: 0 0.35rem;
   border: 1px solid var(--border); border-radius: 5px;
 }

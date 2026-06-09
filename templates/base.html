@@ -61,31 +61,36 @@
           ('Factions', 'factions', sidebar_factions, '🏛', 'New faction'),
         ] %}
         {% for label, endpoint, items, icon, add_label in groups %}
-          <div class="entity-group">
+          <div class="entity-group" data-group="{{ endpoint }}">
             <div class="entity-group-head">
+              <button type="button" class="entity-toggle" aria-expanded="true"
+                      title="Collapse / expand {{ label }}">▾</button>
               <a href="{{ url_for(endpoint) }}"
                  class="entity-group-link {{ 'active' if active == endpoint else '' }}">{{ label }}</a>
+              {% if items %}<span class="entity-count">{{ items | length }}</span>{% endif %}
               {% if is_dm %}
                 <a class="entity-add"
                    href="{{ url_for('character_new', kind='npc') if endpoint == 'npcs' else url_for(endpoint[:-1] + '_new') }}"
                    title="{{ add_label }}">+</a>
               {% endif %}
             </div>
-            {% if items %}
-              <ul class="entity-list">
-                {% for it in items %}
-                  <li>
-                    <a href="{{ url_for('character_detail', creature_id=it['id']) if endpoint == 'npcs'
-                              else url_for(endpoint[:-1] + '_detail', **{(endpoint[:-1] + '_id'): it['id']}) }}">
-                      <span class="ent-icon">{{ icon }}</span><span class="ent-name">{{ it['name'] }}</span>
-                      {% if is_dm and it['visibility'] == 'hidden' %}<span class="ent-hidden" title="Hidden from players">🙈</span>{% endif %}
-                    </a>
-                  </li>
-                {% endfor %}
-              </ul>
-            {% else %}
-              <p class="entity-empty">{{ 'None yet.' if is_dm else 'None discovered.' }}</p>
-            {% endif %}
+            <div class="entity-group-body">
+              {% if items %}
+                <ul class="entity-list">
+                  {% for it in items %}
+                    <li>
+                      <a href="{{ url_for('character_detail', creature_id=it['id']) if endpoint == 'npcs'
+                                else url_for(endpoint[:-1] + '_detail', **{(endpoint[:-1] + '_id'): it['id']}) }}">
+                        <span class="ent-icon">{{ icon }}</span><span class="ent-name">{{ it['name'] }}</span>
+                        {% if is_dm and it['visibility'] == 'hidden' %}<span class="ent-hidden" title="Hidden from players">🙈</span>{% endif %}
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <p class="entity-empty">{{ 'None yet.' if is_dm else 'None discovered.' }}</p>
+              {% endif %}
+            </div>
           </div>
         {% endfor %}
       </nav>
@@ -129,6 +134,37 @@
       document.body.appendChild(f);
       f.submit();
     });
+
+    // Collapsible "Known Entities" sidebar groups. Each group's collapsed state
+    // is remembered in localStorage (keyed by group name) so it survives the
+    // full-page navigation between tabs — collapse Factions once and it stays out
+    // of the way until you expand it again.
+    (function () {
+      var KEY = 'sidebar-collapsed';
+      var collapsed = {};
+      try { collapsed = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
+
+      function apply(group) {
+        var name = group.dataset.group;
+        var isCollapsed = !!collapsed[name];
+        group.classList.toggle('collapsed', isCollapsed);
+        var btn = group.querySelector('.entity-toggle');
+        if (btn) btn.setAttribute('aria-expanded', String(!isCollapsed));
+      }
+
+      document.querySelectorAll('.entity-group[data-group]').forEach(function (group) {
+        apply(group);
+        var btn = group.querySelector('.entity-toggle');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+          var name = group.dataset.group;
+          collapsed[name] = !collapsed[name];
+          if (!collapsed[name]) delete collapsed[name];
+          try { localStorage.setItem(KEY, JSON.stringify(collapsed)); } catch (e) {}
+          apply(group);
+        });
+      });
+    })();
   </script>
 </body>
 </html>
