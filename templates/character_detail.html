@@ -12,7 +12,9 @@
         <span class="badge-kind">{{ 'NPC' if creature['kind'] == 'npc' else 'PC' }}</span>
         {% if creature['kind'] == 'monster' %}CR {{ creature['cr'] | cr }}{% else %}Level {{ creature['level'] }}{% endif %}{% if race_label %} {{ race_label }}{% endif %}{% if klass %} {{ klass['name'] }}{% if subclass %} <span class="muted">({{ subclass['name'] }})</span>{% endif %}{% endif %}{% if background %} · {{ background['name'] }}{% endif %}{% if creature['player_name'] %} · played by {{ creature['player_name'] }}{% endif %}
         {% if creature['alignment'] %} · {{ creature['alignment'] | alignment }}{% endif %}
-        {% if creature['location'] %} · 📍 {{ creature['location'] }}{% endif %}
+        {% if home %} · 📍 <a href="{{ url_for('location_detail', location_id=home['id']) }}">{{ home['name'] }}</a>{% endif %}
+        {% if faction %} · 🏛 <a href="{{ url_for('faction_detail', faction_id=faction['id']) }}">{{ faction['name'] }}</a>{% endif %}
+        {% if creature['location'] %} · {{ creature['location'] }}{% endif %}
       </p>
 
       {% if creature['kind'] in ('npc', 'monster') %}

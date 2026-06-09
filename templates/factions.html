@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head">
+    <h1>Factions</h1>
+    {% if is_dm %}<a class="btn" href="{{ url_for('faction_new') }}">+ New Faction</a>{% endif %}
+  </div>
+  <p class="muted">
+    {% if is_dm %}Guilds, cults, houses, and kingdoms. New factions start hidden — reveal one once the party learns of it.{% else %}Organizations you've learned about. Open one to see what you know.{% endif %}
+  </p>
+
+  {% if factions %}
+    <div class="card-grid">
+      {% for fac in factions %}
+        <a class="char-card" href="{{ url_for('faction_detail', faction_id=fac['id']) }}">
+          <div class="char-card-head">
+            <span class="char-card-title"><span class="char-name">🏛 {{ fac['name'] }}</span></span>
+            {% if fac['visibility'] == 'hidden' %}<span class="badge-dm">Hidden</span>{% endif %}
+          </div>
+          <div class="char-meta">
+            <span class="disp disp-{{ fac['disposition'] }}">{{ fac['disposition'] }}</span>
+          </div>
+          {% if fac['description'] %}<div class="char-loc muted">{{ fac['description'] | truncate(90) }}</div>{% endif %}
+        </a>
+      {% endfor %}
+    </div>
+  {% elif is_dm %}
+    <p class="muted">No factions yet.</p>
+    <p class="placeholder-note">Define the guilds, cults, and noble houses pulling the strings…</p>
+  {% else %}
+    <p class="muted">You haven't learned of any factions yet.</p>
+    <p class="placeholder-note">Ones your DM reveals will show up here.</p>
+  {% endif %}
+{% endblock %}

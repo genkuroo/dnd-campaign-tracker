@@ -160,6 +160,29 @@ from models.campaigns import (
     switch_campaign,
 )
 from models.spells import all_spells, get_spell, level_label, search_spells
+from models.locations import (
+    LOCATION_KINDS,
+    children_of,
+    create_location,
+    creatures_at,
+    delete_location,
+    get_location,
+    kind_label as location_kind_label,
+    list_locations,
+    set_location_visibility,
+    update_location,
+    visible_locations,
+)
+from models.factions import (
+    create_faction,
+    delete_faction,
+    get_faction,
+    list_factions,
+    members_of,
+    set_faction_visibility,
+    update_faction,
+    visible_factions,
+)
 from models.user import (
     create_user,
     delete_user,
@@ -251,6 +274,8 @@ TABS = [
     {"endpoint": "loot", "label": "Loot"},
     {"endpoint": "spells", "label": "Spells & Actions"},
     {"endpoint": "dice", "label": "Dice"},
+    {"endpoint": "locations", "label": "Locations"},
+    {"endpoint": "factions", "label": "Factions"},
     {"endpoint": "map", "label": "Map"},
     {"endpoint": "blog", "label": "Campaign Blog"},
 ]
@@ -313,6 +338,10 @@ _DM_ONLY_ENDPOINTS = {
     "users_set_color", "users_delete",
     "campaigns", "campaign_switch", "campaign_new", "campaign_rename",
     "campaign_duplicate", "campaign_delete",
+    # World narrative layer (Phase 9a): list/detail views are shared (visibility-
+    # gated in the route); only authoring mutations are DM-only.
+    "location_new", "location_edit", "location_delete", "location_visibility",
+    "faction_new", "faction_edit", "faction_delete", "faction_visibility",
 }
 
 
@@ -371,6 +400,14 @@ def can_inspect_monster(creature):
         return True
     return (creature is not None and creature["kind"] == "monster"
             and creature["visibility"] == "visible")
+
+
+def can_view_entity(entity):
+    """Fog of war for the non-creature world entities (locations, factions): the
+    DM sees all, players see only the ones revealed (`visibility='visible'`)."""
+    if is_dm():
+        return True
+    return entity is not None and entity["visibility"] == "visible"
 
 
 def visible_roster():
@@ -530,7 +567,8 @@ def _form_vocab():
             "dispositions": DISPOSITIONS, "alignments": ALIGNMENTS,
             "unarmored_defenses": UNARMORED_DEFENSE, "classes": all_classes(),
             "races": all_races(), "backgrounds": all_backgrounds(),
-            "skill_options": SKILL_OPTIONS, "cr_choices": CR_CHOICES}
+            "skill_options": SKILL_OPTIONS, "cr_choices": CR_CHOICES,
+            "location_options": list_locations(), "faction_options": list_factions()}
 
 
 def _apply_class(creature_id, class_slug, starting_kit=False):
@@ -927,6 +965,9 @@ def character_detail(creature_id):
         ac_bonus=equipped_ac_bonus(creature_id),
         ac_breakdown=ac_breakdown(creature),
         dispositions=DISPOSITIONS,
+        # Fog of war: only surface the home/faction link if the viewer may see it.
+        home=(lambda l: l if can_view_entity(l) else None)(get_location(creature["location_id"])),
+        faction=(lambda f: f if can_view_entity(f) else None)(get_faction(creature["faction_id"])),
         creature=creature,
         spells=known,
         addable_spells=[s for s in all_spells() if s["slug"] not in known_slugs],
@@ -1558,7 +1599,20 @@ def _form_to_data(form):
     # Background must be a known slug, else cleared.
     if data.get("background") and not valid_background(data.get("background")):
         data["background"] = ""
+    # Location/faction links must point at a real row, else reset to 0 (none).
+    if data.get("location_id") and not get_location(_to_int(data.get("location_id"))):
+        data["location_id"] = "0"
+    if data.get("faction_id") and not get_faction(_to_int(data.get("faction_id"))):
+        data["faction_id"] = "0"
     return data
+
+
+def _to_int(value):
+    """Best-effort int from a form value (None/'' → 0)."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
 
 
 # --- Inventory (on the character sheet) -----------------------------------
@@ -2363,6 +2417,140 @@ def feats_remove(feat_id):
         request.form.get("next"),
         url_for("character_detail", creature_id=cid),
     ))
+
+
+# --- World narrative layer: Locations (Phase 9a) ---------------------------
+
+@app.route("/locations")
+def locations():
+    """The world's places. The DM manages all; players see the ones revealed to
+    them (visibility='visible'), mirroring the NPC fog of war."""
+    places = list_locations() if is_dm() else visible_locations()
+    return render_template(
+        "locations.html", active="locations", title="Locations",
+        locations=places, kind_label=location_kind_label,
+    )
+
+
+@app.route("/locations/<int:location_id>")
+def location_detail(location_id):
+    loc = get_location(location_id)
+    if not can_view_entity(loc):
+        abort(404)
+    here = [c for c in creatures_at(location_id) if can_view_creature(c)]
+    subs = [s for s in children_of(location_id) if can_view_entity(s)]
+    return render_template(
+        "location_detail.html", active="locations", title=loc["name"],
+        loc=loc, parent=get_location(loc["parent_id"]),
+        here=here, subs=subs, kind_label=location_kind_label,
+    )
+
+
+@app.route("/locations/new", methods=["GET", "POST"])
+def location_new():
+    if request.method == "POST":
+        new_id = create_location(request.form)
+        flash("Location created." if new_id else "A location needs a name.")
+        return redirect(url_for("location_detail", location_id=new_id) if new_id
+                        else url_for("location_new"))
+    return render_template(
+        "location_form.html", active="locations", title="New Location",
+        loc=None, kinds=LOCATION_KINDS, parents=list_locations(),
+    )
+
+
+@app.route("/locations/<int:location_id>/edit", methods=["GET", "POST"])
+def location_edit(location_id):
+    loc = get_location(location_id)
+    if loc is None:
+        abort(404)
+    if request.method == "POST":
+        update_location(location_id, request.form)
+        flash("Location updated.")
+        return redirect(url_for("location_detail", location_id=location_id))
+    return render_template(
+        "location_form.html", active="locations", title="Edit Location",
+        loc=loc, kinds=LOCATION_KINDS,
+        # A location can't be its own parent.
+        parents=[p for p in list_locations() if p["id"] != location_id],
+    )
+
+
+@app.route("/locations/<int:location_id>/visibility", methods=["POST"])
+def location_visibility(location_id):
+    set_location_visibility(location_id, request.form.get("visibility"))
+    return redirect(_safe_next_or(url_for("location_detail", location_id=location_id)))
+
+
+@app.route("/locations/<int:location_id>/delete", methods=["POST"])
+def location_delete(location_id):
+    delete_location(location_id)
+    flash("Location deleted.")
+    return redirect(url_for("locations"))
+
+
+# --- World narrative layer: Factions (Phase 9a) ----------------------------
+
+@app.route("/factions")
+def factions():
+    """The world's organizations. DM manages all; players see revealed ones."""
+    groups = list_factions() if is_dm() else visible_factions()
+    return render_template(
+        "factions.html", active="factions", title="Factions", factions=groups,
+    )
+
+
+@app.route("/factions/<int:faction_id>")
+def faction_detail(faction_id):
+    fac = get_faction(faction_id)
+    if not can_view_entity(fac):
+        abort(404)
+    members = [c for c in members_of(faction_id) if can_view_creature(c)]
+    return render_template(
+        "faction_detail.html", active="factions", title=fac["name"],
+        fac=fac, members=members,
+    )
+
+
+@app.route("/factions/new", methods=["GET", "POST"])
+def faction_new():
+    if request.method == "POST":
+        new_id = create_faction(request.form)
+        flash("Faction created." if new_id else "A faction needs a name.")
+        return redirect(url_for("faction_detail", faction_id=new_id) if new_id
+                        else url_for("faction_new"))
+    return render_template(
+        "faction_form.html", active="factions", title="New Faction",
+        fac=None, dispositions=DISPOSITIONS,
+    )
+
+
+@app.route("/factions/<int:faction_id>/edit", methods=["GET", "POST"])
+def faction_edit(faction_id):
+    fac = get_faction(faction_id)
+    if fac is None:
+        abort(404)
+    if request.method == "POST":
+        update_faction(faction_id, request.form)
+        flash("Faction updated.")
+        return redirect(url_for("faction_detail", faction_id=faction_id))
+    return render_template(
+        "faction_form.html", active="factions", title="Edit Faction",
+        fac=fac, dispositions=DISPOSITIONS,
+    )
+
+
+@app.route("/factions/<int:faction_id>/visibility", methods=["POST"])
+def faction_visibility(faction_id):
+    set_faction_visibility(faction_id, request.form.get("visibility"))
+    return redirect(_safe_next_or(url_for("faction_detail", faction_id=faction_id)))
+
+
+@app.route("/factions/<int:faction_id>/delete", methods=["POST"])
+def faction_delete(faction_id):
+    delete_faction(faction_id)
+    flash("Faction deleted.")
+    return redirect(url_for("factions"))
 
 
 @app.route("/map")

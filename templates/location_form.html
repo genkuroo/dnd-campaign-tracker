@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head"><h1>{{ title }}</h1></div>
+
+  <form method="post" class="entity-form"
+        action="{{ url_for('location_edit', location_id=loc['id']) if loc else url_for('location_new') }}">
+    <fieldset>
+      <div class="field-row">
+        <label class="field grow">
+          <span>Name</span>
+          <input type="text" name="name" value="{{ loc['name'] if loc else '' }}" required autofocus>
+        </label>
+        <label class="field">
+          <span>Kind</span>
+          <select name="kind">
+            {% for value, label in kinds %}
+              <option value="{{ value }}" {{ 'selected' if loc and loc['kind'] == value else '' }}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <label class="field">
+        <span>Within <span class="muted">(parent location, optional)</span></span>
+        <select name="parent_id">
+          <option value="0">— none —</option>
+          {% for p in parents %}
+            <option value="{{ p['id'] }}" {{ 'selected' if loc and loc['parent_id'] == p['id'] else '' }}>{{ p['name'] }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="field grow">
+        <span>Description</span>
+        <textarea name="description" rows="6" placeholder="What the party knows about this place…">{{ loc['description'] if loc else '' }}</textarea>
+      </label>
+      <div class="field">
+        <span>Visibility</span>
+        <div class="radio-row">
+          <label class="radio"><input type="radio" name="visibility" value="hidden"
+            {{ 'checked' if not loc or loc['visibility'] != 'visible' else '' }}> Hidden <span class="muted">(until discovered)</span></label>
+          <label class="radio"><input type="radio" name="visibility" value="visible"
+            {{ 'checked' if loc and loc['visibility'] == 'visible' else '' }}> Visible to players</label>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <button type="submit" class="btn">{{ 'Save' if loc else 'Create location' }}</button>
+      <a class="btn-ghost" href="{{ url_for('location_detail', location_id=loc['id']) if loc else url_for('locations') }}">Cancel</a>
+    </div>
+  </form>
+{% endblock %}

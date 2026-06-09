@@ -1677,3 +1677,14 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .assigned-to { font-family: sans-serif; font-size: 0.85rem; white-space: nowrap; }
 .user-manage { margin-left: auto; }
 .user-manage-body { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.5rem; align-items: center; }
+
+/* --- World narrative layer: locations & factions (Phase 9a) --------------- */
+.entity-form { max-width: 46rem; }
+.entity-form .radio-row { display: flex; gap: 1.25rem; flex-wrap: wrap; padding-top: 0.15rem; }
+.entity-form .radio { display: inline-flex; align-items: center; gap: 0.35rem; font-family: sans-serif; font-size: 0.9rem; }
+.entity-form .radio input { width: auto; }
+.breadcrumb { font-size: 0.85rem; margin: 0 0 0.25rem; }
+.breadcrumb a { color: var(--muted); }
+.sheet-section { margin: 1.5rem 0; }
+.sheet-section > h2 { font-size: 1rem; margin-bottom: 0.6rem; }
+.prose { white-space: pre-wrap; line-height: 1.55; max-width: 46rem; }

@@ -143,9 +143,27 @@
           {% endfor %}
         </select>
       </label>
+      <label class="field">
+        <span>Location <span class="muted">(home / where they belong)</span></span>
+        <select name="location_id">
+          <option value="0">— none —</option>
+          {% for loc in location_options %}
+            <option value="{{ loc['id'] }}" {{ 'selected' if c and c['location_id'] == loc['id'] else '' }}>{{ loc['name'] }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="field">
+        <span>Faction</span>
+        <select name="faction_id">
+          <option value="0">— none —</option>
+          {% for fac in faction_options %}
+            <option value="{{ fac['id'] }}" {{ 'selected' if c and c['faction_id'] == fac['id'] else '' }}>{{ fac['name'] }}</option>
+          {% endfor %}
+        </select>
+      </label>
       <label class="field grow">
-        <span>Location <span class="muted">(where they are / last seen)</span></span>
-        <input type="text" name="location" value="{{ c['location'] if c else '' }}" placeholder="The Prancing Pony, Bree">
+        <span>Whereabouts <span class="muted">(free note — last seen, etc.)</span></span>
+        <input type="text" name="location" value="{{ c['location'] if c else '' }}" placeholder="In the back room of the Prancing Pony">
       </label>
     </div>
 

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head"><h1>{{ title }}</h1></div>
+
+  <form method="post" class="entity-form"
+        action="{{ url_for('faction_edit', faction_id=fac['id']) if fac else url_for('faction_new') }}">
+    <fieldset>
+      <div class="field-row">
+        <label class="field grow">
+          <span>Name</span>
+          <input type="text" name="name" value="{{ fac['name'] if fac else '' }}" required autofocus>
+        </label>
+        <label class="field">
+          <span>Disposition <span class="muted">(toward the party)</span></span>
+          <select name="disposition">
+            {% for d in dispositions %}
+              <option value="{{ d }}" {{ 'selected' if (fac and fac['disposition'] == d) or (not fac and d == 'neutral') else '' }}>{{ d }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <label class="field grow">
+        <span>Description</span>
+        <textarea name="description" rows="6" placeholder="Goals, leaders, what the party knows…">{{ fac['description'] if fac else '' }}</textarea>
+      </label>
+      <div class="field">
+        <span>Visibility</span>
+        <div class="radio-row">
+          <label class="radio"><input type="radio" name="visibility" value="hidden"
+            {{ 'checked' if not fac or fac['visibility'] != 'visible' else '' }}> Hidden <span class="muted">(until discovered)</span></label>
+          <label class="radio"><input type="radio" name="visibility" value="visible"
+            {{ 'checked' if fac and fac['visibility'] == 'visible' else '' }}> Visible to players</label>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <button type="submit" class="btn">{{ 'Save' if fac else 'Create faction' }}</button>
+      <a class="btn-ghost" href="{{ url_for('faction_detail', faction_id=fac['id']) if fac else url_for('factions') }}">Cancel</a>
+    </div>
+  </form>
+{% endblock %}

@@ -34,7 +34,7 @@ LEGACY_DB_PATH = os.path.join(DATA_DIR, "campaign.db")
 # Unset in normal app runs, which then use the multi-campaign layout above.
 DB_PATH = os.environ.get("DND_DB_PATH")
 
-SCHEMA_VERSION = 44
+SCHEMA_VERSION = 45
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -513,6 +513,38 @@ MIGRATIONS = {
     -- the fractional CRs work. Drives the XP value (CR_XP table) that the encounter
     -- difficulty calculator sums. 0 for PCs/NPCs (only monsters use it).
     ALTER TABLE creatures ADD COLUMN cr REAL NOT NULL DEFAULT 0;
+    """,
+    45: """
+    -- Phase 9a — the world narrative layer's shared entities (CLAUDE.md "model
+    -- entities once, surface in many views"). NPCs are already creatures; this adds
+    -- the other two typed entities — locations and factions — both carrying the
+    -- same `visibility` fog-of-war spine as creatures ('hidden' until the party
+    -- discovers them, then the DM reveals = 'visible'). They default to **hidden**
+    -- (unlike NPCs, which default visible) since narrative places/groups are meant
+    -- to be uncovered. The sidebar, blog mentions, and (later) map markers all
+    -- point back at these rows rather than building parallel lists.
+    CREATE TABLE locations (
+        id          INTEGER PRIMARY KEY,
+        name        TEXT    NOT NULL,
+        kind        TEXT    NOT NULL DEFAULT 'place',    -- region|settlement|place|dungeon|landmark
+        parent_id   INTEGER REFERENCES locations(id) ON DELETE SET NULL,  -- nested (region > city > inn)
+        description TEXT    NOT NULL DEFAULT '',
+        visibility  TEXT    NOT NULL DEFAULT 'hidden',   -- 'visible' | 'hidden'
+        created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE TABLE factions (
+        id          INTEGER PRIMARY KEY,
+        name        TEXT    NOT NULL,
+        description TEXT    NOT NULL DEFAULT '',
+        disposition TEXT    NOT NULL DEFAULT 'neutral',  -- reuses the creature disposition spectrum
+        visibility  TEXT    NOT NULL DEFAULT 'hidden',
+        created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    -- A creature (NPC or PC) can belong to one location + one faction. 0 = unset
+    -- (kept as a plain int rather than a FK so a deleted location/faction just
+    -- orphans the pointer, resolved as "none" on read — mirrors meta.current_area_id).
+    ALTER TABLE creatures ADD COLUMN location_id INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE creatures ADD COLUMN faction_id  INTEGER NOT NULL DEFAULT 0;
     """,
 }
 

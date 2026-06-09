@@ -50,6 +50,7 @@ def alignment_label(code):
 _INT_FIELDS = [
     "level", "max_hp", "current_hp", "armor_class", "speed", "exhaustion",
     "xp", "gold", "silver", "copper", "stats_revealed", "inspiration",
+    "location_id", "faction_id",
     *[col for col, _ in ABILITIES],
 ]
 _FLOAT_FIELDS = ["cr"]   # Challenge Rating (fractional: 0.125 = CR 1/8)

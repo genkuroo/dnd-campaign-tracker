@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% from "macros.html" import avatar %}
+{% block content %}
+  <div class="page-head">
+    <div>
+      <p class="muted breadcrumb">
+        <a href="{{ url_for('locations') }}">Locations</a>
+        {% if parent %} › <a href="{{ url_for('location_detail', location_id=parent['id']) }}">{{ parent['name'] }}</a>{% endif %}
+      </p>
+      <h1 class="sheet-name">📍 {{ loc['name'] }}</h1>
+      <p class="sheet-sub muted">
+        {{ kind_label(loc['kind']) }}
+        {% if loc['visibility'] == 'hidden' %} · <span class="badge-dm">Hidden from players</span>{% endif %}
+      </p>
+    </div>
+    {% if is_dm %}
+      <div class="area-actions">
+        <form method="post" action="{{ url_for('location_visibility', location_id=loc['id']) }}" class="inline">
+          <input type="hidden" name="next" value="{{ request.path }}">
+          {% if loc['visibility'] == 'visible' %}
+            <input type="hidden" name="visibility" value="hidden">
+            <button type="submit" class="btn-ghost" title="Hide from players">🙈 Hide</button>
+          {% else %}
+            <input type="hidden" name="visibility" value="visible">
+            <button type="submit" class="btn" title="Reveal to players">👁 Reveal</button>
+          {% endif %}
+        </form>
+        <a class="btn-ghost" href="{{ url_for('location_edit', location_id=loc['id']) }}">Edit</a>
+        <form method="post" action="{{ url_for('location_delete', location_id=loc['id']) }}" class="inline"
+              onsubmit="return confirm('Delete this location? Sub-locations are kept (their parent is cleared).');">
+          <button type="submit" class="btn-danger">Delete</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if loc['description'] %}
+    <section class="sheet-section">
+      <p class="prose">{{ loc['description'] }}</p>
+    </section>
+  {% endif %}
+
+  {% if subs %}
+    <section class="sheet-section">
+      <h2>Within</h2>
+      <div class="card-grid">
+        {% for s in subs %}
+          <a class="char-card" href="{{ url_for('location_detail', location_id=s['id']) }}">
+            <div class="char-card-head">
+              <span class="char-card-title"><span class="char-name">📍 {{ s['name'] }}</span></span>
+              {% if s['visibility'] == 'hidden' %}<span class="badge-dm">Hidden</span>{% endif %}
+            </div>
+            <div class="char-meta"><span class="badge-kind">{{ kind_label(s['kind']) }}</span></div>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  <section class="sheet-section">
+    <h2>Who's here</h2>
+    {% if here %}
+      <div class="card-grid">
+        {% for c in here %}
+          <a class="char-card" href="{{ url_for('character_detail', creature_id=c['id']) }}">
+            <div class="char-card-head">
+              <span class="char-card-title">{{ avatar(c, 'avatar-sm') }}<span class="char-name">{{ c['name'] }}</span></span>
+              {% if c['visibility'] == 'hidden' %}<span class="badge-dm">Hidden</span>{% endif %}
+            </div>
+            <div class="char-meta">
+              <span class="badge-kind badge-kind-{{ c['kind'] }}">{{ c['kind'] | upper }}</span>
+              {% if c['disposition'] %}<span class="disp disp-{{ c['disposition'] }}">{{ c['disposition'] }}</span>{% endif %}
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="muted">{% if is_dm %}No NPCs are placed here yet — set a creature's Location on its edit page.{% else %}You haven't met anyone here.{% endif %}</p>
+    {% endif %}
+  </section>
+{% endblock %}

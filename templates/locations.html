@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head">
+    <h1>Locations</h1>
+    {% if is_dm %}<a class="btn" href="{{ url_for('location_new') }}">+ New Location</a>{% endif %}
+  </div>
+  <p class="muted">
+    {% if is_dm %}The places in your world. New locations start hidden — reveal one once the party discovers it.{% else %}Places you've discovered. Open one to see what you know.{% endif %}
+  </p>
+
+  {% if locations %}
+    <div class="card-grid">
+      {% for loc in locations %}
+        <a class="char-card" href="{{ url_for('location_detail', location_id=loc['id']) }}">
+          <div class="char-card-head">
+            <span class="char-card-title"><span class="char-name">📍 {{ loc['name'] }}</span></span>
+            {% if loc['visibility'] == 'hidden' %}<span class="badge-dm">Hidden</span>{% endif %}
+          </div>
+          <div class="char-meta">
+            <span class="badge-kind">{{ kind_label(loc['kind']) }}</span>
+          </div>
+          {% if loc['description'] %}<div class="char-loc muted">{{ loc['description'] | truncate(90) }}</div>{% endif %}
+        </a>
+      {% endfor %}
+    </div>
+  {% elif is_dm %}
+    <p class="muted">No locations yet.</p>
+    <p class="placeholder-note">Map out the towns, dungeons, and landmarks your party will explore…</p>
+  {% else %}
+    <p class="muted">You haven't discovered any locations yet.</p>
+    <p class="placeholder-note">Places your DM reveals will show up here.</p>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% from "macros.html" import avatar %}
+{% block content %}
+  <div class="page-head">
+    <div>
+      <p class="muted breadcrumb"><a href="{{ url_for('factions') }}">Factions</a></p>
+      <h1 class="sheet-name">🏛 {{ fac['name'] }}</h1>
+      <p class="sheet-sub muted">
+        <span class="disp disp-{{ fac['disposition'] }}">{{ fac['disposition'] }}</span> toward the party
+        {% if fac['visibility'] == 'hidden' %} · <span class="badge-dm">Hidden from players</span>{% endif %}
+      </p>
+    </div>
+    {% if is_dm %}
+      <div class="area-actions">
+        <form method="post" action="{{ url_for('faction_visibility', faction_id=fac['id']) }}" class="inline">
+          <input type="hidden" name="next" value="{{ request.path }}">
+          {% if fac['visibility'] == 'visible' %}
+            <input type="hidden" name="visibility" value="hidden">
+            <button type="submit" class="btn-ghost" title="Hide from players">🙈 Hide</button>
+          {% else %}
+            <input type="hidden" name="visibility" value="visible">
+            <button type="submit" class="btn" title="Reveal to players">👁 Reveal</button>
+          {% endif %}
+        </form>
+        <a class="btn-ghost" href="{{ url_for('faction_edit', faction_id=fac['id']) }}">Edit</a>
+        <form method="post" action="{{ url_for('faction_delete', faction_id=fac['id']) }}" class="inline"
+              onsubmit="return confirm('Delete this faction? Members keep their records (their faction is cleared).');">
+          <button type="submit" class="btn-danger">Delete</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if fac['description'] %}
+    <section class="sheet-section">
+      <p class="prose">{{ fac['description'] }}</p>
+    </section>
+  {% endif %}
+
+  <section class="sheet-section">
+    <h2>Members</h2>
+    {% if members %}
+      <div class="card-grid">
+        {% for c in members %}
+          <a class="char-card" href="{{ url_for('character_detail', creature_id=c['id']) }}">
+            <div class="char-card-head">
+              <span class="char-card-title">{{ avatar(c, 'avatar-sm') }}<span class="char-name">{{ c['name'] }}</span></span>
+              {% if c['visibility'] == 'hidden' %}<span class="badge-dm">Hidden</span>{% endif %}
+            </div>
+            <div class="char-meta">
+              <span class="badge-kind badge-kind-{{ c['kind'] }}">{{ c['kind'] | upper }}</span>
+              {% if c['disposition'] %}<span class="disp disp-{{ c['disposition'] }}">{{ c['disposition'] }}</span>{% endif %}
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="muted">{% if is_dm %}No members yet — set a creature's Faction on its edit page.{% else %}You haven't met any known members.{% endif %}</p>
+    {% endif %}
+  </section>
+{% endblock %}
