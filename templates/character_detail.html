@@ -115,6 +115,20 @@
     </section>
   {% endif %}
 
+  {% if can_edit %}
+  <div class="roll-mode" role="group" aria-label="Roll mode for the next check, save, skill or attack">
+    <span class="roll-mode-label">Roll mode</span>
+    <label class="rm-opt"><input type="radio" name="rollmode" value="normal" checked> Normal</label>
+    <label class="rm-opt rm-adv"><input type="radio" name="rollmode" value="adv"> Advantage</label>
+    <label class="rm-opt rm-dis"><input type="radio" name="rollmode" value="dis"> Disadvantage</label>
+    {% if creature['inspiration'] %}
+      <span class="rm-insp" title="You have Heroic Inspiration — pick Advantage to roll with it, then mark it used on the Inspiration tile.">✨ inspiration available</span>
+    {% else %}
+      <span class="muted rm-hint">applies to your next d20 roll, then resets</span>
+    {% endif %}
+  </div>
+  {% endif %}
+
   <section class="ability-grid">
     {% for col, short in abilities %}
       {% set e = eff_abilities[col] %}
@@ -786,6 +800,30 @@
           .then(r => r.text())
           .then(html => { box.innerHTML = html; });
       });
+    })();
+
+    // Advantage / Disadvantage: a shared one-shot selector that appends ' adv' or
+    // ' dis' to a d20 roll's expression just before it posts to the dice engine
+    // (which parses the suffix). Only single d20 rolls qualify — checks, saves,
+    // skills, weapon & spell attacks — never damage dice. The control resets to
+    // Normal on the page reload that follows each roll, so it's naturally per-roll.
+    (function () {
+      const DICE_ACTION = '{{ url_for("dice_roll") }}';
+      const D20 = /^1?d20([+-]\d+)?$/i;
+      document.addEventListener('submit', function (e) {
+        const form = e.target.closest('form');
+        if (!form) return;
+        const action = (form.getAttribute('action') || '').split('?')[0];
+        if (!action.endsWith(DICE_ACTION)) return;
+        const picked = document.querySelector('input[name="rollmode"]:checked');
+        const mode = picked ? picked.value : 'normal';
+        if (mode === 'normal') return;
+        const expr = form.querySelector('input[name="expression"]');
+        if (!expr) return;
+        const val = (expr.value || '').trim();
+        if (!D20.test(val)) return;               // skip damage / multi-die rolls
+        expr.value = val + (mode === 'adv' ? ' adv' : ' dis');
+      }, true);                                   // capture: run before other handlers
     })();
   </script>
 {% endblock %}

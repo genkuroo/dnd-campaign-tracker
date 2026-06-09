@@ -305,6 +305,18 @@ body {
 .inspiration .vital-value { font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem; justify-content: center; }
 .inspiration.has-inspiration { border-color: color-mix(in srgb, var(--accent-2) 55%, transparent); background: color-mix(in srgb, var(--accent-2) 10%, var(--panel)); }
 .insp-on { color: var(--accent-2); }
+
+/* Shared adv/dis roll-mode selector (applies to the next sheet d20 roll) */
+.roll-mode { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem 0.9rem;
+  margin: 0.25rem 0 0.75rem; padding: 0.4rem 0.7rem; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 8px; font-family: sans-serif; font-size: 0.85rem; }
+.roll-mode-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.rm-opt { display: inline-flex; align-items: center; gap: 0.3rem; cursor: pointer; }
+.rm-opt input { accent-color: var(--accent-2); }
+.rm-adv:has(input:checked) { color: #7fc99a; font-weight: bold; }
+.rm-dis:has(input:checked) { color: #e08a8a; font-weight: bold; }
+.rm-insp { color: var(--accent-2); font-size: 0.8rem; }
+.rm-hint { font-size: 0.78rem; }
 .purse { text-align: left; }
 .coins { display: flex; gap: 0.5rem; margin-top: 0.3rem; }
 .coin { font-family: sans-serif; font-weight: bold; font-size: 1rem; padding: 0.1rem 0.4rem; border-radius: 4px; }
