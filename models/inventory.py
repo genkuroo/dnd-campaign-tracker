@@ -70,7 +70,7 @@ def set_item_hidden(item_id, hidden):
 
 def add_item(creature_id, name, quantity=1, description="", slot="", hands=1,
              ac_bonus=0, grants_spells="", stat_bonuses="", armor_base=0, armor_type="",
-             weapon=""):
+             weapon="", attunement_required=0):
     name = (name or "").strip()
     if not name:
         return None
@@ -84,17 +84,61 @@ def add_item(creature_id, name, quantity=1, description="", slot="", hands=1,
         cur = conn.execute(
             "INSERT INTO creature_items "
             "(creature_id, name, quantity, description, slot, hands, ac_bonus, "
-            " grants_spells, stat_bonuses, armor_base, armor_type, weapon) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            " grants_spells, stat_bonuses, armor_base, armor_type, weapon, attunement_required) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (creature_id, name, max(1, int(quantity or 1)), (description or "").strip(),
              slot, 2 if int(hands or 1) == 2 else 1,
              int(ac_bonus or 0), _clean_slugs(grants_spells), _clean_stat_bonuses(stat_bonuses),
-             int(armor_base or 0), armor_type, (weapon or "").strip()),
+             int(armor_base or 0), armor_type, (weapon or "").strip(),
+             1 if attunement_required else 0),
         )
         conn.commit()
         return cur.lastrowid
     finally:
         conn.close()
+
+
+# 5e: a creature can attune to at most 3 magic items at once. We treat this as a
+# soft cap (guided, not enforced) — attuning a 4th still works but flags amber.
+ATTUNEMENT_CAP = 3
+
+# A worn item only grants its magic bonuses if it doesn't require attunement, or
+# it does and the creature has attuned to it. Reused by every bonus query below.
+_ATTUNED_OK = "(attunement_required = 0 OR attuned = 1)"
+
+
+def set_attuned(item_id, attuned):
+    """Attune to (or break attunement with) an item. No-op on items that don't
+    require attunement."""
+    conn = get_connection()
+    try:
+        conn.execute(
+            "UPDATE creature_items SET attuned = ? "
+            "WHERE id = ? AND attunement_required = 1",
+            (1 if attuned else 0, item_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def attunement_summary(creature_id):
+    """{'count', 'cap', 'over', 'any'} — how many items the creature is attuned to,
+    the cap, whether it's over, and whether it owns any attunement-required item
+    (so the UI knows to show the counter at all)."""
+    conn = get_connection()
+    try:
+        row = conn.execute(
+            "SELECT COALESCE(SUM(attuned), 0) AS count, "
+            "       COALESCE(SUM(attunement_required), 0) AS any "
+            "FROM creature_items WHERE creature_id = ?",
+            (creature_id,),
+        ).fetchone()
+    finally:
+        conn.close()
+    count = row["count"]
+    return {"count": count, "cap": ATTUNEMENT_CAP,
+            "over": count > ATTUNEMENT_CAP, "any": bool(row["any"])}
 
 
 # Ability score columns, for parsing item stat bonuses.
@@ -165,7 +209,7 @@ def equipped_ac_bonus(creature_id):
     try:
         row = conn.execute(
             "SELECT COALESCE(SUM(ac_bonus), 0) AS total FROM creature_items "
-            "WHERE creature_id = ? AND equipped = 1",
+            "WHERE creature_id = ? AND equipped = 1 AND " + _ATTUNED_OK,
             (creature_id,),
         ).fetchone()
         return row["total"]
@@ -257,7 +301,7 @@ def equipped_stat_bonuses(creature_id):
     try:
         rows = conn.execute(
             "SELECT stat_bonuses FROM creature_items "
-            "WHERE creature_id = ? AND equipped = 1 AND stat_bonuses != ''",
+            "WHERE creature_id = ? AND equipped = 1 AND stat_bonuses != '' AND " + _ATTUNED_OK,
             (creature_id,),
         ).fetchall()
     finally:
@@ -291,7 +335,7 @@ def equipped_granted_spells(creature_id):
     try:
         rows = conn.execute(
             "SELECT name, grants_spells FROM creature_items "
-            "WHERE creature_id = ? AND equipped = 1 AND grants_spells != ''",
+            "WHERE creature_id = ? AND equipped = 1 AND grants_spells != '' AND " + _ATTUNED_OK,
             (creature_id,),
         ).fetchall()
     finally:

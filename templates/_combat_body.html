@@ -86,6 +86,9 @@
             <span class="combatant-ac" title="Armor Class">🛡️ {{ m['armor_class'] }}</span>
             {% if m['speed'] %}<span class="combatant-ac" title="Walking speed">🏃 {{ m['speed'] }} ft</span>{% endif %}
             {% if m['concentration'] %}<span class="conc-tag" title="Concentrating — taking damage forces a Constitution save (DC 10 or half the damage) to keep it">🧠 {{ m['concentration'] }}</span>{% endif %}
+            {% if m['immunities'] %}<span class="def-tag def-immune" title="Immune — takes no damage of these types">∅ {{ m['immunities'] }}</span>{% endif %}
+            {% if m['resistances'] %}<span class="def-tag def-resist" title="Resistant — takes half damage of these types">½ {{ m['resistances'] }}</span>{% endif %}
+            {% if m['vulnerabilities'] %}<span class="def-tag def-vuln" title="Vulnerable — takes double damage of these types">2× {{ m['vulnerabilities'] }}</span>{% endif %}
           </div>
           <div class="hp-bar" title="{{ m['current_hp'] }} / {{ m['max_hp'] }} HP{% if m['temp_hp'] %} (+{{ m['temp_hp'] }} temp){% endif %}">
             <span class="hp-fill {{ 'low' if pct <= 33 else ('mid' if pct <= 66 else '') }}" style="width: {{ pct }}%"></span>
@@ -141,6 +144,12 @@
         <div class="combatant-actions">
           <form method="post" action="{{ url_for('combatant_hp', combatant_id=m['id']) }}" class="inline hp-form">
             <input type="number" name="amount" min="0" placeholder="0" class="hp-amount" aria-label="Amount">
+            {% if m['resistances'] or m['immunities'] or m['vulnerabilities'] %}
+              <select name="damage_type" class="dmg-type" aria-label="Damage type" title="Tag the damage type so this creature's resistances/immunities/vulnerabilities apply">
+                <option value="">type…</option>
+                {% for t in damage_types %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+              </select>
+            {% endif %}
             <button type="submit" name="mode" value="damage" class="btn-dmg" title="Apply damage">− Dmg</button>
             <button type="submit" name="mode" value="heal" class="btn-heal" title="Apply healing">+ Heal</button>
           </form>

@@ -62,6 +62,7 @@ from models.inventory import (
     ac_breakdown,
     add_item,
     adjust_quantity,
+    attunement_summary,
     effective_abilities,
     effective_ac,
     equip_item,
@@ -71,6 +72,7 @@ from models.inventory import (
     item_effects,
     list_items,
     remove_item,
+    set_attuned,
     set_item_hidden,
     unequip_item,
 )
@@ -112,6 +114,7 @@ from models.actions import (
 from models.action_catalog import all_catalog_actions, get_catalog_action
 from models.combat import (
     CONDITIONS,
+    DAMAGE_TYPES,
     add_creature as combat_add_creature,
     apply_hp,
     create_combat,
@@ -828,6 +831,7 @@ def character_detail(creature_id):
         slots=SLOTS,
         spell_options=all_spells(),
         panel=equipment_panel(creature_id),
+        attunement=attunement_summary(creature_id),
         actions=list_actions(creature_id),
         action_categories=ACTION_CATEGORIES,
         action_book=all_catalog_actions(),
@@ -1124,6 +1128,7 @@ def _combat_fragment(combat_id):
         combat=get_combat(combat_id),
         combatants=list_combatants(combat_id),
         conditions=CONDITIONS,
+        damage_types=DAMAGE_TYPES,
         roster=list_roster(),
         encounters=list_encounters(),
     )
@@ -1166,6 +1171,7 @@ def combat_detail(combat_id):
         combat=c,
         combatants=list_combatants(combat_id),
         conditions=CONDITIONS,
+        damage_types=DAMAGE_TYPES,
         roster=list_roster(),
         encounters=list_encounters(),
     )
@@ -1254,8 +1260,12 @@ def combatant_hp(combatant_id):
     cid = _combatant_combat_id(combatant_id)
     if cid:
         amount = request.form.get("amount", 0, type=int) or 0
+        is_damage = request.form.get("mode") == "damage"
         if amount:
-            delta = -amount if request.form.get("mode") == "damage" else amount
+            delta = -amount if is_damage else amount
+            damage_type = request.form.get("damage_type", "") if is_damage else ""
+            if damage_type not in DAMAGE_TYPES:
+                damage_type = ""
             # Concentration: damage to a concentrating caster prompts a CON save; a
             # drop to 0 HP ends it outright.
             conc_creature = None
@@ -1264,7 +1274,13 @@ def combatant_hp(combatant_id):
                 cr = get_creature(m["creature_id"]) if m and m["creature_id"] else None
                 if cr and cr["concentration"]:
                     conc_creature = cr
-            apply_hp(combatant_id, delta)
+            result = apply_hp(combatant_id, delta, damage_type)
+            # Surface a resisted/immune/vulnerable note when the defenses changed it.
+            if result and result["label"]:
+                flash(f"{result['raw']} {result['damage_type']} → {result['applied']} "
+                      f"({result['label']}).")
+            # The concentration save DC is half the damage *taken* (post-resistance).
+            taken = result["applied"] if result else amount
             if conc_creature is not None:
                 after = get_combatant(combatant_id)
                 if after and after["current_hp"] == 0:
@@ -1272,7 +1288,7 @@ def combatant_hp(combatant_id):
                     flash(f"{conc_creature['name']} is down — concentration on "
                           f"{conc_creature['concentration']} ends.")
                 else:
-                    flash(f"{conc_creature['name']}: DC {concentration_dc(amount)} "
+                    flash(f"{conc_creature['name']}: DC {concentration_dc(taken)} "
                           f"Constitution save or lose concentration on "
                           f"{conc_creature['concentration']}.")
         return _combat_response(cid)
@@ -1457,6 +1473,7 @@ def _gear_response(creature_id, target):
             abilities=ABILITIES,
             spell_options=all_spells(),
             panel=equipment_panel(creature_id),
+            attunement=attunement_summary(creature_id),
         )
     return redirect(target)
 
@@ -1603,6 +1620,18 @@ def inventory_hidden(item_id):
     return _gear_response(item["creature_id"], target)
 
 
+@app.route("/inventory/<int:item_id>/attune", methods=["POST"])
+def inventory_attune(item_id):
+    """Toggle attunement on an item that requires it (a no-op otherwise). Bonuses
+    on an attunement-required item only apply while attuned (strict 5e)."""
+    item, target = _item_owner_next(item_id)
+    if item is None:
+        return redirect(target)
+    if item["attunement_required"]:
+        set_attuned(item_id, not item["attuned"])
+    return _gear_response(item["creature_id"], target)
+
+
 # --- Loot tab -------------------------------------------------------------
 
 @app.route("/loot")
@@ -1708,7 +1737,8 @@ def loot_spawn():
                  stat_bonuses=item.get("stat_bonuses", ""),
                  armor_base=item.get("armor_base", 0),
                  armor_type=item.get("armor_type", ""),
-                 weapon=item.get("weapon", ""))
+                 weapon=item.get("weapon", ""),
+                 attunement_required=item.get("attunement_required", 0))
         flash(f"Spawned {item['name']}.")
     return redirect(url_for("loot"))
 
@@ -1728,6 +1758,7 @@ def _magic_fields_from_form():
                               request.form.get("weapon_type", ""),
                               request.form.get("weapon_ability", "str"),
                               request.form.get("weapon_category", "")),
+        "attunement_required": 1 if request.form.get("attune_required") else 0,
     }
 
 

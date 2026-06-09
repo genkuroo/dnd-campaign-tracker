@@ -46,6 +46,8 @@
         {% for s in spell_options %}<option value="{{ s['slug'] }}">{{ s['name'] }} ({{ s['level'] | ordinal_level }})</option>{% endfor %}
       </select>
     </label>
+    <label class="checkbox-inline" title="5e: a creature attunes to at most 3 such items, and the bonuses above stay dormant until attuned.">
+      <input type="checkbox" name="attune_required" value="1"> Requires attunement</label>
     <div class="magic-grid weapon-row">
       <label class="coin-field" title="Damage dice — makes this a weapon with an Attack roll (e.g. 1d8). Leave blank for non-weapons.">⚔ Damage
         <input type="text" name="weapon_damage" value="" placeholder="e.g. 1d8" class="dice-input"></label>

@@ -19,6 +19,44 @@ CONDITIONS = [
     "stunned", "unconscious",
 ]
 
+# The 13 5e damage types. Used to optionally tag damage in the tracker so a
+# combatant's snapshotted resistances/immunities/vulnerabilities can adjust it.
+DAMAGE_TYPES = [
+    "acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic",
+    "piercing", "poison", "psychic", "radiant", "slashing", "thunder",
+]
+
+
+def _defense_has(field, damage_type):
+    """Whether a comma-separated defenses field (e.g. 'fire, cold' or 'nonmagical
+    bludgeoning') mentions the given damage type as a whole word."""
+    words = {w for entry in (field or "").lower().split(",") for w in entry.split()}
+    return damage_type in words
+
+
+def damage_multiplier(combatant, damage_type):
+    """How a combatant's defenses scale incoming damage of `damage_type`:
+    immune → 0×, vulnerable → 2×, resistant → ½×, else 1×. Returns (multiplier,
+    label). Immunity wins; resistance + vulnerability cancel out (5e)."""
+    if not damage_type:
+        return 1.0, ""
+    if _defense_has(combatant["immunities"], damage_type):
+        return 0.0, "immune"
+    resist = _defense_has(combatant["resistances"], damage_type)
+    vuln = _defense_has(combatant["vulnerabilities"], damage_type)
+    if resist and not vuln:
+        return 0.5, "resisted"
+    if vuln and not resist:
+        return 2.0, "vulnerable"
+    return 1.0, ""
+
+
+def _adjust_damage(raw, multiplier):
+    """Apply a damage multiplier, rounding down (5e rounds resistance halving down)."""
+    if multiplier == 0.5:
+        return raw // 2
+    return int(raw * multiplier)
+
 
 # --- combats ---------------------------------------------------------------
 
@@ -119,11 +157,13 @@ def add_combatant(combat_id, creature, name=None):
     try:
         conn.execute(
             "INSERT INTO combatants "
-            "(combat_id, creature_id, name, max_hp, current_hp, armor_class, dex_mod, speed) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "(combat_id, creature_id, name, max_hp, current_hp, armor_class, dex_mod, speed, "
+            " resistances, immunities, vulnerabilities) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (combat_id, creature["id"], name or creature["name"],
              creature["max_hp"], creature["current_hp"], effective_ac(creature),
-             ability_modifier(dex), effective_speed(creature)),
+             ability_modifier(dex), effective_speed(creature),
+             creature["resistances"], creature["immunities"], creature["vulnerabilities"]),
         )
         conn.commit()
     finally:
@@ -187,21 +227,33 @@ def roll_initiative_all(combat_id):
         conn.close()
 
 
-def apply_hp(combatant_id, delta):
-    """Apply damage (delta < 0) or healing (delta > 0). Damage is absorbed by
-    temp HP first; healing is capped at max HP and never touches temp HP.
+def apply_hp(combatant_id, delta, damage_type=None):
+    """Apply damage (delta < 0) or healing (delta > 0). For damage, an optional
+    `damage_type` is scaled by the combatant's snapshotted defenses *before* temp
+    HP absorbs it (immune → 0, resisted → ½ rounded down, vulnerable → 2×). Damage
+    is then absorbed by temp HP first; healing is capped at max HP and never
+    touches temp HP.
 
     Death saves (5e): taking damage *while already at 0 HP* adds a death-save
     failure; healing back above 0 clears the death-save counters (you're conscious
-    again)."""
+    again).
+
+    Returns a small result dict for the damage case (`{raw, applied, label,
+    damage_type}`) so the caller can surface a resisted/vulnerable note and base
+    the concentration DC on the *applied* damage; None for healing/no-op."""
     c = get_combatant(combatant_id)
     if c is None:
-        return
+        return None
     temp, cur = c["temp_hp"], c["current_hp"]
     succ, fail = c["death_successes"], c["death_failures"]
     was_down = cur == 0
+    result = None
     if delta < 0:
-        dmg = -delta
+        raw = -delta
+        mult, label = damage_multiplier(c, damage_type)
+        dmg = _adjust_damage(raw, mult)
+        result = {"raw": raw, "applied": dmg, "label": label,
+                  "damage_type": damage_type or ""}
         absorbed = min(temp, dmg)
         temp -= absorbed
         dmg -= absorbed
@@ -222,6 +274,7 @@ def apply_hp(combatant_id, delta):
         conn.commit()
     finally:
         conn.close()
+    return result
 
 
 def death_state(combatant):

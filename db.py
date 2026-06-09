@@ -14,7 +14,7 @@ import sqlite3
 # real campaign data (e.g. `DND_DB_PATH=test_campaign.db python app.py`).
 DB_PATH = os.environ.get("DND_DB_PATH", "campaign.db")
 
-SCHEMA_VERSION = 40
+SCHEMA_VERSION = 42
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -461,6 +461,26 @@ MIGRATIONS = {
     -- in the sheet's Proficiencies section.
     ALTER TABLE creatures ADD COLUMN tools     TEXT NOT NULL DEFAULT '';
     ALTER TABLE creatures ADD COLUMN languages TEXT NOT NULL DEFAULT '';
+    """,
+    41: """
+    -- Attunement: 5e's soft cap on powerful magic items. `attunement_required`
+    -- flags an item that needs attunement (mirrors loot_items so it survives
+    -- give/take/drop); `attuned` (creature_items only) is the per-item toggle. A
+    -- creature attunes to at most 3 items — guided, not enforced. STRICT mode: an
+    -- attunement-required item's bonuses (ac_bonus/stat_bonuses/grants_spells) only
+    -- apply while attuned, so a worn-but-unattuned magic item lies dormant.
+    ALTER TABLE creature_items ADD COLUMN attunement_required INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE creature_items ADD COLUMN attuned             INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE loot_items     ADD COLUMN attunement_required INTEGER NOT NULL DEFAULT 0;
+    """,
+    42: """
+    -- Combat damage typing: a combatant snapshots its creature's defenses on add
+    -- (like AC/HP/speed), so the tracker can scale typed damage — immune → 0,
+    -- resisted → half (round down), vulnerable → double — without mutating the
+    -- sheet. Free-form comma text, matched word-wise against the chosen type.
+    ALTER TABLE combatants ADD COLUMN resistances     TEXT NOT NULL DEFAULT '';
+    ALTER TABLE combatants ADD COLUMN immunities      TEXT NOT NULL DEFAULT '';
+    ALTER TABLE combatants ADD COLUMN vulnerabilities TEXT NOT NULL DEFAULT '';
     """,
 }
 

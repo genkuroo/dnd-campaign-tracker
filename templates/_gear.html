@@ -25,7 +25,10 @@
 
 <div class="gear-layout">
 <section class="equipment">
-  <h2>Equipment</h2>
+  <h2>Equipment{% if attunement and attunement.any %}
+    <span class="attune-count {{ 'over' if attunement.over }}" title="A creature can attune to at most {{ attunement.cap }} magic items. Attuning more still works, but it's over the 5e limit.">
+      ✨ Attunement {{ attunement.count }}/{{ attunement.cap }}{% if attunement.over %} ⚠{% endif %}
+    </span>{% endif %}</h2>
   {% if can_edit %}<p class="muted equip-hint">Drag an item onto its slot to equip — or use the buttons. Each filled slot has an unequip ×.</p>{% endif %}
   <div class="equip-doll">
     <div class="equip-col equip-left">
@@ -89,7 +92,7 @@
             <span class="equip-spacer"></span>
           {% endif %}
           <span class="item-main">
-            <span class="item-name">{{ it['name'] }}{% if it['slot'] and it['hands'] == 2 %} <span class="tag-2h">2H</span>{% endif %}{% if it['ac_bonus'] or it['stat_bonuses'] or it['grants_spells'] %} <span class="item-magic" title="Bonuses apply while equipped">✨</span>{% endif %}</span>
+            <span class="item-name">{{ it['name'] }}{% if it['slot'] and it['hands'] == 2 %} <span class="tag-2h">2H</span>{% endif %}{% if it['ac_bonus'] or it['stat_bonuses'] or it['grants_spells'] %} <span class="item-magic" title="Bonuses apply while equipped{% if it['attunement_required'] %} and attuned{% endif %}">✨</span>{% endif %}{% if it['attunement_required'] %} <span class="attune-badge {{ 'on' if it['attuned'] }}" title="{{ 'Attuned — its magic bonuses are active.' if it['attuned'] else 'Requires attunement — bonuses stay dormant until you attune.' }}">{{ '✨ attuned' if it['attuned'] else 'needs attunement' }}</span>{% endif %}</span>
             <span class="item-sub muted">
               {%- if it['slot'] %}{{ slot_labels[it['slot']] }}{% endif -%}
               {%- if it['slot'] and it['description'] %} · {% endif -%}
@@ -114,6 +117,11 @@
             {% endif %}
           </span>
           {% if can_edit %}
+            {% if it['attunement_required'] %}
+              <form method="post" action="{{ url_for('inventory_attune', item_id=it['id']) }}" class="inline">
+                <button type="submit" class="attune-toggle {{ 'on' if it['attuned'] }}" title="{{ 'Break attunement' if it['attuned'] else 'Attune to this item (activates its bonuses)' }}">{{ 'Unattune' if it['attuned'] else 'Attune' }}</button>
+              </form>
+            {% endif %}
             <form method="post" action="{{ url_for('inventory_hidden', item_id=it['id']) }}" class="inline">
               <button type="submit" class="hide-toggle" title="{{ 'Show this item' if it['hidden'] else 'Hide this item' }}">{{ 'Show' if it['hidden'] else 'Hide' }}</button>
             </form>
