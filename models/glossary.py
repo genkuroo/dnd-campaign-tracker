@@ -36,6 +36,7 @@ GLOSSARY = {
     "proficiency": "Proficiency — training in a particular save or skill. When you're proficient, you add your proficiency bonus to that roll.",
     "proficiency-bonus": "Proficiency bonus — one number that grows with level (+2 at levels 1–4, up to +6 at 17–20), added to every save, skill, and attack you're proficient in.",
     "skill": "Skill — a specific kind of ability check (Stealth, Perception, Persuasion…), each tied to one ability. If you're proficient in it, add your proficiency bonus.",
+    "passive-perception": "Passive Perception — your 'always-on' awareness, 10 + your Perception bonus. The DM compares it against how hidden something is (a sneaking creature, a trap) without asking you to roll.",
     "expertise": "Expertise — for a chosen skill you're proficient in, add **double** your proficiency bonus (a Rogue/Bard specialty).",
     "half-proficiency": "Half proficiency — add half your proficiency bonus (rounded down) to checks you're not proficient in. Bards get this on every check (Jack of All Trades); Champion fighters on STR/DEX/CON checks (Remarkable Athlete, rounded up).",
     "saving-throw-prof": "Saving throw proficiency — your class makes you reliably good at resisting two kinds of effect (e.g. a Barbarian's STR & CON saves), adding your proficiency bonus.",

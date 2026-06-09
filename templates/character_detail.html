@@ -156,7 +156,7 @@
   <section class="skills">
     <div class="section-head">
       <h2>{{ info('skill', 'Skills') }}</h2>
-      <span class="muted">{{ info('proficiency', 'proficient') }} (<span class="prof-dot">●</span>) +{{ prof_bonus }} · {{ info('expertise', 'expertise') }} (<span class="prof-dot exp">◉</span>) +{{ prof_bonus * 2 }}{% if skills | selectattr('tier','equalto','half') | first %} · {{ info('half-proficiency', 'half') }} (<span class="prof-dot">◐</span>){% endif %}</span>
+      <span class="muted"><span class="passive-perception">{{ info('passive-perception', 'Passive Perception') }} <strong>{{ passive_perception }}</strong></span> · {{ info('proficiency', 'proficient') }} (<span class="prof-dot">●</span>) +{{ prof_bonus }} · {{ info('expertise', 'expertise') }} (<span class="prof-dot exp">◉</span>) +{{ prof_bonus * 2 }}{% if skills | selectattr('tier','equalto','half') | first %} · {{ info('half-proficiency', 'half') }} (<span class="prof-dot">◐</span>){% endif %}</span>
     </div>
     <div class="skill-grid">
       {% for s in skills %}

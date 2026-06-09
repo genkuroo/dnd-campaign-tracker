@@ -166,6 +166,17 @@ def set_skill_proficiencies(creature_id, slugs, expertise_slugs=()):
         conn.close()
 
 
+def passive_perception(creature, eff_abilities):
+    """A creature's **passive Perception** = 10 + its Perception check modifier
+    (proficiency / expertise / half-proficiency already folded in). The DM compares
+    this 'always-on' awareness score against how well something is hidden, without
+    asking for a roll."""
+    for row in skill_table(creature, eff_abilities):
+        if row["slug"] == "perception":
+            return 10 + row["modifier"]
+    return 10
+
+
 def _has_feature(creature, name):
     """True if the creature's class/subclass has unlocked a named feature at its
     level (used to detect Jack of All Trades / Remarkable Athlete)."""
