@@ -253,9 +253,9 @@ TABS = [
     {"endpoint": "dice", "label": "Dice"},
     {"endpoint": "map", "label": "Map"},
     {"endpoint": "blog", "label": "Campaign Blog"},
-    {"endpoint": "campaigns", "label": "Campaigns", "dm_only": True},
-    {"endpoint": "users", "label": "Users", "dm_only": True},
 ]
+# DM admin lives in the top-right cluster (not the main tab row) to keep the nav
+# tidy: the campaign chip is the Campaigns entry; Users sits beside it.
 
 
 @app.context_processor

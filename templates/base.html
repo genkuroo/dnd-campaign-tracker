@@ -20,9 +20,17 @@
       {% endfor %}
     </nav>
     <div class="topbar-right">
-      {% if is_dm and active_campaign %}
-        <a href="{{ url_for('campaigns') }}" class="campaign-chip"
-           title="Active campaign — click to switch or manage">📖 {{ active_campaign['name'] }}</a>
+      {% if is_dm %}
+        <div class="admin-group">
+          {% if active_campaign %}
+            <a href="{{ url_for('campaigns') }}"
+               class="campaign-chip {{ 'active' if active == 'campaigns' }}"
+               title="Active campaign — click to switch or manage">📖 {{ active_campaign['name'] }}</a>
+          {% endif %}
+          <a href="{{ url_for('users') }}"
+             class="campaign-chip {{ 'active' if active == 'users' }}"
+             title="Manage players & accounts">👥 Users</a>
+        </div>
       {% endif %}
       <form method="post" action="{{ url_for('set_mode') }}" class="mode-toggle"
             title="Assist rolls for you; Track just shows what things do">

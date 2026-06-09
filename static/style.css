@@ -1616,18 +1616,20 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .party-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
 
 /* --- Phase 7: auth --- */
-.topbar-right { display: flex; align-items: center; gap: 1rem; }
-.whoami { display: flex; align-items: center; gap: 0.6rem; }
+.topbar-right { display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap; justify-content: flex-end; }
+.whoami { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
 .whoami-name { font-family: sans-serif; font-size: 0.85rem; color: var(--ink); white-space: nowrap; }
-.logout-btn { padding: 0.2rem 0.2rem; }
+.logout-btn { padding: 0.2rem 0.2rem; white-space: nowrap; }
 
+.admin-group { display: flex; align-items: center; gap: 0.5rem; }
 .campaign-chip {
-  font-family: sans-serif; font-size: 0.85rem; color: var(--ink);
+  font-family: sans-serif; font-size: 0.85rem; color: var(--muted);
   text-decoration: none; white-space: nowrap;
-  padding: 0.2rem 0.6rem; border: 1px solid var(--border); border-radius: 999px;
-  background: var(--panel);
+  padding: 0.25rem 0.7rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--panel-2);
 }
 .campaign-chip:hover { border-color: var(--accent); color: var(--accent); }
+.campaign-chip.active { color: var(--ink); border-color: var(--accent); }
 .active-badge { color: #8fd0a0; border-color: #3f6b4c; }
 .campaign-list .user-row { gap: 0.5rem; }
 
