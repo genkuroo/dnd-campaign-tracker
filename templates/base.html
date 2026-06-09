@@ -54,10 +54,41 @@
   <div class="layout">
     <aside class="sidebar">
       <h2>Known Entities</h2>
-      <p class="muted">
-        NPCs, locations, and factions you've discovered will appear here.
-      </p>
-      <p class="placeholder-note">Coming in a later phase.</p>
+      <nav class="entity-nav">
+        {% set groups = [
+          ('NPCs', 'npcs', sidebar_npcs, '🧑', 'New NPC'),
+          ('Locations', 'locations', sidebar_locations, '📍', 'New location'),
+          ('Factions', 'factions', sidebar_factions, '🏛', 'New faction'),
+        ] %}
+        {% for label, endpoint, items, icon, add_label in groups %}
+          <div class="entity-group">
+            <div class="entity-group-head">
+              <a href="{{ url_for(endpoint) }}"
+                 class="entity-group-link {{ 'active' if active == endpoint else '' }}">{{ label }}</a>
+              {% if is_dm %}
+                <a class="entity-add"
+                   href="{{ url_for('character_new', kind='npc') if endpoint == 'npcs' else url_for(endpoint[:-1] + '_new') }}"
+                   title="{{ add_label }}">+</a>
+              {% endif %}
+            </div>
+            {% if items %}
+              <ul class="entity-list">
+                {% for it in items %}
+                  <li>
+                    <a href="{{ url_for('character_detail', creature_id=it['id']) if endpoint == 'npcs'
+                              else url_for(endpoint[:-1] + '_detail', **{(endpoint[:-1] + '_id'): it['id']}) }}">
+                      <span class="ent-icon">{{ icon }}</span><span class="ent-name">{{ it['name'] }}</span>
+                      {% if is_dm and it['visibility'] == 'hidden' %}<span class="ent-hidden" title="Hidden from players">🙈</span>{% endif %}
+                    </a>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="entity-empty">{{ 'None yet.' if is_dm else 'None discovered.' }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </nav>
     </aside>
 
     <main class="content">

@@ -268,17 +268,16 @@ app.jinja_env.globals["define"] = define
 TABS = [
     {"endpoint": "character", "label": "Character Sheet"},
     {"endpoint": "party", "label": "Party"},
-    {"endpoint": "npcs", "label": "NPCs"},
     {"endpoint": "bestiary", "label": "Bestiary"},
     {"endpoint": "combat", "label": "Combat"},
     {"endpoint": "loot", "label": "Loot"},
     {"endpoint": "spells", "label": "Spells & Actions"},
     {"endpoint": "dice", "label": "Dice"},
-    {"endpoint": "locations", "label": "Locations"},
-    {"endpoint": "factions", "label": "Factions"},
     {"endpoint": "map", "label": "Map"},
     {"endpoint": "blog", "label": "Campaign Blog"},
 ]
+# NPCs, Locations, and Factions are the "Known Entities" — they live in the left
+# sidebar (inject_sidebar) rather than the top tab row.
 # DM admin lives in the top-right cluster (not the main tab row) to keep the nav
 # tidy: the campaign chip is the Campaigns entry; Users sits beside it.
 
@@ -287,6 +286,25 @@ TABS = [
 def inject_nav():
     """Make the tab list available to every template (the base layout uses it)."""
     return {"tabs": TABS}
+
+
+@app.context_processor
+def inject_sidebar():
+    """The left "Known Entities" sidebar: NPCs, locations, and factions, filtered
+    to what the viewer may see (DM sees all). Empty before login (auth pages use a
+    different layout and have no campaign/user context yet)."""
+    empty = {"sidebar_npcs": [], "sidebar_locations": [], "sidebar_factions": []}
+    if current_user() is None:
+        return empty
+    try:
+        npcs = list_npcs() if is_dm() else [c for c in list_npcs() if can_view_creature(c)]
+        return {
+            "sidebar_npcs": npcs,
+            "sidebar_locations": list_locations() if is_dm() else visible_locations(),
+            "sidebar_factions": list_factions() if is_dm() else visible_factions(),
+        }
+    except Exception:  # never let a sidebar query break a page render
+        return empty
 
 
 def current_user():
