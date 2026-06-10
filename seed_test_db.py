@@ -53,6 +53,7 @@ set_signup_code("DRAGON")  # players could self-register at /register with this
 # Wizard — full caster: spells, slots, casting stats.
 gandalf = make_pc("Gandalf", "wizard", player="alice", xp=6500, avatar="🧙")
 update_creature(gandalf, {"intelligence": 16, "dexterity": 14, "level": 5,
+                          "max_hp": 32, "current_hp": 32,
                           "alignment": "NG", "subclass": "evocation",
                           "race": "elf", "subrace": "high-elf", "background": "sage"})
 set_skill_proficiencies(gandalf, ["arcana", "history", "investigation", "insight"])
@@ -64,6 +65,7 @@ spend_slot(gandalf, 3)
 # Barbarian — martial, Unarmored Defense, a Rage ability.
 grog = make_pc("Grog", "barbarian", player="bob", xp=6500, avatar="🪓")
 update_creature(grog, {"strength": 17, "constitution": 16, "level": 5,
+                       "max_hp": 52, "current_hp": 52,
                        "alignment": "CN", "subclass": "berserker",
                        "race": "dwarf", "subrace": "mountain-dwarf",
                        "exhaustion": 1, "background": "soldier"})  # a Berserker's Frenzy leaves him exhausted
@@ -75,7 +77,8 @@ add_action(grog, "Reckless Attack", "Advantage on melee attacks this turn; attac
 
 # Cleric — full caster with healing + a save-DC spell.
 pike = make_pc("Pike", "cleric", player="carol", xp=2700, avatar="🛡️")
-update_creature(pike, {"wisdom": 16, "level": 4, "alignment": "LG", "subclass": "life", "race": "human", "background": "acolyte"})
+update_creature(pike, {"wisdom": 16, "level": 4, "max_hp": 30, "current_hp": 30,
+                       "alignment": "LG", "subclass": "life", "race": "human", "background": "acolyte"})
 set_skill_proficiencies(pike, ["medicine", "religion", "persuasion"])
 for slug in ("cure-wounds", "healing-word", "thunderwave", "bless", "hold-person"):
     add_spell(pike, slug)
@@ -84,7 +87,8 @@ set_concentration(pike, "Bless")  # show the concentration banner on load
 
 # Rogue — no spells; skill-monkey; equips a dagger.
 vex = make_pc("Vex", "rogue", player=None, xp=900, avatar="🗡️")
-update_creature(vex, {"dexterity": 16, "level": 3, "alignment": "CG", "subclass": "thief",
+update_creature(vex, {"dexterity": 16, "level": 3, "max_hp": 21, "current_hp": 21,
+                      "alignment": "CG", "subclass": "thief",
                       "race": "halfling", "subrace": "lightfoot", "background": "criminal"})
 set_skill_proficiencies(vex, ["stealth", "acrobatics", "sleight-of-hand",
                               "perception", "deception"],
@@ -214,6 +218,57 @@ add_loot(pony, "Pouch of Coins", 1, "Loose change.", gold=15, silver=30, copper=
 # --- A second area to show switching --------------------------------------
 cave = create_area("Goblin Cave")
 add_loot(cave, "Crude Goblin Totem", 1, "Worth a few coins to the right buyer.")
+
+# --- A live combat, mid-fight, to test the tracker ------------------------
+# Drops you straight into round 2 of a fight: party vs the goblin ambush + an
+# orc, initiative rolled, with damage / temp HP / conditions / a downed PC
+# already in play so every part of the tracker is exercised on load.
+from models.combat import (  # noqa: E402
+    create_combat, add_creature, roll_initiative_all, next_turn,
+    list_combatants, apply_hp, set_temp_hp, toggle_condition, set_death_save,
+)
+
+fight = create_combat("The Goblin Ambush")
+# The party…
+for _pc in (gandalf, grog, pike, vex):
+    add_creature(fight, get_creature(_pc), 1)
+# …vs the ambush (3 goblins numbered 1–3, a wolf) + a lone orc.
+add_creature(fight, get_creature(goblin), 3)
+add_creature(fight, get_creature(wolf), 1)
+add_creature(fight, get_creature(orc), 1)
+
+roll_initiative_all(fight)
+next_turn(fight)   # round 1 → first combatant active
+next_turn(fight)   # …advance one more so a turn is clearly in progress
+
+# Reach in and rough up the board so the tracker shows live state on load.
+_combatants = {c["name"]: c for c in list_combatants(fight)}
+def _c(name): return _combatants.get(name)
+def _hurt_to(name, target, dmg_type=None):
+    """Damage a combatant down to `target` HP (so it bloodies, not over-kills)."""
+    c = _c(name)
+    if c:
+        apply_hp(c["id"], target - c["current_hp"], dmg_type)
+def _cond(name, condition):
+    c = _c(name)
+    if c: toggle_condition(c["id"], condition)
+
+_hurt_to("Grog", 24)                     # Grog bloodied (52 → 24)
+if _c("Grog"): set_temp_hp(_c("Grog")["id"], 8)  # Rage temp HP
+_cond("Grog", "poisoned")
+_hurt_to("Goblin 1", 2)                  # a goblin nearly down
+_hurt_to("Goblin 2", 0)                  # a goblin dropped (monster: just 0 HP)
+_cond("Goblin 3", "prone")
+_cond("Wolf", "frightened")
+_hurt_to("Orc", 9)
+
+# Down Vex (the unassigned rogue) to 0 to exercise the death-save row: 1 success,
+# 1 failure showing.
+if _c("Vex"):
+    _vex_c = _c("Vex")["id"]
+    _hurt_to("Vex", 0)                   # drop to 0 (unconscious, not yet a failure)
+    set_death_save(_vex_c, "success", 1)
+    set_death_save(_vex_c, "failure", 1)
 
 print("\n=== test_campaign.db built ===")
 print(f"DB file : {os.path.abspath(TEST_DB)}")
