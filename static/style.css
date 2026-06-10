@@ -312,19 +312,43 @@ body {
   font-size: 2.4rem; opacity: 0.4;
 }
 .map-stage {
+  position: relative;
   margin-top: 1rem;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg);
-  overflow: auto;
-  text-align: center;
+  overflow: hidden;            /* the canvas clips the zoom/pan transform */
 }
 .map-toolbar { display: flex; align-items: center; gap: 1rem; margin: 0.6rem 0; flex-wrap: wrap; }
-.map-canvas { position: relative; display: inline-block; max-width: 100%; line-height: 0; }
+/* The canvas is a fixed window; the viewport inside it is transformed (zoom/pan).
+   The image fills the width so every map renders at the same on-screen scale
+   regardless of its source resolution. */
+.map-canvas { position: relative; max-width: 100%; overflow: hidden; line-height: 0; touch-action: none;
+  user-select: none; -webkit-user-select: none; }
+.map-canvas.pannable { cursor: grab; }
+.map-canvas.panning { cursor: grabbing; }
 .map-canvas.placing { cursor: crosshair; }
 .map-canvas.placing .map-markers { pointer-events: none; }
-.map-image { display: block; max-width: 100%; height: auto; }
+.map-viewport { position: relative; transform-origin: 0 0; will-change: transform; }
+/* pointer-events:none + no native drag so panning never grabs/selects the image */
+.map-image { display: block; width: 100%; height: auto; pointer-events: none;
+  -webkit-user-drag: none; user-select: none; }
+/* Grid overlay: a <canvas> sized to the image's source pixels, stretched to the
+   image box, so cells stay square + content-aligned at any display size/zoom. */
+.map-grid { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .map-markers { position: absolute; inset: 0; }
+
+/* Zoom controls float over the stage (outside the clipped/transformed canvas). */
+.map-zoom { position: absolute; top: 0.5rem; right: 0.5rem; z-index: 6;
+  display: flex; flex-direction: column; align-items: stretch; gap: 3px; }
+.map-zoom .btn-zoom {
+  width: 34px; height: 30px; line-height: 1; font-size: 1.1rem; cursor: pointer;
+  background: var(--panel); color: var(--ink); border: 1px solid var(--border);
+  border-radius: 6px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+.map-zoom .btn-zoom:hover { border-color: var(--accent-2); }
+.map-zoom-level { text-align: center; font-size: 0.62rem; color: var(--muted);
+  background: rgba(0, 0, 0, 0.5); border-radius: 4px; padding: 1px 0; user-select: none; }
 .map-marker {
   position: absolute;
   transform: translate(-50%, -50%);

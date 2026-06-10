@@ -48,6 +48,45 @@
       </div>
     </fieldset>
 
+    {# Grid overlay (10d) — a square tactical grid drawn over the map. All sizes
+       are in SOURCE-IMAGE pixels, so the grid aligns to the map content at any
+       display size or zoom. #}
+    <input type="hidden" name="grid_present" value="1">
+    <fieldset>
+      <legend>Grid overlay</legend>
+      <label class="checkbox"><input type="checkbox" name="grid_enabled" value="1"
+        {{ 'checked' if map and map['grid_enabled'] else '' }}> <span>Show a square grid on this map</span></label>
+      <div class="field-row">
+        <label class="field">
+          <span>Cell size <span class="muted">(source px)</span></span>
+          <input type="number" name="grid_size" min="2" step="1"
+                 value="{{ map['grid_size'] if map else 50 }}">
+        </label>
+        <label class="field">
+          <span>Colour</span>
+          <input type="color" name="grid_color" value="{{ map['grid_color'] if map else '#000000' }}">
+        </label>
+        <label class="field">
+          <span>Opacity <span class="muted">(%)</span></span>
+          <input type="number" name="grid_opacity" min="0" max="100" step="5"
+                 value="{{ map['grid_opacity'] if map else 40 }}">
+        </label>
+      </div>
+      <div class="field-row">
+        <label class="field">
+          <span>Offset X <span class="muted">(source px)</span></span>
+          <input type="number" name="grid_offset_x" step="1"
+                 value="{{ map['grid_offset_x'] if map else 0 }}">
+        </label>
+        <label class="field">
+          <span>Offset Y <span class="muted">(source px)</span></span>
+          <input type="number" name="grid_offset_y" step="1"
+                 value="{{ map['grid_offset_y'] if map else 0 }}">
+        </label>
+      </div>
+      <p class="muted">Tip: set the cell size to match the map's own squares, then nudge the offsets to line the grid up with them.</p>
+    </fieldset>
+
     <div class="form-actions">
       <button type="submit" class="btn">{{ 'Save' if map else 'Create map' }}</button>
       <a class="btn-ghost" href="{{ url_for('map_detail', map_id=map['id']) if map else url_for('map') }}">Cancel</a>

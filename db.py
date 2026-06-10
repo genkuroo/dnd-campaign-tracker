@@ -34,7 +34,7 @@ LEGACY_DB_PATH = os.path.join(DATA_DIR, "campaign.db")
 # Unset in normal app runs, which then use the multi-campaign layout above.
 DB_PATH = os.environ.get("DND_DB_PATH")
 
-SCHEMA_VERSION = 55
+SCHEMA_VERSION = 56
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -727,6 +727,19 @@ MIGRATIONS = {
     );
     CREATE INDEX idx_trade_to   ON trade_offers(to_creature_id, status);
     CREATE INDEX idx_trade_from ON trade_offers(from_creature_id, status);
+    """,
+    56: """
+    -- Phase 10d — map grid overlay. An optional square grid drawn over a map
+    -- (battle/tactical maps). All settings are PERSISTED per-map (a property of
+    -- the map, unlike zoom/pan which are per-view-session and never stored).
+    -- `grid_size`/`grid_offset_*` are measured in SOURCE-IMAGE pixels, so the
+    -- grid stays aligned to the map's content at any display size or zoom level.
+    ALTER TABLE maps ADD COLUMN grid_enabled  INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE maps ADD COLUMN grid_size     INTEGER NOT NULL DEFAULT 50;   -- source px / cell
+    ALTER TABLE maps ADD COLUMN grid_color    TEXT    NOT NULL DEFAULT '#000000';
+    ALTER TABLE maps ADD COLUMN grid_opacity  INTEGER NOT NULL DEFAULT 40;   -- 0..100
+    ALTER TABLE maps ADD COLUMN grid_offset_x INTEGER NOT NULL DEFAULT 0;    -- source px
+    ALTER TABLE maps ADD COLUMN grid_offset_y INTEGER NOT NULL DEFAULT 0;
     """,
 }
 

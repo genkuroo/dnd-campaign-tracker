@@ -6,9 +6,18 @@ defaults to 'hidden' (a map is revealed once the party has explored it). A map
 may optionally link to a location (`location_id`, 0 = none) so a place and its
 map cross-reference each other.
 
+A map may also carry a persisted **grid overlay** (10d): `grid_enabled` plus a
+cell `grid_size`, `grid_color`/`grid_opacity`, and `grid_offset_x`/`_y` — all
+measured in SOURCE-IMAGE pixels so the grid stays aligned to the map content at
+any display size or zoom. (Zoom/pan are per-view-session and never stored.)
+
 Mirrors the locations/factions CRUD + `_clean` pattern.
 """
+import re
+
 from db import get_connection
+
+_HEX_COLOR = re.compile(r"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
 
 
 def list_maps():
@@ -131,7 +140,8 @@ def delete_map(map_id):
 # `image` is written only via set_map_image (mirrors how `avatar` stays out of
 # the generic create/update path), so it's not in the cleanable field set.
 _TEXT_FIELDS = ["name", "description", "visibility"]
-_INT_FIELDS = ["location_id"]
+_INT_FIELDS = ["location_id", "grid_size", "grid_opacity",
+               "grid_offset_x", "grid_offset_y"]
 
 
 def _clean(data):
@@ -144,7 +154,24 @@ def _clean(data):
         fields["visibility"] = "hidden"
     for col in _INT_FIELDS:
         if col in data and str(data.get(col)).strip() != "":
-            fields[col] = int(data[col])
+            try:
+                fields[col] = int(float(data[col]))
+            except (TypeError, ValueError):
+                pass
     if "location_id" in fields and fields["location_id"] < 0:
         fields["location_id"] = 0
+    # Grid cell size must stay positive; opacity is a 0..100 percentage.
+    if "grid_size" in fields:
+        fields["grid_size"] = max(2, fields["grid_size"])
+    if "grid_opacity" in fields:
+        fields["grid_opacity"] = max(0, min(100, fields["grid_opacity"]))
+    # Grid colour renders into a canvas fillStyle / a style attr — validate hex.
+    if "grid_color" in data:
+        color = (data.get("grid_color") or "").strip()
+        fields["grid_color"] = color if _HEX_COLOR.match(color) else "#000000"
+    # `grid_enabled` is a checkbox: only coerce it on a real map-form submit
+    # (flagged by the hidden `grid_present` field) so partial updates that don't
+    # carry the grid controls leave the stored value untouched.
+    if data.get("grid_present"):
+        fields["grid_enabled"] = 1 if data.get("grid_enabled") else 0
     return fields

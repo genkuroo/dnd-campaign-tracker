@@ -45,8 +45,23 @@
     {% endif %}
 
     <div class="map-stage">
-      <div class="map-canvas" id="mapCanvas" data-map-id="{{ map['id'] }}">
-        <img class="map-image" src="{{ map['image'] }}" alt="{{ map['name'] }}">
+      <div class="map-zoom" id="mapZoom">
+        <button type="button" class="btn-zoom" id="mapZoomIn" title="Zoom in">+</button>
+        <button type="button" class="btn-zoom" id="mapZoomReset" title="Reset view">⤢</button>
+        <button type="button" class="btn-zoom" id="mapZoomOut" title="Zoom out">−</button>
+        <span class="map-zoom-level" id="mapZoomLevel">100%</span>
+      </div>
+      <div class="map-canvas" id="mapCanvas"
+           data-map-id="{{ map['id'] }}"
+           data-grid-enabled="{{ 1 if map['grid_enabled'] else 0 }}"
+           data-grid-size="{{ map['grid_size'] }}"
+           data-grid-color="{{ map['grid_color'] }}"
+           data-grid-opacity="{{ map['grid_opacity'] }}"
+           data-grid-ox="{{ map['grid_offset_x'] }}"
+           data-grid-oy="{{ map['grid_offset_y'] }}">
+        <div class="map-viewport" id="mapViewport">
+        <img class="map-image" src="{{ map['image'] }}" alt="{{ map['name'] }}" draggable="false">
+        <canvas class="map-grid" id="mapGrid" hidden></canvas>
         <div class="map-markers" id="mapMarkers">
           {% for mk in markers %}
             {% set inner %}
@@ -67,6 +82,7 @@
                    title="{{ mk.name }}">{{ inner }}</div>
             {% endif %}
           {% endfor %}
+        </div>
         </div>
       </div>
     </div>
@@ -172,19 +188,22 @@
     {% endif %}
   {% endif %}
 
-  {% if is_dm and map['image'] %}
+  {% if map['image'] %}
   <script>
   (function () {
     var canvas = document.getElementById('mapCanvas');
+    if (!canvas) return;
+    var viewport = document.getElementById('mapViewport');
     var img = canvas.querySelector('.map-image');
+    var grid = document.getElementById('mapGrid');
     var markersLayer = document.getElementById('mapMarkers');
-    var placeBtn = document.getElementById('mapPlaceBtn');
-    var placeHint = document.getElementById('mapPlaceHint');
-    var placeCancel = document.getElementById('mapPlaceCancel');
-    var form = document.getElementById('markerForm');
+    var levelEl = document.getElementById('mapZoomLevel');
     var mapId = canvas.dataset.mapId;
+    var placing = false;   // set true only in DM placement mode (below)
 
-    // Fractional (0..1) click/drag position relative to the image.
+    // Fractional (0..1) position relative to the image. Reads the LIVE image box
+    // (getBoundingClientRect reflects the zoom/pan transform), so placement and
+    // pin-drag stay correct at any zoom level.
     function fracFromEvent(e) {
       var r = img.getBoundingClientRect();
       var x = (e.clientX - r.left) / r.width;
@@ -192,73 +211,165 @@
       return { x: Math.max(0, Math.min(1, x)), y: Math.max(0, Math.min(1, y)) };
     }
 
-    // --- Placement mode: click the map to drop a marker -------------------
-    var placing = false;
-    function setPlacing(on) {
-      placing = on;
-      canvas.classList.toggle('placing', on);
-      placeHint.hidden = !on;
-      placeBtn.hidden = on;
+    // --- Grid overlay -----------------------------------------------------
+    // Drawn in SOURCE-IMAGE pixel space (canvas buffer = naturalWidth×Height),
+    // then stretched to the image box, so cells stay square + content-aligned
+    // at every display size and zoom.
+    function drawGrid() {
+      if (canvas.dataset.gridEnabled !== '1') { grid.hidden = true; return; }
+      var w = img.naturalWidth, h = img.naturalHeight;
+      if (!w || !h) return;
+      var size = Math.max(2, parseInt(canvas.dataset.gridSize, 10) || 50);
+      var ox = (((parseInt(canvas.dataset.gridOx, 10) || 0) % size) + size) % size;
+      var oy = (((parseInt(canvas.dataset.gridOy, 10) || 0) % size) + size) % size;
+      grid.width = w; grid.height = h;
+      var ctx = grid.getContext('2d');
+      ctx.clearRect(0, 0, w, h);
+      ctx.strokeStyle = canvas.dataset.gridColor || '#000000';
+      var op = parseInt(canvas.dataset.gridOpacity, 10);
+      ctx.globalAlpha = Math.max(0, Math.min(100, isNaN(op) ? 40 : op)) / 100;
+      ctx.lineWidth = Math.max(1, Math.round(w / 1400));
+      ctx.beginPath();
+      for (var x = ox; x <= w; x += size) { ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, h); }
+      for (var y = oy; y <= h; y += size) { ctx.moveTo(0, y + 0.5); ctx.lineTo(w, y + 0.5); }
+      ctx.stroke();
+      grid.hidden = false;
     }
-    placeBtn.addEventListener('click', function () { setPlacing(true); form.hidden = true; });
-    placeCancel.addEventListener('click', function () { setPlacing(false); });
 
-    canvas.addEventListener('click', function (e) {
-      if (!placing) return;
-      var f = fracFromEvent(e);
-      document.getElementById('markerX').value = f.x.toFixed(4);
-      document.getElementById('markerY').value = f.y.toFixed(4);
-      setPlacing(false);
-      form.hidden = false;
-      form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    });
-
-    // --- Placement form: show the right target picker by type -------------
-    var typeSel = document.getElementById('markerType');
-    function syncTargets() {
-      var t = typeSel.value;
-      document.querySelectorAll('.marker-target').forEach(function (el) {
-        var match = el.dataset.for === t;
-        el.hidden = !match;
-        var ctl = el.querySelector('select, input');
-        // Only the active entity_id select (or the label input) should submit.
-        if (ctl && (ctl.name === 'entity_id')) ctl.disabled = !match;
-      });
+    // --- Zoom & pan -------------------------------------------------------
+    var MIN = 1, MAX = 8;
+    var scale = 1, tx = 0, ty = 0;
+    function apply() {
+      var cw = canvas.clientWidth, ch = canvas.clientHeight;
+      tx = Math.min(0, Math.max(cw - cw * scale, tx));   // keep the image covering the window
+      ty = Math.min(0, Math.max(ch - ch * scale, ty));
+      viewport.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')';
+      canvas.classList.toggle('pannable', scale > 1 && !placing);
+      if (levelEl) levelEl.textContent = Math.round(scale * 100) + '%';
     }
-    typeSel.addEventListener('change', syncTargets);
-    syncTargets();
-    document.getElementById('markerFormCancel').addEventListener('click', function () { form.hidden = true; });
-
-    // --- Drag an existing pin to reposition it ----------------------------
-    var dragging = null, moved = false;
-    markersLayer.addEventListener('pointerdown', function (e) {
-      var pin = e.target.closest('.map-marker');
-      if (!pin) return;
+    function zoomTo(next, px, py) {
+      next = Math.max(MIN, Math.min(MAX, next));
+      if (next === scale) return;
+      tx = px - (px - tx) * (next / scale);   // anchor the point under the cursor
+      ty = py - (py - ty) * (next / scale);
+      scale = next;
+      apply();
+    }
+    function canvasPoint(e) {
+      var r = canvas.getBoundingClientRect();
+      return { x: e.clientX - r.left, y: e.clientY - r.top };
+    }
+    function zoomCenter(factor) { zoomTo(scale * factor, canvas.clientWidth / 2, canvas.clientHeight / 2); }
+    document.getElementById('mapZoomIn').addEventListener('click', function () { zoomCenter(1.4); });
+    document.getElementById('mapZoomOut').addEventListener('click', function () { zoomCenter(1 / 1.4); });
+    document.getElementById('mapZoomReset').addEventListener('click', function () { scale = 1; tx = 0; ty = 0; apply(); });
+    canvas.addEventListener('wheel', function (e) {
       e.preventDefault();
-      dragging = pin; moved = false;
-      pin.setPointerCapture(e.pointerId);
-      pin.classList.add('dragging');
+      var p = canvasPoint(e);
+      zoomTo(scale * (e.deltaY < 0 ? 1.15 : 1 / 1.15), p.x, p.y);
+    }, { passive: false });
+
+    // Suppress the browser's native image drag/selection so repeated pans don't
+    // grab the image element or leave a blue highlight.
+    canvas.addEventListener('dragstart', function (e) { e.preventDefault(); });
+
+    // Pan by dragging the background (not a pin, not while placing, only when zoomed in).
+    var panning = null;
+    canvas.addEventListener('pointerdown', function (e) {
+      if (placing || scale <= 1 || e.target.closest('.map-marker')) return;
+      e.preventDefault();   // stop native drag/selection from starting
+      panning = { x: e.clientX, y: e.clientY };
+      canvas.setPointerCapture(e.pointerId);
+      canvas.classList.add('panning');
     });
-    markersLayer.addEventListener('pointermove', function (e) {
-      if (!dragging) return;
-      moved = true;
-      var f = fracFromEvent(e);
-      dragging.style.left = (f.x * 100) + '%';
-      dragging.style.top = (f.y * 100) + '%';
+    canvas.addEventListener('pointermove', function (e) {
+      if (!panning) return;
+      tx += e.clientX - panning.x; ty += e.clientY - panning.y;
+      panning.x = e.clientX; panning.y = e.clientY;
+      apply();
     });
-    markersLayer.addEventListener('pointerup', function (e) {
-      if (!dragging) return;
-      var pin = dragging; dragging = null;
-      pin.classList.remove('dragging');
-      if (!moved) return;
-      var f = fracFromEvent(e);
-      var body = new URLSearchParams({ x: f.x.toFixed(4), y: f.y.toFixed(4) });
-      fetch('/map/' + mapId + '/marker/' + pin.dataset.id + '/move', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: body.toString(),
+    function endPan() { panning = null; canvas.classList.remove('panning'); }
+    canvas.addEventListener('pointerup', endPan);
+    canvas.addEventListener('pointercancel', endPan);
+    window.addEventListener('resize', apply);
+
+    if (img.complete) { drawGrid(); apply(); }
+    else img.addEventListener('load', function () { drawGrid(); apply(); });
+
+    // --- DM only: marker placement + pin drag -----------------------------
+    var placeBtn = document.getElementById('mapPlaceBtn');
+    if (placeBtn) {
+      var placeHint = document.getElementById('mapPlaceHint');
+      var placeCancel = document.getElementById('mapPlaceCancel');
+      var form = document.getElementById('markerForm');
+
+      function setPlacing(on) {
+        placing = on;
+        canvas.classList.toggle('placing', on);
+        placeHint.hidden = !on;
+        placeBtn.hidden = on;
+        apply();   // refresh the pannable cursor state
+      }
+      placeBtn.addEventListener('click', function () { setPlacing(true); form.hidden = true; });
+      placeCancel.addEventListener('click', function () { setPlacing(false); });
+
+      canvas.addEventListener('click', function (e) {
+        if (!placing) return;
+        var f = fracFromEvent(e);
+        document.getElementById('markerX').value = f.x.toFixed(4);
+        document.getElementById('markerY').value = f.y.toFixed(4);
+        setPlacing(false);
+        form.hidden = false;
+        form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       });
-    });
+
+      // Placement form: show the right target picker by type.
+      var typeSel = document.getElementById('markerType');
+      function syncTargets() {
+        var t = typeSel.value;
+        document.querySelectorAll('.marker-target').forEach(function (el) {
+          var match = el.dataset.for === t;
+          el.hidden = !match;
+          var ctl = el.querySelector('select, input');
+          if (ctl && (ctl.name === 'entity_id')) ctl.disabled = !match;
+        });
+      }
+      typeSel.addEventListener('change', syncTargets);
+      syncTargets();
+      document.getElementById('markerFormCancel').addEventListener('click', function () { form.hidden = true; });
+
+      // Drag an existing pin to reposition it.
+      var dragging = null, moved = false;
+      markersLayer.addEventListener('pointerdown', function (e) {
+        var pin = e.target.closest('.map-marker');
+        if (!pin) return;
+        e.preventDefault();
+        e.stopPropagation();      // don't let the canvas start a pan
+        dragging = pin; moved = false;
+        pin.setPointerCapture(e.pointerId);
+        pin.classList.add('dragging');
+      });
+      markersLayer.addEventListener('pointermove', function (e) {
+        if (!dragging) return;
+        moved = true;
+        var f = fracFromEvent(e);
+        dragging.style.left = (f.x * 100) + '%';
+        dragging.style.top = (f.y * 100) + '%';
+      });
+      markersLayer.addEventListener('pointerup', function (e) {
+        if (!dragging) return;
+        var pin = dragging; dragging = null;
+        pin.classList.remove('dragging');
+        if (!moved) return;
+        var f = fracFromEvent(e);
+        var body = new URLSearchParams({ x: f.x.toFixed(4), y: f.y.toFixed(4) });
+        fetch('/map/' + mapId + '/marker/' + pin.dataset.id + '/move', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: body.toString(),
+        });
+      });
+    }
   })();
   </script>
   {% endif %}
