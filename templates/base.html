@@ -112,28 +112,75 @@
     <span class="muted">Rules reference uses the D&amp;D 5e SRD (CC-BY-4.0).</span>
   </footer>
 
+  <div id="roll-toast" class="roll-toast" role="status" aria-live="polite"></div>
+
   <script>
-    // Assist mode: a die in spell text (class "rollable") rolls through the
-    // dice engine, logs it, and returns here with the result flashed. Delegated
-    // on the document so dice injected by AJAX fragment updates (the character
-    // sheet's spells/actions/gear sections) stay clickable too.
-    document.addEventListener('click', function (e) {
-      var el = e.target.closest('.rollable');
-      if (!el) return;
-      var f = document.createElement('form');
-      f.method = 'post';
-      f.action = '{{ url_for("dice_roll") }}';
-      function add(name, value) {
-        var i = document.createElement('input');
-        i.type = 'hidden'; i.name = name; i.value = value;
-        f.appendChild(i);
+    // --- App-wide AJAX dice rolling ---------------------------------------
+    // Every roll (a .rollable die, or a Check/Save/Skill/Cast/Attack/Damage form
+    // posting to the dice engine) is sent via fetch and the result shown in a
+    // transient floating toast — no full page reload. The roll is still logged
+    // server-side and shows on the Dice page. The Dice page's own roller opts out
+    // (data-no-ajax) so it reloads to refresh its log.
+    (function () {
+      var DICE_ROLL = '{{ url_for("dice_roll") }}';
+      var toast = document.getElementById('roll-toast');
+      var timer = null;
+
+      function showToast(data) {
+        if (!toast) return;
+        if (data && data.ok === false) {
+          toast.innerHTML = '<span class="rt-detail">⚠ ' + (data.error || 'Bad roll') + '</span>';
+          toast.style.borderLeftColor = '';
+        } else {
+          var lbl = data.label ? '<span class="rt-label"></span>' : '';
+          toast.innerHTML =
+            (data.label ? '<span class="rt-label"></span>' : '') +
+            '<span class="rt-total"></span><span class="rt-detail"></span>';
+          if (data.label) toast.querySelector('.rt-label').textContent = data.label;
+          toast.querySelector('.rt-total').textContent = data.total;
+          toast.querySelector('.rt-detail').textContent = data.detail;
+          toast.style.borderLeftColor = data.color || 'var(--accent-2)';
+        }
+        toast.classList.add('show');
+        clearTimeout(timer);
+        timer = setTimeout(function () { toast.classList.remove('show'); }, 4500);
       }
-      add('expression', el.dataset.expr);
-      add('label', el.dataset.label || '');
-      add('next', window.location.pathname);
-      document.body.appendChild(f);
-      f.submit();
-    });
+
+      function postRoll(params) {
+        var body = new URLSearchParams(params);
+        fetch(DICE_ROLL, {
+          method: 'POST', body: body.toString(),
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded',
+                     'X-Requested-With': 'fetch' },
+        }).then(function (r) { return r.json(); })
+          .then(showToast)
+          .catch(function () {});
+      }
+
+      // A die in rules/spell text. Delegated on document so dice injected by AJAX
+      // fragment updates stay clickable.
+      document.addEventListener('click', function (e) {
+        var el = e.target.closest('.rollable');
+        if (!el) return;
+        e.preventDefault();
+        postRoll({ expression: el.dataset.expr || '', label: el.dataset.label || '' });
+      });
+
+      // Any form posting to the dice engine (checks, saves, skills, weapon & spell
+      // attacks, casts) — except the Dice page's own roller. Bubble phase, so the
+      // sheet's adv/dis capture handler has already adjusted the expression, and
+      // the fragment boxes have let dice forms pass through.
+      document.addEventListener('submit', function (e) {
+        var form = e.target.closest('form');
+        if (!form || form.hasAttribute('data-no-ajax')) return;
+        var action = (form.getAttribute('action') || '').split('?')[0];
+        if (!action.endsWith(DICE_ROLL)) return;
+        e.preventDefault();
+        var params = {};
+        new FormData(form).forEach(function (v, k) { params[k] = v; });
+        postRoll(params);
+      });
+    })();
 
     // Collapsible "Known Entities" sidebar groups. Each group's collapsed state
     // is remembered in localStorage (keyed by group name) so it survives the

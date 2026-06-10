@@ -10,7 +10,8 @@ import re
 from datetime import datetime, timezone
 
 from flask import (
-    Flask, abort, flash, g, redirect, render_template, request, session, url_for,
+    Flask, abort, flash, g, jsonify, redirect, render_template, request, session,
+    url_for,
 )
 from markupsafe import Markup, escape
 from werkzeug.utils import secure_filename
@@ -2387,14 +2388,27 @@ def dice_roll():
     """
     target = _safe_next(request.form.get("next"), default=url_for("dice"))
     label = (request.form.get("label") or "").strip()
+    ajax = _is_fetch()
     try:
         result = parse_and_roll(request.form.get("expression", ""))
     except DiceError as err:
+        if ajax:
+            return jsonify({"ok": False, "error": str(err)}), 400
         flash(str(err))
         return redirect(target)
 
     u = current_user()
     add_roll(result, label, user_id=u["id"] if u else None)
+    if ajax:
+        # Inline-roll path: the sheet's Check/Save/Skill/Cast/Attack buttons (and
+        # any .rollable die) fetch this and flash a toast instead of reloading.
+        return jsonify({
+            "ok": True,
+            "total": result["total"],
+            "detail": result["detail"],
+            "label": label,
+            "color": (u["color"] if u and u["color"] else ""),
+        })
     prefix = f"{label}: " if label else ""
     flash(f"🎲 {prefix}{result['detail']} = {result['total']}")
     return redirect(target)

@@ -21,7 +21,7 @@
         </span>
         {% if e.asi %}<span class="asi-tag">+{{ e.asi }}</span>{% else %}<span class="asi-tag-blank"></span>{% endif %}
         {% if can_edit %}
-          <form method="post" action="{{ url_for('asi_adjust') }}" class="inline asi-controls">
+          <form method="post" action="{{ url_for('asi_adjust') }}" class="inline asi-controls js-sheet-reload">
             <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
             <input type="hidden" name="ability" value="{{ col }}">
             <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">

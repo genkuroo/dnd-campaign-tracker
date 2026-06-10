@@ -15,7 +15,7 @@
             title="Roll two d20, keep the lowest">d20 dis</button>
   </section>
 
-  <form method="post" action="{{ url_for('dice_roll') }}" class="dice-expr">
+  <form method="post" action="{{ url_for('dice_roll') }}" class="dice-expr" data-no-ajax>
     <input type="text" name="expression" id="expr" placeholder="2d6+3" autofocus
            autocomplete="off" aria-label="Dice expression">
     <button type="submit" class="btn">Roll</button>

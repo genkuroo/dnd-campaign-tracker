@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% from "macros.html" import info, mentioned_in_section, avatar %}
 {% block content %}
+  {# Everything inside #sheet re-renders in place when a state mutation (level-up,
+     ASI, exhaustion, inspiration) posts via a js-sheet-reload form — see initSheet
+     + the sheet-reload handler at the bottom. #}
+  <div id="sheet">
   <div class="page-head">
     <div>
       <h1 class="sheet-name">
@@ -115,7 +119,7 @@
       <span class="vital-value">
         {% if creature['inspiration'] %}<span class="insp-on">✨ Yes</span>{% else %}<span class="muted">—</span>{% endif %}
         {% if can_edit %}
-          <form method="post" action="{{ url_for('character_inspiration', creature_id=creature['id']) }}" class="inline">
+          <form method="post" action="{{ url_for('character_inspiration', creature_id=creature['id']) }}" class="inline js-sheet-reload">
             <button type="submit" class="btn-small" title="{{ 'Spend it — use for advantage on a roll' if creature['inspiration'] else 'Grant inspiration' }}">{{ 'Use' if creature['inspiration'] else 'Grant' }}</button>
           </form>
         {% endif %}
@@ -154,7 +158,7 @@
           <span class="muted">{{ '{:,}'.format(next_level[1]) }} XP to level {{ next_level[0] }}.</span>
         {% endif %}
       </span>
-      <form method="post" action="{{ url_for('character_levelup', creature_id=creature['id']) }}" class="levelup-form">
+      <form method="post" action="{{ url_for('character_levelup', creature_id=creature['id']) }}" class="levelup-form js-sheet-reload">
         <label class="hp-gain-label">+HP {{ info('hit-die') }}
           <input type="number" name="hp_gain" min="0" value="{{ level_hp }}" class="hp-gain-input" aria-label="Hit points gained">
         </label>
@@ -237,7 +241,7 @@
       </div>
       <div class="exhaustion-row">
         {% if can_edit %}
-          <form method="post" action="{{ url_for('character_exhaustion', creature_id=creature['id']) }}" class="inline">
+          <form method="post" action="{{ url_for('character_exhaustion', creature_id=creature['id']) }}" class="inline js-sheet-reload">
             <input type="hidden" name="delta" value="-1">
             <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
             <button type="submit" class="slot-btn" {{ 'disabled' if exhaustion == 0 else '' }} title="Lower one level">−</button>
@@ -247,7 +251,7 @@
           {% for i in range(1, max_exhaustion + 1) %}<span class="ex-pip {{ 'on' if i <= exhaustion else '' }} {{ 'death' if i == max_exhaustion else '' }}">{{ i }}</span>{% endfor %}
         </span>
         {% if can_edit %}
-          <form method="post" action="{{ url_for('character_exhaustion', creature_id=creature['id']) }}" class="inline">
+          <form method="post" action="{{ url_for('character_exhaustion', creature_id=creature['id']) }}" class="inline js-sheet-reload">
             <input type="hidden" name="delta" value="1">
             <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
             <button type="submit" class="slot-btn" {{ 'disabled' if exhaustion == max_exhaustion else '' }} title="Raise one level">+</button>
@@ -547,7 +551,19 @@
 
   {{ mentioned_in_section(mentioned_in) }}
 
+  </div><!-- /#sheet -->
+
   <script>
+    const DICE_ROLL_PATH = '{{ url_for("dice_roll") }}';
+    function isDiceForm(form) {
+      return ((form.getAttribute('action') || '').split('?')[0]).endsWith(DICE_ROLL_PATH);
+    }
+
+    // initSheet binds all the per-section in-place handlers (gear / actions /
+    // spells / feats / resources). It runs on load AND after a whole-sheet swap
+    // (level-up / ASI / exhaustion / inspiration), where the inner fragment boxes
+    // are brand-new elements that need re-binding.
+    function initSheet() {
     // Gear interactions (equip/unequip/quantity/remove + drag-to-equip) update
     // the #gear fragment in place via fetch, so the page never reloads or
     // scrolls. Handlers are delegated on #gear (which persists), so they keep
@@ -571,7 +587,7 @@
 
       gear.addEventListener('submit', function (e) {
         const form = e.target.closest('form');
-        if (!form) return;
+        if (!form || isDiceForm(form)) return;  // let dice rolls bubble to the app-wide roller
         e.preventDefault();
         if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) return;
         post(form.getAttribute('action'), new FormData(form));
@@ -733,7 +749,7 @@
 
       box.addEventListener('submit', function (e) {
         const form = e.target.closest('form');
-        if (!form) return;
+        if (!form || isDiceForm(form)) return;  // dice rolls bubble to the app-wide roller
         e.preventDefault();
         if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) return;
         fetch(form.getAttribute('action'), { method: 'POST', body: new FormData(form),
@@ -805,7 +821,7 @@
 
       box.addEventListener('submit', function (e) {
         const form = e.target.closest('form');
-        if (!form) return;
+        if (!form || isDiceForm(form)) return;  // dice rolls bubble to the app-wide roller
         e.preventDefault();
         if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) return;
         fetch(form.getAttribute('action'), { method: 'POST', body: new FormData(form),
@@ -829,7 +845,7 @@
       if (!box) return;
       box.addEventListener('submit', function (e) {
         const form = e.target.closest('form');
-        if (!form) return;
+        if (!form || isDiceForm(form)) return;  // dice rolls bubble to the app-wide roller
         e.preventDefault();
         if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) return;
         fetch(form.getAttribute('action'), { method: 'POST', body: new FormData(form),
@@ -859,6 +875,32 @@
           .then(html => { box.innerHTML = html; });
       });
     })();
+    }  // end initSheet
+    initSheet();
+
+    // Sheet state mutations (level-up, ASI, exhaustion, inspiration) re-render the
+    // WHOLE sheet in place — they ripple into numbers all over (AC, saves, skills,
+    // HP, features), so a partial wouldn't keep everything consistent. The form
+    // posts via fetch (the server redirects to the GET sheet, which fetch follows);
+    // we extract the fresh #sheet from the response, swap it, then re-run initSheet()
+    // to re-bind the new fragment boxes. Bound on document so it survives the swap;
+    // no-JS falls back to a normal POST + redirect.
+    document.addEventListener('submit', function (e) {
+      const form = e.target.closest('form');
+      if (!form || !form.classList.contains('js-sheet-reload')) return;
+      e.preventDefault();
+      const sheet = document.getElementById('sheet');
+      const body = new FormData(form);
+      if (e.submitter && e.submitter.name) body.set(e.submitter.name, e.submitter.value);
+      fetch(form.getAttribute('action'), { method: 'POST', body: body })
+        .then(r => r.text())
+        .then(html => {
+          const fresh = new DOMParser().parseFromString(html, 'text/html').getElementById('sheet');
+          if (fresh && sheet) { sheet.innerHTML = fresh.innerHTML; initSheet(); }
+          else { window.location.reload(); }   // safety net if the shape changed
+        })
+        .catch(() => { form.submit(); });        // network error → plain submit
+    });
 
     // Advantage / Disadvantage: a shared one-shot selector that appends ' adv' or
     // ' dis' to a d20 roll's expression just before it posts to the dice engine
