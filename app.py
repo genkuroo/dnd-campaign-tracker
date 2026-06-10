@@ -187,6 +187,11 @@ from models.maps import (
     update_map,
     visible_maps,
 )
+from models.summons import (
+    all_summons,
+    is_summon as creature_is_summon,
+    spawn as spawn_summon,
+)
 from models.map_markers import (
     create_marker,
     delete_marker,
@@ -1260,6 +1265,9 @@ def character_detail(creature_id):
         companions=[c for c in list_controlled_by(_my_user_id())
                     if c["id"] != creature_id],
         controller=get_user(creature["controlled_by"]) if creature["controlled_by"] else None,
+        # Phase 12b: the summon picker shows on the player's OWN PC sheet.
+        can_summon=(creature_id == _my_pc_id()),
+        summon_catalog=all_summons(),
     )
 
 
@@ -1302,6 +1310,41 @@ def character_avatar(creature_id):
     _require_edit(creature_id)
     _apply_avatar(creature_id)
     return _gear_response(creature_id, url_for("character_detail", creature_id=creature_id))
+
+
+# --- Summons (Phase 12b) ---------------------------------------------------
+
+def _my_sheet_redirect():
+    """Back to the viewer's own PC sheet (where summons live), else the tab."""
+    pc_id = _my_pc_id()
+    return redirect(url_for("character_detail", creature_id=pc_id) if pc_id
+                    else url_for("character"))
+
+
+@app.route("/summon", methods=["POST"])
+def summon_new():
+    """A player spawns a catalog summon under their own control. (DM-less action —
+    summoning is a player feature; the DM grants companions via the edit form.)"""
+    uid = _my_user_id()
+    if not uid:
+        abort(403)
+    new_id = spawn_summon(request.form.get("slug"), uid)
+    flash("Summoned!" if new_id else "Unknown summon.")
+    return _my_sheet_redirect()
+
+
+@app.route("/summon/<int:creature_id>/dismiss", methods=["POST"])
+def summon_dismiss(creature_id):
+    """Dismiss (delete) a summon — only its controller or the DM, and only an
+    actual summon (a DM-granted companion isn't player-dismissable)."""
+    creature = get_creature(creature_id)
+    if creature is None or not creature["is_summon"]:
+        abort(404)
+    if not (is_dm() or _controls_creature(creature)):
+        abort(403)
+    delete_creature(creature_id)
+    flash("Summon dismissed.")
+    return _my_sheet_redirect()
 
 
 @app.route("/character/<int:creature_id>/disposition", methods=["POST"])

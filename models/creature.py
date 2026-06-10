@@ -292,7 +292,8 @@ def list_monsters():
     conn = get_connection()
     try:
         return conn.execute(
-            "SELECT * FROM creatures WHERE kind = 'monster' ORDER BY name COLLATE NOCASE"
+            "SELECT * FROM creatures WHERE kind = 'monster' AND is_summon = 0 "
+            "ORDER BY name COLLATE NOCASE"
         ).fetchall()
     finally:
         conn.close()

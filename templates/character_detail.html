@@ -57,24 +57,49 @@
     </div>
   </div>
 
-  {% if companions %}
+  {% if companions or can_summon %}
     <section class="sheet-section companions-panel">
       <h2>🎮 Your companions</h2>
-      <p class="muted">Creatures your DM has put under your control. Click one to manage its sheet.</p>
-      <div class="card-grid">
-        {% for comp in companions %}
-          <a class="char-card" href="{{ url_for('character_detail', creature_id=comp['id']) }}">
-            <div class="char-card-head">
-              <span class="char-card-title">{{ avatar(comp, 'avatar-sm') }}<span class="char-name">{{ comp['name'] }}</span></span>
-              <span class="badge-kind badge-kind-{{ comp['kind'] }}">{{ comp['kind'] | upper }}</span>
+      {% if companions %}
+        <p class="muted">Creatures under your control — click one to manage its sheet.</p>
+        <div class="card-grid">
+          {% for comp in companions %}
+            <div class="char-card companion-card">
+              <a class="companion-link" href="{{ url_for('character_detail', creature_id=comp['id']) }}">
+                <div class="char-card-head">
+                  <span class="char-card-title">{{ avatar(comp, 'avatar-sm') }}<span class="char-name">{{ comp['name'] }}</span></span>
+                  {% if comp['is_summon'] %}<span class="badge-kind">✨ summon</span>{% else %}<span class="badge-kind badge-kind-{{ comp['kind'] }}">{{ comp['kind'] | upper }}</span>{% endif %}
+                </div>
+                <div class="char-meta">
+                  <span>❤️ {{ comp['current_hp'] }}/{{ comp['max_hp'] }}</span>
+                  <span>🛡 {{ comp['armor_class'] }}</span>
+                </div>
+              </a>
+              {% if comp['is_summon'] %}
+                <form method="post" action="{{ url_for('summon_dismiss', creature_id=comp['id']) }}" class="inline companion-dismiss"
+                      onsubmit="return confirm('Dismiss {{ comp['name'] }}?');">
+                  <button type="submit" class="btn-text danger" title="Dismiss this summon">✕ Dismiss</button>
+                </form>
+              {% endif %}
             </div>
-            <div class="char-meta">
-              <span>❤️ {{ comp['current_hp'] }}/{{ comp['max_hp'] }}</span>
-              <span>🛡 {{ comp['armor_class'] }}</span>
-            </div>
-          </a>
-        {% endfor %}
-      </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% if can_summon %}
+        <form method="post" action="{{ url_for('summon_new') }}" class="summon-form">
+          <label class="field">
+            <span>Summon a creature</span>
+            <select name="slug" required>
+              <option value="" disabled selected>Choose a creature…</option>
+              {% for s in summon_catalog %}
+                <option value="{{ s['slug'] }}">{{ s['avatar'] }} {{ s['name'] }} (CR {{ s['cr'] | cr }})</option>
+              {% endfor %}
+            </select>
+          </label>
+          <button type="submit" class="btn">✨ Summon</button>
+        </form>
+      {% endif %}
     </section>
   {% endif %}
 

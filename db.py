@@ -34,7 +34,7 @@ LEGACY_DB_PATH = os.path.join(DATA_DIR, "campaign.db")
 # Unset in normal app runs, which then use the multi-campaign layout above.
 DB_PATH = os.environ.get("DND_DB_PATH")
 
-SCHEMA_VERSION = 51
+SCHEMA_VERSION = 52
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -662,6 +662,14 @@ MIGRATIONS = {
     -- control rides the existing visibility spine. No FK (orphan-on-user-delete
     -- resolves as "none" on read, like creature.location_id).
     ALTER TABLE creatures ADD COLUMN controlled_by INTEGER NOT NULL DEFAULT 0;
+    """,
+    52: """
+    -- Phase 12b — summons. A summoned creature (familiar, conjured beast) is just
+    -- a creature (`kind='monster'`) the summoner `controls` (12a), flagged
+    -- `is_summon=1` so it's (a) excluded from the DM's Bestiary clutter and (b)
+    -- player-dismissable (a regular DM-granted companion is not). Spawned from the
+    -- bundled data/summons.json catalog; Dismiss = delete.
+    ALTER TABLE creatures ADD COLUMN is_summon INTEGER NOT NULL DEFAULT 0;
     """,
 }
 

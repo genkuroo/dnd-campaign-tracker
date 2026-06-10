@@ -1,0 +1,105 @@
+{
+  "_attribution": "Creature stat blocks adapted from the D&D 5e System Reference Document 5.1, CC-BY-4.0. Paraphrased; not the verbatim PHB/MM text.",
+  "summons": [
+    {
+      "slug": "familiar-owl",
+      "name": "Owl (Familiar)",
+      "avatar": "🦉",
+      "kind": "monster",
+      "cr": 0,
+      "armor_class": 11,
+      "max_hp": 1,
+      "speed": 60,
+      "strength": 3, "dexterity": 13, "constitution": 8,
+      "intelligence": 2, "wisdom": 12, "charisma": 7,
+      "notes": "A tiny familiar conjured by find familiar. Flying speed 60 ft. Flyby (no opportunity attacks when it flies out of reach), keen hearing and sight.",
+      "actions": [
+        {"name": "Talons", "category": "action", "dice": "1d1", "description": "Melee attack, +3 to hit, reach 5 ft. Hit: 1 slashing damage."}
+      ]
+    },
+    {
+      "slug": "familiar-cat",
+      "name": "Cat (Familiar)",
+      "avatar": "🐈",
+      "kind": "monster",
+      "cr": 0,
+      "armor_class": 12,
+      "max_hp": 2,
+      "speed": 40,
+      "strength": 3, "dexterity": 15, "constitution": 10,
+      "intelligence": 3, "wisdom": 12, "charisma": 7,
+      "notes": "A nimble familiar. Keen smell; climbing speed 30 ft.",
+      "actions": [
+        {"name": "Claws", "category": "action", "dice": "1d1", "description": "Melee attack, +0 to hit, reach 5 ft. Hit: 1 slashing damage."}
+      ]
+    },
+    {
+      "slug": "wolf",
+      "name": "Wolf",
+      "avatar": "🐺",
+      "kind": "monster",
+      "cr": 0.25,
+      "armor_class": 13,
+      "max_hp": 11,
+      "speed": 40,
+      "strength": 12, "dexterity": 15, "constitution": 12,
+      "intelligence": 3, "wisdom": 12, "charisma": 6,
+      "notes": "Pack Tactics: advantage on attacks against a creature if an ally is within 5 ft of it. Keen hearing and smell.",
+      "actions": [
+        {"name": "Bite", "category": "action", "dice": "2d4+2", "description": "Melee attack, +4 to hit, reach 5 ft. Hit: 2d4+2 piercing. If the target is a creature it must succeed on a DC 11 STR save or be knocked prone."}
+      ]
+    },
+    {
+      "slug": "black-bear",
+      "name": "Black Bear",
+      "avatar": "🐻",
+      "kind": "monster",
+      "cr": 0.5,
+      "armor_class": 11,
+      "max_hp": 19,
+      "speed": 40,
+      "strength": 15, "dexterity": 10, "constitution": 14,
+      "intelligence": 2, "wisdom": 12, "charisma": 7,
+      "notes": "Keen smell; climbing speed 30 ft. Multiattack: one bite and one claws.",
+      "actions": [
+        {"name": "Bite", "category": "action", "dice": "1d6+2", "description": "Melee attack, +3 to hit, reach 5 ft. Hit: 1d6+2 piercing."},
+        {"name": "Claws", "category": "action", "dice": "2d4+2", "description": "Melee attack, +3 to hit, reach 5 ft. Hit: 2d4+2 slashing."}
+      ]
+    },
+    {
+      "slug": "giant-spider",
+      "name": "Giant Spider",
+      "avatar": "🕷️",
+      "kind": "monster",
+      "cr": 1,
+      "armor_class": 14,
+      "max_hp": 26,
+      "speed": 30,
+      "strength": 14, "dexterity": 16, "constitution": 12,
+      "intelligence": 2, "wisdom": 11, "charisma": 4,
+      "notes": "Climbing speed 30 ft; spider climb and web sense/walker. Can shoot a web to restrain a target (DC 11 DEX save, Recharge 5–6).",
+      "actions": [
+        {"name": "Bite", "category": "action", "dice": "1d8+3", "description": "Melee attack, +5 to hit, reach 5 ft. Hit: 1d8+3 piercing, plus 2d8 poison on a failed DC 11 CON save (half on success; reduced to 0 HP at 0 is paralyzed)."}
+      ]
+    },
+    {
+      "slug": "skeleton",
+      "name": "Skeleton",
+      "avatar": "💀",
+      "kind": "monster",
+      "cr": 0.25,
+      "armor_class": 13,
+      "max_hp": 13,
+      "speed": 30,
+      "strength": 10, "dexterity": 14, "constitution": 15,
+      "intelligence": 6, "wisdom": 8, "charisma": 5,
+      "notes": "Undead. Vulnerable to bludgeoning; immune to poison and exhaustion; obeys its raiser's commands.",
+      "vulnerabilities": "bludgeoning",
+      "immunities": "poison",
+      "actions": [
+        {"name": "Shortsword", "category": "action", "dice": "1d6+2", "description": "Melee attack, +4 to hit, reach 5 ft. Hit: 1d6+2 piercing."},
+        {"name": "Shortbow", "category": "action", "dice": "1d6+2", "description": "Ranged attack, +4 to hit, range 80/320. Hit: 1d6+2 piercing."}
+      ]
+    }
+  ]
+}
