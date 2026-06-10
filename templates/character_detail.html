@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import info, mentioned_in_section %}
+{% from "macros.html" import info, mentioned_in_section, avatar %}
 {% block content %}
   <div class="page-head">
     <div>
@@ -11,6 +11,7 @@
       <p class="muted">
         <span class="badge-kind">{{ 'NPC' if creature['kind'] == 'npc' else 'PC' }}</span>
         {% if creature['kind'] == 'monster' %}CR {{ creature['cr'] | cr }}{% else %}Level {{ creature['level'] }}{% endif %}{% if race_label %} {{ race_label }}{% endif %}{% if klass %} {{ klass['name'] }}{% if subclass %} <span class="muted">({{ subclass['name'] }})</span>{% endif %}{% endif %}{% if background %} · {{ background['name'] }}{% endif %}{% if creature['player_name'] %} · played by {{ creature['player_name'] }}{% endif %}
+        {% if controller %} · 🎮 controlled by {{ controller['username'] }}{% endif %}
         {% if creature['alignment'] %} · {{ creature['alignment'] | alignment }}{% endif %}
         {% if home %} · 📍 <a href="{{ url_for('location_detail', location_id=home['id']) }}">{{ home['name'] }}</a>{% endif %}
         {% if faction %} · 🏛 <a href="{{ url_for('faction_detail', faction_id=faction['id']) }}">{{ faction['name'] }}</a>{% endif %}
@@ -55,6 +56,27 @@
       {% endif %}
     </div>
   </div>
+
+  {% if companions %}
+    <section class="sheet-section companions-panel">
+      <h2>🎮 Your companions</h2>
+      <p class="muted">Creatures your DM has put under your control. Click one to manage its sheet.</p>
+      <div class="card-grid">
+        {% for comp in companions %}
+          <a class="char-card" href="{{ url_for('character_detail', creature_id=comp['id']) }}">
+            <div class="char-card-head">
+              <span class="char-card-title">{{ avatar(comp, 'avatar-sm') }}<span class="char-name">{{ comp['name'] }}</span></span>
+              <span class="badge-kind badge-kind-{{ comp['kind'] }}">{{ comp['kind'] | upper }}</span>
+            </div>
+            <div class="char-meta">
+              <span>❤️ {{ comp['current_hp'] }}/{{ comp['max_hp'] }}</span>
+              <span>🛡 {{ comp['armor_class'] }}</span>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
 
   <section class="vitals">
     <div class="vital"><span class="vital-label">Hit Points {{ info('hit-points') }}</span><span class="vital-value">{{ creature['current_hp'] }} / {{ creature['max_hp'] }}</span></div>

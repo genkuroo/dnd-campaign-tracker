@@ -34,7 +34,7 @@ LEGACY_DB_PATH = os.path.join(DATA_DIR, "campaign.db")
 # Unset in normal app runs, which then use the multi-campaign layout above.
 DB_PATH = os.environ.get("DND_DB_PATH")
 
-SCHEMA_VERSION = 50
+SCHEMA_VERSION = 51
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -651,6 +651,17 @@ MIGRATIONS = {
         created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
     );
     CREATE INDEX idx_map_markers_map ON map_markers(map_id);
+    """,
+    51: """
+    -- Phase 12a — player-controlled companions. A creature can be put under a
+    -- player's *control* (a DM-granted NPC ally, or a 12b summon) — distinct from
+    -- the strict one-PC ownership link (`users.creature_id`), which stays
+    -- untouched. `controlled_by` holds the controlling user's id (0 = none); a
+    -- player controls many creatures, each creature has at most one controller.
+    -- can_view/can_edit_creature extend to "…or the player controls it", so
+    -- control rides the existing visibility spine. No FK (orphan-on-user-delete
+    -- resolves as "none" on read, like creature.location_id).
+    ALTER TABLE creatures ADD COLUMN controlled_by INTEGER NOT NULL DEFAULT 0;
     """,
 }
 

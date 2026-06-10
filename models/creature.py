@@ -170,6 +170,50 @@ def list_npcs():
         conn.close()
 
 
+def list_controlled_by(user_id):
+    """Creatures a player controls (companions/summons), by name — distinct from
+    their single owned PC (`users.creature_id`). Empty for a falsy user id."""
+    if not user_id:
+        return []
+    conn = get_connection()
+    try:
+        return conn.execute(
+            "SELECT * FROM creatures WHERE controlled_by = ? ORDER BY name COLLATE NOCASE",
+            (user_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+
+
+def set_controlled_by(creature_id, user_id):
+    """Grant (or clear, with 0) control of a creature to a player. Written only
+    via this DM-gated path, never the generic form clean — like skill profs."""
+    conn = get_connection()
+    try:
+        conn.execute(
+            "UPDATE creatures SET controlled_by = ? WHERE id = ?",
+            (int(user_id or 0), creature_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def clear_control_for_user(user_id):
+    """Drop a deleted user's control of any creatures (the creatures stay)."""
+    if not user_id:
+        return
+    conn = get_connection()
+    try:
+        conn.execute(
+            "UPDATE creatures SET controlled_by = 0 WHERE controlled_by = ?",
+            (user_id,),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def party_rest(kind):
     """A party-wide rest on the actual character sheets (not a combat snapshot).
     Long rest = everyone to full HP. Short rest = each PC recovers half their

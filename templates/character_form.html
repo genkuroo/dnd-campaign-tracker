@@ -48,6 +48,17 @@
         <span>Player</span>
         <input type="text" name="player_name" value="{{ c['player_name'] if c else '' }}">
       </label>
+      {% if is_dm and players is defined %}
+        <label class="field">
+          <span>Controlled by <span class="muted">(let a player run this companion)</span></span>
+          <select name="controlled_by">
+            <option value="0">— no one —</option>
+            {% for p in players %}
+              <option value="{{ p['id'] }}" {{ 'selected' if c and c['controlled_by'] == p['id'] else '' }}>{{ p['username'] }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      {% endif %}
       <label class="field narrow">
         <span>Level</span>
         <input type="number" name="level" min="1" value="{{ c['level'] if c else 1 }}">

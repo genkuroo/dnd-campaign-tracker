@@ -31,17 +31,20 @@ from models.creature import (
     adjust_hp,
     alignment_label,
     cr_label,
+    clear_control_for_user,
     create_creature,
     delete_creature,
     format_modifier,
     get_creature,
     level_from_xp,
+    list_controlled_by,
     list_monsters,
     list_npcs,
     list_party,
     list_roster,
     party_rest,
     proficiency_bonus,
+    set_controlled_by,
     set_inspiration,
     update_creature,
     xp_to_next,
@@ -457,25 +460,39 @@ def _my_pc_id():
     return u["creature_id"] if (u and u["role"] == "player") else None
 
 
+def _controls_creature(creature):
+    """True if the logged-in player controls this creature — a DM-granted
+    companion or a 12b summon (`controlled_by` = their user id). Distinct from
+    owning their single PC."""
+    if creature is None:
+        return False
+    cb = creature["controlled_by"]
+    return bool(cb) and cb == _my_user_id()
+
+
 def can_view_creature(creature):
-    """DM sees everyone. A player sees their own PC, can **read-only inspect**
-    fellow party members, and the **encountered NPCs** the DM has revealed — any
-    PC *or* NPC the DM hasn't hidden (`visibility='visible'`). Monsters stay
-    DM-only (players meet them via the inspector / Phase 9 entity surfacing)."""
+    """DM sees everyone. A player sees their own PC, any creature they **control**
+    (companions/summons), can **read-only inspect** fellow party members, and the
+    **encountered NPCs** the DM has revealed — any PC *or* NPC the DM hasn't hidden
+    (`visibility='visible'`). Monsters stay DM-only (players meet them via the
+    inspector / Phase 9 entity surfacing)."""
     if is_dm():
         return True
     if creature is None:
         return False
-    if creature["id"] == _my_pc_id():
+    if creature["id"] == _my_pc_id() or _controls_creature(creature):
         return True
     return creature["kind"] in ("pc", "npc") and creature["visibility"] == "visible"
 
 
 def can_edit_creature(creature):
-    """DM edits anyone; a player edits only their own PC."""
+    """DM edits anyone; a player edits their own PC and any creature they control
+    (companions/summons)."""
     if is_dm():
         return True
-    return creature is not None and creature["id"] == _my_pc_id()
+    if creature is None:
+        return False
+    return creature["id"] == _my_pc_id() or _controls_creature(creature)
 
 
 def can_inspect_monster(creature):
@@ -1067,6 +1084,7 @@ def users_delete(user_id):
     target = get_user(user_id)
     # Don't let the DM delete themselves out of the only admin seat.
     if target and not (target["role"] == "dm" and target["id"] == current_user()["id"]):
+        clear_control_for_user(user_id)  # release any companions they controlled
         delete_user(user_id)
         flash("User removed.")
     return redirect(url_for("users"))
@@ -1237,6 +1255,11 @@ def character_detail(creature_id):
         actions=list_actions(creature_id),
         action_categories=ACTION_CATEGORIES,
         action_book=all_catalog_actions(),
+        # Phase 12a: companions the *viewer* controls (for the panel) + who
+        # controls THIS creature (a badge for the DM / the controller).
+        companions=[c for c in list_controlled_by(_my_user_id())
+                    if c["id"] != creature_id],
+        controller=get_user(creature["controlled_by"]) if creature["controlled_by"] else None,
     )
 
 
@@ -1247,9 +1270,11 @@ def character_edit(creature_id):
         update_creature(creature_id, _form_to_data(request.form))
         _apply_avatar(creature_id)
         _sync_class_actions(creature_id)  # class/level may have changed → resync
-        if is_dm():  # skill proficiencies are DM-controlled; players can't reset them
+        if is_dm():  # skill profs + companion control are DM-only
             set_skill_proficiencies(creature_id, request.form.getlist("skills"),
                                     request.form.getlist("skills_expertise"))
+            if "controlled_by" in request.form:
+                set_controlled_by(creature_id, request.form.get("controlled_by") or 0)
         flash("Character updated.")
         return redirect(url_for("character_detail", creature_id=creature_id))
     vocab = _form_vocab()
@@ -1262,6 +1287,8 @@ def character_edit(creature_id):
         creature=creature,
         proficient_skills=proficient_skills(creature_id),
         expertise_skills=expertise_skills(creature_id),
+        # Players who can be granted control of this creature (DM-only field).
+        players=[u for u in list_users() if u["role"] == "player"],
         cancel_url=url_for("character_detail", creature_id=creature_id),
         **vocab,
     )
