@@ -1,25 +1,1011 @@
 [
-  { "slug": "longsword", "name": "Longsword", "category": "Weapon", "slot": "main_hand", "hands": 1, "description": "1d8 slashing (1d10 versatile).", "weapon": "1d8|slashing|str|martial" },
-  { "slug": "greatsword", "name": "Greatsword", "category": "Weapon", "slot": "main_hand", "hands": 2, "description": "2d6 slashing. Two-handed, heavy.", "weapon": "2d6|slashing|str|martial" },
-  { "slug": "greataxe", "name": "Greataxe", "category": "Weapon", "slot": "main_hand", "hands": 2, "description": "1d12 slashing. Two-handed, heavy.", "weapon": "1d12|slashing|str|martial" },
-  { "slug": "dagger", "name": "Dagger", "category": "Weapon", "slot": "main_hand", "hands": 1, "description": "1d4 piercing. Finesse, light, thrown.", "weapon": "1d4|piercing|finesse|simple" },
-  { "slug": "shortbow", "name": "Shortbow", "category": "Weapon", "slot": "main_hand", "hands": 2, "description": "1d6 piercing. Ranged, two-handed.", "weapon": "1d6|piercing|dex|simple" },
-  { "slug": "shield", "name": "Shield", "category": "Armor", "slot": "off_hand", "hands": 1, "description": "+2 AC while equipped.", "ac_bonus": 2 },
-  { "slug": "leather-armor", "name": "Leather Armor", "category": "Armor", "slot": "armor", "hands": 1, "description": "Light armor.", "armor_type": "light", "armor_base": 11 },
-  { "slug": "half-plate", "name": "Half Plate", "category": "Armor", "slot": "armor", "hands": 1, "description": "Medium armor.", "armor_type": "medium", "armor_base": 15 },
-  { "slug": "chain-mail", "name": "Chain Mail", "category": "Armor", "slot": "armor", "hands": 1, "description": "Heavy armor. Requires Strength 13.", "armor_type": "heavy", "armor_base": 16 },
-  { "slug": "plate-armor", "name": "Plate Armor", "category": "Armor", "slot": "armor", "hands": 1, "description": "Heavy armor. Requires Strength 15.", "armor_type": "heavy", "armor_base": 18 },
-  { "slug": "cloak-of-protection", "name": "Cloak of Protection", "category": "Accessory", "slot": "cloak", "hands": 1, "description": "+1 AC and saving throws. (Requires attunement.)", "ac_bonus": 1, "attunement_required": true },
-  { "slug": "ring-of-protection", "name": "Ring of Protection", "category": "Accessory", "slot": "ring", "hands": 1, "description": "+1 AC and saving throws. (Requires attunement.)", "ac_bonus": 1, "attunement_required": true },
-  { "slug": "amulet-of-health", "name": "Amulet of Health", "category": "Accessory", "slot": "amulet", "hands": 1, "description": "+2 Constitution while worn. (Requires attunement.)", "stat_bonuses": "constitution:2", "attunement_required": true },
-  { "slug": "belt-of-giant-strength", "name": "Belt of Hill Giant Strength", "category": "Accessory", "slot": "cloak", "hands": 1, "description": "+2 Strength while worn. (Requires attunement.)", "stat_bonuses": "strength:2", "attunement_required": true },
-  { "slug": "wand-of-fire-bolt", "name": "Wand of Fire Bolt", "category": "Accessory", "slot": "off_hand", "hands": 1, "description": "Grants the Fire Bolt cantrip while held.", "grants_spells": "fire-bolt" },
-  { "slug": "boots-of-elvenkind", "name": "Boots of Elvenkind", "category": "Accessory", "slot": "boots", "hands": 1, "description": "Advantage on Stealth checks made to move silently." },
-  { "slug": "potion-of-healing", "name": "Potion of Healing", "category": "Consumable", "slot": "", "hands": 1, "description": "Regain 2d4 + 2 hit points when you drink it." },
-  { "slug": "torch", "name": "Torch", "category": "Gear", "slot": "", "hands": 1, "description": "Sheds bright light in a 20-foot radius for 1 hour." },
-  { "slug": "rope-hempen", "name": "Hempen Rope (50 ft)", "category": "Gear", "slot": "", "hands": 1, "description": "50 feet of rope. 2 hp, DC 17 to burst." },
-  { "slug": "rations", "name": "Rations", "category": "Gear", "slot": "", "hands": 1, "description": "One day of dry trail food." },
-  { "slug": "coin-pouch", "name": "Coin Pouch", "category": "Currency", "slot": "", "hands": 1, "description": "A small purse of coins.", "gold": 25 },
-  { "slug": "sack-of-gold", "name": "Sack of Gold", "category": "Currency", "slot": "", "hands": 1, "description": "A heavy sack of gold pieces.", "gold": 100 },
-  { "slug": "handful-of-silver", "name": "Handful of Silver", "category": "Currency", "slot": "", "hands": 1, "description": "Loose silver pieces.", "silver": 50 }
+  {
+    "slug": "longsword",
+    "name": "Longsword",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "description": "1d8 slashing (1d10 versatile).",
+    "weapon": "1d8|slashing|str|martial"
+  },
+  {
+    "slug": "greatsword",
+    "name": "Greatsword",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 2,
+    "description": "2d6 slashing. Two-handed, heavy.",
+    "weapon": "2d6|slashing|str|martial"
+  },
+  {
+    "slug": "greataxe",
+    "name": "Greataxe",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 2,
+    "description": "1d12 slashing. Two-handed, heavy.",
+    "weapon": "1d12|slashing|str|martial"
+  },
+  {
+    "slug": "dagger",
+    "name": "Dagger",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "description": "1d4 piercing. Finesse, light, thrown.",
+    "weapon": "1d4|piercing|finesse|simple"
+  },
+  {
+    "slug": "shortbow",
+    "name": "Shortbow",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 2,
+    "description": "1d6 piercing. Ranged, two-handed.",
+    "weapon": "1d6|piercing|dex|simple"
+  },
+  {
+    "slug": "shield",
+    "name": "Shield",
+    "category": "Armor",
+    "slot": "off_hand",
+    "hands": 1,
+    "description": "+2 AC while equipped.",
+    "ac_bonus": 2
+  },
+  {
+    "slug": "leather-armor",
+    "name": "Leather Armor",
+    "category": "Armor",
+    "slot": "armor",
+    "hands": 1,
+    "description": "Light armor.",
+    "armor_type": "light",
+    "armor_base": 11
+  },
+  {
+    "slug": "half-plate",
+    "name": "Half Plate",
+    "category": "Armor",
+    "slot": "armor",
+    "hands": 1,
+    "description": "Medium armor.",
+    "armor_type": "medium",
+    "armor_base": 15
+  },
+  {
+    "slug": "chain-mail",
+    "name": "Chain Mail",
+    "category": "Armor",
+    "slot": "armor",
+    "hands": 1,
+    "description": "Heavy armor. Requires Strength 13.",
+    "armor_type": "heavy",
+    "armor_base": 16
+  },
+  {
+    "slug": "plate-armor",
+    "name": "Plate Armor",
+    "category": "Armor",
+    "slot": "armor",
+    "hands": 1,
+    "description": "Heavy armor. Requires Strength 15.",
+    "armor_type": "heavy",
+    "armor_base": 18
+  },
+  {
+    "slug": "cloak-of-protection",
+    "name": "Cloak of Protection",
+    "category": "Accessory",
+    "slot": "cloak",
+    "hands": 1,
+    "description": "+1 AC and saving throws. (Requires attunement.)",
+    "ac_bonus": 1,
+    "attunement_required": true
+  },
+  {
+    "slug": "ring-of-protection",
+    "name": "Ring of Protection",
+    "category": "Accessory",
+    "slot": "ring",
+    "hands": 1,
+    "description": "+1 AC and saving throws. (Requires attunement.)",
+    "ac_bonus": 1,
+    "attunement_required": true
+  },
+  {
+    "slug": "amulet-of-health",
+    "name": "Amulet of Health",
+    "category": "Accessory",
+    "slot": "amulet",
+    "hands": 1,
+    "description": "+2 Constitution while worn. (Requires attunement.)",
+    "stat_bonuses": "constitution:2",
+    "attunement_required": true
+  },
+  {
+    "slug": "belt-of-giant-strength",
+    "name": "Belt of Hill Giant Strength",
+    "category": "Accessory",
+    "slot": "cloak",
+    "hands": 1,
+    "description": "+2 Strength while worn. (Requires attunement.)",
+    "stat_bonuses": "strength:2",
+    "attunement_required": true
+  },
+  {
+    "slug": "wand-of-fire-bolt",
+    "name": "Wand of Fire Bolt",
+    "category": "Accessory",
+    "slot": "off_hand",
+    "hands": 1,
+    "description": "Grants the Fire Bolt cantrip while held.",
+    "grants_spells": "fire-bolt"
+  },
+  {
+    "slug": "boots-of-elvenkind",
+    "name": "Boots of Elvenkind",
+    "category": "Accessory",
+    "slot": "boots",
+    "hands": 1,
+    "description": "Advantage on Stealth checks made to move silently."
+  },
+  {
+    "slug": "potion-of-healing",
+    "name": "Potion of Healing",
+    "category": "Consumable",
+    "slot": "",
+    "hands": 1,
+    "description": "Regain 2d4 + 2 hit points when you drink it."
+  },
+  {
+    "slug": "torch",
+    "name": "Torch",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "Sheds bright light in a 20-foot radius for 1 hour."
+  },
+  {
+    "slug": "rope-hempen",
+    "name": "Hempen Rope (50 ft)",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "50 feet of rope. 2 hp, DC 17 to burst."
+  },
+  {
+    "slug": "rations",
+    "name": "Rations",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "One day of dry trail food."
+  },
+  {
+    "slug": "coin-pouch",
+    "name": "Coin Pouch",
+    "category": "Currency",
+    "slot": "",
+    "hands": 1,
+    "description": "A small purse of coins.",
+    "gold": 25
+  },
+  {
+    "slug": "sack-of-gold",
+    "name": "Sack of Gold",
+    "category": "Currency",
+    "slot": "",
+    "hands": 1,
+    "description": "A heavy sack of gold pieces.",
+    "gold": 100
+  },
+  {
+    "slug": "handful-of-silver",
+    "name": "Handful of Silver",
+    "category": "Currency",
+    "slot": "",
+    "hands": 1,
+    "description": "Loose silver pieces.",
+    "silver": 50
+  },
+  {
+    "slug": "club",
+    "name": "Club",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d4|bludgeoning|str|simple",
+    "description": "1d4 bludgeoning. Simple, light.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "quarterstaff",
+    "name": "Quarterstaff",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d6|bludgeoning|str|simple",
+    "description": "1d6 bludgeoning (1d8 versatile). Simple.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "handaxe",
+    "name": "Handaxe",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d6|slashing|str|simple",
+    "description": "1d6 slashing. Simple, light, thrown (20/60).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "javelin",
+    "name": "Javelin",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d6|piercing|str|simple",
+    "description": "1d6 piercing. Simple, thrown (30/120).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "mace",
+    "name": "Mace",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d6|bludgeoning|str|simple",
+    "description": "1d6 bludgeoning. Simple.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "sickle",
+    "name": "Sickle",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d4|slashing|str|simple",
+    "description": "1d4 slashing. Simple, light.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "spear",
+    "name": "Spear",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d6|piercing|str|simple",
+    "description": "1d6 piercing (1d8 versatile). Simple, thrown (20/60).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "light-hammer",
+    "name": "Light Hammer",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d4|bludgeoning|str|simple",
+    "description": "1d4 bludgeoning. Simple, light, thrown (20/60).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "sling",
+    "name": "Sling",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d4|bludgeoning|dex|simple",
+    "description": "1d4 bludgeoning. Simple, ranged (30/120).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "light-crossbow",
+    "name": "Light Crossbow",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 2,
+    "weapon": "1d8|piercing|dex|simple",
+    "description": "1d8 piercing. Simple, ranged (80/320), two-handed.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "battleaxe",
+    "name": "Battleaxe",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d8|slashing|str|martial",
+    "description": "1d8 slashing (1d10 versatile). Martial.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "warhammer",
+    "name": "Warhammer",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d8|bludgeoning|str|martial",
+    "description": "1d8 bludgeoning (1d10 versatile). Martial.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "morningstar",
+    "name": "Morningstar",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d8|piercing|str|martial",
+    "description": "1d8 piercing. Martial.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "flail",
+    "name": "Flail",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d8|bludgeoning|str|martial",
+    "description": "1d8 bludgeoning. Martial.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "war-pick",
+    "name": "War Pick",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d8|piercing|str|martial",
+    "description": "1d8 piercing. Martial.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "rapier",
+    "name": "Rapier",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d8|piercing|finesse|martial",
+    "description": "1d8 piercing. Martial, finesse.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "scimitar",
+    "name": "Scimitar",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d6|slashing|finesse|martial",
+    "description": "1d6 slashing. Martial, finesse, light.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "shortsword",
+    "name": "Shortsword",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d6|piercing|finesse|martial",
+    "description": "1d6 piercing. Martial, finesse, light.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "whip",
+    "name": "Whip",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d4|slashing|finesse|martial",
+    "description": "1d4 slashing. Martial, finesse, reach.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "trident",
+    "name": "Trident",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d6|piercing|str|martial",
+    "description": "1d6 piercing (1d8 versatile). Martial, thrown (20/60).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "maul",
+    "name": "Maul",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 2,
+    "weapon": "2d6|bludgeoning|str|martial",
+    "description": "2d6 bludgeoning. Martial, heavy, two-handed.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "glaive",
+    "name": "Glaive",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 2,
+    "weapon": "1d10|slashing|str|martial",
+    "description": "1d10 slashing. Martial, heavy, reach, two-handed.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "halberd",
+    "name": "Halberd",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 2,
+    "weapon": "1d10|slashing|str|martial",
+    "description": "1d10 slashing. Martial, heavy, reach, two-handed.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "pike",
+    "name": "Pike",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 2,
+    "weapon": "1d10|piercing|str|martial",
+    "description": "1d10 piercing. Martial, heavy, reach, two-handed.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "longbow",
+    "name": "Longbow",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 2,
+    "weapon": "1d8|piercing|dex|martial",
+    "description": "1d8 piercing. Martial, ranged (150/600), two-handed.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "heavy-crossbow",
+    "name": "Heavy Crossbow",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 2,
+    "weapon": "1d10|piercing|dex|martial",
+    "description": "1d10 piercing. Martial, ranged (100/400), heavy, two-handed.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "padded-armor",
+    "name": "Padded Armor",
+    "category": "Armor",
+    "slot": "armor",
+    "hands": 1,
+    "armor_type": "light",
+    "armor_base": 11,
+    "description": "Light armor. AC 11 + Dex. (Disadvantage on Stealth.)",
+    "attunement_required": 0
+  },
+  {
+    "slug": "studded-leather",
+    "name": "Studded Leather",
+    "category": "Armor",
+    "slot": "armor",
+    "hands": 1,
+    "armor_type": "light",
+    "armor_base": 12,
+    "description": "Light armor. AC 12 + Dex.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "hide-armor",
+    "name": "Hide Armor",
+    "category": "Armor",
+    "slot": "armor",
+    "hands": 1,
+    "armor_type": "medium",
+    "armor_base": 12,
+    "description": "Medium armor. AC 12 + Dex (max 2).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "chain-shirt",
+    "name": "Chain Shirt",
+    "category": "Armor",
+    "slot": "armor",
+    "hands": 1,
+    "armor_type": "medium",
+    "armor_base": 13,
+    "description": "Medium armor. AC 13 + Dex (max 2).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "scale-mail",
+    "name": "Scale Mail",
+    "category": "Armor",
+    "slot": "armor",
+    "hands": 1,
+    "armor_type": "medium",
+    "armor_base": 14,
+    "description": "Medium armor. AC 14 + Dex (max 2). (Disadvantage on Stealth.)",
+    "attunement_required": 0
+  },
+  {
+    "slug": "breastplate",
+    "name": "Breastplate",
+    "category": "Armor",
+    "slot": "armor",
+    "hands": 1,
+    "armor_type": "medium",
+    "armor_base": 14,
+    "description": "Medium armor. AC 14 + Dex (max 2).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "ring-mail",
+    "name": "Ring Mail",
+    "category": "Armor",
+    "slot": "armor",
+    "hands": 1,
+    "armor_type": "heavy",
+    "armor_base": 14,
+    "description": "Heavy armor. AC 14. (Disadvantage on Stealth.)",
+    "attunement_required": 0
+  },
+  {
+    "slug": "splint-armor",
+    "name": "Splint Armor",
+    "category": "Armor",
+    "slot": "armor",
+    "hands": 1,
+    "armor_type": "heavy",
+    "armor_base": 17,
+    "description": "Heavy armor. AC 17. Requires Str 15. (Disadvantage on Stealth.)",
+    "attunement_required": 0
+  },
+  {
+    "slug": "backpack",
+    "name": "Backpack",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "Holds about 30 lb. of gear.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "bedroll",
+    "name": "Bedroll",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "For resting in the wild.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "waterskin",
+    "name": "Waterskin",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "Holds 4 pints of liquid.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "tinderbox",
+    "name": "Tinderbox",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "Flint, steel, and tinder to light a fire (action).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "hooded-lantern",
+    "name": "Hooded Lantern",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "Bright light 30 ft., dim 30 ft. more; burns 1 hr per oil flask.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "oil-flask",
+    "name": "Oil (Flask)",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "Fuels a lamp 6 hrs, or thrown/poured as a hazard (5 ft. square; 5 fire damage if ignited).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "crowbar",
+    "name": "Crowbar",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "Advantage on Strength checks where leverage helps.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "grappling-hook",
+    "name": "Grappling Hook",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "For securing a rope to a ledge.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "healers-kit",
+    "name": "Healer's Kit",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "Ten uses. Spend one to stabilize a dying creature without a check.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "thieves-tools",
+    "name": "Thieves' Tools",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "Pick locks and disarm traps (proficiency applies).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "holy-symbol",
+    "name": "Holy Symbol",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "A spellcasting focus for a cleric or paladin.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "spellbook",
+    "name": "Spellbook",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "A leather tome holding a wizard's spells.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "caltrops",
+    "name": "Caltrops (bag of 20)",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "Spread over a 5-ft. square; DC 15 Dex save or take 1 piercing and have speed reduced.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "ball-bearings",
+    "name": "Ball Bearings (bag of 1,000)",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "Spread over a 10-ft. square; DC 10 Dex save or fall prone.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "manacles",
+    "name": "Manacles",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "Restrain a Small/Medium creature; DC 20 Dex (Sleight of Hand) to escape.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "rope-silk",
+    "name": "Silk Rope (50 ft.)",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "Lighter and stronger than hemp; 2 HP, bursts with a DC 17 Strength check.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "rations-extra",
+    "name": "Trail Rations (1 day)",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "A day of dry food for one creature.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "torch-bundle",
+    "name": "Torches (bundle of 5)",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "Each burns 1 hr, bright light 20 ft.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "potion-of-greater-healing",
+    "name": "Potion of Greater Healing",
+    "category": "Consumable",
+    "slot": "",
+    "hands": 1,
+    "description": "Drink (action) to regain 4d4 + 4 hit points.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "potion-of-superior-healing",
+    "name": "Potion of Superior Healing",
+    "category": "Consumable",
+    "slot": "",
+    "hands": 1,
+    "description": "Drink (action) to regain 8d4 + 8 hit points.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "potion-of-supreme-healing",
+    "name": "Potion of Supreme Healing",
+    "category": "Consumable",
+    "slot": "",
+    "hands": 1,
+    "description": "Drink (action) to regain 10d4 + 20 hit points.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "antitoxin",
+    "name": "Antitoxin (vial)",
+    "category": "Consumable",
+    "slot": "",
+    "hands": 1,
+    "description": "Drink (action) for advantage on saves vs. poison for 1 hour.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "alchemists-fire",
+    "name": "Alchemist's Fire (flask)",
+    "category": "Consumable",
+    "slot": "",
+    "hands": 1,
+    "description": "Thrown improvised weapon, range 20 ft. (ranged attack vs. AC). Hit: target takes 1d4 fire at the start of each of its turns until a DC 10 Dex check ends it.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "acid-vial",
+    "name": "Acid (vial)",
+    "category": "Consumable",
+    "slot": "",
+    "hands": 1,
+    "description": "Thrown improvised weapon, range 20 ft. (ranged attack vs. AC). Hit: 2d6 acid damage.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "holy-water",
+    "name": "Holy Water (flask)",
+    "category": "Consumable",
+    "slot": "",
+    "hands": 1,
+    "description": "Thrown range 20 ft. (ranged attack vs. AC). Hit: a fiend or undead takes 2d6 radiant damage.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "potion-of-climbing",
+    "name": "Potion of Climbing",
+    "category": "Consumable",
+    "slot": "",
+    "hands": 1,
+    "description": "For 1 hour, gain a climbing speed equal to your walking speed and advantage on Athletics checks to climb.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "potion-of-water-breathing",
+    "name": "Potion of Water Breathing",
+    "category": "Consumable",
+    "slot": "",
+    "hands": 1,
+    "description": "Breathe underwater for 1 hour.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "potion-of-fire-breath",
+    "name": "Potion of Fire Breath",
+    "category": "Consumable",
+    "slot": "",
+    "hands": 1,
+    "description": "For 1 hour (3 uses), exhale fire as a bonus action: 30-ft. line, DC 13 Dex save, 4d6 fire (half on success).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "potion-of-heroism",
+    "name": "Potion of Heroism",
+    "category": "Consumable",
+    "slot": "",
+    "hands": 1,
+    "description": "For 1 hour, gain 10 temporary hit points and the benefits of the bless spell.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "shield-plus-1",
+    "name": "+1 Shield",
+    "category": "Armor",
+    "slot": "off_hand",
+    "hands": 1,
+    "ac_bonus": 3,
+    "description": "+3 AC while equipped (an ordinary shield's +2, enhanced by +1).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "studded-leather-plus-1",
+    "name": "+1 Studded Leather",
+    "category": "Armor",
+    "slot": "armor",
+    "hands": 1,
+    "armor_type": "light",
+    "armor_base": 12,
+    "ac_bonus": 1,
+    "description": "Light armor. AC 12 + Dex, +1 enhancement (AC 13 + Dex).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "chain-mail-plus-1",
+    "name": "+1 Chain Mail",
+    "category": "Armor",
+    "slot": "armor",
+    "hands": 1,
+    "armor_type": "heavy",
+    "armor_base": 16,
+    "ac_bonus": 1,
+    "description": "Heavy armor. AC 16, +1 enhancement (AC 17).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "half-plate-plus-1",
+    "name": "+1 Half Plate",
+    "category": "Armor",
+    "slot": "armor",
+    "hands": 1,
+    "armor_type": "medium",
+    "armor_base": 15,
+    "ac_bonus": 1,
+    "description": "Medium armor. AC 15 + Dex (max 2), +1 enhancement.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "bracers-of-defense",
+    "name": "Bracers of Defense",
+    "category": "Accessory",
+    "slot": "gloves",
+    "hands": 1,
+    "ac_bonus": 2,
+    "attunement_required": 1,
+    "description": "+2 AC while you wear no armor and carry no shield. (Requires attunement.)"
+  },
+  {
+    "slug": "ring-of-protection-plus-1",
+    "name": "Ring of Protection",
+    "category": "Accessory",
+    "slot": "ring",
+    "hands": 1,
+    "ac_bonus": 1,
+    "attunement_required": 1,
+    "description": "+1 AC (and +1 to all saving throws). Requires attunement."
+  },
+  {
+    "slug": "belt-of-dwarvenkind",
+    "name": "Belt of Dwarvenkind",
+    "category": "Accessory",
+    "slot": "cloak",
+    "hands": 1,
+    "stat_bonuses": "constitution:2",
+    "attunement_required": 1,
+    "description": "+2 Constitution (to a max of 20), plus dwarven resilience. Requires attunement."
+  },
+  {
+    "slug": "amulet-of-the-devout",
+    "name": "Amulet of the Devout +1",
+    "category": "Accessory",
+    "slot": "amulet",
+    "hands": 1,
+    "attunement_required": 1,
+    "description": "A holy symbol that grants +1 to spell attack rolls and spell save DC (display reference; the bonus is not auto-applied). Requires attunement."
+  },
+  {
+    "slug": "wand-of-magic-missiles",
+    "name": "Wand of Magic Missiles",
+    "category": "Accessory",
+    "slot": "off_hand",
+    "hands": 1,
+    "grants_spells": "magic-missile",
+    "description": "7 charges. Expend 1+ to cast magic missile (1 charge = 3 darts, +1 dart per extra charge). Regains 1d6+1 charges at dawn.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "wand-of-web",
+    "name": "Wand of Web",
+    "category": "Accessory",
+    "slot": "off_hand",
+    "hands": 1,
+    "grants_spells": "web",
+    "attunement_required": 1,
+    "description": "7 charges. Expend 1 to cast web (save DC 15). Regains 1d6+1 charges at dawn. Requires attunement by a spellcaster."
+  },
+  {
+    "slug": "staff-of-healing",
+    "name": "Staff of Healing",
+    "category": "Accessory",
+    "slot": "main_hand",
+    "hands": 1,
+    "grants_spells": "cure-wounds",
+    "attunement_required": 1,
+    "description": "10 charges. Expend charges to cast cure wounds (1/level), lesser restoration (2), or mass cure wounds (5). Requires attunement by a cleric, druid, or bard."
+  },
+  {
+    "slug": "ring-of-jumping",
+    "name": "Ring of Jumping",
+    "category": "Accessory",
+    "slot": "ring",
+    "hands": 1,
+    "grants_spells": "jump",
+    "description": "Cast jump on yourself at will (as a bonus action).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "slippers-of-spider-climbing",
+    "name": "Slippers of Spider Climbing",
+    "category": "Accessory",
+    "slot": "boots",
+    "hands": 1,
+    "grants_spells": "spider-climb",
+    "attunement_required": 1,
+    "description": "Walk on walls and ceilings with your hands free (climb speed equal to your walking speed). Requires attunement."
+  },
+  {
+    "slug": "cloak-of-elvenkind",
+    "name": "Cloak of Elvenkind",
+    "category": "Accessory",
+    "slot": "cloak",
+    "hands": 1,
+    "attunement_required": 1,
+    "description": "Advantage on Stealth checks; others have disadvantage on Perception checks to see you while the hood is up. Requires attunement."
+  },
+  {
+    "slug": "goggles-of-night",
+    "name": "Goggles of Night",
+    "category": "Accessory",
+    "slot": "helmet",
+    "hands": 1,
+    "description": "Grants darkvision 60 ft. while worn (or +60 ft. if you already have it).",
+    "attunement_required": 0
+  },
+  {
+    "slug": "bag-of-holding",
+    "name": "Bag of Holding",
+    "category": "Accessory",
+    "slot": "",
+    "hands": 1,
+    "description": "Holds up to 500 lb. (64 cubic ft.) but always weighs 15 lb. Retrieving an item is an action.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "driftglobe",
+    "name": "Driftglobe",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "grants_spells": "light",
+    "description": "A floating glass sphere. Cast light, or once per day daylight, from it; it can hover and follow you.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "immovable-rod",
+    "name": "Immovable Rod",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "Press the button to fix the rod in place (holds up to 8,000 lb.); press again to release. A DC 30 Strength check moves it.",
+    "attunement_required": 0
+  },
+  {
+    "slug": "rope-of-climbing",
+    "name": "Rope of Climbing",
+    "category": "Gear",
+    "slot": "",
+    "hands": 1,
+    "description": "A 60-ft. rope that moves, knots, and anchors itself on command. AC 20, 20 HP, regains 1 HP per 5 min.",
+    "attunement_required": 0
+  }
 ]
