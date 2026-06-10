@@ -2,14 +2,14 @@
    standalone by the #asi AJAX endpoint, so +/- refresh in place (and the ability
    grid's effective scores update on the next render). Expects: creature,
    eff_abilities, abilities, asi (the asi_summary dict), can_edit. #}
-<section class="char-asi">
-  <div class="section-head">
-    <h2>{{ info('ability-score-improvement', 'Ability Score Improvements') }}</h2>
+<details class="char-asi asi-panel" {{ 'open' if asi.remaining > 0 else '' }}>
+  <summary class="asi-summary">
+    <span class="asi-summary-title">{{ info('ability-score-improvement', 'Ability Score Improvements') }}</span>
     <span class="asi-budget {{ 'over' if asi.spent > asi.budget else ('full' if asi.remaining == 0 else '') }}"
           title="{{ asi.slots }} improvement{{ '' if asi.slots == 1 else 's' }} earned (2 points each)">
       <strong>{{ asi.remaining }}</strong> of {{ asi.budget }} point{{ '' if asi.budget == 1 else 's' }} left
     </span>
-  </div>
+  </summary>
   <p class="muted spell-help">Permanent ability bumps from leveling — spend a point to raise a score (max 20).{% if can_edit %} They fold into your scores above and everything derived from them (AC, modifiers, DCs). You can take a <a href="#feats">feat</a> instead (tracked separately for now).{% endif %}</p>
   <div class="asi-grid">
     {% for col, short in abilities %}
@@ -35,4 +35,4 @@
       </div>
     {% endfor %}
   </div>
-</section>
+</details>

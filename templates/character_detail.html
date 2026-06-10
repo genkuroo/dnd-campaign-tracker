@@ -3,7 +3,14 @@
 {% block content %}
   {# Everything inside #sheet re-renders in place when a state mutation (level-up,
      ASI, exhaustion, inspiration) posts via a js-sheet-reload form — see initSheet
-     + the sheet-reload handler at the bottom. #}
+     + the sheet-reload handler at the bottom.
+
+     The sheet splits into two toggleable panes (subtabs): "Stats & Actions"
+     (combat/RP-immediate: vitals, abilities, defenses, exhaustion, resources,
+     attacks, gear, spells, actions) and "Details & Lore" (the niche/reference
+     stuff: ASI, skills, proficiencies, racial traits, background, class features,
+     feats). Both panes stay in the DOM; CSS shows one at a time so all the
+     existing fragment JS keeps working. #}
   <div id="sheet">
   <div class="page-head">
     <div>
@@ -84,6 +91,14 @@
       ⚰️ <strong>Deceased</strong>{% if creature['deceased_at'] %} · laid to rest {{ creature['deceased_at'] }}{% endif %}{% if creature['epitaph'] %} — <em>{{ creature['epitaph'] }}</em>{% endif %}
     </div>
   {% endif %}
+
+  <div class="sheet-tabs" role="tablist">
+    <button type="button" class="sheet-tab" data-pane="main" role="tab">⚔️ Stats &amp; Actions</button>
+    <button type="button" class="sheet-tab" data-pane="details" role="tab">📖 Details &amp; Lore</button>
+  </div>
+
+  {# ===== PANE 1: Stats & Actions (combat / RP immediate) ===== #}
+  <div class="sheet-pane" data-pane="main">
 
   {% if companions or can_summon %}
     <section class="sheet-section companions-panel">
@@ -240,12 +255,6 @@
   </section>
   {% if can_edit %}<p class="muted check-hint">A <strong>check</strong> rolls d20 + the ability modifier; a <strong>save</strong> adds the {{ info('proficiency-bonus', 'proficiency bonus') }} (+{{ prof_bonus }}) when the class is proficient ({{ info('saving-throw-prof', '●') }}).</p>{% endif %}
 
-  {% if asi.slots %}
-    <div id="asi">
-      {% include "_asi.html" %}
-    </div>
-  {% endif %}
-
   {% set res = creature['resistances'] | commalist %}
   {% set imm = creature['immunities'] | commalist %}
   {% set vul = creature['vulnerabilities'] | commalist %}
@@ -258,38 +267,139 @@
   {% endif %}
 
   {% if can_edit or exhaustion %}
-    <section class="exhaustion {{ 'has-exhaustion' if exhaustion else '' }}">
+    <div id="exhaustion">
+      {% include "_exhaustion.html" %}
+    </div>
+  {% endif %}
+
+  <div class="sheet-divider" role="separator"></div>
+
+  <div id="gear">
+    {% include "_gear.html" %}
+  </div>
+
+  {% if can_edit and creature['kind'] == 'pc' %}
+    <div id="trades">
+      {% include "_trades.html" %}
+    </div>
+  {% endif %}
+
+  {% if weapon_attacks %}
+    <div class="sheet-divider" role="separator"></div>
+    <section class="char-attacks">
       <div class="section-head">
-        <h2>{{ info('exhaustion', 'Exhaustion') }}</h2>
-        <span class="muted">level {{ exhaustion }} / {{ max_exhaustion }} — a loose tracker; effects aren’t auto-applied</span>
+        <h2>Attacks</h2>
+        <span class="muted">equipped weapons — d20 + ability {{ info('proficiency-bonus', '+ proficiency') }} to hit, then damage{% if can_edit and mode != 'assist' %} · switch to Assist to roll{% endif %}</span>
       </div>
-      <div class="exhaustion-row">
-        {% if can_edit %}
-          <form method="post" action="{{ url_for('character_exhaustion', creature_id=creature['id']) }}" class="inline js-sheet-reload">
-            <input type="hidden" name="delta" value="-1">
-            <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-            <button type="submit" class="slot-btn" {{ 'disabled' if exhaustion == 0 else '' }} title="Lower one level">−</button>
-          </form>
-        {% endif %}
-        <span class="exhaustion-pips" aria-label="Exhaustion {{ exhaustion }} of {{ max_exhaustion }}">
-          {% for i in range(1, max_exhaustion + 1) %}<span class="ex-pip {{ 'on' if i <= exhaustion else '' }} {{ 'death' if i == max_exhaustion else '' }}">{{ i }}</span>{% endfor %}
-        </span>
-        {% if can_edit %}
-          <form method="post" action="{{ url_for('character_exhaustion', creature_id=creature['id']) }}" class="inline js-sheet-reload">
-            <input type="hidden" name="delta" value="1">
-            <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-            <button type="submit" class="slot-btn" {{ 'disabled' if exhaustion == max_exhaustion else '' }} title="Raise one level">+</button>
-          </form>
-        {% endif %}
-      </div>
-      {% if exhaustion_effects %}
-        <ul class="exhaustion-effects">
-          {% for lvl, eff in exhaustion_effects %}
-            <li><span class="ex-lvl">{{ lvl }}</span> {{ eff }}{% if lvl == max_exhaustion %} <span class="muted">— for the story; not auto-applied</span>{% endif %}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
+      <ul class="attack-list">
+        {% for a in weapon_attacks %}
+          <li class="attack-line">
+            <span class="attack-name">{{ a.name }}{% if a.type %} <span class="muted attack-type">{{ a.type }}</span>{% endif %} <span class="muted attack-abil">({{ a.ability }})</span>{% if not a.proficient %} <span class="attack-warn" title="Your class isn't proficient with this weapon, so the attack roll doesn't add your proficiency bonus.">not proficient</span>{% endif %}</span>
+            <span class="attack-rolls">
+              {% if mode == 'assist' and can_edit %}
+                <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
+                  <input type="hidden" name="expression" value="{{ a.to_hit }}">
+                  <input type="hidden" name="label" value="{{ creature['name'] }} · {{ a.name }} attack">
+                  <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+                  <button type="submit" class="check-btn" title="Attack roll: {{ a.to_hit }}">Attack {{ '%+d' % a.attack }}</button>
+                </form>
+                <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
+                  <input type="hidden" name="expression" value="{{ a.damage }}">
+                  <input type="hidden" name="label" value="{{ creature['name'] }} · {{ a.name }} damage">
+                  <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+                  <button type="submit" class="check-btn" title="Damage roll: {{ a.damage }}">Damage {{ a.damage }}</button>
+                </form>
+                <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
+                  <input type="hidden" name="expression" value="{{ a.crit }}">
+                  <input type="hidden" name="label" value="{{ creature['name'] }} · {{ a.name }} critical hit">
+                  <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+                  <button type="submit" class="check-btn crit-btn" title="Critical hit (natural 20) — damage dice doubled: {{ a.crit }}">💥 Crit {{ a.crit }}</button>
+                </form>
+              {% else %}
+                <span class="attack-stat">{{ '%+d' % a.attack }} to hit</span>
+                <span class="attack-stat">{{ a.damage }}{% if a.type %} {{ a.type }}{% endif %}</span>
+                <span class="attack-stat muted" title="On a natural 20, damage dice are doubled">crit {{ a.crit }}</span>
+              {% endif %}
+            </span>
+          </li>
+        {% endfor %}
+      </ul>
     </section>
+  {% endif %}
+
+  {% if resource_rows %}
+    <div class="sheet-divider" role="separator"></div>
+    <div id="resources">
+      {% include "_resources.html" %}
+    </div>
+  {% endif %}
+
+  <div class="sheet-divider" role="separator"></div>
+
+  {# Spellbook filter bar. Lives outside #spells so its state survives the
+     fragment being replaced on AJAX updates; JS shows it only when spells exist. #}
+  <div class="spell-filter book-filter" id="spellbook-filter" hidden>
+    <input type="search" class="bookfilt-search" placeholder="Search spells…" autocomplete="off" aria-label="Search spells">
+    <div class="filter-group" role="group" aria-label="Prepared">
+      <button type="button" class="filt-btn active" data-prep="all">All</button>
+      <button type="button" class="filt-btn" data-prep="prepared">Prepared</button>
+      <button type="button" class="filt-btn" data-prep="unprepared">Unprepared</button>
+    </div>
+    <div class="filter-group" role="group" aria-label="Type">
+      <button type="button" class="filt-btn active" data-type="all">All</button>
+      <button type="button" class="filt-btn" data-type="cantrip">Cantrips</button>
+      <button type="button" class="filt-btn" data-type="leveled">Spells</button>
+    </div>
+    <div class="filter-group" role="group" aria-label="Casting time">
+      <button type="button" class="filt-btn active" data-cast="all">Any time</button>
+      <button type="button" class="filt-btn" data-cast="action">Action</button>
+      <button type="button" class="filt-btn" data-cast="bonus">Bonus</button>
+      <button type="button" class="filt-btn" data-cast="reaction">Reaction</button>
+    </div>
+    <button type="button" class="filt-btn show-hidden-btn" data-showhidden hidden>Show hidden</button>
+  </div>
+  <div id="spells">
+    {% include "_spells.html" %}
+  </div>
+
+  <div class="sheet-divider" role="separator"></div>
+
+  {# Actions filter bar — outside #actions so its state survives AJAX updates;
+     JS shows it only when actions exist. #}
+  <div class="spell-filter book-filter" id="actions-filter" hidden>
+    <input type="search" class="actfilt-search" placeholder="Search actions…" autocomplete="off" aria-label="Search actions">
+    <div class="filter-group" role="group" aria-label="Category">
+      <button type="button" class="filt-btn active" data-cat="all">All</button>
+      {% for value, label in action_categories %}
+        <button type="button" class="filt-btn" data-cat="{{ value }}">{{ label }}</button>
+      {% endfor %}
+    </div>
+    <button type="button" class="filt-btn show-hidden-btn" data-showhidden hidden>Show hidden</button>
+  </div>
+  <div id="actions">
+    {% include "_actions.html" %}
+  </div>
+
+  {# Notes are private to the owner + DM — not shown to a party member inspecting. #}
+  {% if creature['notes'] and can_edit %}
+    <div class="sheet-divider" role="separator"></div>
+    <section class="notes">
+      <h2>Notes <span class="muted note-private">(private)</span></h2>
+      <p>{{ creature['notes'] }}</p>
+    </section>
+  {% endif %}
+
+  {{ mentioned_in_section(mentioned_in) }}
+
+  </div><!-- /pane main -->
+
+  {# ===== PANE 2: Details & Lore (reference / niche) ===== #}
+  <div class="sheet-pane" data-pane="details">
+
+  {% if asi.slots %}
+    <div id="asi">
+      {% include "_asi.html" %}
+    </div>
   {% endif %}
 
   <section class="skills">
@@ -462,122 +572,7 @@
     </div>
   {% endif %}
 
-  {% if resource_rows %}
-    <div class="sheet-divider" role="separator"></div>
-    <div id="resources">
-      {% include "_resources.html" %}
-    </div>
-  {% endif %}
-
-  {% if weapon_attacks %}
-    <div class="sheet-divider" role="separator"></div>
-    <section class="char-attacks">
-      <div class="section-head">
-        <h2>Attacks</h2>
-        <span class="muted">equipped weapons — d20 + ability {{ info('proficiency-bonus', '+ proficiency') }} to hit, then damage{% if can_edit and mode != 'assist' %} · switch to Assist to roll{% endif %}</span>
-      </div>
-      <ul class="attack-list">
-        {% for a in weapon_attacks %}
-          <li class="attack-line">
-            <span class="attack-name">{{ a.name }}{% if a.type %} <span class="muted attack-type">{{ a.type }}</span>{% endif %} <span class="muted attack-abil">({{ a.ability }})</span>{% if not a.proficient %} <span class="attack-warn" title="Your class isn't proficient with this weapon, so the attack roll doesn't add your proficiency bonus.">not proficient</span>{% endif %}</span>
-            <span class="attack-rolls">
-              {% if mode == 'assist' and can_edit %}
-                <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
-                  <input type="hidden" name="expression" value="{{ a.to_hit }}">
-                  <input type="hidden" name="label" value="{{ creature['name'] }} · {{ a.name }} attack">
-                  <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-                  <button type="submit" class="check-btn" title="Attack roll: {{ a.to_hit }}">Attack {{ '%+d' % a.attack }}</button>
-                </form>
-                <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
-                  <input type="hidden" name="expression" value="{{ a.damage }}">
-                  <input type="hidden" name="label" value="{{ creature['name'] }} · {{ a.name }} damage">
-                  <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-                  <button type="submit" class="check-btn" title="Damage roll: {{ a.damage }}">Damage {{ a.damage }}</button>
-                </form>
-                <form method="post" action="{{ url_for('dice_roll') }}" class="inline">
-                  <input type="hidden" name="expression" value="{{ a.crit }}">
-                  <input type="hidden" name="label" value="{{ creature['name'] }} · {{ a.name }} critical hit">
-                  <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-                  <button type="submit" class="check-btn crit-btn" title="Critical hit (natural 20) — damage dice doubled: {{ a.crit }}">💥 Crit {{ a.crit }}</button>
-                </form>
-              {% else %}
-                <span class="attack-stat">{{ '%+d' % a.attack }} to hit</span>
-                <span class="attack-stat">{{ a.damage }}{% if a.type %} {{ a.type }}{% endif %}</span>
-                <span class="attack-stat muted" title="On a natural 20, damage dice are doubled">crit {{ a.crit }}</span>
-              {% endif %}
-            </span>
-          </li>
-        {% endfor %}
-      </ul>
-    </section>
-  {% endif %}
-
-  <div class="sheet-divider" role="separator"></div>
-
-  <div id="gear">
-    {% include "_gear.html" %}
-  </div>
-
-  {% if can_edit and creature['kind'] == 'pc' %}
-    {% include "_trades.html" %}
-  {% endif %}
-
-  <div class="sheet-divider" role="separator"></div>
-
-  {# Spellbook filter bar. Lives outside #spells so its state survives the
-     fragment being replaced on AJAX updates; JS shows it only when spells exist. #}
-  <div class="spell-filter book-filter" id="spellbook-filter" hidden>
-    <input type="search" class="bookfilt-search" placeholder="Search spells…" autocomplete="off" aria-label="Search spells">
-    <div class="filter-group" role="group" aria-label="Prepared">
-      <button type="button" class="filt-btn active" data-prep="all">All</button>
-      <button type="button" class="filt-btn" data-prep="prepared">Prepared</button>
-      <button type="button" class="filt-btn" data-prep="unprepared">Unprepared</button>
-    </div>
-    <div class="filter-group" role="group" aria-label="Type">
-      <button type="button" class="filt-btn active" data-type="all">All</button>
-      <button type="button" class="filt-btn" data-type="cantrip">Cantrips</button>
-      <button type="button" class="filt-btn" data-type="leveled">Spells</button>
-    </div>
-    <div class="filter-group" role="group" aria-label="Casting time">
-      <button type="button" class="filt-btn active" data-cast="all">Any time</button>
-      <button type="button" class="filt-btn" data-cast="action">Action</button>
-      <button type="button" class="filt-btn" data-cast="bonus">Bonus</button>
-      <button type="button" class="filt-btn" data-cast="reaction">Reaction</button>
-    </div>
-    <button type="button" class="filt-btn show-hidden-btn" data-showhidden hidden>Show hidden</button>
-  </div>
-  <div id="spells">
-    {% include "_spells.html" %}
-  </div>
-
-  <div class="sheet-divider" role="separator"></div>
-
-  {# Actions filter bar — outside #actions so its state survives AJAX updates;
-     JS shows it only when actions exist. #}
-  <div class="spell-filter book-filter" id="actions-filter" hidden>
-    <input type="search" class="actfilt-search" placeholder="Search actions…" autocomplete="off" aria-label="Search actions">
-    <div class="filter-group" role="group" aria-label="Category">
-      <button type="button" class="filt-btn active" data-cat="all">All</button>
-      {% for value, label in action_categories %}
-        <button type="button" class="filt-btn" data-cat="{{ value }}">{{ label }}</button>
-      {% endfor %}
-    </div>
-    <button type="button" class="filt-btn show-hidden-btn" data-showhidden hidden>Show hidden</button>
-  </div>
-  <div id="actions">
-    {% include "_actions.html" %}
-  </div>
-
-  {# Notes are private to the owner + DM — not shown to a party member inspecting. #}
-  {% if creature['notes'] and can_edit %}
-    <div class="sheet-divider" role="separator"></div>
-    <section class="notes">
-      <h2>Notes <span class="muted note-private">(private)</span></h2>
-      <p>{{ creature['notes'] }}</p>
-    </section>
-  {% endif %}
-
-  {{ mentioned_in_section(mentioned_in) }}
+  </div><!-- /pane details -->
 
   </div><!-- /#sheet -->
 
@@ -586,6 +581,28 @@
     function isDiceForm(form) {
       return ((form.getAttribute('action') || '').split('?')[0]).endsWith(DICE_ROLL_PATH);
     }
+
+    // Sheet subtabs (Stats & Actions / Details & Lore). The active pane is held in
+    // a closure var so it survives a whole-sheet js-sheet-reload swap, and is
+    // re-applied by initSheet() after each swap. Tab clicks are delegated on
+    // document (so they survive #sheet being replaced). Without JS, no has-tabs
+    // class is set, so both panes simply stack — a graceful fallback.
+    let sheetPane = 'main';
+    function applySheetTabs() {
+      const sheet = document.getElementById('sheet');
+      if (!sheet) return;
+      sheet.classList.add('has-tabs');
+      sheet.querySelectorAll('.sheet-tab').forEach(t =>
+        t.classList.toggle('is-active', t.dataset.pane === sheetPane));
+      sheet.querySelectorAll('.sheet-pane').forEach(p =>
+        p.classList.toggle('is-active', p.dataset.pane === sheetPane));
+    }
+    document.addEventListener('click', function (e) {
+      const tab = e.target.closest('.sheet-tab');
+      if (!tab) return;
+      sheetPane = tab.dataset.pane;
+      applySheetTabs();
+    });
 
     // initSheet binds all the per-section in-place handlers (gear / actions /
     // spells / feats / resources). It runs on load AND after a whole-sheet swap
@@ -884,8 +901,6 @@
     })();
 
     // Class resources: spend/restore re-render the #resources fragment in place.
-    // Rest forms (data-reload) submit normally so the page reloads — that also
-    // refreshes spell slots, which a rest recharges alongside resources.
     (function () {
       const box = document.getElementById('resources');
       if (!box) return;
@@ -903,6 +918,72 @@
           .then(html => { box.innerHTML = html; });
       });
     })();
+
+    // Exhaustion: ±1 re-renders just the #exhaustion fragment in place. It's a
+    // loose display tracker (effects aren't auto-applied), so nothing else on the
+    // sheet depends on it — no whole-sheet reload needed. Delegated on #exhaustion,
+    // which persists across replacement; no-JS falls back to POST + redirect.
+    (function () {
+      const box = document.getElementById('exhaustion');
+      if (!box) return;
+      box.addEventListener('submit', function (e) {
+        const form = e.target.closest('form');
+        if (!form) return;
+        e.preventDefault();
+        fetch(form.getAttribute('action'), { method: 'POST', body: new FormData(form),
+                             headers: { 'X-Requested-With': 'fetch' } })
+          .then(r => r.text())
+          .then(html => { box.innerHTML = html; });
+      });
+    })();
+
+    // Trades: offer / cancel / decline re-render just the #trades panel in place.
+    // An accept also moves an item/gold into THIS sheet, so it additionally
+    // refreshes #gear and the vitals/purse from a follow-up GET. The nav badge
+    // (pending incoming offers) is re-synced from the fresh panel. Delegated on
+    // #trades, which persists; no-JS falls back to POST + redirect.
+    (function () {
+      const box = document.getElementById('trades');
+      if (!box) return;
+
+      function syncTradeBadge() {
+        const n = box.querySelectorAll('.trade-in').length;
+        const badge = document.querySelector('.tabs .tab-badge');
+        if (!badge) return;            // none existed; our own actions can't add incoming
+        if (n === 0) badge.remove(); else badge.textContent = n;
+      }
+
+      function refreshAfterAccept() {
+        // An accepted item/gold lands in inventory/purse, which live elsewhere on
+        // the sheet — pull a fresh copy and swap those two regions in place.
+        fetch(window.location.pathname, { headers: { 'X-Requested-With': 'fetch' } })
+          .then(r => r.text())
+          .then(html => {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const fg = doc.getElementById('gear'), g = document.getElementById('gear');
+            if (fg && g) g.innerHTML = fg.innerHTML;
+            const fv = doc.querySelector('.vitals'), v = document.querySelector('.vitals');
+            if (fv && v) v.innerHTML = fv.innerHTML;
+          });
+      }
+
+      box.addEventListener('submit', function (e) {
+        const form = e.target.closest('form');
+        if (!form) return;
+        e.preventDefault();
+        const isAccept = (form.getAttribute('action') || '').indexOf('/accept') !== -1;
+        fetch(form.getAttribute('action'), { method: 'POST', body: new FormData(form),
+                             headers: { 'X-Requested-With': 'fetch' } })
+          .then(r => r.text())
+          .then(html => {
+            box.innerHTML = html;
+            syncTradeBadge();
+            if (isAccept) refreshAfterAccept();
+          });
+      });
+    })();
+
+    applySheetTabs();   // (re-)apply the active subtab after each (re)render
     }  // end initSheet
     initSheet();
 

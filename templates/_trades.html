@@ -1,7 +1,8 @@
 {# PC-to-PC trading. Shown on a PC's own sheet (can_edit + kind pc). Incoming
-   offers wait for accept/decline; outgoing offers stay cancellable. All forms use
-   js-sheet-reload — a trade ripples into inventory + purse + offers, so the whole
-   sheet re-renders. Expects: creature, items, trades_in, trades_out, trade_partners. #}
+   offers wait for accept/decline; outgoing offers stay cancellable. Forms post to
+   the #trades AJAX fragment (offer/cancel/decline update just this panel in place);
+   an accept additionally refreshes the inventory + purse it moves into (handled by
+   the #trades JS). Expects: creature, items, trades_in, trades_out, trade_partners. #}
 <section class="sheet-section trades-panel">
   <h2>🤝 Trade</h2>
 
@@ -16,10 +17,10 @@
               {% if t['kind'] == 'item' %}<em>{{ t['item_name'] or 'an item' }}</em>{% else %}{{ t['gold'] }}g {{ t['silver'] }}s {{ t['copper'] }}c{% endif %}
             </span>
             <span class="trade-actions">
-              <form method="post" action="{{ url_for('trade_accept', offer_id=t['id']) }}" class="inline js-sheet-reload">
+              <form method="post" action="{{ url_for('trade_accept', offer_id=t['id']) }}" class="inline">
                 <button type="submit" class="btn-small btn-accept">Accept</button>
               </form>
-              <form method="post" action="{{ url_for('trade_decline', offer_id=t['id']) }}" class="inline js-sheet-reload">
+              <form method="post" action="{{ url_for('trade_decline', offer_id=t['id']) }}" class="inline">
                 <button type="submit" class="btn-text">Decline</button>
               </form>
             </span>
@@ -41,7 +42,7 @@
               <span class="trade-pending">pending</span>
             </span>
             <span class="trade-actions">
-              <form method="post" action="{{ url_for('trade_cancel', offer_id=t['id']) }}" class="inline js-sheet-reload">
+              <form method="post" action="{{ url_for('trade_cancel', offer_id=t['id']) }}" class="inline">
                 <button type="submit" class="btn-text">Cancel</button>
               </form>
             </span>
@@ -54,7 +55,7 @@
   {% if trade_partners %}
     {% set tradeable = items | rejectattr('hidden') | list %}
     <div class="trade-give">
-      <form method="post" action="{{ url_for('trade_offer', creature_id=creature['id']) }}" class="inline trade-form js-sheet-reload">
+      <form method="post" action="{{ url_for('trade_offer', creature_id=creature['id']) }}" class="inline trade-form">
         <input type="hidden" name="kind" value="item">
         <label class="trade-lbl">Give item</label>
         <select name="item_id" aria-label="Item to give" {{ 'disabled' if not tradeable }}>
@@ -67,7 +68,7 @@
         <button type="submit" class="btn-small" {{ 'disabled' if not tradeable }}>Offer</button>
       </form>
 
-      <form method="post" action="{{ url_for('trade_offer', creature_id=creature['id']) }}" class="inline trade-form js-sheet-reload">
+      <form method="post" action="{{ url_for('trade_offer', creature_id=creature['id']) }}" class="inline trade-form">
         <input type="hidden" name="kind" value="gold">
         <label class="trade-lbl">Give gold</label>
         <label class="coin-field coin-gp">G <input type="number" name="gold" value="0" min="0" max="{{ creature['gold'] }}" class="coin-input"></label>

@@ -777,6 +777,18 @@ form.inline { display: inline; margin: 0; }
 
 /* Ability Score Improvement allocator on the character sheet */
 .char-asi { max-width: 34rem; }
+/* Collapsible ASI panel: summary doubles as the section head (title + budget). */
+.asi-panel > summary {
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  cursor: pointer; list-style: none; padding: 0.15rem 0;
+}
+.asi-panel > summary::-webkit-details-marker { display: none; }
+.asi-summary-title { color: var(--accent-2); font-size: 1.2rem; font-weight: 700; }
+.asi-summary-title::before {
+  content: "▸"; display: inline-block; margin-right: 0.4rem;
+  color: var(--muted); font-size: 0.85em; transition: transform 0.12s;
+}
+.asi-panel[open] > summary .asi-summary-title::before { transform: rotate(90deg); }
 .asi-budget { font-family: sans-serif; font-size: 0.82rem; color: var(--muted); }
 .asi-budget strong { color: var(--accent-2); font-size: 1.05rem; }
 .asi-budget.full strong { color: var(--muted); }
@@ -1551,6 +1563,23 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .ds-mark:hover { color: var(--ink); border-color: var(--accent-2); }
 
 /* Combat subtabs (Tracker / Log). Hidden without JS — both panes just stack. */
+/* Character-sheet subtabs (Stats & Actions / Details & Lore). Hidden without JS
+   so both panes just stack. Mirrors the combat tracker's subtab pattern. */
+.sheet-tabs { display: none; gap: 0.4rem; margin: 0.25rem 0 1.25rem; border-bottom: 1px solid var(--border); }
+#sheet.has-tabs .sheet-tabs { display: flex; }
+.sheet-tab {
+  font: inherit; font-size: 1rem; cursor: pointer; background: transparent; color: var(--muted);
+  border: 1px solid transparent; border-bottom: none; border-radius: 7px 7px 0 0;
+  padding: 0.5rem 1.1rem; margin-bottom: -1px;
+}
+.sheet-tab:hover { color: var(--ink); }
+.sheet-tab.is-active {
+  color: var(--ink); background: var(--panel);
+  border-color: var(--border); border-bottom: 1px solid var(--panel); font-weight: 600;
+}
+#sheet.has-tabs .sheet-pane { display: none; }
+#sheet.has-tabs .sheet-pane.is-active { display: block; }
+
 .combat-tabs { display: none; gap: 0.35rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
 #combat.has-tabs .combat-tabs { display: flex; }
 .combat-tab {

@@ -1,0 +1,38 @@
+{# Exhaustion tracker. Rendered inside the character sheet and standalone by the
+   #exhaustion AJAX endpoint, so ±1 refreshes in place (no whole-sheet reload —
+   exhaustion is a loose display tracker, its effects aren't auto-applied, so
+   nothing else on the sheet depends on it). Expects: creature, exhaustion,
+   max_exhaustion, exhaustion_effects, can_edit. #}
+{% from "macros.html" import info %}
+<section class="exhaustion {{ 'has-exhaustion' if exhaustion else '' }}">
+  <div class="section-head">
+    <h2>{{ info('exhaustion', 'Exhaustion') }}</h2>
+    <span class="muted">level {{ exhaustion }} / {{ max_exhaustion }} — a loose tracker; effects aren’t auto-applied</span>
+  </div>
+  <div class="exhaustion-row">
+    {% if can_edit %}
+      <form method="post" action="{{ url_for('character_exhaustion', creature_id=creature['id']) }}" class="inline">
+        <input type="hidden" name="delta" value="-1">
+        <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+        <button type="submit" class="slot-btn" {{ 'disabled' if exhaustion == 0 else '' }} title="Lower one level">−</button>
+      </form>
+    {% endif %}
+    <span class="exhaustion-pips" aria-label="Exhaustion {{ exhaustion }} of {{ max_exhaustion }}">
+      {% for i in range(1, max_exhaustion + 1) %}<span class="ex-pip {{ 'on' if i <= exhaustion else '' }} {{ 'death' if i == max_exhaustion else '' }}">{{ i }}</span>{% endfor %}
+    </span>
+    {% if can_edit %}
+      <form method="post" action="{{ url_for('character_exhaustion', creature_id=creature['id']) }}" class="inline">
+        <input type="hidden" name="delta" value="1">
+        <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+        <button type="submit" class="slot-btn" {{ 'disabled' if exhaustion == max_exhaustion else '' }} title="Raise one level">+</button>
+      </form>
+    {% endif %}
+  </div>
+  {% if exhaustion_effects %}
+    <ul class="exhaustion-effects">
+      {% for lvl, eff in exhaustion_effects %}
+        <li><span class="ex-lvl">{{ lvl }}</span> {{ eff }}{% if lvl == max_exhaustion %} <span class="muted">— for the story; not auto-applied</span>{% endif %}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</section>

@@ -1573,20 +1573,52 @@ def trade_cancel(offer_id):
 
 
 def _trade_response(creature_id):
-    """Trades touch inventory + purse + the offers list, so re-render the whole
-    sheet (fetch follows the redirect to the GET sheet, like js-sheet-reload)."""
+    """Re-render just the #trades panel for fetch requests (offer/cancel/decline
+    only touch the offers list; an accept also moves an item/gold, which the client
+    refreshes via #gear + the purse). Non-JS falls back to a full redirect."""
+    if _is_fetch():
+        return _trades_fragment(creature_id)
     return redirect(url_for("character_detail", creature_id=creature_id))
+
+
+def _trades_fragment(creature_id):
+    """Render the trade panel for a creature (the #trades AJAX fragment)."""
+    creature = get_creature(creature_id)
+    return render_template(
+        "_trades.html",
+        creature=creature,
+        items=list_items(creature_id),
+        trades_in=pending_incoming(creature_id),
+        trades_out=pending_outgoing(creature_id),
+        trade_partners=[p for p in list_party() if p["id"] != creature_id],
+    )
 
 
 @app.route("/character/<int:creature_id>/exhaustion", methods=["POST"])
 def character_exhaustion(creature_id):
     """Adjust a creature's exhaustion level by ±1 (a loose tracker — no mechanics are
-    auto-applied). Owner or DM."""
+    auto-applied). Owner or DM. AJAX re-renders just the #exhaustion fragment (it's
+    display-only, so nothing else on the sheet depends on it)."""
     creature = _require_edit(creature_id)
     delta = 1 if request.form.get("delta", type=int) and request.form.get("delta", type=int) > 0 else -1
     set_exhaustion(creature_id, creature["exhaustion"] + delta)
+    if _is_fetch():
+        return _exhaustion_fragment(creature_id)
     return redirect(_safe_next(request.form.get("next"),
                                url_for("character_detail", creature_id=creature_id)))
+
+
+def _exhaustion_fragment(creature_id):
+    """Render the exhaustion tracker for a creature (the #exhaustion AJAX fragment)."""
+    creature = get_creature(creature_id)
+    return render_template(
+        "_exhaustion.html",
+        creature=creature,
+        can_edit=can_edit_creature(creature),
+        exhaustion=creature["exhaustion"],
+        exhaustion_effects=exhaustion_effects(creature["exhaustion"]),
+        max_exhaustion=MAX_EXHAUSTION,
+    )
 
 
 @app.route("/character/<int:creature_id>/inspiration", methods=["POST"])
