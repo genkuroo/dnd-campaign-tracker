@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import avatar %}
 {% block content %}
   <div class="page-head">
     <div>
@@ -23,7 +24,7 @@
         </form>
         <a class="btn-ghost" href="{{ url_for('map_edit', map_id=map['id']) }}">Edit</a>
         <form method="post" action="{{ url_for('map_delete', map_id=map['id']) }}" class="inline"
-              onsubmit="return confirm('Delete this map?');">
+              onsubmit="return confirm('Delete this map? Its markers go with it.');">
           <button type="submit" class="btn-danger">Delete</button>
         </form>
       </div>
@@ -35,13 +36,230 @@
   {% endif %}
 
   {% if map['image'] %}
+    {% if is_dm %}
+      <div class="map-toolbar">
+        <button type="button" class="btn" id="mapPlaceBtn">➕ Place marker</button>
+        <span class="muted map-place-hint" id="mapPlaceHint" hidden>Click the map to drop a marker… <button type="button" class="btn-text" id="mapPlaceCancel">cancel</button></span>
+        <span class="muted">Drag a pin to move it.</span>
+      </div>
+    {% endif %}
+
     <div class="map-stage">
-      <img class="map-image" src="{{ map['image'] }}" alt="{{ map['name'] }}">
+      <div class="map-canvas" id="mapCanvas" data-map-id="{{ map['id'] }}">
+        <img class="map-image" src="{{ map['image'] }}" alt="{{ map['name'] }}">
+        <div class="map-markers" id="mapMarkers">
+          {% for mk in markers %}
+            {% set inner %}
+              <span class="marker-pin">{% if mk.creature %}{{ avatar(mk.creature, 'avatar-sm') }}{% else %}{{ mk.icon }}{% endif %}</span>
+              <span class="marker-label">{{ mk.name }}</span>
+            {% endset %}
+            {% if is_dm %}
+              <div class="map-marker{{ ' marker-hidden' if mk.visibility == 'hidden' else '' }}"
+                   style="left: {{ (mk.x * 100) }}%; top: {{ (mk.y * 100) }}%;"
+                   data-id="{{ mk.id }}" title="{{ mk.name }}">{{ inner }}</div>
+            {% elif mk.url %}
+              <a class="map-marker" href="{{ mk.url }}"
+                 style="left: {{ (mk.x * 100) }}%; top: {{ (mk.y * 100) }}%;"
+                 title="{{ mk.name }}">{{ inner }}</a>
+            {% else %}
+              <div class="map-marker"
+                   style="left: {{ (mk.x * 100) }}%; top: {{ (mk.y * 100) }}%;"
+                   title="{{ mk.name }}">{{ inner }}</div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
     </div>
   {% else %}
     <section class="sheet-section">
       <p class="muted">No background image yet.</p>
       {% if is_dm %}<p class="placeholder-note"><a href="{{ url_for('map_edit', map_id=map['id']) }}">Upload one</a> to start mapping.</p>{% endif %}
     </section>
+  {% endif %}
+
+  {% if is_dm and map['image'] %}
+    {# Placement form — revealed (and its x/y filled) when the DM clicks the map. #}
+    <form method="post" action="{{ url_for('marker_new', map_id=map['id']) }}"
+          class="entity-form marker-form" id="markerForm" hidden>
+      <input type="hidden" name="x" id="markerX">
+      <input type="hidden" name="y" id="markerY">
+      <fieldset>
+        <h2 class="marker-form-title">New marker</h2>
+        <label class="field">
+          <span>Points at</span>
+          <select name="entity_type" id="markerType">
+            <option value="">Label only</option>
+            <option value="creature">NPC / character</option>
+            <option value="location">Location</option>
+            <option value="faction">Faction</option>
+            <option value="map">Another map (drill down)</option>
+          </select>
+        </label>
+
+        <label class="field marker-target" data-for="creature" hidden>
+          <span>Character</span>
+          <select name="entity_id" disabled>
+            {% for c in targets.creatures %}<option value="{{ c['id'] }}">{{ c['name'] }} ({{ c['kind'] | upper }})</option>{% endfor %}
+          </select>
+        </label>
+        <label class="field marker-target" data-for="location" hidden>
+          <span>Location</span>
+          <select name="entity_id" disabled>
+            {% for l in targets.locations %}<option value="{{ l['id'] }}">{{ l['name'] }}</option>{% endfor %}
+          </select>
+        </label>
+        <label class="field marker-target" data-for="faction" hidden>
+          <span>Faction</span>
+          <select name="entity_id" disabled>
+            {% for f in targets.factions %}<option value="{{ f['id'] }}">{{ f['name'] }}</option>{% endfor %}
+          </select>
+        </label>
+        <label class="field marker-target" data-for="map" hidden>
+          <span>Map</span>
+          <select name="entity_id" disabled>
+            {% for m in targets.maps %}<option value="{{ m['id'] }}">{{ m['name'] }}</option>{% endfor %}
+          </select>
+        </label>
+
+        <label class="field marker-target" data-for="" >
+          <span>Label</span>
+          <input type="text" name="label" placeholder="e.g. Ambush site, Treasure">
+        </label>
+        <label class="field">
+          <span>Icon <span class="muted">(emoji, optional)</span></span>
+          <input type="text" name="icon" maxlength="8" placeholder="📌">
+        </label>
+      </fieldset>
+      <div class="form-actions">
+        <button type="submit" class="btn">Place marker</button>
+        <button type="button" class="btn-ghost" id="markerFormCancel">Cancel</button>
+      </div>
+    </form>
+
+    {# Management list — toggle visibility / open / delete each marker. #}
+    {% if markers %}
+      <section class="sheet-section">
+        <h2>Markers ({{ markers | length }})</h2>
+        <ul class="marker-manage">
+          {% for mk in markers %}
+            <li>
+              <span class="marker-manage-icon">{% if mk.creature %}{{ avatar(mk.creature, 'avatar-sm') }}{% else %}{{ mk.icon }}{% endif %}</span>
+              <span class="marker-manage-name">
+                {% if mk.url %}<a href="{{ mk.url }}">{{ mk.name }}</a>{% else %}{{ mk.name }}{% endif %}
+                {% if mk.entity_type %}<span class="muted">· {{ mk.entity_type }}</span>{% endif %}
+              </span>
+              {% if mk.visibility == 'hidden' %}<span class="badge-dm">Hidden</span>{% endif %}
+              <span class="marker-manage-actions">
+                <form method="post" action="{{ url_for('marker_visibility', map_id=map['id'], marker_id=mk.id) }}" class="inline">
+                  <input type="hidden" name="next" value="{{ request.path }}">
+                  {% if mk.visibility == 'visible' %}
+                    <input type="hidden" name="visibility" value="hidden">
+                    <button type="submit" class="btn-text" title="Hide from players">🙈 Hide</button>
+                  {% else %}
+                    <input type="hidden" name="visibility" value="visible">
+                    <button type="submit" class="btn-text" title="Reveal to players">👁 Reveal</button>
+                  {% endif %}
+                </form>
+                <form method="post" action="{{ url_for('marker_delete', map_id=map['id'], marker_id=mk.id) }}" class="inline"
+                      onsubmit="return confirm('Remove this marker?');">
+                  <button type="submit" class="btn-text danger">✕</button>
+                </form>
+              </span>
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+  {% endif %}
+
+  {% if is_dm and map['image'] %}
+  <script>
+  (function () {
+    var canvas = document.getElementById('mapCanvas');
+    var img = canvas.querySelector('.map-image');
+    var markersLayer = document.getElementById('mapMarkers');
+    var placeBtn = document.getElementById('mapPlaceBtn');
+    var placeHint = document.getElementById('mapPlaceHint');
+    var placeCancel = document.getElementById('mapPlaceCancel');
+    var form = document.getElementById('markerForm');
+    var mapId = canvas.dataset.mapId;
+
+    // Fractional (0..1) click/drag position relative to the image.
+    function fracFromEvent(e) {
+      var r = img.getBoundingClientRect();
+      var x = (e.clientX - r.left) / r.width;
+      var y = (e.clientY - r.top) / r.height;
+      return { x: Math.max(0, Math.min(1, x)), y: Math.max(0, Math.min(1, y)) };
+    }
+
+    // --- Placement mode: click the map to drop a marker -------------------
+    var placing = false;
+    function setPlacing(on) {
+      placing = on;
+      canvas.classList.toggle('placing', on);
+      placeHint.hidden = !on;
+      placeBtn.hidden = on;
+    }
+    placeBtn.addEventListener('click', function () { setPlacing(true); form.hidden = true; });
+    placeCancel.addEventListener('click', function () { setPlacing(false); });
+
+    canvas.addEventListener('click', function (e) {
+      if (!placing) return;
+      var f = fracFromEvent(e);
+      document.getElementById('markerX').value = f.x.toFixed(4);
+      document.getElementById('markerY').value = f.y.toFixed(4);
+      setPlacing(false);
+      form.hidden = false;
+      form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+
+    // --- Placement form: show the right target picker by type -------------
+    var typeSel = document.getElementById('markerType');
+    function syncTargets() {
+      var t = typeSel.value;
+      document.querySelectorAll('.marker-target').forEach(function (el) {
+        var match = el.dataset.for === t;
+        el.hidden = !match;
+        var ctl = el.querySelector('select, input');
+        // Only the active entity_id select (or the label input) should submit.
+        if (ctl && (ctl.name === 'entity_id')) ctl.disabled = !match;
+      });
+    }
+    typeSel.addEventListener('change', syncTargets);
+    syncTargets();
+    document.getElementById('markerFormCancel').addEventListener('click', function () { form.hidden = true; });
+
+    // --- Drag an existing pin to reposition it ----------------------------
+    var dragging = null, moved = false;
+    markersLayer.addEventListener('pointerdown', function (e) {
+      var pin = e.target.closest('.map-marker');
+      if (!pin) return;
+      e.preventDefault();
+      dragging = pin; moved = false;
+      pin.setPointerCapture(e.pointerId);
+      pin.classList.add('dragging');
+    });
+    markersLayer.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      moved = true;
+      var f = fracFromEvent(e);
+      dragging.style.left = (f.x * 100) + '%';
+      dragging.style.top = (f.y * 100) + '%';
+    });
+    markersLayer.addEventListener('pointerup', function (e) {
+      if (!dragging) return;
+      var pin = dragging; dragging = null;
+      pin.classList.remove('dragging');
+      if (!moved) return;
+      var f = fracFromEvent(e);
+      var body = new URLSearchParams({ x: f.x.toFixed(4), y: f.y.toFixed(4) });
+      fetch('/map/' + mapId + '/marker/' + pin.dataset.id + '/move', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
+      });
+    });
+  })();
+  </script>
   {% endif %}
 {% endblock %}

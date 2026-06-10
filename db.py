@@ -34,7 +34,7 @@ LEGACY_DB_PATH = os.path.join(DATA_DIR, "campaign.db")
 # Unset in normal app runs, which then use the multi-campaign layout above.
 DB_PATH = os.environ.get("DND_DB_PATH")
 
-SCHEMA_VERSION = 49
+SCHEMA_VERSION = 50
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -628,6 +628,29 @@ MIGRATIONS = {
         visibility  TEXT    NOT NULL DEFAULT 'hidden',-- 'visible' | 'hidden'
         created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
     );
+    """,
+    50: """
+    -- Phase 10b — map markers. An interactable overlay pin on a map, positioned by
+    -- FRACTIONAL coords (`x`/`y` in 0..1) so it stays put at any zoom/resolution.
+    -- A marker optionally points at an entity via the same polymorphic (type, id)
+    -- pattern as note_mentions — `entity_type` 'creature'|'location'|'faction'|'map'
+    -- (or '' for a free-text label pin), `entity_id` (no FK; orphan-skipped on
+    -- read). A 'map'-type marker drills down to a sub-map (global→local). Carries
+    -- the `visibility` fog-of-war spine (10c reveals/hides per marker). ON DELETE
+    -- CASCADE drops a map's markers with it.
+    CREATE TABLE map_markers (
+        id          INTEGER PRIMARY KEY,
+        map_id      INTEGER NOT NULL REFERENCES maps(id) ON DELETE CASCADE,
+        x           REAL    NOT NULL DEFAULT 0.5,     -- fractional 0..1
+        y           REAL    NOT NULL DEFAULT 0.5,
+        entity_type TEXT    NOT NULL DEFAULT '',       -- '' | 'creature' | 'location' | 'faction' | 'map'
+        entity_id   INTEGER NOT NULL DEFAULT 0,
+        label       TEXT    NOT NULL DEFAULT '',
+        icon        TEXT    NOT NULL DEFAULT '',        -- emoji for free-label pins
+        visibility  TEXT    NOT NULL DEFAULT 'visible', -- 'visible' | 'hidden'
+        created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX idx_map_markers_map ON map_markers(map_id);
     """,
 }
 

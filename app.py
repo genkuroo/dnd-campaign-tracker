@@ -184,6 +184,15 @@ from models.maps import (
     update_map,
     visible_maps,
 )
+from models.map_markers import (
+    create_marker,
+    delete_marker,
+    get_marker,
+    list_markers,
+    move_marker,
+    set_marker_visibility,
+    update_marker,
+)
 from models.factions import (
     create_faction,
     delete_faction,
@@ -419,6 +428,8 @@ _DM_ONLY_ENDPOINTS = {
     # Maps (Phase 10): list/detail views are shared (visibility-gated); only
     # authoring mutations are DM-only.
     "map_new", "map_edit", "map_delete", "map_visibility",
+    "marker_new", "marker_move", "marker_edit", "marker_visibility",
+    "marker_delete",
 }
 
 
@@ -586,6 +597,66 @@ def _mentioned_in(entity_type, entity_id):
     """The journal notes that mention an entity, filtered to what the viewer may
     read — the 'Mentioned in' back-reference for an entity's page."""
     return [n for n in notes_mentioning(entity_type, entity_id) if can_view_note(n)]
+
+
+def _resolve_marker(marker):
+    """Turn a raw marker row into a display dict the map overlay can render, or
+    None if the viewer shouldn't see it. Enforces the marker's own visibility AND
+    the target entity's visibility (so a revealed marker pointing at a hidden NPC
+    still hides). A dangling entity reference (deleted target) is skipped, except
+    free-label pins which have no target. Mirrors `_note_mention_links`."""
+    if not is_dm() and marker["visibility"] != "visible":
+        return None
+    base = {
+        "id": marker["id"], "x": marker["x"], "y": marker["y"],
+        "visibility": marker["visibility"], "entity_type": marker["entity_type"],
+        "entity_id": marker["entity_id"], "label": marker["label"],
+        "icon": marker["icon"], "creature": None, "url": None,
+    }
+    etype, eid = marker["entity_type"], marker["entity_id"]
+    if etype == "":
+        base["name"] = marker["label"] or "Marker"
+        base["icon"] = marker["icon"] or "📌"
+        return base
+    if etype == "creature":
+        c = get_creature(eid)
+        if not can_view_creature(c):
+            return None
+        base.update(name=c["name"], creature=c,
+                    url=url_for("character_detail", creature_id=eid))
+        return base
+    if etype == "location":
+        loc = get_location(eid)
+        if not can_view_entity(loc):
+            return None
+        base.update(name=loc["name"], icon=marker["icon"] or "📍",
+                    url=url_for("location_detail", location_id=eid))
+        return base
+    if etype == "faction":
+        fac = get_faction(eid)
+        if not can_view_entity(fac):
+            return None
+        base.update(name=fac["name"], icon=marker["icon"] or "🏛",
+                    url=url_for("faction_detail", faction_id=eid))
+        return base
+    if etype == "map":
+        m = get_map(eid)
+        if not can_view_entity(m):
+            return None
+        base.update(name=m["name"], icon=marker["icon"] or "🗺️",
+                    url=url_for("map_detail", map_id=eid))
+        return base
+    return None
+
+
+def _resolved_markers(map_id):
+    """All viewable, resolved markers for a map."""
+    out = []
+    for marker in list_markers(map_id):
+        r = _resolve_marker(marker)
+        if r is not None:
+            out.append(r)
+    return out
 
 
 def visible_roster():
@@ -2896,9 +2967,20 @@ def map_detail(map_id):
     m = get_map(map_id)
     if not can_view_entity(m):
         abort(404)
+    # Entity choices for the DM's marker-placement form (omit this very map so a
+    # marker can't drill down to itself).
+    targets = None
+    if is_dm():
+        targets = {
+            "creatures": list_roster(),
+            "locations": list_locations(),
+            "factions": list_factions(),
+            "maps": [x for x in list_maps() if x["id"] != map_id],
+        }
     return render_template(
         "map_detail.html", active="map", title=m["name"],
         map=m, location=get_location(m["location_id"]),
+        markers=_resolved_markers(map_id), targets=targets,
     )
 
 
@@ -2944,6 +3026,62 @@ def map_delete(map_id):
     delete_map(map_id)
     flash("Map deleted.")
     return redirect(url_for("map"))
+
+
+# --- Map markers (Phase 10b) -----------------------------------------------
+
+def _require_map(map_id):
+    """Fetch a map or 404. Used by marker mutations (already DM-gated)."""
+    m = get_map(map_id)
+    if m is None:
+        abort(404)
+    return m
+
+
+@app.route("/map/<int:map_id>/marker/new", methods=["POST"])
+def marker_new(map_id):
+    _require_map(map_id)
+    create_marker(map_id, request.form)
+    flash("Marker placed.")
+    return redirect(url_for("map_detail", map_id=map_id))
+
+
+@app.route("/map/<int:map_id>/marker/<int:marker_id>/move", methods=["POST"])
+def marker_move(map_id, marker_id):
+    marker = get_marker(marker_id)
+    if marker is None or marker["map_id"] != map_id:
+        abort(404)
+    move_marker(marker_id, request.form.get("x"), request.form.get("y"))
+    return ("", 204)
+
+
+@app.route("/map/<int:map_id>/marker/<int:marker_id>/edit", methods=["POST"])
+def marker_edit(map_id, marker_id):
+    marker = get_marker(marker_id)
+    if marker is None or marker["map_id"] != map_id:
+        abort(404)
+    update_marker(marker_id, request.form)
+    flash("Marker updated.")
+    return redirect(url_for("map_detail", map_id=map_id))
+
+
+@app.route("/map/<int:map_id>/marker/<int:marker_id>/visibility", methods=["POST"])
+def marker_visibility(map_id, marker_id):
+    marker = get_marker(marker_id)
+    if marker is None or marker["map_id"] != map_id:
+        abort(404)
+    set_marker_visibility(marker_id, request.form.get("visibility"))
+    return redirect(_safe_next_or(url_for("map_detail", map_id=map_id)))
+
+
+@app.route("/map/<int:map_id>/marker/<int:marker_id>/delete", methods=["POST"])
+def marker_delete(map_id, marker_id):
+    marker = get_marker(marker_id)
+    if marker is None or marker["map_id"] != map_id:
+        abort(404)
+    delete_marker(marker_id)
+    flash("Marker removed.")
+    return redirect(url_for("map_detail", map_id=map_id))
 
 
 # --- Campaign journal (Phase 9b) -------------------------------------------
