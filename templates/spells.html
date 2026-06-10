@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import info %}
 {% block content %}
   <div class="page-head">
     <h1>Spells &amp; Actions</h1>
@@ -30,11 +31,16 @@
     {% endif %}
     <div class="spell-filter">
       <input type="search" id="spell-search" placeholder="Search spells…" autocomplete="off" aria-label="Search spells">
-      <div class="filter-group" role="group" aria-label="Type">
-        <button type="button" class="filt-btn active" data-type="all">All</button>
-        <button type="button" class="filt-btn" data-type="cantrip">Cantrips</button>
-        <button type="button" class="filt-btn" data-type="leveled">Spells</button>
-      </div>
+      <label class="spell-select-wrap">Level
+        <select id="level-filter" class="spell-select" aria-label="Filter by spell level">
+          <option value="all">All</option>
+          <option value="cantrip">Cantrips</option>
+          <option value="leveled">Leveled (1–9)</option>
+          {% for n in range(1, 10) %}
+            <option value="{{ n }}">{{ n }}{{ {1:'st', 2:'nd', 3:'rd'}.get(n, 'th') }} level</option>
+          {% endfor %}
+        </select>
+      </label>
       <div class="filter-group" role="group" aria-label="Casting time">
         <button type="button" class="filt-btn castfilt active" data-cast="all">Any time</button>
         <button type="button" class="filt-btn castfilt" data-cast="action">Action</button>
@@ -46,6 +52,22 @@
         <button type="button" class="filt-btn knownfilt" data-known="known">Known</button>
         <button type="button" class="filt-btn knownfilt" data-known="unknown">Unknown</button>
       </div>
+      <label class="spell-select-wrap">School
+        <select id="school-filter" class="spell-select" aria-label="Filter by school of magic">
+          <option value="all">All</option>
+          {% for sch in ['Abjuration','Conjuration','Divination','Enchantment','Evocation','Illusion','Necromancy','Transmutation'] %}
+            <option value="{{ sch | lower }}">{{ sch }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="spell-select-wrap">Sort
+        <select id="spell-sort" class="spell-select" aria-label="Sort spells">
+          <option value="level">Level (low→high)</option>
+          <option value="level-desc">Level (high→low)</option>
+          <option value="name">Name (A–Z)</option>
+          <option value="school">School</option>
+        </select>
+      </label>
     </div>
 
     <ul class="spell-list" id="spell-list">
@@ -54,12 +76,14 @@
         {% set status = spell_status.get(s['slug']) %}
         <li class="spell-item"
             data-name="{{ s['name'] }}"
+            data-level="{{ s['level'] }}"
+            data-school="{{ s['school'] | lower }}"
             data-cantrip="{{ '1' if s['level'] == 0 else '0' }}"
             data-cast="{{ 'bonus' if 'bonus' in ct else ('reaction' if 'reaction' in ct else ('action' if 'action' in ct else 'other')) }}"
             data-known="{{ '1' if status else '0' }}">
           <a class="spell-row" href="{{ url_for('spell_detail', slug=s['slug']) }}">
             <span class="spell-name">{{ s['name'] }}</span>
-            <span class="spell-meta muted">{{ s['level'] | ordinal_level }} · {{ s['school'] }} · {{ s['casting_time'] }}</span>
+            <span class="spell-meta muted">{{ s['level'] | ordinal_level }} · {{ info(s['school'] | lower, s['school']) }} · {{ s['casting_time'] }}</span>
             {% if status == 'prepared' %}<span class="known-badge">✓ Prepared</span>
             {% elif status == 'known' %}<span class="known-badge known-only">Known</span>{% endif %}
             {% if s['roll'] %}<span class="spell-dice die-text">{{ s['roll'] }}</span>{% endif %}
@@ -126,34 +150,50 @@
       const search = document.getElementById('spell-search');
       const list = document.getElementById('spell-list');
       const empty = document.getElementById('spell-empty');
-      const typeBtns = document.querySelectorAll('.filt-btn[data-type]');
+      const levelSel = document.getElementById('level-filter');
       const castBtns = document.querySelectorAll('.filt-btn[data-cast]');
       const knownBtns = document.querySelectorAll('.filt-btn[data-known]');
-      let type = 'all', cast = 'all', known = 'all';
+      const schoolSel = document.getElementById('school-filter');
+      const sortSel = document.getElementById('spell-sort');
+      let level = 'all', cast = 'all', known = 'all', school = 'all';
 
       function apply() {
         const q = search.value.trim().toLowerCase();
         let shown = 0;
         list.querySelectorAll('.spell-item').forEach(function (li) {
+          const lvl = li.dataset.level;
           const matchName = li.dataset.name.toLowerCase().includes(q);
-          const matchType = type === 'all'
-            || (type === 'cantrip' ? li.dataset.cantrip === '1' : li.dataset.cantrip === '0');
+          const matchLevel = level === 'all'
+            || (level === 'cantrip' ? lvl === '0'
+                : (level === 'leveled' ? lvl !== '0' : lvl === level));
           const matchCast = cast === 'all' || li.dataset.cast === cast;
           const matchKnown = known === 'all'
             || (known === 'known' ? li.dataset.known === '1' : li.dataset.known === '0');
-          const show = matchName && matchType && matchCast && matchKnown;
+          const matchSchool = school === 'all' || li.dataset.school === school;
+          const show = matchName && matchLevel && matchCast && matchKnown && matchSchool;
           li.style.display = show ? '' : 'none';
           if (show) shown++;
         });
         empty.hidden = shown !== 0;
       }
 
+      function sortList() {
+        const mode = sortSel.value;
+        const items = Array.from(list.querySelectorAll('.spell-item'));
+        items.sort(function (a, b) {
+          const la = +a.dataset.level, lb = +b.dataset.level;
+          const na = a.dataset.name.toLowerCase(), nb = b.dataset.name.toLowerCase();
+          if (mode === 'name') return na.localeCompare(nb);
+          if (mode === 'school')
+            return a.dataset.school.localeCompare(b.dataset.school) || (la - lb) || na.localeCompare(nb);
+          if (mode === 'level-desc') return (lb - la) || na.localeCompare(nb);
+          return (la - lb) || na.localeCompare(nb);   // level low→high
+        });
+        items.forEach(li => list.appendChild(li));   // re-order the DOM in place
+      }
+
       search.addEventListener('input', apply);
-      typeBtns.forEach(b => b.addEventListener('click', function () {
-        type = b.dataset.type;
-        typeBtns.forEach(x => x.classList.toggle('active', x === b));
-        apply();
-      }));
+      levelSel.addEventListener('change', function () { level = levelSel.value; apply(); });
       castBtns.forEach(b => b.addEventListener('click', function () {
         cast = b.dataset.cast;
         castBtns.forEach(x => x.classList.toggle('active', x === b));
@@ -164,6 +204,8 @@
         knownBtns.forEach(x => x.classList.toggle('active', x === b));
         apply();
       }));
+      schoolSel.addEventListener('change', function () { school = schoolSel.value; apply(); });
+      sortSel.addEventListener('change', sortList);
 
       // Action book search.
       const aSearch = document.getElementById('action-search');

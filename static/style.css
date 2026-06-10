@@ -886,6 +886,11 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 .spell-search input:focus { outline: none; border-color: var(--accent-2); }
 
 .spell-filter { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.25rem; }
+.spell-select-wrap { display: inline-flex; align-items: center; gap: 0.35rem; font-family: sans-serif; font-size: 0.8rem; color: var(--muted); }
+.spell-select {
+  font: inherit; padding: 0.32rem 0.5rem; background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+}
 #spell-search {
   flex: 1; min-width: 12rem; font: inherit;
   padding: 0.5rem 0.7rem;
