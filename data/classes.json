@@ -171,6 +171,38 @@
             "description": "When a creature within 5 ft damages you, use your reaction to make a melee weapon attack against it."
           }
         ]
+      },
+      {
+        "slug": "path-of-the-totem-warrior",
+        "name": "Path of the Totem Warrior",
+        "description": "A spiritual barbarian who draws on animal spirit guides for power.",
+        "features": [
+          {
+            "level": 3,
+            "name": "Spirit Seeker",
+            "description": "You can cast Beast Sense and Speak with Animals as rituals."
+          },
+          {
+            "level": 3,
+            "name": "Totem Spirit",
+            "description": "Choose a totem. Bear: while raging you have resistance to all damage except psychic. Eagle: enemies have disadvantage on opportunity attacks against you and you can Dash as a bonus action. Wolf: allies have advantage on melee attacks against enemies within 5 ft of you."
+          },
+          {
+            "level": 6,
+            "name": "Aspect of the Beast",
+            "description": "Gain a beast boon. Bear: doubled carrying capacity and advantage on Strength checks to push/pull/lift. Eagle: see up to a mile with no difficulty, no disadvantage on Perception in dim light. Wolf: track at a fast pace and move stealthily at a normal pace."
+          },
+          {
+            "level": 10,
+            "name": "Spirit Walker",
+            "description": "You can cast Commune with Nature as a ritual to summon a guiding spirit."
+          },
+          {
+            "level": 14,
+            "name": "Totemic Attunement",
+            "description": "Bear: while raging, enemies within 5 ft have disadvantage attacking creatures other than you. Eagle: while raging you gain a flying speed for a turn. Wolf: knock a Large-or-smaller enemy prone when you hit it with a melee attack while raging."
+          }
+        ]
       }
     ],
     "resources": [
@@ -661,6 +693,104 @@
             "description": "Maximize the dice of your healing spells instead of rolling them."
           }
         ]
+      },
+      {
+        "slug": "war-domain",
+        "name": "War Domain",
+        "description": "A cleric of battle and conquest, blessing weapons and warriors.",
+        "features": [
+          {
+            "level": 1,
+            "name": "Bonus Proficiencies",
+            "description": "You gain proficiency with martial weapons and heavy armor."
+          },
+          {
+            "level": 1,
+            "name": "War Priest",
+            "description": "When you take the Attack action, you can make one weapon attack as a bonus action. You can do this a number of times equal to your Wisdom modifier per long rest.",
+            "category": "bonus"
+          },
+          {
+            "level": 2,
+            "name": "Channel Divinity: Guided Strike",
+            "description": "When you make an attack roll, use your reaction to add +10 to it, potentially turning a miss into a hit.",
+            "category": "action"
+          },
+          {
+            "level": 6,
+            "name": "Channel Divinity: War God's Blessing",
+            "description": "When a creature within 30 ft makes an attack roll, use your reaction to grant it +10.",
+            "category": "reaction"
+          },
+          {
+            "level": 8,
+            "name": "Divine Strike",
+            "description": "Once per turn, deal an extra 1d8 weapon damage on a hit (2d8 at 14th level).",
+            "category": "trait",
+            "dice": "1d8",
+            "scale": {
+              "type": "dice_count",
+              "die": "d8",
+              "steps": [
+                [
+                  8,
+                  1
+                ],
+                [
+                  14,
+                  2
+                ]
+              ]
+            }
+          },
+          {
+            "level": 17,
+            "name": "Avatar of Battle",
+            "description": "You gain resistance to nonmagical bludgeoning, piercing, and slashing damage."
+          }
+        ]
+      },
+      {
+        "slug": "light-domain",
+        "name": "Light Domain",
+        "description": "A cleric of radiance and fire who wards allies and scorches foes.",
+        "features": [
+          {
+            "level": 1,
+            "name": "Bonus Cantrip",
+            "description": "You learn the Light cantrip if you don't already know it."
+          },
+          {
+            "level": 1,
+            "name": "Warding Flare",
+            "description": "When a creature within 30 ft attacks you, use your reaction to impose disadvantage on the attack. Uses equal to your Wisdom modifier per long rest.",
+            "category": "reaction"
+          },
+          {
+            "level": 2,
+            "name": "Channel Divinity: Radiance of the Dawn",
+            "description": "Dispel magical darkness nearby and deal 2d10 + your cleric level radiant damage to hostile creatures within 30 ft (Constitution save for half).",
+            "category": "action",
+            "dice": "2d10"
+          },
+          {
+            "level": 6,
+            "name": "Improved Flare",
+            "description": "You can use Warding Flare when a creature attacks another creature within 30 ft of you, not just yourself."
+          },
+          {
+            "level": 8,
+            "name": "Potent Spellcasting",
+            "description": "Add your Wisdom modifier to the damage of your cleric cantrips.",
+            "category": "trait"
+          },
+          {
+            "level": 17,
+            "name": "Corona of Light",
+            "description": "Emit bright light for 1 minute; enemies in it have disadvantage on saves against your spells that deal fire or radiant damage.",
+            "category": "action"
+          }
+        ]
       }
     ],
     "resources": [
@@ -1051,6 +1181,82 @@
             "level": 18,
             "name": "Survivor",
             "description": "At the start of each turn you regain HP equal to 5 + your CON modifier if you have less than half your hit points."
+          }
+        ]
+      },
+      {
+        "slug": "battle-master",
+        "name": "Battle Master",
+        "description": "A martial tactician who wields combat maneuvers fueled by superiority dice. (Maneuvers and superiority dice are shown here but tracked by hand for now.)",
+        "features": [
+          {
+            "level": 3,
+            "name": "Combat Superiority",
+            "description": "You learn three maneuvers (Trip Attack, Riposte, Disarm, etc.) and gain four superiority dice (d8), spent to fuel them and regained on a short or long rest. Maneuver save DC = 8 + proficiency + STR or DEX."
+          },
+          {
+            "level": 3,
+            "name": "Student of War",
+            "description": "You gain proficiency with one type of artisan's tools."
+          },
+          {
+            "level": 7,
+            "name": "Know Your Enemy",
+            "description": "Study a creature for 1 minute to learn how it compares to you (Strength, Dexterity, AC, hit points, and more)."
+          },
+          {
+            "level": 10,
+            "name": "Improved Combat Superiority",
+            "description": "Your superiority dice become d10s."
+          },
+          {
+            "level": 15,
+            "name": "Relentless",
+            "description": "When you roll initiative with no superiority dice left, you regain one."
+          },
+          {
+            "level": 18,
+            "name": "Improved Combat Superiority",
+            "description": "Your superiority dice become d12s."
+          }
+        ]
+      },
+      {
+        "slug": "eldritch-knight",
+        "name": "Eldritch Knight",
+        "description": "A fighter who blends martial skill with wizard magic. (Spellcasting is shown here but not yet tracked by the app — manage spell slots by hand.)",
+        "features": [
+          {
+            "level": 3,
+            "name": "Spellcasting",
+            "description": "You learn wizard spells (mostly abjuration and evocation), cast using Intelligence. A third-caster: you gain spell slots more slowly than a full wizard."
+          },
+          {
+            "level": 3,
+            "name": "Weapon Bond",
+            "description": "Bond with up to two weapons; you can't be disarmed of a bonded weapon and can summon it to your hand as a bonus action."
+          },
+          {
+            "level": 7,
+            "name": "War Magic",
+            "description": "When you cast a cantrip, you can make one weapon attack as a bonus action.",
+            "category": "bonus"
+          },
+          {
+            "level": 10,
+            "name": "Eldritch Strike",
+            "description": "When you hit a creature with a weapon, it has disadvantage on its next saving throw against a spell you cast before the end of your next turn."
+          },
+          {
+            "level": 15,
+            "name": "Arcane Charge",
+            "description": "When you use Action Surge, you can teleport up to 30 ft before or after the extra action."
+          },
+          {
+            "level": 18,
+            "name": "Improved War Magic",
+            "description": "When you cast a spell, you can make one weapon attack as a bonus action.",
+            "category": "bonus"
           }
         ]
       }
@@ -1492,6 +1698,42 @@
             "description": "As an action, become wreathed in sunlight for 1 minute: enemies starting their turn near you take radiant damage, and you have advantage on saves vs fiend/undead spells."
           }
         ]
+      },
+      {
+        "slug": "oath-of-vengeance",
+        "name": "Oath of Vengeance",
+        "description": "A paladin sworn to punish wrongdoers at any cost — the relentless avenger.",
+        "features": [
+          {
+            "level": 3,
+            "name": "Channel Divinity: Abjure Enemy",
+            "description": "Choose a creature within 60 ft; it must make a Wisdom save or be frightened and have its speed reduced to 0 for up to 1 minute.",
+            "category": "action"
+          },
+          {
+            "level": 3,
+            "name": "Channel Divinity: Vow of Enmity",
+            "description": "As a bonus action, gain advantage on attack rolls against one creature within 10 ft for 1 minute.",
+            "category": "bonus"
+          },
+          {
+            "level": 7,
+            "name": "Relentless Avenger",
+            "description": "When you hit a creature with an opportunity attack, you can move up to half your speed immediately after, without provoking attacks."
+          },
+          {
+            "level": 15,
+            "name": "Soul of Vengeance",
+            "description": "When a creature under your Vow of Enmity attacks, you can use your reaction to make a melee attack against it.",
+            "category": "reaction"
+          },
+          {
+            "level": 20,
+            "name": "Avenging Angel",
+            "description": "For 1 hour, gain a flying speed of 60 ft and an aura that frightens nearby enemies.",
+            "category": "action"
+          }
+        ]
       }
     ],
     "resources": [
@@ -1910,6 +2152,72 @@
             "level": 17,
             "name": "Thief's Reflexes",
             "description": "Take two turns during the first round of any combat (your normal initiative and again at initiative minus 10)."
+          }
+        ]
+      },
+      {
+        "slug": "assassin",
+        "name": "Assassin",
+        "description": "A rogue specialized in disguise, infiltration, and lethal surprise strikes.",
+        "features": [
+          {
+            "level": 3,
+            "name": "Bonus Proficiencies",
+            "description": "You gain proficiency with the disguise kit and the poisoner's kit."
+          },
+          {
+            "level": 3,
+            "name": "Assassinate",
+            "description": "You have advantage on attacks against any creature that hasn't taken a turn yet in combat, and any hit you score against a surprised creature is a critical hit."
+          },
+          {
+            "level": 9,
+            "name": "Infiltration Expertise",
+            "description": "You can spend time and money to craft a convincing false identity."
+          },
+          {
+            "level": 13,
+            "name": "Impostor",
+            "description": "You can unerringly mimic another person's speech, writing, and behavior."
+          },
+          {
+            "level": 17,
+            "name": "Death Strike",
+            "description": "When you hit a surprised creature, it must make a Constitution save or take double damage from the attack."
+          }
+        ]
+      },
+      {
+        "slug": "arcane-trickster",
+        "name": "Arcane Trickster",
+        "description": "A rogue who laces stealth with wizard magic. (Spellcasting is shown here but not yet tracked by the app — manage spell slots by hand.)",
+        "features": [
+          {
+            "level": 3,
+            "name": "Spellcasting",
+            "description": "You learn wizard spells (mostly enchantment and illusion), cast using Intelligence. A third-caster: spell slots come more slowly than a full wizard."
+          },
+          {
+            "level": 3,
+            "name": "Mage Hand Legerdemain",
+            "description": "Your Mage Hand is invisible and can pick locks, disarm traps, and pickpocket at a distance."
+          },
+          {
+            "level": 9,
+            "name": "Magical Ambush",
+            "description": "If you're hidden from a creature when you cast a spell on it, it has disadvantage on the save."
+          },
+          {
+            "level": 13,
+            "name": "Versatile Trickster",
+            "description": "Use your Mage Hand as a bonus action to distract a creature, giving you advantage on attacks against it.",
+            "category": "bonus"
+          },
+          {
+            "level": 17,
+            "name": "Spell Thief",
+            "description": "When a creature casts a spell targeting you, you can steal knowledge of it, denying the caster its use for 8 hours.",
+            "category": "reaction"
           }
         ]
       }
@@ -2447,6 +2755,72 @@
             "level": 14,
             "name": "Overchannel",
             "description": "Deal maximum damage with an evocation spell of 5th level or lower; after the first use each day you take rising necrotic backlash."
+          }
+        ]
+      },
+      {
+        "slug": "school-of-abjuration",
+        "name": "School of Abjuration",
+        "description": "A wizard who masters protective magic and a self-renewing arcane ward.",
+        "features": [
+          {
+            "level": 2,
+            "name": "Abjuration Savant",
+            "description": "Copying abjuration spells into your spellbook costs half the time and gold."
+          },
+          {
+            "level": 2,
+            "name": "Arcane Ward",
+            "description": "When you cast an abjuration spell of 1st level or higher, create a magical ward (max HP = twice your wizard level + Intelligence modifier) that absorbs damage to you and recharges as you cast more abjurations."
+          },
+          {
+            "level": 6,
+            "name": "Projected Ward",
+            "description": "When a creature within 30 ft takes damage, use your reaction to have your Arcane Ward absorb it instead.",
+            "category": "reaction"
+          },
+          {
+            "level": 10,
+            "name": "Improved Abjuration",
+            "description": "Add your proficiency bonus to ability checks made as part of abjuration spells like Counterspell and Dispel Magic."
+          },
+          {
+            "level": 14,
+            "name": "Spell Resistance",
+            "description": "You have advantage on saving throws against spells, and resistance to damage from spells."
+          }
+        ]
+      },
+      {
+        "slug": "school-of-divination",
+        "name": "School of Divination",
+        "description": "A seer who bends fate with glimpses of the future.",
+        "features": [
+          {
+            "level": 2,
+            "name": "Divination Savant",
+            "description": "Copying divination spells into your spellbook costs half the time and gold."
+          },
+          {
+            "level": 2,
+            "name": "Portent",
+            "description": "After a long rest, roll two d20s and record them; you can replace any attack roll, save, or check (yours or a creature you can see) with one of these rolls before the roll is made."
+          },
+          {
+            "level": 6,
+            "name": "Expert Divination",
+            "description": "Casting a divination spell of 2nd level or higher refunds a spell slot of a lower level."
+          },
+          {
+            "level": 10,
+            "name": "The Third Eye",
+            "description": "As an action, gain one benefit until you're incapacitated: darkvision, see invisibility, read any language, or 10 ft of see-through-walls.",
+            "category": "action"
+          },
+          {
+            "level": 14,
+            "name": "Greater Portent",
+            "description": "You roll three d20s for your Portent feature instead of two."
           }
         ]
       }
