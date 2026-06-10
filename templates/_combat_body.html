@@ -16,6 +16,12 @@
   </div>
 {% endif %}
 
+<div class="combat-tabs" role="tablist">
+  <button type="button" class="combat-tab" data-pane="tracker" role="tab">⚔️ Tracker</button>
+  <button type="button" class="combat-tab" data-pane="log" role="tab">📜 Log{% if log %} <span class="tab-count">{{ log | length }}</span>{% endif %}</button>
+</div>
+
+<div class="combat-pane" data-pane="tracker">
 <p class="muted combat-status">Round {{ combat['round'] }}{% if active %} · <strong>{{ active[0]['name'] }}</strong>’s turn{% endif %}{% if not is_dm %} · <span class="readonly-tag">watching — your DM runs the fight</span>{% endif %}</p>
 
 {% if is_dm %}
@@ -180,3 +186,75 @@
 {% else %}
   <p class="muted">No combatants yet.{% if is_dm %} Add characters or load an encounter above.{% endif %}</p>
 {% endif %}
+</div>{# /tracker pane #}
+
+{# --- Combat log: who hit whom with what, the roll, and the damage. ------- #}
+<section class="combat-pane combat-log" data-pane="log">
+  <div class="combat-log-head">
+    <h2>Combat log</h2>
+    {% if is_dm and log %}
+      <form method="post" action="{{ url_for('combat_log_clear', combat_id=combat['id']) }}" class="inline"
+            data-confirm="Clear the entire combat log?">
+        <button type="submit" class="btn-text" title="Clear the log">Clear log</button>
+      </form>
+    {% endif %}
+  </div>
+
+  {% if is_dm %}
+    <form method="post" action="{{ url_for('combat_log_add', combat_id=combat['id']) }}" class="log-form">
+      <select name="actor" aria-label="Attacker">
+        <option value="">— attacker —</option>
+        {% for m in combatants %}<option value="{{ m['name'] }}">{{ m['name'] }}</option>{% endfor %}
+      </select>
+      <span class="log-arrow">▸</span>
+      <select name="target_id" aria-label="Target">
+        <option value="">— target —</option>
+        {% for m in combatants %}<option value="{{ m['id'] }}">{{ m['name'] }}</option>{% endfor %}
+      </select>
+      <input type="text" name="action" placeholder="spell / action (e.g. Fire Bolt)" class="log-action" aria-label="Spell or action">
+      <input type="number" name="attack_roll" placeholder="roll" class="log-num" aria-label="Attack roll">
+      <input type="number" name="amount" min="0" placeholder="dmg" class="log-num" aria-label="Damage">
+      <select name="damage_type" class="dmg-type" aria-label="Damage type">
+        <option value="">type…</option>
+        {% for t in damage_types %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+      </select>
+      <label class="log-apply" title="Also subtract the damage from the target's HP">
+        <input type="checkbox" name="apply" value="1" checked> apply
+      </label>
+      <button type="submit" class="btn-small">Log</button>
+    </form>
+  {% endif %}
+
+  {% if log %}
+    <ul class="log-list">
+      {% for e in log %}
+        <li class="log-entry log-{{ e['kind'] }}">
+          <span class="log-round" title="Round {{ e['round'] }}">R{{ e['round'] }}</span>
+          {% if e['kind'] == 'attack' %}
+            <span class="log-text">
+              {% if e['actor'] %}<strong>{{ e['actor'] }}</strong>{% endif %}
+              {% if e['action'] %}{% if e['actor'] %} used {% endif %}<em>{{ e['action'] }}</em>{% endif %}
+              {% if e['target'] %} on <strong>{{ e['target'] }}</strong>{% endif %}
+              {% if e['attack_roll'] is not none %} · rolled <span class="log-roll">{{ e['attack_roll'] }}</span>{% endif %}
+              {% if e['amount'] is not none %} · <span class="log-dmg">{{ e['amount'] }}{% if e['damage_type'] %} {{ e['damage_type'] }}{% endif %} dmg</span>{% if e['detail'] %} ({{ e['detail'] }}){% endif %}{% endif %}
+            </span>
+          {% elif e['kind'] == 'heal' %}
+            <span class="log-text"><strong>{{ e['target'] }}</strong> healed <span class="log-heal">{{ e['amount'] }} HP</span></span>
+          {% elif e['kind'] == 'damage' %}
+            <span class="log-text"><strong>{{ e['target'] }}</strong> took <span class="log-dmg">{{ e['amount'] }}{% if e['damage_type'] %} {{ e['damage_type'] }}{% endif %} dmg</span>{% if e['detail'] %} ({{ e['detail'] }}){% endif %}</span>
+          {% else %}
+            <span class="log-text">{{ e['detail'] or e['action'] }}</span>
+          {% endif %}
+          {% if is_dm %}
+            <form method="post" action="{{ url_for('combat_log_entry_delete', entry_id=e['id']) }}" class="inline log-del-form"
+                  data-confirm="Delete this log entry? (Won’t restore any HP it changed.)">
+              <button type="submit" class="log-del" title="Delete this entry">×</button>
+            </form>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">No log entries yet.{% if is_dm %} Log an attack above, or use the Dmg/Heal buttons.{% endif %}</p>
+  {% endif %}
+</section>

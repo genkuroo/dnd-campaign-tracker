@@ -39,6 +39,7 @@ from models.creature import (
     get_creature,
     level_from_xp,
     list_controlled_by,
+    list_deceased,
     list_monsters,
     list_npcs,
     list_party,
@@ -46,6 +47,7 @@ from models.creature import (
     party_rest,
     proficiency_bonus,
     set_controlled_by,
+    set_deceased,
     set_inspiration,
     update_creature,
     xp_to_next,
@@ -82,7 +84,16 @@ from models.inventory import (
     remove_item,
     set_attuned,
     set_item_hidden,
+    transfer_item,
     unequip_item,
+)
+from models.trades import (
+    create_gold_offer,
+    create_item_offer,
+    get_offer,
+    pending_incoming,
+    pending_outgoing,
+    set_status as set_trade_status,
 )
 from models.classes import (all_classes, get_class, hit_die_average,
                             class_features, class_features_remaining,
@@ -124,9 +135,14 @@ from models.combat import (
     CONDITIONS,
     DAMAGE_TYPES,
     add_creature as combat_add_creature,
+    add_log_entry,
     apply_hp,
+    clear_combat_log,
     create_combat,
     delete_combat,
+    delete_log_entry,
+    get_log_entry,
+    list_combat_log,
     get_combat,
     get_combatant,
     list_combatants,
@@ -339,6 +355,7 @@ TABS = [
     {"endpoint": "party", "label": "Party"},
     {"endpoint": "bestiary", "label": "Bestiary"},
     {"endpoint": "combat", "label": "Combat"},
+    {"endpoint": "graveyard", "label": "Graveyard"},
     {"endpoint": "loot", "label": "Loot"},
     {"endpoint": "spells", "label": "Spells & Actions"},
     {"endpoint": "dice", "label": "Dice"},
@@ -377,6 +394,18 @@ def inject_sidebar():
         return empty
 
 
+@app.context_processor
+def inject_badges():
+    """Nav badges. `trade_offer_count` = pending trade offers waiting on the
+    logged-in player's PC (so the Character tab can flag "you have offers"). 0 for
+    the DM (not a PC) or anyone without a character. Never let it break a render."""
+    try:
+        pc_id = _my_pc_id()
+        return {"trade_offer_count": len(pending_incoming(pc_id)) if pc_id else 0}
+    except Exception:
+        return {"trade_offer_count": 0}
+
+
 def current_user():
     """The logged-in user row for this request, or None. Cached on flask.g.
 
@@ -410,6 +439,7 @@ _PUBLIC_ENDPOINTS = {"login", "logout", "register", "setup", "static"}
 # mutation route below stays DM-only.
 _DM_ONLY_ENDPOINTS = {
     "character_new", "character_delete",
+    "character_lay_to_rest", "character_restore",
     "monster_new", "monster_reveal", "monster_visibility",
     "encounter_detail", "encounter_new", "encounter_rename", "encounter_delete",
     "encounter_add_member", "encounter_member_quantity", "encounter_member_remove",
@@ -419,6 +449,7 @@ _DM_ONLY_ENDPOINTS = {
     "combat_roll_initiative", "combat_next_turn",
     "combatant_initiative", "combatant_hp", "combatant_temp",
     "combatant_condition", "combatant_remove", "combatant_death_save",
+    "combat_log_add", "combat_log_clear", "combat_log_entry_delete",
     "loot_area_new", "loot_area_switch", "loot_area_delete",
     "loot_area_clear", "loot_spawn", "loot_create", "loot_give", "loot_remove",
     "party_rest_route", "party_hp",
@@ -831,6 +862,42 @@ def _dicetext_filter(text, mode="track", label=""):
         last = m.end()
     out.append(str(escape((text or "")[last:])))
     return Markup("".join(out))
+
+
+def _parse_ts(value):
+    """Parse a stored 'YYYY-MM-DD HH:MM:SS' UTC timestamp; None if unparseable."""
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+    except (ValueError, TypeError):
+        return None
+
+
+@app.template_filter("nicedate")
+def _nicedate_filter(value):
+    """A friendly local date, e.g. 'Jun 10, 2026'. Empty string if unparseable."""
+    ts = _parse_ts(value)
+    return ts.astimezone().strftime("%b %-d, %Y") if ts else ""
+
+
+@app.template_filter("nicedatetime")
+def _nicedatetime_filter(value):
+    """A friendly local date + time, e.g. 'Jun 10, 2026 · 3:24 PM'."""
+    ts = _parse_ts(value)
+    if not ts:
+        return ""
+    local = ts.astimezone()
+    return local.strftime("%b %-d, %Y · %-I:%M %p")
+
+
+@app.template_filter("timeago")
+def _timeago_filter(value):
+    """A short relative label for a stored timestamp, e.g. '3 days ago'."""
+    ts = _parse_ts(value)
+    if not ts:
+        return ""
+    return _relative((datetime.now(timezone.utc) - ts).total_seconds())
 
 
 # Vocab the character form needs; injected so the form template stays declarative.
@@ -1269,6 +1336,11 @@ def character_detail(creature_id):
         # Phase 12b: the summon picker shows on the player's OWN PC sheet.
         can_summon=(creature_id == _my_pc_id()),
         summon_catalog=all_summons(),
+        # PC-to-PC trading: pending offers in/out + the party members this PC can
+        # trade with (other living PCs). Only meaningful on a PC's own sheet.
+        trades_in=pending_incoming(creature_id) if creature["kind"] == "pc" else [],
+        trades_out=pending_outgoing(creature_id) if creature["kind"] == "pc" else [],
+        trade_partners=[p for p in list_party() if p["id"] != creature_id],
     )
 
 
@@ -1393,6 +1465,119 @@ def character_coins(creature_id):
     return redirect(url_for("character_detail", creature_id=creature_id))
 
 
+# --- PC-to-PC trading -----------------------------------------------------
+# A directed offer (item or gold) one PC sends another; nothing moves until the
+# recipient accepts. Offering/cancelling is gated to the *giver's* owner (or DM);
+# accept/decline to the *recipient's* owner (or DM). These are player actions, so
+# they are NOT in _DM_ONLY_ENDPOINTS — each route enforces ownership itself.
+
+def _valid_trade_partner(from_creature, to_id):
+    """The recipient must be a different, living PC. Returns the recipient row or
+    None."""
+    to_creature = get_creature(to_id)
+    if (to_creature is None or to_creature["id"] == from_creature["id"]
+            or to_creature["kind"] != "pc" or to_creature["deceased"]):
+        return None
+    return to_creature
+
+
+@app.route("/character/<int:creature_id>/trade/offer", methods=["POST"])
+def trade_offer(creature_id):
+    """Offer an item or gold from this PC to a party member (the giver's owner/DM).
+    `kind` = 'item' (with `item_id`) or 'gold' (with gold/silver/copper)."""
+    giver = _require_edit(creature_id)
+    to_id = request.form.get("to_creature_id", type=int)
+    recipient = _valid_trade_partner(giver, to_id) if to_id else None
+    if recipient is None:
+        flash("Pick a valid party member to trade with.")
+        return _trade_response(creature_id)
+    kind = request.form.get("kind")
+    if kind == "item":
+        item = get_item(request.form.get("item_id", type=int))
+        if item is None or item["creature_id"] != creature_id:
+            flash("That item isn't in your inventory.")
+        else:
+            create_item_offer(creature_id, recipient["id"], item["id"])
+            flash(f"Offered {item['name']} to {recipient['name']}.")
+    elif kind == "gold":
+        g = max(0, request.form.get("gold", 0, type=int) or 0)
+        s = max(0, request.form.get("silver", 0, type=int) or 0)
+        c = max(0, request.form.get("copper", 0, type=int) or 0)
+        if g + s + c == 0:
+            flash("Enter an amount to offer.")
+        elif g > giver["gold"] or s > giver["silver"] or c > giver["copper"]:
+            flash("You don't have that many coins.")
+        else:
+            create_gold_offer(creature_id, recipient["id"], g, s, c)
+            flash(f"Offered coins to {recipient['name']}.")
+    return _trade_response(creature_id)
+
+
+@app.route("/trade/<int:offer_id>/accept", methods=["POST"])
+def trade_accept(offer_id):
+    """The recipient accepts a pending offer — the item/gold moves now. Re-validates
+    that the giver can still honour it (no escrow), failing cleanly otherwise."""
+    offer = get_offer(offer_id)
+    if offer is None or offer["status"] != "pending":
+        abort(404)
+    recipient = _require_edit(offer["to_creature_id"])  # only the recipient/DM
+    giver = get_creature(offer["from_creature_id"])
+    if giver is None:
+        set_trade_status(offer_id, "declined")
+        flash("The other character is no longer available.")
+        return _trade_response(recipient["id"])
+    if offer["kind"] == "item":
+        item = get_item(offer["item_id"])
+        if item is None or item["creature_id"] != giver["id"]:
+            set_trade_status(offer_id, "declined")
+            flash(f"{giver['name']} no longer has that item — offer voided.")
+        else:
+            transfer_item(item["id"], recipient["id"])
+            set_trade_status(offer_id, "accepted")
+            flash(f"Received {item['name']} from {giver['name']}.")
+    else:  # gold
+        g, s, c = offer["gold"], offer["silver"], offer["copper"]
+        if g > giver["gold"] or s > giver["silver"] or c > giver["copper"]:
+            set_trade_status(offer_id, "declined")
+            flash(f"{giver['name']} no longer has the coins — offer voided.")
+        else:
+            adjust_coins(giver["id"], -g, -s, -c)
+            adjust_coins(recipient["id"], g, s, c)
+            set_trade_status(offer_id, "accepted")
+            flash(f"Received coins from {giver['name']}.")
+    return _trade_response(recipient["id"])
+
+
+@app.route("/trade/<int:offer_id>/decline", methods=["POST"])
+def trade_decline(offer_id):
+    """The recipient declines a pending offer."""
+    offer = get_offer(offer_id)
+    if offer is None or offer["status"] != "pending":
+        abort(404)
+    recipient = _require_edit(offer["to_creature_id"])
+    set_trade_status(offer_id, "declined")
+    flash("Offer declined.")
+    return _trade_response(recipient["id"])
+
+
+@app.route("/trade/<int:offer_id>/cancel", methods=["POST"])
+def trade_cancel(offer_id):
+    """The giver cancels their own pending offer."""
+    offer = get_offer(offer_id)
+    if offer is None or offer["status"] != "pending":
+        abort(404)
+    giver = _require_edit(offer["from_creature_id"])
+    set_trade_status(offer_id, "cancelled")
+    flash("Offer cancelled.")
+    return _trade_response(giver["id"])
+
+
+def _trade_response(creature_id):
+    """Trades touch inventory + purse + the offers list, so re-render the whole
+    sheet (fetch follows the redirect to the GET sheet, like js-sheet-reload)."""
+    return redirect(url_for("character_detail", creature_id=creature_id))
+
+
 @app.route("/character/<int:creature_id>/exhaustion", methods=["POST"])
 def character_exhaustion(creature_id):
     """Adjust a creature's exhaustion level by ±1 (a loose tracker — no mechanics are
@@ -1418,6 +1603,59 @@ def character_delete(creature_id):
     delete_creature(creature_id)
     flash("Character deleted.")
     return redirect(url_for("character"))
+
+
+# --- Graveyard tab --------------------------------------------------------
+# Fallen PCs, slain unique bosses, and dead notable NPCs. A deceased creature is
+# still a creature (the sheet lives on as a memorial); `deceased=1` just retires
+# it from every active list. The view is shared (visibility-filtered like the
+# other lists); marking dead / restoring is DM-only.
+
+@app.route("/graveyard")
+def graveyard():
+    dead = list_deceased()
+    if not is_dm():
+        dead = [c for c in dead if can_view_creature(c)]
+    # Group for display: fallen heroes (PCs), then NPCs, then monsters/bosses.
+    by_kind = [
+        ("Fallen heroes", "pc"),
+        ("Departed NPCs", "npc"),
+        ("Vanquished foes", "monster"),
+    ]
+    groups = [
+        {"label": label, "members": [c for c in dead if c["kind"] == kind]}
+        for label, kind in by_kind
+    ]
+    return render_template(
+        "graveyard.html",
+        active="graveyard",
+        title="Graveyard",
+        grave_groups=[g for g in groups if g["members"]],
+        total=len(dead),
+    )
+
+
+@app.route("/character/<int:creature_id>/lay-to-rest", methods=["POST"])
+def character_lay_to_rest(creature_id):
+    """Retire a creature to the graveyard with an optional epitaph."""
+    creature = get_creature(creature_id)
+    if creature is None:
+        abort(404)
+    set_deceased(creature_id, True, request.form.get("epitaph", ""))
+    flash(f"{creature['name']} has been laid to rest.")
+    return redirect(_safe_next(request.form.get("next"), url_for("graveyard")))
+
+
+@app.route("/character/<int:creature_id>/restore", methods=["POST"])
+def character_restore(creature_id):
+    """Bring a creature back from the graveyard into active play."""
+    creature = get_creature(creature_id)
+    if creature is None:
+        abort(404)
+    set_deceased(creature_id, False)
+    flash(f"{creature['name']} returns to the campaign.")
+    return redirect(_safe_next(request.form.get("next"),
+                               url_for("character_detail", creature_id=creature_id)))
 
 
 # --- Bestiary tab (monsters) ----------------------------------------------
@@ -1614,6 +1852,7 @@ def _combat_fragment(combat_id):
         damage_types=DAMAGE_TYPES,
         roster=list_roster(),
         encounters=list_encounters(),
+        log=list_combat_log(combat_id),
     )
 
 
@@ -1657,6 +1896,7 @@ def combat_detail(combat_id):
         damage_types=DAMAGE_TYPES,
         roster=list_roster(),
         encounters=list_encounters(),
+        log=list_combat_log(combat_id),
     )
 
 
@@ -1762,6 +2002,16 @@ def combatant_hp(combatant_id):
             if result and result["label"]:
                 flash(f"{result['raw']} {result['damage_type']} → {result['applied']} "
                       f"({result['label']}).")
+            # Auto-log the HP adjustment so the combat log fills even from the quick
+            # Dmg/Heal buttons (the manual "Log attack" form adds the richer record).
+            target = get_combatant(combatant_id)
+            if target:
+                applied = result["applied"] if result else amount
+                add_log_entry(
+                    cid, kind=("damage" if is_damage else "heal"),
+                    target=target["name"], amount=applied, damage_type=damage_type,
+                    detail=(result["label"] if result else ""),
+                )
             # The concentration save DC is half the damage *taken* (post-resistance).
             taken = result["applied"] if result else amount
             if conc_creature is not None:
@@ -1815,6 +2065,65 @@ def combatant_death_save(combatant_id):
             clear_death_saves(combatant_id)
         return _combat_response(cid)
     return redirect(url_for("combat"))
+
+
+@app.route("/combat/<int:combat_id>/log", methods=["POST"])
+def combat_log_add(combat_id):
+    """Record a manual combat-log entry: who attacked whom with what, the to-hit
+    roll, and the damage. Optionally applies the damage to the target's HP so the
+    DM logs and resolves a hit in one step."""
+    if get_combat(combat_id) is None:
+        abort(404)
+    actor = request.form.get("actor", "")
+    target = request.form.get("target", "")
+    action = request.form.get("action", "")
+    attack_roll = request.form.get("attack_roll", type=int)
+    amount = request.form.get("amount", type=int)
+    damage_type = request.form.get("damage_type", "")
+    if damage_type not in DAMAGE_TYPES:
+        damage_type = ""
+    detail = ""
+    # The target can be a tracked combatant (a select of ids) — snapshot its name,
+    # and when "apply" is ticked, deal the damage to its HP via apply_hp so
+    # resistances/temp-HP/death-saves all behave; the resulting label (resisted/
+    # immune/…) and adjusted amount ride into the log entry.
+    target_id = request.form.get("target_id", type=int)
+    if target_id:
+        tc = get_combatant(target_id)
+        if tc and tc["combat_id"] == combat_id:
+            target = tc["name"]   # snapshot the real combatant name
+            if amount and request.form.get("apply"):
+                res = apply_hp(target_id, -amount, damage_type)
+                if res:
+                    amount = res["applied"]
+                    detail = res["label"]
+    if actor or target or action or amount is not None:
+        add_log_entry(
+            combat_id, kind="attack", actor=actor, target=target, action=action,
+            attack_roll=attack_roll, amount=amount, damage_type=damage_type,
+            detail=detail,
+        )
+    return _combat_response(combat_id)
+
+
+@app.route("/combat-log/<int:entry_id>/delete", methods=["POST"])
+def combat_log_entry_delete(entry_id):
+    """Delete a single log line (a mistyped entry). Doesn't reverse any HP it
+    applied — just corrects the record."""
+    entry = get_log_entry(entry_id)
+    if entry is None:
+        abort(404)
+    cid = entry["combat_id"]
+    delete_log_entry(entry_id)
+    return _combat_response(cid)
+
+
+@app.route("/combat/<int:combat_id>/log/clear", methods=["POST"])
+def combat_log_clear(combat_id):
+    if get_combat(combat_id):
+        clear_combat_log(combat_id)
+        flash("Combat log cleared.")
+    return _combat_response(combat_id)
 
 
 @app.route("/combatant/<int:combatant_id>/remove", methods=["POST"])
@@ -1989,9 +2298,6 @@ def _spellcasting_ctx(creature):
         "spell_limits": spell_limits(creature, eff_ab),
         # 5e: wearing armor you're not proficient with bars spellcasting.
         "armor_block": armor_proficiency_issue(creature),
-        # When a resources panel is showing, it owns the rest buttons (it recharges
-        # slots too) — so the spell panel hides its own to avoid a duplicate control.
-        "has_resources": bool(resource_rows(creature)),
     }
 
 
@@ -2575,23 +2881,10 @@ def spellbook_concentrate():
     return redirect(_safe_next(request.form.get("next"), url_for("character")))
 
 
-@app.route("/spellbook/rest", methods=["POST"])
-def spellbook_rest():
-    """Refill a single caster's slots from their own sheet: a long rest clears all,
-    a short rest only recharges Warlock pact slots. Class resources recharge too, so
-    a caster's rest button covers everything in one go."""
-    cid = _require_edit_form_creature()
-    kind = "long" if request.form.get("kind") == "long" else "short"
-    if kind == "long":
-        restore_all_slots(cid)
-    else:
-        restore_pact_slots(cid)
-    resource_rest(get_creature(cid), kind)
-    flash("Long rest — slots & resources restored." if kind == "long"
-          else "Short rest — pact slots & short-rest resources restored.")
-    if _is_fetch():
-        return _spells_fragment(cid)
-    return redirect(_safe_next(request.form.get("next"), url_for("character")))
+# Rests are DM-managed on the Party tab (party_rest_route), which restores HP +
+# spell slots + class resources for the whole party. The old per-PC sheet rest
+# endpoints (spellbook_rest / resources_rest) were removed so a player can't rest
+# their own PC — only the DM rests.
 
 
 # Class-resource mutations (Rage, Ki, Channel Divinity, …). Keyed by a form
@@ -2623,24 +2916,6 @@ def asi_adjust():
     cid = _require_edit_form_creature()
     delta = 1 if request.form.get("delta", type=int) and request.form.get("delta", type=int) > 0 else -1
     adjust_asi(get_creature(cid), request.form.get("ability", ""), delta)
-    return redirect(_safe_next(request.form.get("next"),
-                               url_for("character_detail", creature_id=cid)))
-
-
-@app.route("/resources/rest", methods=["POST"])
-def resources_rest():
-    """A short/long rest from the resources panel — recharges class resources AND
-    spell slots (so a non-caster's rest button and a caster's behave the same).
-    Full redirect, so both the resources and spell panels refresh."""
-    cid = _require_edit_form_creature()
-    kind = "long" if request.form.get("kind") == "long" else "short"
-    resource_rest(get_creature(cid), kind)
-    if kind == "long":
-        restore_all_slots(cid)
-        flash("Long rest — resources & spell slots restored.")
-    else:
-        restore_pact_slots(cid)
-        flash("Short rest — short-rest resources (& pact slots) restored.")
     return redirect(_safe_next(request.form.get("next"),
                                url_for("character_detail", creature_id=cid)))
 

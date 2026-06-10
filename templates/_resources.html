@@ -1,8 +1,7 @@
 {# Class-resources panel (Rage, Ki, Channel Divinity, Lay on Hands, Action Surge,
    …). Rendered inside the character sheet and standalone by the #resources AJAX
-   endpoint, so spend/restore refresh in place. The rest buttons reload the page
-   (marked data-reload) — they also recharge spell slots. Expects: creature,
-   resource_rows, can_edit. #}
+   endpoint, so spend/restore refresh in place. Rests are DM-managed on the Party
+   tab — there are no rest buttons here. Expects: creature, resource_rows, can_edit. #}
 <section class="char-resources">
   <h2>Class Resources</h2>
   <p class="muted spell-help">Limited-use abilities that recharge on a rest.{% if can_edit %} − spends, + recovers; a rest refills them.{% endif %}</p>
@@ -40,19 +39,6 @@
         {% endif %}
       </form>
     {% endfor %}
-    {% if can_edit %}
-      <div class="resource-rests slot-rests">
-        <form method="post" action="{{ url_for('resources_rest') }}" class="inline" data-reload="1">
-          <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
-          <input type="hidden" name="kind" value="short">
-          <button type="submit" class="check-btn" title="Recharge short-rest resources (and pact slots)">Short rest ↺</button>
-        </form>
-        <form method="post" action="{{ url_for('resources_rest') }}" class="inline" data-reload="1">
-          <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
-          <input type="hidden" name="kind" value="long">
-          <button type="submit" class="check-btn" title="Recharge all resources (and spell slots)">Long rest ↺</button>
-        </form>
-      </div>
-    {% endif %}
   </div>
+  {% if can_edit %}<p class="muted spell-help">Rests are run by the DM on the Party tab.</p>{% endif %}
 </section>

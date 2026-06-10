@@ -60,6 +60,14 @@ body {
   border-bottom-color: var(--panel-2);
 }
 
+/* Nav notification badge (e.g. pending trade offers on the Character tab) */
+.tab-badge {
+  display: inline-block; min-width: 1.1rem; margin-left: 0.3rem;
+  padding: 0 0.3rem; font-family: sans-serif; font-size: 0.7rem; font-weight: 700;
+  line-height: 1.1rem; text-align: center; color: #fff;
+  background: #c0563f; border-radius: 999px; vertical-align: middle;
+}
+
 /* Assist / Track mode toggle */
 .mode-toggle {
   margin: 0 0 0 auto;
@@ -1542,6 +1550,62 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
            border-radius: 999px; padding: 0.05rem 0.4rem; }
 .ds-mark:hover { color: var(--ink); border-color: var(--accent-2); }
 
+/* Combat subtabs (Tracker / Log). Hidden without JS — both panes just stack. */
+.combat-tabs { display: none; gap: 0.35rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
+#combat.has-tabs .combat-tabs { display: flex; }
+.combat-tab {
+  font: inherit; cursor: pointer; background: transparent; color: var(--muted);
+  border: 1px solid transparent; border-bottom: none; border-radius: 6px 6px 0 0;
+  padding: 0.4rem 0.9rem; margin-bottom: -1px;
+}
+.combat-tab:hover { color: var(--ink); }
+.combat-tab.is-active {
+  color: var(--ink); background: var(--panel);
+  border-color: var(--border); border-bottom: 1px solid var(--panel);
+}
+.combat-tab .tab-count {
+  font-family: sans-serif; font-size: 0.7rem; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 999px; padding: 0 0.35rem;
+}
+#combat.has-tabs .combat-pane { display: none; }
+#combat.has-tabs .combat-pane.is-active { display: block; }
+.combat-pane.combat-log { margin-top: 0; padding-top: 0; border-top: none; }
+
+/* Combat log — running record of attacks/damage/healing */
+.combat-log { margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
+.combat-log-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+.combat-log-head h2 { margin: 0 0 0.5rem; font-size: 1.05rem; }
+.log-form {
+  display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center;
+  margin-bottom: 1rem; padding: 0.6rem 0.7rem;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+}
+.log-form select, .log-form input[type="text"], .log-form input[type="number"] {
+  font: inherit; padding: 0.3rem 0.45rem; background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 5px;
+}
+.log-form .log-action { flex: 1 1 11rem; min-width: 8rem; }
+.log-form .log-num { width: 4.2rem; }
+.log-arrow { color: var(--muted); }
+.log-apply { font-family: sans-serif; font-size: 0.75rem; color: var(--muted); display: inline-flex; align-items: center; gap: 0.2rem; }
+
+.log-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.15rem;
+            max-height: 22rem; overflow-y: auto; }
+.log-entry { display: flex; gap: 0.5rem; align-items: baseline;
+             padding: 0.25rem 0.1rem; border-bottom: 1px solid var(--border);
+             font-size: 0.86rem; }
+.log-round { flex: none; font-family: sans-serif; font-size: 0.62rem; color: var(--muted);
+             border: 1px solid var(--border); border-radius: 999px; padding: 0.02rem 0.35rem; }
+.log-text { color: var(--ink); flex: 1; }
+.log-del-form { flex: none; }
+.log-del { font: inherit; cursor: pointer; background: transparent; color: var(--border);
+           border: none; padding: 0 0.2rem; line-height: 1; }
+.log-del:hover { color: #e0796b; }
+.log-roll { font-weight: bold; color: var(--accent-2); }
+.log-dmg { font-weight: bold; color: #e0796b; }
+.log-heal { font-weight: bold; color: #b5d68f; }
+.log-entry.log-heal .log-round { border-color: #5a7b3f; }
+
 .init-badge { flex: none; }
 .init-static {
   display: inline-block; width: 3rem; text-align: center;
@@ -1699,6 +1763,64 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
   border: 1px solid #6b5f3f; background: rgba(107,95,63,0.15);
 }
 
+/* --- Graveyard --- */
+.deceased-banner {
+  margin-bottom: 1rem; padding: 0.55rem 0.85rem; border-radius: 6px;
+  font-family: sans-serif; font-size: 0.9rem;
+  border: 1px solid #5a4a5e; background: rgba(90,74,94,0.18); color: var(--ink);
+}
+.rest-menu { position: relative; display: inline-block; }
+.rest-menu > summary { list-style: none; cursor: pointer; }
+.rest-menu > summary::-webkit-details-marker { display: none; }
+.rest-form {
+  position: absolute; right: 0; z-index: 20; margin-top: 0.4rem; width: 17rem;
+  display: flex; flex-direction: column; gap: 0.45rem;
+  padding: 0.7rem; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+}
+.rest-form label { font-family: sans-serif; font-size: 0.78rem; }
+.rest-form textarea {
+  font: inherit; width: 100%; box-sizing: border-box; resize: vertical;
+  background: var(--bg); color: var(--ink); border: 1px solid var(--border); border-radius: 5px;
+  padding: 0.4rem;
+}
+.grave-group { margin-bottom: 1.75rem; }
+.grave-group-title { font-size: 1.05rem; margin: 0 0 0.7rem; }
+.grave-count {
+  font-family: sans-serif; font-size: 0.72rem; font-weight: normal; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 999px; padding: 0.02rem 0.45rem; vertical-align: middle;
+}
+.grave-card { opacity: 0.92; }
+.grave-card:hover { opacity: 1; }
+.grave-epitaph { font-style: italic; color: var(--muted); font-size: 0.85rem; margin-top: 0.3rem; }
+
+/* --- PC-to-PC trading --- */
+.trade-block { margin-bottom: 0.9rem; }
+.trade-subhead { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.4rem; font-weight: normal; text-transform: uppercase; letter-spacing: 0.04em; }
+.trade-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+.trade-offer {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+  flex-wrap: wrap; padding: 0.45rem 0.7rem;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 7px;
+}
+.trade-in { border-left: 3px solid #8fc6e8; }
+.trade-out { border-left: 3px solid var(--border); }
+.trade-text { font-size: 0.9rem; }
+.trade-actions { display: flex; align-items: center; gap: 0.4rem; }
+.trade-pending {
+  font-family: sans-serif; font-size: 0.65rem; text-transform: uppercase; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 999px; padding: 0.02rem 0.4rem; margin-left: 0.3rem;
+}
+.btn-accept { color: #b5d68f; border-color: #5a7b3f; }
+.trade-give { display: flex; flex-direction: column; gap: 0.55rem; margin-top: 0.6rem; }
+.trade-form { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.trade-lbl { font-family: sans-serif; font-size: 0.8rem; min-width: 5rem; color: var(--muted); }
+.trade-to { color: var(--muted); font-size: 0.85rem; }
+.trade-form select {
+  font: inherit; padding: 0.3rem 0.45rem; background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 5px;
+}
+
 /* --- Party tab --- */
 .party-grid {
   display: grid; gap: 1rem;
@@ -1850,6 +1972,37 @@ code { background: var(--panel-2); padding: 0.05rem 0.35rem; border-radius: 4px;
 }
 .vis-private { background: rgba(150,150,150,0.18); color: var(--muted); border: 1px solid var(--border); }
 .vis-shared { background: rgba(90,170,110,0.18); color: #8fcf9e; border: 1px solid rgba(90,170,110,0.4); }
+
+/* --- Journal: toolbar (search / filter / sort) + nicer cards & rows ------- */
+.journal-toolbar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem;
+  margin: 0.5rem 0 1rem;
+}
+.journal-search {
+  flex: 1 1 14rem; min-width: 10rem; font: inherit; padding: 0.4rem 0.6rem;
+  background: var(--bg); color: var(--ink); border: 1px solid var(--border); border-radius: 6px;
+}
+.journal-sort { font-family: sans-serif; font-size: 0.8rem; color: var(--muted); display: inline-flex; align-items: center; gap: 0.35rem; }
+.journal-sort select {
+  font: inherit; padding: 0.32rem 0.5rem; background: var(--bg); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.journal-empty { margin-top: 0.75rem; }
+
+/* Folder cards */
+.folder-card { display: flex; flex-direction: column; gap: 0.45rem; }
+.folder-card .char-card-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.folder-count {
+  flex: none; font-family: sans-serif; font-size: 0.72rem; font-weight: 700; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 999px; padding: 0.02rem 0.5rem;
+}
+.folder-desc { font-size: 0.85rem; line-height: 1.35; }
+.folder-foot { display: flex; flex-wrap: wrap; gap: 0.75rem; font-size: 0.75rem; margin-top: auto; }
+
+/* Note rows: a third sub-line for author + updated time */
+.note-item { list-style: none; }
+.note-row-sub { font-size: 0.74rem; }
+.note-row-meta { flex-direction: column; align-items: flex-end; }
 
 /* --- Journal entity mentions (Phase 9b) ---------------------------------- */
 .mention-picker { display: flex; flex-wrap: wrap; gap: 1rem; }

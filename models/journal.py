@@ -21,7 +21,9 @@ def list_folders():
         return conn.execute(
             """
             SELECT f.*, u.username AS owner_name,
-                   (SELECT COUNT(*) FROM journal_notes n WHERE n.folder_id = f.id) AS note_count
+                   (SELECT COUNT(*) FROM journal_notes n WHERE n.folder_id = f.id) AS note_count,
+                   COALESCE((SELECT MAX(n.updated_at) FROM journal_notes n WHERE n.folder_id = f.id),
+                            f.created_at) AS last_activity
             FROM journal_folders f
             LEFT JOIN users u ON u.id = f.owner_id
             ORDER BY f.created_at DESC, f.id DESC
@@ -101,7 +103,7 @@ def notes_in_folder(folder_id):
             FROM journal_notes n
             LEFT JOIN users u ON u.id = n.owner_id
             WHERE n.folder_id = ?
-            ORDER BY n.created_at, n.id
+            ORDER BY n.updated_at DESC, n.id DESC
             """,
             (folder_id,),
         ).fetchall()

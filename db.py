@@ -34,7 +34,7 @@ LEGACY_DB_PATH = os.path.join(DATA_DIR, "campaign.db")
 # Unset in normal app runs, which then use the multi-campaign layout above.
 DB_PATH = os.environ.get("DND_DB_PATH")
 
-SCHEMA_VERSION = 52
+SCHEMA_VERSION = 55
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -670,6 +670,63 @@ MIGRATIONS = {
     -- player-dismissable (a regular DM-granted companion is not). Spawned from the
     -- bundled data/summons.json catalog; Dismiss = delete.
     ALTER TABLE creatures ADD COLUMN is_summon INTEGER NOT NULL DEFAULT 0;
+    """,
+    53: """
+    -- Combat log. A running record of what happened in a fight: who attacked
+    -- whom with what spell/action, the roll, and the damage/healing. Names are
+    -- snapshotted as text (like the dice roll log) so an entry survives a
+    -- combatant being removed. `kind` distinguishes a full 'attack' record from
+    -- a quick 'damage'/'heal' HP adjustment (auto-logged from the tracker) or a
+    -- freeform 'note'. `amount` is the damage applied (or healing for 'heal').
+    CREATE TABLE combat_log (
+        id          INTEGER PRIMARY KEY,
+        combat_id   INTEGER NOT NULL REFERENCES combats(id) ON DELETE CASCADE,
+        round       INTEGER NOT NULL DEFAULT 1,
+        kind        TEXT    NOT NULL DEFAULT 'attack',  -- 'attack'|'damage'|'heal'|'note'
+        actor       TEXT    NOT NULL DEFAULT '',        -- attacker name (snapshot)
+        target      TEXT    NOT NULL DEFAULT '',        -- target name (snapshot)
+        action      TEXT    NOT NULL DEFAULT '',        -- spell / action / attack name
+        attack_roll INTEGER,                            -- to-hit / save roll (nullable)
+        amount      INTEGER,                            -- damage dealt / HP healed (nullable)
+        damage_type TEXT    NOT NULL DEFAULT '',
+        detail      TEXT    NOT NULL DEFAULT '',        -- extra note / resisted label
+        created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX idx_combat_log_combat ON combat_log(combat_id);
+    """,
+    54: """
+    -- Graveyard. A fallen PC, a slain unique boss, or a notable NPC who has died
+    -- is still a *creature* (the engine is reused wholesale — the sheet stays as a
+    -- memorial) but is retired from active play: `deceased=1` drops it from the
+    -- roster/party/bestiary/sidebar lists and surfaces it on the Graveyard tab.
+    -- `epitaph` is an optional cause-of-death / memorial note; `deceased_at`
+    -- timestamps the death (set when laid to rest, cleared on restore).
+    ALTER TABLE creatures ADD COLUMN deceased    INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE creatures ADD COLUMN epitaph     TEXT    NOT NULL DEFAULT '';
+    ALTER TABLE creatures ADD COLUMN deceased_at TEXT;
+    """,
+    55: """
+    -- PC-to-PC trading. A directed offer one PC sends another: an inventory item
+    -- OR a sum of coins. Nothing moves until the recipient accepts (status flips
+    -- pending → accepted/declined; the giver may cancel). Item/gold are validated
+    -- and transferred at accept time (not escrowed), so an offer that the giver can
+    -- no longer honour just fails. Both creature FKs cascade-delete the offer with
+    -- the creature; `item_id` cascades too, so disposing of an item drops its
+    -- pending offer (no dangling rows).
+    CREATE TABLE trade_offers (
+        id               INTEGER PRIMARY KEY,
+        from_creature_id INTEGER NOT NULL REFERENCES creatures(id) ON DELETE CASCADE,
+        to_creature_id   INTEGER NOT NULL REFERENCES creatures(id) ON DELETE CASCADE,
+        kind             TEXT    NOT NULL DEFAULT 'item',  -- 'item' | 'gold'
+        item_id          INTEGER REFERENCES creature_items(id) ON DELETE CASCADE,
+        gold             INTEGER NOT NULL DEFAULT 0,
+        silver           INTEGER NOT NULL DEFAULT 0,
+        copper           INTEGER NOT NULL DEFAULT 0,
+        status           TEXT    NOT NULL DEFAULT 'pending',  -- pending|accepted|declined|cancelled
+        created_at       TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX idx_trade_to   ON trade_offers(to_creature_id, status);
+    CREATE INDEX idx_trade_from ON trade_offers(from_creature_id, status);
     """,
 }
 

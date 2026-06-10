@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% from "macros.html" import avatar %}
+{% block content %}
+  <div class="page-head">
+    <h1>⚰️ Graveyard</h1>
+  </div>
+  <p class="muted">
+    {% if is_dm %}Fallen heroes, departed NPCs, and vanquished foes — laid to rest from the sheet (⚰️ Lay to rest) and retired from the active roster. Their sheets live on here as memorials; restore one to bring it back into play.{% else %}Those who have fallen in the campaign. Open one to remember what you knew of them.{% endif %}
+  </p>
+
+  {% if total %}
+    {% for group in grave_groups %}
+      <section class="grave-group">
+        <h2 class="grave-group-title">{{ group.label }} <span class="grave-count">{{ group.members | length }}</span></h2>
+        <div class="card-grid">
+          {% for c in group.members %}
+            <a class="char-card grave-card" href="{{ url_for('character_detail', creature_id=c['id']) }}"
+               data-name="{{ c['name'] | lower }}">
+              <div class="char-card-head">
+                <span class="char-card-title">{{ avatar(c, 'avatar-sm') }}<span class="char-name">{{ c['name'] }}</span></span>
+                {% if c['visibility'] == 'hidden' %}<span class="badge-dm">Hidden</span>{% endif %}
+              </div>
+              <div class="char-meta">
+                <span class="badge-kind badge-kind-{{ c['kind'] }}">{{ 'NPC' if c['kind'] == 'npc' else ('Monster' if c['kind'] == 'monster' else 'PC') }}</span>
+                {% if c['kind'] == 'monster' %}<span class="muted">CR {{ c['cr'] | cr }}</span>{% else %}<span class="muted">Level {{ c['level'] }}</span>{% endif %}
+                {% if c['alignment'] %}<span class="muted">{{ c['alignment'] | alignment }}</span>{% endif %}
+              </div>
+              {% if c['epitaph'] %}<div class="grave-epitaph">“{{ c['epitaph'] }}”</div>{% endif %}
+              {% if c['deceased_at'] %}<div class="char-loc muted">🪦 {{ c['deceased_at'] }}</div>{% endif %}
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    {% endfor %}
+  {% else %}
+    <p class="muted">The graveyard is empty.</p>
+    {% if is_dm %}<p class="placeholder-note">When a character dies, open their sheet and choose “⚰️ Lay to rest.”</p>{% endif %}
+  {% endif %}
+{% endblock %}

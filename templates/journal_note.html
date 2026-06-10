@@ -9,7 +9,11 @@
       </p>
       <h1 class="sheet-name">📝 {{ note['title'] }}</h1>
       <p class="sheet-sub muted">
-        {% if note['owner_name'] %}by {{ note['owner_name'] }} · {% endif %}{{ note['updated_at'] }}
+        {% if note['owner_name'] %}by {{ note['owner_name'] }} · {% endif %}
+        <span title="{{ note['created_at'] | nicedatetime }}">📅 {{ note['created_at'] | nicedate }}</span>
+        {% if note['updated_at'] and note['updated_at'] != note['created_at'] %}
+          · <span title="{{ note['updated_at'] | nicedatetime }}">✎ updated {{ note['updated_at'] | timeago }}</span>
+        {% endif %}
         {% if note['visibility'] == 'shared' %}<span class="vis-badge vis-shared">shared with party</span>
         {% else %}<span class="vis-badge vis-private">private</span>{% endif %}
       </p>

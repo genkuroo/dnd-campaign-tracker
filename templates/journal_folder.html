@@ -2,9 +2,11 @@
 {% block content %}
   <div class="page-head">
     <div>
-      <p class="muted breadcrumb"><a href="{{ url_for('journal') }}">Journal</a></p>
+      <p class="muted breadcrumb"><a href="{{ url_for('journal') }}">📖 Journal</a></p>
       <h1 class="sheet-name">📓 {{ folder['title'] }}</h1>
-      {% if folder['owner_name'] %}<p class="sheet-sub muted">by {{ folder['owner_name'] }}</p>{% endif %}
+      <p class="sheet-sub muted">
+        {% if folder['owner_name'] %}by {{ folder['owner_name'] }} · {% endif %}created {{ folder['created_at'] | nicedate }}
+      </p>
     </div>
     {% if can_edit %}
       <div class="area-actions">
@@ -20,27 +22,98 @@
 
   {% if folder['description'] %}<p class="prose muted">{{ folder['description'] }}</p>{% endif %}
 
-  <section class="sheet-section">
-    {% if notes %}
-      <ul class="note-list">
-        {% for n in notes %}
-          <li>
-            <a class="note-row" href="{{ url_for('journal_note', note_id=n['id']) }}">
-              <span class="note-row-main">
-                <span class="note-row-title">📝 {{ n['title'] }}</span>
-                {% if n['body'] %}<span class="note-row-snip muted">{{ n['body'] | truncate(120) }}</span>{% endif %}
+  {% if notes %}
+    <div class="journal-toolbar">
+      <input type="search" id="note-search" class="journal-search" placeholder="Search notes…" autocomplete="off" aria-label="Search notes">
+      <div class="filter-group" role="group" aria-label="Visibility">
+        <button type="button" class="filt-btn active" data-vis="all">All</button>
+        <button type="button" class="filt-btn" data-vis="shared">Shared</button>
+        <button type="button" class="filt-btn" data-vis="private">Private</button>
+      </div>
+      <label class="journal-sort">Sort
+        <select id="note-sort">
+          <option value="updated">Recently updated</option>
+          <option value="created">Newest</option>
+          <option value="oldest">Oldest</option>
+          <option value="title">Title A–Z</option>
+        </select>
+      </label>
+    </div>
+
+    <ul class="note-list" id="note-list">
+      {% for n in notes %}
+        <li class="note-item"
+            data-title="{{ n['title'] | lower }}"
+            data-vis="{{ n['visibility'] }}"
+            data-created="{{ n['created_at'] }}"
+            data-updated="{{ n['updated_at'] }}">
+          <a class="note-row" href="{{ url_for('journal_note', note_id=n['id']) }}">
+            <span class="note-row-main">
+              <span class="note-row-title">📝 {{ n['title'] }}</span>
+              {% if n['body'] %}<span class="note-row-snip muted">{{ n['body'] | truncate(140) }}</span>{% endif %}
+              <span class="note-row-sub muted">
+                {% if n['owner_name'] %}{{ n['owner_name'] }} · {% endif %}
+                <span title="Updated {{ n['updated_at'] | nicedatetime }}">updated {{ n['updated_at'] | timeago }}</span>
               </span>
-              <span class="note-row-meta">
-                {% if n['visibility'] == 'shared' %}<span class="vis-badge vis-shared">shared</span>
-                {% else %}<span class="vis-badge vis-private">private</span>{% endif %}
-                {% if n['owner_name'] %}<span class="muted">{{ n['owner_name'] }}</span>{% endif %}
-              </span>
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
+            </span>
+            <span class="note-row-meta">
+              {% if n['visibility'] == 'shared' %}<span class="vis-badge vis-shared">shared</span>
+              {% else %}<span class="vis-badge vis-private">private</span>{% endif %}
+            </span>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+    <p class="muted journal-empty" id="note-empty" hidden>No notes match.</p>
+
+    <script>
+      (function () {
+        const search = document.getElementById('note-search');
+        const sortSel = document.getElementById('note-sort');
+        const list = document.getElementById('note-list');
+        const empty = document.getElementById('note-empty');
+        const visBtns = document.querySelectorAll('.filt-btn[data-vis]');
+        let vis = 'all';
+
+        function cmp(mode) {
+          return function (a, b) {
+            if (mode === 'title') return a.dataset.title.localeCompare(b.dataset.title);
+            if (mode === 'oldest') return a.dataset.created.localeCompare(b.dataset.created);
+            if (mode === 'created') return b.dataset.created.localeCompare(a.dataset.created);
+            return b.dataset.updated.localeCompare(a.dataset.updated); // updated
+          };
+        }
+
+        function apply() {
+          const q = search.value.trim().toLowerCase();
+          const items = Array.from(list.children);
+          items.sort(cmp(sortSel.value)).forEach((el, i) => { el.style.order = i; });
+          let shown = 0;
+          items.forEach(function (el) {
+            const match = el.dataset.title.includes(q) && (vis === 'all' || el.dataset.vis === vis);
+            el.style.display = match ? '' : 'none';
+            if (match) shown++;
+          });
+          empty.hidden = shown !== 0;
+        }
+
+        search.addEventListener('input', apply);
+        sortSel.addEventListener('change', apply);
+        visBtns.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            vis = btn.dataset.vis;
+            visBtns.forEach(b => b.classList.toggle('active', b === btn));
+            apply();
+          });
+        });
+        list.style.display = 'flex';
+        list.style.flexDirection = 'column';
+        apply();
+      })();
+    </script>
+  {% else %}
+    <section class="sheet-section">
       <p class="muted">No notes in this folder yet.{% if can_edit %} Add the first one.{% endif %}</p>
-    {% endif %}
-  </section>
+    </section>
+  {% endif %}
 {% endblock %}

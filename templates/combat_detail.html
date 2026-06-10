@@ -21,6 +21,26 @@
     (function () {
       const box = document.getElementById('combat');
       if (!box) return;
+
+      // Subtabs (Tracker / Log). The active pane is kept in a closure var so it
+      // survives the fragment being re-rendered by an AJAX action, and applied
+      // after every swap. Tab buttons + panes both carry data-pane.
+      let activePane = 'tracker';
+      function applyPane() {
+        box.querySelectorAll('.combat-tab').forEach(t =>
+          t.classList.toggle('is-active', t.dataset.pane === activePane));
+        box.querySelectorAll('.combat-pane').forEach(p =>
+          p.classList.toggle('is-active', p.dataset.pane === activePane));
+      }
+      box.addEventListener('click', function (e) {
+        const tab = e.target.closest('.combat-tab');
+        if (!tab) return;
+        activePane = tab.dataset.pane;
+        applyPane();
+      });
+      box.classList.add('has-tabs');  // enables the tab/pane CSS (no-JS shows both)
+      applyPane();
+
       box.addEventListener('submit', function (e) {
         const form = e.target.closest('form');
         if (!form || form.hasAttribute('data-full')) return;  // let full-nav forms through
@@ -31,7 +51,7 @@
         fetch(form.getAttribute('action'), { method: 'POST', body: new FormData(form, e.submitter),
                              headers: { 'X-Requested-With': 'fetch' } })
           .then(r => r.text())
-          .then(html => { box.innerHTML = html; });
+          .then(html => { box.innerHTML = html; applyPane(); });
       });
     })();
   </script>

@@ -384,6 +384,75 @@ def toggle_condition(combatant_id, condition):
         conn.close()
 
 
+# --- combat log ------------------------------------------------------------
+
+def add_log_entry(combat_id, kind="attack", actor="", target="", action="",
+                  attack_roll=None, amount=None, damage_type="", detail=""):
+    """Record one line in a combat's log. Names are snapshotted as text so the
+    entry survives a combatant being removed (like the dice roll log). `round` is
+    read from the combat so the log can group by round."""
+    combat = get_combat(combat_id)
+    rnd = combat["round"] if combat else 1
+    conn = get_connection()
+    try:
+        conn.execute(
+            "INSERT INTO combat_log "
+            "(combat_id, round, kind, actor, target, action, attack_roll, amount, "
+            " damage_type, detail) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (combat_id, rnd, kind, (actor or "").strip(), (target or "").strip(),
+             (action or "").strip(), attack_roll, amount, (damage_type or "").strip(),
+             (detail or "").strip()),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def list_combat_log(combat_id):
+    """A combat's log, newest first (so the latest action is at the top during a
+    fast fight)."""
+    conn = get_connection()
+    try:
+        return conn.execute(
+            "SELECT * FROM combat_log WHERE combat_id = ? "
+            "ORDER BY id DESC",
+            (combat_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+
+
+def get_log_entry(entry_id):
+    conn = get_connection()
+    try:
+        return conn.execute(
+            "SELECT * FROM combat_log WHERE id = ?", (entry_id,)
+        ).fetchone()
+    finally:
+        conn.close()
+
+
+def delete_log_entry(entry_id):
+    """Remove one log line (e.g. a mistyped entry). Does not reverse any HP change
+    it may have applied — it only corrects the record."""
+    conn = get_connection()
+    try:
+        conn.execute("DELETE FROM combat_log WHERE id = ?", (entry_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def clear_combat_log(combat_id):
+    conn = get_connection()
+    try:
+        conn.execute("DELETE FROM combat_log WHERE combat_id = ?", (combat_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+
 # --- turn order + rests ----------------------------------------------------
 
 def next_turn(combat_id):

@@ -49,6 +49,24 @@
       {% if can_edit %}
         <a class="btn" href="{{ url_for('character_edit', creature_id=creature['id']) }}">Edit</a>
       {% endif %}
+      {% if is_dm %}
+        {% if creature['deceased'] %}
+          <form method="post" action="{{ url_for('character_restore', creature_id=creature['id']) }}" class="inline js-sheet-reload">
+            <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+            <button type="submit" class="btn-ghost" title="Bring this character back into active play">↩ Restore</button>
+          </form>
+        {% else %}
+          <details class="rest-menu">
+            <summary class="btn-ghost" title="Move to the graveyard">⚰️ Lay to rest</summary>
+            <form method="post" action="{{ url_for('character_lay_to_rest', creature_id=creature['id']) }}" class="rest-form js-sheet-reload">
+              <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
+              <label>Epitaph <span class="muted">(optional — cause of death, a few words)</span></label>
+              <textarea name="epitaph" rows="2" placeholder="Fell to the dragon's flame at Phandalin…"></textarea>
+              <button type="submit" class="btn-danger">Lay to rest</button>
+            </form>
+          </details>
+        {% endif %}
+      {% endif %}
       {% if creature['kind'] == 'monster' %}
         <a class="btn-ghost" href="{{ url_for('bestiary') }}">← Bestiary</a>
       {% elif creature['kind'] == 'npc' %}
@@ -60,6 +78,12 @@
       {% endif %}
     </div>
   </div>
+
+  {% if creature['deceased'] %}
+    <div class="deceased-banner">
+      ⚰️ <strong>Deceased</strong>{% if creature['deceased_at'] %} · laid to rest {{ creature['deceased_at'] }}{% endif %}{% if creature['epitaph'] %} — <em>{{ creature['epitaph'] }}</em>{% endif %}
+    </div>
+  {% endif %}
 
   {% if companions or can_summon %}
     <section class="sheet-section companions-panel">
@@ -493,6 +517,10 @@
   <div id="gear">
     {% include "_gear.html" %}
   </div>
+
+  {% if can_edit and creature['kind'] == 'pc' %}
+    {% include "_trades.html" %}
+  {% endif %}
 
   <div class="sheet-divider" role="separator"></div>
 

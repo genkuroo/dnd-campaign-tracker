@@ -2,6 +2,9 @@
 {% from "macros.html" import info, avatar %}
 {% block content %}
   {% set mask = not revealed %}
+  {# Everything re-renders in place when a DM lay-to-rest / restore form posts via
+     a js-inspect-reload form — see the handler below. #}
+  <div id="inspector">
   <div class="page-head">
     <div class="inspect-title">
       {{ avatar(creature, 'avatar-md') }}
@@ -32,7 +35,7 @@
         {% if creature['visibility'] == 'visible' %}👁 Visible — players can find this monster in their bestiary.
         {% else %}🙈 Hidden — players can't see this monster at all yet.{% endif %}
       </span>
-      <form method="post" action="{{ url_for('monster_visibility', creature_id=creature['id']) }}" class="inline">
+      <form method="post" action="{{ url_for('monster_visibility', creature_id=creature['id']) }}" class="inline js-inspect-reload">
         <input type="hidden" name="next" value="{{ url_for('monster_inspect', creature_id=creature['id']) }}">
         <button type="submit" class="btn-small">{{ 'Hide from players' if creature['visibility'] == 'visible' else 'Show to players' }}</button>
       </form>
@@ -42,9 +45,31 @@
         {% if revealed %}👁 Stats revealed — players inspecting this monster see the block below.
         {% else %}🙈 Stats hidden — players see only the silhouette until you reveal them.{% endif %}
       </span>
-      <form method="post" action="{{ url_for('monster_reveal', creature_id=creature['id']) }}" class="inline">
+      <form method="post" action="{{ url_for('monster_reveal', creature_id=creature['id']) }}" class="inline js-inspect-reload">
         <button type="submit" class="btn-small">{{ 'Hide stats' if revealed else 'Reveal stats' }}</button>
       </form>
+    </div>
+    <div class="reveal-banner {{ 'hidden' if creature['deceased'] else 'revealed' }}">
+      <span>
+        {% if creature['deceased'] %}⚰️ Laid to rest{% if creature['epitaph'] %} — <em>{{ creature['epitaph'] }}</em>{% endif %} — retired from the bestiary.
+        {% else %}Defeated for good? Move this monster to the graveyard as a memorial.{% endif %}
+      </span>
+      {% if creature['deceased'] %}
+        <form method="post" action="{{ url_for('character_restore', creature_id=creature['id']) }}" class="inline js-inspect-reload">
+          <input type="hidden" name="next" value="{{ url_for('monster_inspect', creature_id=creature['id']) }}">
+          <button type="submit" class="btn-small">↩ Restore</button>
+        </form>
+      {% else %}
+        <details class="rest-menu">
+          <summary class="btn-small">⚰️ Lay to rest</summary>
+          <form method="post" action="{{ url_for('character_lay_to_rest', creature_id=creature['id']) }}" class="rest-form js-inspect-reload">
+            <input type="hidden" name="next" value="{{ url_for('monster_inspect', creature_id=creature['id']) }}">
+            <label>Epitaph <span class="muted">(optional)</span></label>
+            <textarea name="epitaph" rows="2" placeholder="Slain by the party at the Sunless Citadel…"></textarea>
+            <button type="submit" class="btn-danger">Lay to rest</button>
+          </form>
+        </details>
+      {% endif %}
     </div>
   {% endif %}
 
@@ -128,4 +153,28 @@
       {% endif %}
     {% endif %}
   </section>
+  </div><!-- /#inspector -->
+
+  <script>
+    // DM lay-to-rest / restore re-render the inspector in place (no full reload).
+    // The form posts via fetch; the server redirects back to the inspector GET
+    // (which fetch follows); we extract the fresh #inspector and swap it. Bound on
+    // document so it survives the swap; no-JS falls back to a normal POST+redirect.
+    (function () {
+      document.addEventListener('submit', function (e) {
+        const form = e.target.closest('form');
+        if (!form || !form.classList.contains('js-inspect-reload')) return;
+        e.preventDefault();
+        const box = document.getElementById('inspector');
+        fetch(form.getAttribute('action'), { method: 'POST', body: new FormData(form) })
+          .then(r => r.text())
+          .then(html => {
+            const fresh = new DOMParser().parseFromString(html, 'text/html').getElementById('inspector');
+            if (fresh && box) box.innerHTML = fresh.innerHTML;
+            else window.location.reload();   // safety net if the shape changed
+          })
+          .catch(() => form.submit());        // network error → plain submit
+      });
+    })();
+  </script>
 {% endblock %}

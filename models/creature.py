@@ -141,7 +141,7 @@ def list_roster():
     conn = get_connection()
     try:
         return conn.execute(
-            "SELECT * FROM creatures WHERE kind IN ('pc', 'npc') "
+            "SELECT * FROM creatures WHERE kind IN ('pc', 'npc') AND deceased = 0 "
             "ORDER BY CASE kind WHEN 'pc' THEN 0 ELSE 1 END, created_at DESC"
         ).fetchall()
     finally:
@@ -153,7 +153,8 @@ def list_party():
     conn = get_connection()
     try:
         return conn.execute(
-            "SELECT * FROM creatures WHERE kind = 'pc' ORDER BY name COLLATE NOCASE"
+            "SELECT * FROM creatures WHERE kind = 'pc' AND deceased = 0 "
+            "ORDER BY name COLLATE NOCASE"
         ).fetchall()
     finally:
         conn.close()
@@ -164,7 +165,8 @@ def list_npcs():
     conn = get_connection()
     try:
         return conn.execute(
-            "SELECT * FROM creatures WHERE kind = 'npc' ORDER BY name COLLATE NOCASE"
+            "SELECT * FROM creatures WHERE kind = 'npc' AND deceased = 0 "
+            "ORDER BY name COLLATE NOCASE"
         ).fetchall()
     finally:
         conn.close()
@@ -222,12 +224,12 @@ def party_rest(kind):
     try:
         if kind == "long":
             conn.execute(
-                "UPDATE creatures SET current_hp = max_hp WHERE kind = 'pc'"
+                "UPDATE creatures SET current_hp = max_hp WHERE kind = 'pc' AND deceased = 0"
             )
         elif kind == "short":
             conn.execute(
                 "UPDATE creatures SET current_hp = current_hp + (max_hp - current_hp) / 2 "
-                "WHERE kind = 'pc'"
+                "WHERE kind = 'pc' AND deceased = 0"
             )
         conn.commit()
     finally:
@@ -293,8 +295,48 @@ def list_monsters():
     try:
         return conn.execute(
             "SELECT * FROM creatures WHERE kind = 'monster' AND is_summon = 0 "
-            "ORDER BY name COLLATE NOCASE"
+            "AND deceased = 0 ORDER BY name COLLATE NOCASE"
         ).fetchall()
+    finally:
+        conn.close()
+
+
+def list_deceased():
+    """The graveyard — every creature laid to rest (deceased=1), of any kind,
+    most recently fallen first. Excluded from every active list (roster, party,
+    bestiary, sidebar) so it's the one place a fallen PC / slain boss / dead NPC
+    lives on as a memorial."""
+    conn = get_connection()
+    try:
+        return conn.execute(
+            "SELECT * FROM creatures WHERE deceased = 1 "
+            "ORDER BY deceased_at DESC, name COLLATE NOCASE"
+        ).fetchall()
+    finally:
+        conn.close()
+
+
+def set_deceased(creature_id, deceased, epitaph=None):
+    """Lay a creature to rest (deceased=1) or restore it (deceased=0). Written
+    only via this path, never the generic form clean — like control/skill profs.
+    Stamps `deceased_at` when laid to rest, clears it on restore. `epitaph` is
+    updated only when provided (None leaves it untouched)."""
+    conn = get_connection()
+    try:
+        if deceased:
+            if epitaph is None:
+                conn.execute(
+                    "UPDATE creatures SET deceased = 1, deceased_at = datetime('now') "
+                    "WHERE id = ?", (creature_id,))
+            else:
+                conn.execute(
+                    "UPDATE creatures SET deceased = 1, deceased_at = datetime('now'), "
+                    "epitaph = ? WHERE id = ?", (epitaph.strip(), creature_id))
+        else:
+            conn.execute(
+                "UPDATE creatures SET deceased = 0, deceased_at = NULL WHERE id = ?",
+                (creature_id,))
+        conn.commit()
     finally:
         conn.close()
 

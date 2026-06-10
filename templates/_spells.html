@@ -75,24 +75,7 @@
               {% endif %}
             </div>
           {% endfor %}
-          {% if can_edit and not has_resources %}
-            <div class="slot-rests">
-              <form method="post" action="{{ url_for('spellbook_rest') }}" class="inline">
-                <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
-                <input type="hidden" name="kind" value="long">
-                <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-                <button type="submit" class="check-btn" title="Restore all spell slots">Long rest ↺</button>
-              </form>
-              {% if caster_type == 'pact' %}
-                <form method="post" action="{{ url_for('spellbook_rest') }}" class="inline">
-                  <input type="hidden" name="creature_id" value="{{ creature['id'] }}">
-                  <input type="hidden" name="kind" value="short">
-                  <input type="hidden" name="next" value="{{ url_for('character_detail', creature_id=creature['id']) }}">
-                  <button type="submit" class="check-btn" title="Recharge pact slots">Short rest ↺</button>
-                </form>
-              {% endif %}
-            </div>
-          {% endif %}
+          {% if can_edit %}<p class="muted spell-help slot-rest-note">Rests are run by the DM on the Party tab.</p>{% endif %}
         </div>
       {% endif %}
     </div>

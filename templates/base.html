@@ -15,6 +15,7 @@
           <a href="{{ url_for(tab.endpoint) }}"
              class="tab {{ 'active' if active == tab.endpoint else '' }}">
             {{ tab.label }}
+            {% if tab.endpoint == 'character' and trade_offer_count %}<span class="tab-badge" title="{{ trade_offer_count }} pending trade offer{{ 's' if trade_offer_count != 1 }}">{{ trade_offer_count }}</span>{% endif %}
           </a>
         {% endif %}
       {% endfor %}

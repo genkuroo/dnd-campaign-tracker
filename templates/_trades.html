@@ -1,0 +1,86 @@
+{# PC-to-PC trading. Shown on a PC's own sheet (can_edit + kind pc). Incoming
+   offers wait for accept/decline; outgoing offers stay cancellable. All forms use
+   js-sheet-reload — a trade ripples into inventory + purse + offers, so the whole
+   sheet re-renders. Expects: creature, items, trades_in, trades_out, trade_partners. #}
+<section class="sheet-section trades-panel">
+  <h2>🤝 Trade</h2>
+
+  {% if trades_in %}
+    <div class="trade-block">
+      <h3 class="trade-subhead">Incoming offers</h3>
+      <ul class="trade-list">
+        {% for t in trades_in %}
+          <li class="trade-offer trade-in">
+            <span class="trade-text">
+              <strong>{{ t['from_name'] }}</strong> offers you
+              {% if t['kind'] == 'item' %}<em>{{ t['item_name'] or 'an item' }}</em>{% else %}{{ t['gold'] }}g {{ t['silver'] }}s {{ t['copper'] }}c{% endif %}
+            </span>
+            <span class="trade-actions">
+              <form method="post" action="{{ url_for('trade_accept', offer_id=t['id']) }}" class="inline js-sheet-reload">
+                <button type="submit" class="btn-small btn-accept">Accept</button>
+              </form>
+              <form method="post" action="{{ url_for('trade_decline', offer_id=t['id']) }}" class="inline js-sheet-reload">
+                <button type="submit" class="btn-text">Decline</button>
+              </form>
+            </span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if trades_out %}
+    <div class="trade-block">
+      <h3 class="trade-subhead">Awaiting their reply</h3>
+      <ul class="trade-list">
+        {% for t in trades_out %}
+          <li class="trade-offer trade-out">
+            <span class="trade-text">
+              To <strong>{{ t['to_name'] }}</strong>:
+              {% if t['kind'] == 'item' %}<em>{{ t['item_name'] or 'an item' }}</em>{% else %}{{ t['gold'] }}g {{ t['silver'] }}s {{ t['copper'] }}c{% endif %}
+              <span class="trade-pending">pending</span>
+            </span>
+            <span class="trade-actions">
+              <form method="post" action="{{ url_for('trade_cancel', offer_id=t['id']) }}" class="inline js-sheet-reload">
+                <button type="submit" class="btn-text">Cancel</button>
+              </form>
+            </span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if trade_partners %}
+    {% set tradeable = items | rejectattr('hidden') | list %}
+    <div class="trade-give">
+      <form method="post" action="{{ url_for('trade_offer', creature_id=creature['id']) }}" class="inline trade-form js-sheet-reload">
+        <input type="hidden" name="kind" value="item">
+        <label class="trade-lbl">Give item</label>
+        <select name="item_id" aria-label="Item to give" {{ 'disabled' if not tradeable }}>
+          {% for it in tradeable %}<option value="{{ it['id'] }}">{{ it['name'] }}{% if it['quantity'] > 1 %} (×{{ it['quantity'] }}){% endif %}</option>{% endfor %}
+        </select>
+        <span class="trade-to">to</span>
+        <select name="to_creature_id" aria-label="Recipient">
+          {% for p in trade_partners %}<option value="{{ p['id'] }}">{{ p['name'] }}</option>{% endfor %}
+        </select>
+        <button type="submit" class="btn-small" {{ 'disabled' if not tradeable }}>Offer</button>
+      </form>
+
+      <form method="post" action="{{ url_for('trade_offer', creature_id=creature['id']) }}" class="inline trade-form js-sheet-reload">
+        <input type="hidden" name="kind" value="gold">
+        <label class="trade-lbl">Give gold</label>
+        <label class="coin-field coin-gp">G <input type="number" name="gold" value="0" min="0" max="{{ creature['gold'] }}" class="coin-input"></label>
+        <label class="coin-field coin-sp">S <input type="number" name="silver" value="0" min="0" max="{{ creature['silver'] }}" class="coin-input"></label>
+        <label class="coin-field coin-cp">C <input type="number" name="copper" value="0" min="0" max="{{ creature['copper'] }}" class="coin-input"></label>
+        <span class="trade-to">to</span>
+        <select name="to_creature_id" aria-label="Recipient">
+          {% for p in trade_partners %}<option value="{{ p['id'] }}">{{ p['name'] }}</option>{% endfor %}
+        </select>
+        <button type="submit" class="btn-small">Offer</button>
+      </form>
+    </div>
+  {% elif not trades_in and not trades_out %}
+    <p class="muted">No other party members to trade with yet.</p>
+  {% endif %}
+</section>

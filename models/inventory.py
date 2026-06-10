@@ -357,6 +357,24 @@ def remove_item(item_id):
         conn.close()
 
 
+def transfer_item(item_id, to_creature_id):
+    """Move an item row to another creature (a PC-to-PC trade). The item lands
+    unequipped and unattuned on the recipient — equip/attune are per-owner state
+    and 5e attunement is personal — so its magic bonuses go dormant until they
+    re-attune. Keeps the row (and its packed weapon/magic stats), so the gear it
+    represents is preserved exactly."""
+    conn = get_connection()
+    try:
+        conn.execute(
+            "UPDATE creature_items SET creature_id = ?, equipped = 0, slot = '', "
+            "attuned = 0 WHERE id = ?",
+            (to_creature_id, item_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def adjust_quantity(item_id, delta):
     """Nudge quantity by delta, clamped to a minimum of 1."""
     conn = get_connection()
