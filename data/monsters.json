@@ -2511,6 +2511,1381 @@
         }
       ],
       "kind": "monster"
+    },
+    {
+      "slug": "dretch",
+      "name": "Dretch",
+      "avatar": "👿",
+      "cr": 0.25,
+      "armor_class": 11,
+      "max_hp": 18,
+      "speed": 20,
+      "strength": 11,
+      "dexterity": 11,
+      "constitution": 12,
+      "intelligence": 5,
+      "wisdom": 8,
+      "charisma": 3,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Abyssal, telepathy 60 ft.",
+      "resistances": "cold, fire, lightning; bludgeoning, piercing, and slashing from nonmagical attacks",
+      "immunities": "poison",
+      "notes": "Small fiend (demon). Darkvision 60 ft. Condition immunities: poisoned.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The dretch makes two attacks: one with its bite and one with its claws."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +2 to hit, reach 5 ft., one target. Hit: 1d6 piercing damage.",
+          "dice": "1d6"
+        },
+        {
+          "name": "Claws",
+          "category": "action",
+          "description": "Melee Weapon Attack: +2 to hit, reach 5 ft., one target. Hit: 2d4 slashing damage.",
+          "dice": "2d4"
+        },
+        {
+          "name": "Fetid Cloud (1/Day)",
+          "category": "action",
+          "description": "A 10-foot-radius cloud of stink. Creatures that start their turn there must succeed on a DC 11 Constitution save or be poisoned until the start of their next turn (poisoned creatures can only Dash or take no action)."
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "cockatrice",
+      "name": "Cockatrice",
+      "avatar": "🐔",
+      "cr": 0.5,
+      "armor_class": 11,
+      "max_hp": 27,
+      "speed": 20,
+      "strength": 6,
+      "dexterity": 12,
+      "constitution": 12,
+      "intelligence": 2,
+      "wisdom": 13,
+      "charisma": 5,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "notes": "Small monstrosity. Fly 40 ft. Darkvision 60 ft.",
+      "actions": [
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one creature. Hit: 1d4+1 piercing damage, and the target must succeed on a DC 11 Constitution save or begin to turn to stone (restrained, then petrified at the start of its next turn on a second failure).",
+          "dice": "1d4+1"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "rust-monster",
+      "name": "Rust Monster",
+      "avatar": "🪲",
+      "cr": 0.5,
+      "armor_class": 14,
+      "max_hp": 27,
+      "speed": 40,
+      "strength": 13,
+      "dexterity": 12,
+      "constitution": 13,
+      "intelligence": 2,
+      "wisdom": 13,
+      "charisma": 6,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "notes": "Medium monstrosity. Darkvision 60 ft. Iron Scent; Rust Metal (nonmagical metal it touches corrodes).",
+      "actions": [
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 1d8+1 piercing damage.",
+          "dice": "1d8+1"
+        },
+        {
+          "name": "Antennae",
+          "category": "action",
+          "description": "The rust monster corrodes a nonmagical ferrous object it can see within 5 ft. If the object is being worn or carried, the creature can make a DC 11 Dexterity save to avoid it. The object takes a permanent −1 penalty (armor/weapon) and is destroyed at −5 / on a hit."
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "cult-fanatic",
+      "name": "Cult Fanatic",
+      "avatar": "🕯️",
+      "cr": 2,
+      "armor_class": 13,
+      "max_hp": 33,
+      "speed": 30,
+      "strength": 11,
+      "dexterity": 14,
+      "constitution": 12,
+      "intelligence": 10,
+      "wisdom": 13,
+      "charisma": 14,
+      "alignment": "NE",
+      "disposition": "hostile",
+      "languages": "any one language (usually Common)",
+      "notes": "Medium humanoid. Spell save DC 11, +3 to hit. Dark Devotion (advantage vs. charmed/frightened).",
+      "actions": [
+        {
+          "name": "Spellcasting",
+          "category": "trait",
+          "description": "4th-level caster (Wisdom). Cantrips: light, sacred flame, thaumaturgy. 1st (4 slots): command, inflict wounds, shield of faith. 2nd (3 slots): hold person, spiritual weapon."
+        },
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The fanatic makes two melee attacks."
+        },
+        {
+          "name": "Dagger",
+          "category": "action",
+          "description": "Melee or Ranged Weapon Attack: +4 to hit, reach 5 ft. or range 20/60 ft., one creature. Hit: 1d4+2 piercing damage.",
+          "dice": "1d4+2"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "druid-npc",
+      "name": "Druid",
+      "avatar": "🌿",
+      "cr": 2,
+      "armor_class": 11,
+      "max_hp": 27,
+      "speed": 30,
+      "strength": 10,
+      "dexterity": 12,
+      "constitution": 13,
+      "intelligence": 12,
+      "wisdom": 15,
+      "charisma": 11,
+      "alignment": "",
+      "disposition": "neutral",
+      "languages": "Druidic plus any two languages",
+      "notes": "Medium humanoid. Spell save DC 12, +4 to hit. Can use Wild Shape lore. Hide armor.",
+      "actions": [
+        {
+          "name": "Spellcasting",
+          "category": "trait",
+          "description": "4th-level caster (Wisdom). Cantrips: druidcraft, produce flame, shillelagh. 1st (4 slots): entangle, longstrider, speak with animals, thunderwave. 2nd (3 slots): animal messenger, barkskin."
+        },
+        {
+          "name": "Quarterstaff",
+          "category": "action",
+          "description": "Melee Weapon Attack: +2 to hit (+4 with shillelagh), reach 5 ft., one target. Hit: 1d6 (1d8 two-handed) bludgeoning damage.",
+          "dice": "1d6"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "gelatinous-cube",
+      "name": "Gelatinous Cube",
+      "avatar": "🧊",
+      "cr": 2,
+      "armor_class": 6,
+      "max_hp": 84,
+      "speed": 15,
+      "strength": 14,
+      "dexterity": 3,
+      "constitution": 20,
+      "intelligence": 1,
+      "wisdom": 6,
+      "charisma": 1,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "notes": "Large ooze. Blindsight 60 ft. (blind beyond). Condition immunities: blinded, charmed, deafened, exhaustion, frightened, prone. Transparent (Perception DC 15 to notice). Ooze Cube; Engulf.",
+      "actions": [
+        {
+          "name": "Pseudopod",
+          "category": "action",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 3d6 acid damage.",
+          "dice": "3d6"
+        },
+        {
+          "name": "Engulf",
+          "category": "action",
+          "description": "The cube moves up to its speed; it can enter a Large or smaller creature's space. The creature makes a DC 12 Dexterity save (on a success it can choose to be pushed back or aside). On a failure the cube enters the space and the creature is engulfed, restrained, unable to breathe, and takes 6d6 acid damage at the start of each of the cube's turns.",
+          "dice": "6d6"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "ochre-jelly",
+      "name": "Ochre Jelly",
+      "avatar": "🟡",
+      "cr": 2,
+      "armor_class": 8,
+      "max_hp": 45,
+      "speed": 10,
+      "strength": 15,
+      "dexterity": 6,
+      "constitution": 16,
+      "intelligence": 2,
+      "wisdom": 6,
+      "charisma": 1,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "resistances": "acid",
+      "immunities": "lightning, slashing",
+      "notes": "Large ooze. Climb 10 ft. Blindsight 60 ft. Condition immunities: blinded, charmed, deafened, exhaustion, frightened, prone. Amorphous; Spider Climb; Split (when slashed/lightning-struck, splits into two if it has 10+ HP).",
+      "actions": [
+        {
+          "name": "Pseudopod",
+          "category": "action",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 2d6+2 acid damage.",
+          "dice": "2d6+2"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "ankheg",
+      "name": "Ankheg",
+      "avatar": "🐛",
+      "cr": 2,
+      "armor_class": 14,
+      "max_hp": 39,
+      "speed": 30,
+      "strength": 17,
+      "dexterity": 11,
+      "constitution": 13,
+      "intelligence": 1,
+      "wisdom": 13,
+      "charisma": 6,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "notes": "Large monstrosity. Burrow 10 ft.; Darkvision 60 ft., tremorsense 60 ft. AC 11 while prone (soft underside).",
+      "actions": [
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one creature. Hit: 2d6+3 slashing damage plus 1d6 acid damage. If the target is Large or smaller, it is grappled (escape DC 13).",
+          "dice": "2d6+3"
+        },
+        {
+          "name": "Acid Spray (Recharge 6)",
+          "category": "action",
+          "description": "The ankheg spews acid in a 30-foot line that is 5 feet wide. Each creature there makes a DC 13 Dexterity save, taking 3d6 acid damage on a failure, or half as much on a success.",
+          "dice": "3d6"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "yeti",
+      "name": "Yeti",
+      "avatar": "🦍",
+      "cr": 3,
+      "armor_class": 12,
+      "max_hp": 51,
+      "speed": 40,
+      "strength": 18,
+      "dexterity": 13,
+      "constitution": 16,
+      "intelligence": 8,
+      "wisdom": 12,
+      "charisma": 7,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Yeti",
+      "immunities": "cold",
+      "notes": "Large monstrosity. Climb 40 ft. Darkvision 60 ft. Keen Smell; Snow Camouflage; Fear of Fire (disadvantage on the turn it takes fire damage).",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The yeti makes two claw attacks."
+        },
+        {
+          "name": "Claw",
+          "category": "action",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 2d6+4 slashing damage plus 1d6 cold damage.",
+          "dice": "2d6+4"
+        },
+        {
+          "name": "Chilling Gaze",
+          "category": "action",
+          "description": "The yeti targets one creature it can see within 30 ft. If the target can see the yeti, it must succeed on a DC 13 Constitution save or take 3d6 cold damage and be paralyzed for 1 minute (repeat save at end of each turn).",
+          "dice": "3d6"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "phase-spider",
+      "name": "Phase Spider",
+      "avatar": "🕸️",
+      "cr": 3,
+      "armor_class": 13,
+      "max_hp": 32,
+      "speed": 30,
+      "strength": 15,
+      "dexterity": 15,
+      "constitution": 12,
+      "intelligence": 6,
+      "wisdom": 10,
+      "charisma": 6,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "notes": "Large monstrosity. Climb 30 ft. Darkvision 60 ft. Ethereal Jaunt (bonus action to/from the Ethereal Plane); Spider Climb; Web Walker.",
+      "actions": [
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 1d10+2 piercing damage, and the target makes a DC 11 Constitution save, taking 4d8 poison damage on a failure (half on success). If reduced to 0 HP, it is stable but poisoned and paralyzed for 1 hour.",
+          "dice": "1d10+2"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "bearded-devil",
+      "name": "Bearded Devil",
+      "avatar": "😈",
+      "cr": 3,
+      "armor_class": 13,
+      "max_hp": 52,
+      "speed": 30,
+      "strength": 16,
+      "dexterity": 15,
+      "constitution": 15,
+      "intelligence": 9,
+      "wisdom": 11,
+      "charisma": 11,
+      "alignment": "LE",
+      "disposition": "hostile",
+      "languages": "Infernal, telepathy 120 ft.",
+      "resistances": "cold; bludgeoning, piercing, and slashing from nonmagical attacks that aren't silvered",
+      "immunities": "fire, poison",
+      "notes": "Medium fiend (devil). Darkvision 120 ft. Condition immunities: poisoned. Magic Resistance; Steadfast (immune to frightened while it can see an ally within 30 ft.).",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The devil makes two attacks: one with its beard and one with its glaive."
+        },
+        {
+          "name": "Beard",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one creature. Hit: 1d8+2 piercing damage, and the target makes a DC 12 Constitution save or be poisoned for 1 minute (can't regain HP while poisoned; repeat save at end of each turn).",
+          "dice": "1d8+2"
+        },
+        {
+          "name": "Glaive",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 10 ft., one target. Hit: 2d6+3 slashing damage. If the target is a creature other than undead or a construct, DC 12 Constitution save or take 1d10 ongoing damage each turn (infernal wound) until healed.",
+          "dice": "2d6+3"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "black-pudding",
+      "name": "Black Pudding",
+      "avatar": "⬛",
+      "cr": 4,
+      "armor_class": 7,
+      "max_hp": 85,
+      "speed": 20,
+      "strength": 16,
+      "dexterity": 5,
+      "constitution": 16,
+      "intelligence": 1,
+      "wisdom": 6,
+      "charisma": 1,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "immunities": "acid, cold, lightning, slashing",
+      "notes": "Large ooze. Climb 20 ft. Blindsight 60 ft. Condition immunities: blinded, charmed, deafened, exhaustion, frightened, prone. Amorphous; Corrosive Form (damages weapons/armor that hit it; eats through metal/wood); Spider Climb; Split.",
+      "actions": [
+        {
+          "name": "Pseudopod",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d6+3 bludgeoning damage plus 4d8 acid damage. Nonmagical armor takes a permanent −1 AC penalty; a nonmagical weapon takes −1 to damage.",
+          "dice": "4d8"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "ghost",
+      "name": "Ghost",
+      "avatar": "👻",
+      "cr": 4,
+      "armor_class": 11,
+      "max_hp": 45,
+      "speed": 0,
+      "strength": 7,
+      "dexterity": 13,
+      "constitution": 10,
+      "intelligence": 10,
+      "wisdom": 12,
+      "charisma": 17,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "the languages it knew in life",
+      "resistances": "acid, fire, lightning, thunder; bludgeoning, piercing, and slashing from nonmagical attacks",
+      "immunities": "cold, necrotic, poison",
+      "notes": "Medium undead. Fly 40 ft. (hover); listed speed is its flying speed. Condition immunities: charmed, exhaustion, frightened, grappled, paralyzed, petrified, poisoned, prone, restrained. Ethereal Sight; Incorporeal Movement.",
+      "actions": [
+        {
+          "name": "Withering Touch",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 4d6+3 necrotic damage.",
+          "dice": "4d6+3"
+        },
+        {
+          "name": "Horrifying Visage",
+          "category": "action",
+          "description": "Each non-undead creature within 60 ft. that can see the ghost makes a DC 13 Wisdom save or be frightened for 1 minute (if it fails by 5+, it also ages 1d4×10 years). Repeat save at end of each turn."
+        },
+        {
+          "name": "Possession (Recharge 6)",
+          "category": "action",
+          "description": "One humanoid the ghost can see within 5 ft. must succeed on a DC 13 Charisma save or be possessed by the ghost; the ghost then disappears into the target, which is incapacitated and loses control of its body."
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "flameskull",
+      "name": "Flameskull",
+      "avatar": "💀",
+      "cr": 4,
+      "armor_class": 13,
+      "max_hp": 40,
+      "speed": 0,
+      "strength": 1,
+      "dexterity": 17,
+      "constitution": 14,
+      "intelligence": 16,
+      "wisdom": 10,
+      "charisma": 11,
+      "alignment": "NE",
+      "disposition": "hostile",
+      "languages": "Common",
+      "resistances": "lightning, necrotic, piercing",
+      "immunities": "cold, fire, poison",
+      "notes": "Tiny undead. Fly 40 ft. (hover); listed speed is its flying speed. Condition immunities: charmed, frightened, paralyzed, poisoned, prone. Illumination; Magic Resistance; Rejuvenation (reforms in 1 hour unless holy water/dispel used). Spell save DC 13.",
+      "actions": [
+        {
+          "name": "Spellcasting",
+          "category": "trait",
+          "description": "Innate (Intelligence). At will: mage hand. 1/day each: blur, flaming sphere, magic missile. 1/day: fireball (DC 13, 5d6 fire)."
+        },
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The flameskull makes two fire ray attacks."
+        },
+        {
+          "name": "Fire Ray",
+          "category": "action",
+          "description": "Ranged Spell Attack: +5 to hit, range 30 ft., one target. Hit: 3d6 fire damage.",
+          "dice": "3d6"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "fire-elemental",
+      "name": "Fire Elemental",
+      "avatar": "🔥",
+      "cr": 5,
+      "armor_class": 13,
+      "max_hp": 102,
+      "speed": 50,
+      "strength": 10,
+      "dexterity": 17,
+      "constitution": 16,
+      "intelligence": 6,
+      "wisdom": 10,
+      "charisma": 7,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "Ignan",
+      "resistances": "bludgeoning, piercing, and slashing from nonmagical attacks",
+      "immunities": "fire, poison",
+      "notes": "Large elemental. Darkvision 60 ft. Condition immunities: exhaustion, grappled, paralyzed, petrified, poisoned, prone, restrained, unconscious. Fire Form (ignites creatures it touches/moves through); Illumination; Water Susceptibility (takes cold-like damage from water).",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The elemental makes two touch attacks."
+        },
+        {
+          "name": "Touch",
+          "category": "action",
+          "description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 2d6+3 fire damage. If the target is a creature or flammable object, it ignites and takes 1d10 fire damage at the start of each of its turns.",
+          "dice": "2d6+3"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "earth-elemental",
+      "name": "Earth Elemental",
+      "avatar": "🪨",
+      "cr": 5,
+      "armor_class": 17,
+      "max_hp": 126,
+      "speed": 30,
+      "strength": 20,
+      "dexterity": 8,
+      "constitution": 20,
+      "intelligence": 5,
+      "wisdom": 10,
+      "charisma": 5,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "Terran",
+      "vulnerabilities": "thunder",
+      "resistances": "bludgeoning, piercing, and slashing from nonmagical attacks",
+      "immunities": "poison",
+      "notes": "Large elemental. Burrow 30 ft.; Darkvision 60 ft., tremorsense 60 ft. Condition immunities: exhaustion, paralyzed, petrified, poisoned, unconscious. Earth Glide; Siege Monster (double damage to objects/structures).",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The elemental makes two slam attacks."
+        },
+        {
+          "name": "Slam",
+          "category": "action",
+          "description": "Melee Weapon Attack: +8 to hit, reach 10 ft., one target. Hit: 2d8+5 bludgeoning damage.",
+          "dice": "2d8+5"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "air-elemental",
+      "name": "Air Elemental",
+      "avatar": "🌪️",
+      "cr": 5,
+      "armor_class": 15,
+      "max_hp": 90,
+      "speed": 0,
+      "strength": 14,
+      "dexterity": 20,
+      "constitution": 14,
+      "intelligence": 6,
+      "wisdom": 10,
+      "charisma": 6,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "Auran",
+      "resistances": "lightning, thunder; bludgeoning, piercing, and slashing from nonmagical attacks",
+      "immunities": "poison",
+      "notes": "Large elemental. Fly 90 ft. (hover); listed speed is its flying speed. Darkvision 60 ft. Condition immunities: exhaustion, grappled, paralyzed, petrified, poisoned, prone, restrained, unconscious. Air Form (can enter a hostile creature's space).",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The elemental makes two slam attacks."
+        },
+        {
+          "name": "Slam",
+          "category": "action",
+          "description": "Melee Weapon Attack: +8 to hit, reach 5 ft., one target. Hit: 2d8+5 bludgeoning damage.",
+          "dice": "2d8+5"
+        },
+        {
+          "name": "Whirlwind (Recharge 4-6)",
+          "category": "action",
+          "description": "Each creature in the elemental's space makes a DC 13 Strength save, taking 3d8+2 bludgeoning damage and being flung up to 20 ft. and knocked prone on a failure (half damage, no fling on success).",
+          "dice": "3d8+2"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "water-elemental",
+      "name": "Water Elemental",
+      "avatar": "💧",
+      "cr": 5,
+      "armor_class": 14,
+      "max_hp": 114,
+      "speed": 30,
+      "strength": 18,
+      "dexterity": 14,
+      "constitution": 18,
+      "intelligence": 5,
+      "wisdom": 10,
+      "charisma": 8,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "Aquan",
+      "swim": 90,
+      "resistances": "acid; bludgeoning, piercing, and slashing from nonmagical attacks",
+      "immunities": "poison",
+      "notes": "Large elemental. Swim 90 ft.; Darkvision 60 ft. Condition immunities: exhaustion, grappled, paralyzed, petrified, poisoned, prone, restrained, unconscious. Water Form; Freeze (cold damage may immobilize).",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The elemental makes two slam attacks."
+        },
+        {
+          "name": "Slam",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 2d8+4 bludgeoning damage.",
+          "dice": "2d8+4"
+        },
+        {
+          "name": "Whelm (Recharge 4-6)",
+          "category": "action",
+          "description": "Each creature in the elemental's space makes a DC 15 Strength save or take 2d8+4 bludgeoning damage and be grappled (escape DC 14); grappled creatures are restrained and unable to breathe unless they can breathe water.",
+          "dice": "2d8+4"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "vampire-spawn",
+      "name": "Vampire Spawn",
+      "avatar": "🧛",
+      "cr": 5,
+      "armor_class": 15,
+      "max_hp": 82,
+      "speed": 30,
+      "strength": 16,
+      "dexterity": 16,
+      "constitution": 16,
+      "intelligence": 11,
+      "wisdom": 10,
+      "charisma": 12,
+      "alignment": "NE",
+      "disposition": "hostile",
+      "languages": "the languages it knew in life",
+      "resistances": "necrotic; bludgeoning, piercing, and slashing from nonmagical attacks",
+      "notes": "Medium undead. Darkvision 60 ft. Regeneration 10 (not if it took radiant damage or was in running water this turn; none at 0 HP); Spider Climb; Vampire Weaknesses (radiant/sunlight/running water; a stake to the heart).",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The vampire makes two attacks, only one of which can be a bite."
+        },
+        {
+          "name": "Claws",
+          "category": "action",
+          "description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one creature. Hit: 2d4+3 slashing damage. The target is grappled (escape DC 13).",
+          "dice": "2d4+3"
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one willing/grappled/restrained/incapacitated creature. Hit: 1d6+3 piercing plus 2d6 necrotic; the target's max HP is reduced by that necrotic amount and the vampire regains that many HP.",
+          "dice": "1d6+3"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "roper",
+      "name": "Roper",
+      "avatar": "🪱",
+      "cr": 5,
+      "armor_class": 20,
+      "max_hp": 93,
+      "speed": 10,
+      "strength": 18,
+      "dexterity": 8,
+      "constitution": 17,
+      "intelligence": 7,
+      "wisdom": 16,
+      "charisma": 6,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "notes": "Large monstrosity. Climb 10 ft. Darkvision 60 ft. False Appearance (looks like a stalagmite); Grasping Tendrils (up to 6, AC 20, 10 HP); Spider Climb.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The roper makes four attacks with its tendrils, uses Reel, then makes one bite attack."
+        },
+        {
+          "name": "Tendril",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 50 ft., one creature. Hit: the target is grappled (escape DC 15) and pulled; while grappled the target has disadvantage on Strength checks and can't move closer to other creatures."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 4d8+4 piercing damage.",
+          "dice": "4d8+4"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "bulette",
+      "name": "Bulette",
+      "avatar": "🦈",
+      "cr": 5,
+      "armor_class": 17,
+      "max_hp": 94,
+      "speed": 40,
+      "strength": 19,
+      "dexterity": 11,
+      "constitution": 21,
+      "intelligence": 2,
+      "wisdom": 10,
+      "charisma": 5,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "notes": "Large monstrosity. Burrow 40 ft.; Darkvision 60 ft., tremorsense 60 ft. Standing Leap (long jump 30 ft., high 15 ft.).",
+      "actions": [
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 4d12+4 piercing damage.",
+          "dice": "4d12+4"
+        },
+        {
+          "name": "Deadly Leap",
+          "category": "action",
+          "description": "The bulette jumps up to 30 ft. and lands. Each creature in its landing space makes a DC 15 Strength or Dexterity save, taking 3d6 bludgeoning + 3d6 slashing and being knocked prone on a failure (half damage, no prone on success).",
+          "dice": "3d6"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "mage",
+      "name": "Mage",
+      "avatar": "🧙",
+      "cr": 6,
+      "armor_class": 12,
+      "max_hp": 40,
+      "speed": 30,
+      "strength": 9,
+      "dexterity": 14,
+      "constitution": 11,
+      "intelligence": 17,
+      "wisdom": 12,
+      "charisma": 11,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "any four languages",
+      "notes": "Medium humanoid. AC 15 with mage armor. Spell save DC 14, +6 to hit. A powerful wizard or archmage's lieutenant.",
+      "actions": [
+        {
+          "name": "Spellcasting",
+          "category": "trait",
+          "description": "9th-level wizard (Intelligence). Cantrips: fire bolt, light, mage hand, prestidigitation. 1st (4 slots): detect magic, mage armor, magic missile, shield. 2nd (3): misty step, suggestion. 3rd (3): counterspell, fireball (DC 14, 8d6), fly. 4th (3): greater invisibility, ice storm. 5th (1): cone of cold (DC 14, 8d8)."
+        },
+        {
+          "name": "Dagger",
+          "category": "action",
+          "description": "Melee or Ranged Weapon Attack: +5 to hit, reach 5 ft. or range 20/60 ft., one target. Hit: 1d4+2 piercing damage.",
+          "dice": "1d4+2"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "medusa",
+      "name": "Medusa",
+      "avatar": "🐍",
+      "cr": 6,
+      "armor_class": 15,
+      "max_hp": 127,
+      "speed": 30,
+      "strength": 10,
+      "dexterity": 15,
+      "constitution": 16,
+      "intelligence": 12,
+      "wisdom": 13,
+      "charisma": 15,
+      "alignment": "LE",
+      "disposition": "hostile",
+      "languages": "Common",
+      "notes": "Medium monstrosity. Darkvision 60 ft. Petrifying Gaze (a creature starting its turn within 30 ft. that sees the medusa's eyes makes a DC 14 Constitution save or begins to petrify; second failure = petrified).",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The medusa makes either three melee attacks (one with snake hair, two with shortsword) or two ranged attacks with its longbow."
+        },
+        {
+          "name": "Snake Hair",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one creature. Hit: 1d4+2 piercing damage plus 4d6 poison damage.",
+          "dice": "1d4+2"
+        },
+        {
+          "name": "Shortsword",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d6+2 piercing damage.",
+          "dice": "1d6+2"
+        },
+        {
+          "name": "Longbow",
+          "category": "action",
+          "description": "Ranged Weapon Attack: +5 to hit, range 150/600 ft., one target. Hit: 1d8+2 piercing damage plus 2d6 poison damage.",
+          "dice": "1d8+2"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "mind-flayer",
+      "name": "Mind Flayer",
+      "avatar": "🦑",
+      "cr": 7,
+      "armor_class": 15,
+      "max_hp": 71,
+      "speed": 30,
+      "strength": 11,
+      "dexterity": 12,
+      "constitution": 12,
+      "intelligence": 19,
+      "wisdom": 17,
+      "charisma": 17,
+      "alignment": "LE",
+      "disposition": "hostile",
+      "languages": "Deep Speech, Undercommon, telepathy 120 ft.",
+      "notes": "Medium aberration (illithid). Darkvision 120 ft. Magic Resistance. Spell save DC 15.",
+      "actions": [
+        {
+          "name": "Innate Spellcasting",
+          "category": "trait",
+          "description": "At will: detect thoughts, levitate. 1/day each: dominate monster, plane shift (self only)."
+        },
+        {
+          "name": "Tentacles",
+          "category": "action",
+          "description": "Melee Attack: +7 to hit, reach 5 ft., one creature. Hit: 2d10+1 psychic damage, and the target is grappled (escape DC 15). While grappled it is restrained, and the flayer can try to extract its brain on a later turn.",
+          "dice": "2d10+1"
+        },
+        {
+          "name": "Mind Blast (Recharge 5-6)",
+          "category": "action",
+          "description": "The flayer emits psychic energy in a 60-foot cone. Each creature there makes a DC 15 Intelligence save, taking 4d8+1 psychic damage and being stunned for 1 minute on a failure (half damage, no stun on success).",
+          "dice": "4d8+1"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "stone-giant",
+      "name": "Stone Giant",
+      "avatar": "🗿",
+      "cr": 7,
+      "armor_class": 17,
+      "max_hp": 126,
+      "speed": 40,
+      "strength": 23,
+      "dexterity": 15,
+      "constitution": 20,
+      "intelligence": 10,
+      "wisdom": 12,
+      "charisma": 9,
+      "alignment": "",
+      "disposition": "neutral",
+      "languages": "Giant",
+      "notes": "Huge giant. Darkvision 60 ft. Stone Camouflage (advantage on Stealth in rocky terrain).",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The giant makes two greatclub attacks."
+        },
+        {
+          "name": "Greatclub",
+          "category": "action",
+          "description": "Melee Weapon Attack: +9 to hit, reach 15 ft., one target. Hit: 3d8+6 bludgeoning damage.",
+          "dice": "3d8+6"
+        },
+        {
+          "name": "Rock",
+          "category": "action",
+          "description": "Ranged Weapon Attack: +9 to hit, range 60/240 ft., one target. Hit: 4d10+6 bludgeoning damage. If a creature, DC 17 Strength save or be knocked prone.",
+          "dice": "4d10+6"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "young-black-dragon",
+      "name": "Young Black Dragon",
+      "avatar": "🐉",
+      "cr": 7,
+      "armor_class": 18,
+      "max_hp": 127,
+      "speed": 40,
+      "strength": 19,
+      "dexterity": 14,
+      "constitution": 19,
+      "intelligence": 12,
+      "wisdom": 11,
+      "charisma": 15,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Common, Draconic",
+      "immunities": "acid",
+      "notes": "Large dragon. Fly 80 ft., swim 40 ft. Blindsight 30 ft., darkvision 120 ft. Amphibious.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The dragon makes three attacks: one with its bite and two with its claws."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 10 ft., one target. Hit: 2d10+4 piercing damage plus 1d8 acid damage.",
+          "dice": "2d10+4"
+        },
+        {
+          "name": "Claw",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 1d6+4 slashing damage.",
+          "dice": "1d6+4"
+        },
+        {
+          "name": "Acid Breath (Recharge 5-6)",
+          "category": "action",
+          "description": "The dragon exhales acid in a 30-foot line that is 5 feet wide. Each creature there makes a DC 14 Dexterity save, taking 11d8 acid damage on a failure, or half as much on a success.",
+          "dice": "11d8"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "frost-giant",
+      "name": "Frost Giant",
+      "avatar": "🥶",
+      "cr": 8,
+      "armor_class": 15,
+      "max_hp": 138,
+      "speed": 40,
+      "strength": 23,
+      "dexterity": 9,
+      "constitution": 21,
+      "intelligence": 9,
+      "wisdom": 10,
+      "charisma": 12,
+      "alignment": "NE",
+      "disposition": "hostile",
+      "languages": "Giant",
+      "immunities": "cold",
+      "notes": "Huge giant. Darkvision (none); Perception +3.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The giant makes two greataxe attacks."
+        },
+        {
+          "name": "Greataxe",
+          "category": "action",
+          "description": "Melee Weapon Attack: +9 to hit, reach 10 ft., one target. Hit: 3d12+6 slashing damage.",
+          "dice": "3d12+6"
+        },
+        {
+          "name": "Rock",
+          "category": "action",
+          "description": "Ranged Weapon Attack: +9 to hit, range 60/240 ft., one target. Hit: 4d10+6 bludgeoning damage.",
+          "dice": "4d10+6"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "hydra",
+      "name": "Hydra",
+      "avatar": "🐲",
+      "cr": 8,
+      "armor_class": 15,
+      "max_hp": 172,
+      "speed": 30,
+      "strength": 20,
+      "dexterity": 12,
+      "constitution": 20,
+      "intelligence": 2,
+      "wisdom": 10,
+      "charisma": 7,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "notes": "Huge monstrosity. Swim 30 ft. Darkvision 60 ft. Five heads. Hold Breath; Multiple Heads (loses a head when it takes 25+ damage; grows two back unless cauterized by fire/acid); Reactive Heads (one reaction per head); Wakeful.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The hydra makes as many bite attacks as it has heads."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +8 to hit, reach 10 ft., one target. Hit: 1d10+5 piercing damage.",
+          "dice": "1d10+5"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "fire-giant",
+      "name": "Fire Giant",
+      "avatar": "🌋",
+      "cr": 9,
+      "armor_class": 18,
+      "max_hp": 162,
+      "speed": 30,
+      "strength": 25,
+      "dexterity": 9,
+      "constitution": 23,
+      "intelligence": 10,
+      "wisdom": 14,
+      "charisma": 13,
+      "alignment": "LE",
+      "disposition": "hostile",
+      "languages": "Giant",
+      "immunities": "fire",
+      "notes": "Huge giant. Plate-clad smith-warrior.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The giant makes two greatsword attacks."
+        },
+        {
+          "name": "Greatsword",
+          "category": "action",
+          "description": "Melee Weapon Attack: +11 to hit, reach 10 ft., one target. Hit: 6d6+7 slashing damage.",
+          "dice": "6d6+7"
+        },
+        {
+          "name": "Rock",
+          "category": "action",
+          "description": "Ranged Weapon Attack: +11 to hit, range 60/240 ft., one target. Hit: 4d10+7 bludgeoning damage.",
+          "dice": "4d10+7"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "treant",
+      "name": "Treant",
+      "avatar": "🌳",
+      "cr": 9,
+      "armor_class": 16,
+      "max_hp": 138,
+      "speed": 30,
+      "strength": 23,
+      "dexterity": 8,
+      "constitution": 21,
+      "intelligence": 12,
+      "wisdom": 16,
+      "charisma": 12,
+      "alignment": "",
+      "disposition": "neutral",
+      "languages": "Common, Druidic, Elvish, Sylvan",
+      "vulnerabilities": "fire",
+      "resistances": "bludgeoning, piercing",
+      "notes": "Huge plant. False Appearance (looks like a tree); Siege Monster (double damage to objects/structures).",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The treant makes two slam attacks."
+        },
+        {
+          "name": "Slam",
+          "category": "action",
+          "description": "Melee Weapon Attack: +10 to hit, reach 5 ft., one target. Hit: 3d6+6 bludgeoning damage.",
+          "dice": "3d6+6"
+        },
+        {
+          "name": "Rock",
+          "category": "action",
+          "description": "Ranged Weapon Attack: +10 to hit, range 60/180 ft., one target. Hit: 4d10+6 bludgeoning damage.",
+          "dice": "4d10+6"
+        },
+        {
+          "name": "Animate Trees (1/Day)",
+          "category": "action",
+          "description": "The treant animates one or two trees it can see within 60 ft.; they act as treants under its command (statistics as a treant)."
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "aboleth",
+      "name": "Aboleth",
+      "avatar": "🐙",
+      "cr": 10,
+      "armor_class": 17,
+      "max_hp": 135,
+      "speed": 10,
+      "strength": 21,
+      "dexterity": 9,
+      "constitution": 15,
+      "intelligence": 18,
+      "wisdom": 15,
+      "charisma": 18,
+      "alignment": "LE",
+      "disposition": "hostile",
+      "languages": "Deep Speech, telepathy 120 ft.",
+      "swim": 40,
+      "notes": "Large aberration. Swim 40 ft.; Darkvision 120 ft. Amphibious; Mucous Cloud (contact disease); Probing Telepathy. LEGENDARY (3 actions: Detect / Tail Swipe / Psychic Drain).",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The aboleth makes three tentacle attacks."
+        },
+        {
+          "name": "Tentacle",
+          "category": "action",
+          "description": "Melee Weapon Attack: +9 to hit, reach 10 ft., one target. Hit: 2d6+5 bludgeoning damage. If a creature, DC 14 Constitution save or contract a disease (over time skin transforms and it can only breathe water).",
+          "dice": "2d6+5"
+        },
+        {
+          "name": "Tail",
+          "category": "action",
+          "description": "Melee Weapon Attack: +9 to hit, reach 10 ft., one target. Hit: 3d6+5 bludgeoning damage.",
+          "dice": "3d6+5"
+        },
+        {
+          "name": "Enslave (3/Day)",
+          "category": "action",
+          "description": "One creature within 30 ft. makes a DC 14 Wisdom save or be magically charmed until the aboleth dies or is on a different plane; the charmed target is telepathically controlled while within 1 mile."
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "roc",
+      "name": "Roc",
+      "avatar": "🦅",
+      "cr": 11,
+      "armor_class": 15,
+      "max_hp": 248,
+      "speed": 20,
+      "strength": 28,
+      "dexterity": 10,
+      "constitution": 20,
+      "intelligence": 3,
+      "wisdom": 10,
+      "charisma": 9,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "notes": "Gargantuan monstrosity. Fly 120 ft. Keen Sight.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The roc makes two attacks: one with its beak and one with its talons."
+        },
+        {
+          "name": "Beak",
+          "category": "action",
+          "description": "Melee Weapon Attack: +13 to hit, reach 10 ft., one target. Hit: 4d8+9 piercing damage.",
+          "dice": "4d8+9"
+        },
+        {
+          "name": "Talons",
+          "category": "action",
+          "description": "Melee Weapon Attack: +13 to hit, reach 5 ft., one target. Hit: 4d6+9 slashing damage, and the target is grappled (escape DC 19); the roc can't use its talons on another target while grappling.",
+          "dice": "4d6+9"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "vampire",
+      "name": "Vampire",
+      "avatar": "🧛",
+      "cr": 13,
+      "armor_class": 16,
+      "max_hp": 144,
+      "speed": 30,
+      "strength": 18,
+      "dexterity": 18,
+      "constitution": 18,
+      "intelligence": 17,
+      "wisdom": 15,
+      "charisma": 18,
+      "alignment": "LE",
+      "disposition": "hostile",
+      "languages": "the languages it knew in life",
+      "resistances": "necrotic; bludgeoning, piercing, and slashing from nonmagical attacks",
+      "notes": "Medium undead (shapechanger). Darkvision 120 ft. Shapechanger (bat/mist/humanoid); Regeneration 20 (not if it took radiant damage or was in running water; none at 0 HP); Misty Escape; Spider Climb; Vampire Weaknesses (sunlight, running water, stake, holy). LEGENDARY (3 actions: Move / Unarmed Strike / Bite costs 2).",
+      "actions": [
+        {
+          "name": "Multiattack (Vampire Form)",
+          "category": "action",
+          "description": "The vampire makes two attacks, only one of which can be a bite."
+        },
+        {
+          "name": "Unarmed Strike",
+          "category": "action",
+          "description": "Melee Weapon Attack: +9 to hit, reach 5 ft., one creature. Hit: 1d8+4 bludgeoning damage. Instead of damage, the vampire can grapple the target (escape DC 18).",
+          "dice": "1d8+4"
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +9 to hit, reach 5 ft., one willing/grappled/restrained/charmed creature. Hit: 1d6+4 piercing plus 3d6 necrotic; the target's max HP is reduced by the necrotic amount and the vampire regains that many HP.",
+          "dice": "1d6+4"
+        },
+        {
+          "name": "Charm",
+          "category": "action",
+          "description": "The vampire targets one humanoid within 30 ft. DC 17 Wisdom save or be charmed; the charmed target regards the vampire as a trusted friend and is a willing target for its bite."
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "beholder",
+      "name": "Beholder",
+      "avatar": "👁️",
+      "cr": 13,
+      "armor_class": 18,
+      "max_hp": 180,
+      "speed": 0,
+      "strength": 10,
+      "dexterity": 14,
+      "constitution": 18,
+      "intelligence": 17,
+      "wisdom": 15,
+      "charisma": 17,
+      "alignment": "LE",
+      "disposition": "hostile",
+      "languages": "Deep Speech, Undercommon",
+      "notes": "Large aberration. Fly 20 ft. (hover); listed speed is its flying speed. Darkvision 120 ft. Antimagic Cone (its central eye suppresses magic in a 150-ft cone in front of it). LEGENDARY (3 eye-ray actions). Spell save DC 16.",
+      "actions": [
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 4d6 piercing damage.",
+          "dice": "4d6"
+        },
+        {
+          "name": "Eye Rays",
+          "category": "action",
+          "description": "The beholder shoots three of its ten magical eye rays at random, each at a different target within 120 ft.: 1) Charm, 2) Paralyzing, 3) Fear, 4) Slowing, 5) Enervation (3d8 necrotic), 6) Telekinetic, 7) Sleep, 8) Petrification, 9) Disintegration (10d8 force), 10) Death (10d10 necrotic). Saving throw DC 16 as appropriate."
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "adult-red-dragon",
+      "name": "Adult Red Dragon",
+      "avatar": "🐲",
+      "cr": 17,
+      "armor_class": 19,
+      "max_hp": 256,
+      "speed": 40,
+      "strength": 27,
+      "dexterity": 10,
+      "constitution": 25,
+      "intelligence": 16,
+      "wisdom": 13,
+      "charisma": 21,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Common, Draconic",
+      "immunities": "fire",
+      "notes": "Huge dragon. Climb 40 ft., fly 80 ft. Blindsight 60 ft., darkvision 120 ft. Legendary Resistance (3/day: turn a failed save into a success). LEGENDARY (3 actions: Detect / Tail Attack / Wing Attack costs 2). Spell save DC 19.",
+      "actions": [
+        {
+          "name": "Frightful Presence",
+          "category": "trait",
+          "description": "Each creature of the dragon's choice within 120 ft. makes a DC 19 Wisdom save or be frightened for 1 minute (repeat at end of each turn)."
+        },
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The dragon uses Frightful Presence, then makes three attacks: one bite and two claws."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +14 to hit, reach 10 ft., one target. Hit: 2d10+8 piercing damage plus 2d6 fire damage.",
+          "dice": "2d10+8"
+        },
+        {
+          "name": "Claw",
+          "category": "action",
+          "description": "Melee Weapon Attack: +14 to hit, reach 5 ft., one target. Hit: 2d6+8 slashing damage.",
+          "dice": "2d6+8"
+        },
+        {
+          "name": "Tail",
+          "category": "action",
+          "description": "Melee Weapon Attack: +14 to hit, reach 15 ft., one target. Hit: 2d8+8 bludgeoning damage.",
+          "dice": "2d8+8"
+        },
+        {
+          "name": "Fire Breath (Recharge 5-6)",
+          "category": "action",
+          "description": "The dragon exhales fire in a 60-foot cone. Each creature there makes a DC 21 Dexterity save, taking 18d6 fire damage on a failure, or half as much on a success.",
+          "dice": "18d6"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "lich",
+      "name": "Lich",
+      "avatar": "☠️",
+      "cr": 21,
+      "armor_class": 17,
+      "max_hp": 135,
+      "speed": 30,
+      "strength": 11,
+      "dexterity": 16,
+      "constitution": 16,
+      "intelligence": 20,
+      "wisdom": 14,
+      "charisma": 16,
+      "alignment": "NE",
+      "disposition": "hostile",
+      "languages": "Common plus up to five other languages",
+      "resistances": "cold, lightning, necrotic",
+      "immunities": "poison; bludgeoning, piercing, and slashing from nonmagical attacks",
+      "notes": "Medium undead. Darkvision 120 ft. Condition immunities: charmed, exhaustion, frightened, paralyzed, poisoned. Legendary Resistance (3/day); Rejuvenation (reforms from its phylactery); Turn Resistance. LEGENDARY (3 actions). Spell save DC 20, +12 to hit.",
+      "actions": [
+        {
+          "name": "Spellcasting",
+          "category": "trait",
+          "description": "18th-level wizard (Intelligence). Sample prepared: cantrips (mage hand, prestidigitation, ray of frost); 1st: magic missile, shield, thunderwave; 3rd: counterspell, dispel magic, fireball; 5th: cloudkill, scrying; 6th: disintegrate, globe of invulnerability; 7th: finger of death; 8th: power word stun; 9th: power word kill."
+        },
+        {
+          "name": "Paralyzing Touch",
+          "category": "action",
+          "description": "Melee Spell Attack: +12 to hit, reach 5 ft., one creature. Hit: 3d6 cold damage, and the target must succeed on a DC 18 Constitution save or be paralyzed for 1 minute (repeat at end of each turn).",
+          "dice": "3d6"
+        }
+      ],
+      "kind": "monster"
     }
   ]
 }
