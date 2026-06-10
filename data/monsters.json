@@ -2,393 +2,2515 @@
   "_attribution": "Monster stat blocks are from the System Reference Document 5.1 (SRD 5.1), © Wizards of the Coast LLC, available under the Creative Commons Attribution 4.0 International License (CC-BY-4.0): https://creativecommons.org/licenses/by/4.0/legalcode . Senses, condition immunities, and movement that have no dedicated column are summarized in each monster's notes.",
   "monsters": [
     {
-      "slug": "commoner", "name": "Commoner", "kind": "monster", "avatar": "🧑",
-      "cr": 0, "armor_class": 10, "max_hp": 4, "speed": 30,
-      "strength": 10, "dexterity": 10, "constitution": 10, "intelligence": 10, "wisdom": 10, "charisma": 10,
-      "alignment": "TN", "disposition": "neutral", "languages": "any one language (usually Common)",
+      "slug": "commoner",
+      "name": "Commoner",
+      "kind": "monster",
+      "avatar": "🧑",
+      "cr": 0,
+      "armor_class": 10,
+      "max_hp": 4,
+      "speed": 30,
+      "strength": 10,
+      "dexterity": 10,
+      "constitution": 10,
+      "intelligence": 10,
+      "wisdom": 10,
+      "charisma": 10,
+      "alignment": "TN",
+      "disposition": "neutral",
+      "languages": "any one language (usually Common)",
       "notes": "Medium humanoid. A townsperson, farmer, or laborer — a low-stat NPC for crowd scenes.",
       "actions": [
-        {"name": "Club", "category": "action", "dice": "1d4", "description": "Melee Weapon Attack: +2 to hit, reach 5 ft., one target. Hit: 1d4 bludgeoning damage."}
+        {
+          "name": "Club",
+          "category": "action",
+          "dice": "1d4",
+          "description": "Melee Weapon Attack: +2 to hit, reach 5 ft., one target. Hit: 1d4 bludgeoning damage."
+        }
       ]
     },
     {
-      "slug": "giant-rat", "name": "Giant Rat", "kind": "monster", "avatar": "🐀",
-      "cr": 0.125, "armor_class": 12, "max_hp": 7, "speed": 30,
-      "strength": 7, "dexterity": 15, "constitution": 11, "intelligence": 2, "wisdom": 10, "charisma": 4,
-      "alignment": "", "disposition": "hostile", "languages": "—",
+      "slug": "giant-rat",
+      "name": "Giant Rat",
+      "kind": "monster",
+      "avatar": "🐀",
+      "cr": 0.125,
+      "armor_class": 12,
+      "max_hp": 7,
+      "speed": 30,
+      "strength": 7,
+      "dexterity": 15,
+      "constitution": 11,
+      "intelligence": 2,
+      "wisdom": 10,
+      "charisma": 4,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
       "notes": "Small beast. Darkvision 60 ft.",
       "actions": [
-        {"name": "Keen Smell", "category": "trait", "description": "Advantage on Wisdom (Perception) checks that rely on smell."},
-        {"name": "Pack Tactics", "category": "trait", "description": "Advantage on an attack roll against a creature if at least one of the rat's allies is within 5 ft. of it and isn't incapacitated."},
-        {"name": "Bite", "category": "action", "dice": "1d4+2", "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d4+2 piercing damage."}
+        {
+          "name": "Keen Smell",
+          "category": "trait",
+          "description": "Advantage on Wisdom (Perception) checks that rely on smell."
+        },
+        {
+          "name": "Pack Tactics",
+          "category": "trait",
+          "description": "Advantage on an attack roll against a creature if at least one of the rat's allies is within 5 ft. of it and isn't incapacitated."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "dice": "1d4+2",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d4+2 piercing damage."
+        }
       ]
     },
     {
-      "slug": "kobold", "name": "Kobold", "kind": "monster", "avatar": "🦎",
-      "cr": 0.125, "armor_class": 12, "max_hp": 5, "speed": 30,
-      "strength": 7, "dexterity": 15, "constitution": 9, "intelligence": 8, "wisdom": 7, "charisma": 8,
-      "alignment": "LE", "disposition": "hostile", "languages": "Common, Draconic",
+      "slug": "kobold",
+      "name": "Kobold",
+      "kind": "monster",
+      "avatar": "🦎",
+      "cr": 0.125,
+      "armor_class": 12,
+      "max_hp": 5,
+      "speed": 30,
+      "strength": 7,
+      "dexterity": 15,
+      "constitution": 9,
+      "intelligence": 8,
+      "wisdom": 7,
+      "charisma": 8,
+      "alignment": "LE",
+      "disposition": "hostile",
+      "languages": "Common, Draconic",
       "notes": "Small humanoid. Darkvision 60 ft.",
       "actions": [
-        {"name": "Sunlight Sensitivity", "category": "trait", "description": "While in sunlight, the kobold has disadvantage on attack rolls and on Perception checks that rely on sight."},
-        {"name": "Pack Tactics", "category": "trait", "description": "Advantage on an attack roll against a creature if at least one ally is within 5 ft. of it and isn't incapacitated."},
-        {"name": "Dagger", "category": "action", "dice": "1d4+2", "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d4+2 piercing damage."},
-        {"name": "Sling", "category": "action", "dice": "1d4+2", "description": "Ranged Weapon Attack: +4 to hit, range 30/120 ft., one target. Hit: 1d4+2 bludgeoning damage."}
+        {
+          "name": "Sunlight Sensitivity",
+          "category": "trait",
+          "description": "While in sunlight, the kobold has disadvantage on attack rolls and on Perception checks that rely on sight."
+        },
+        {
+          "name": "Pack Tactics",
+          "category": "trait",
+          "description": "Advantage on an attack roll against a creature if at least one ally is within 5 ft. of it and isn't incapacitated."
+        },
+        {
+          "name": "Dagger",
+          "category": "action",
+          "dice": "1d4+2",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d4+2 piercing damage."
+        },
+        {
+          "name": "Sling",
+          "category": "action",
+          "dice": "1d4+2",
+          "description": "Ranged Weapon Attack: +4 to hit, range 30/120 ft., one target. Hit: 1d4+2 bludgeoning damage."
+        }
       ]
     },
     {
-      "slug": "bandit", "name": "Bandit", "kind": "monster", "avatar": "🗡️",
-      "cr": 0.125, "armor_class": 12, "max_hp": 11, "speed": 30,
-      "strength": 11, "dexterity": 12, "constitution": 12, "intelligence": 10, "wisdom": 10, "charisma": 10,
-      "alignment": "NE", "disposition": "hostile", "languages": "any one language (usually Common)",
+      "slug": "bandit",
+      "name": "Bandit",
+      "kind": "monster",
+      "avatar": "🗡️",
+      "cr": 0.125,
+      "armor_class": 12,
+      "max_hp": 11,
+      "speed": 30,
+      "strength": 11,
+      "dexterity": 12,
+      "constitution": 12,
+      "intelligence": 10,
+      "wisdom": 10,
+      "charisma": 10,
+      "alignment": "NE",
+      "disposition": "hostile",
+      "languages": "any one language (usually Common)",
       "notes": "Medium humanoid. A brigand, pirate, or hired thug.",
       "actions": [
-        {"name": "Scimitar", "category": "action", "dice": "1d6+1", "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 1d6+1 slashing damage."},
-        {"name": "Light Crossbow", "category": "action", "dice": "1d8+1", "description": "Ranged Weapon Attack: +3 to hit, range 80/320 ft., one target. Hit: 1d8+1 piercing damage."}
+        {
+          "name": "Scimitar",
+          "category": "action",
+          "dice": "1d6+1",
+          "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 1d6+1 slashing damage."
+        },
+        {
+          "name": "Light Crossbow",
+          "category": "action",
+          "dice": "1d8+1",
+          "description": "Ranged Weapon Attack: +3 to hit, range 80/320 ft., one target. Hit: 1d8+1 piercing damage."
+        }
       ]
     },
     {
-      "slug": "cultist", "name": "Cultist", "kind": "monster", "avatar": "🧙",
-      "cr": 0.125, "armor_class": 12, "max_hp": 9, "speed": 30,
-      "strength": 11, "dexterity": 12, "constitution": 10, "intelligence": 10, "wisdom": 11, "charisma": 10,
-      "alignment": "NE", "disposition": "hostile", "languages": "any one language (usually Common)",
+      "slug": "cultist",
+      "name": "Cultist",
+      "kind": "monster",
+      "avatar": "🧙",
+      "cr": 0.125,
+      "armor_class": 12,
+      "max_hp": 9,
+      "speed": 30,
+      "strength": 11,
+      "dexterity": 12,
+      "constitution": 10,
+      "intelligence": 10,
+      "wisdom": 11,
+      "charisma": 10,
+      "alignment": "NE",
+      "disposition": "hostile",
+      "languages": "any one language (usually Common)",
       "notes": "Medium humanoid. A fanatic devoted to a dark power.",
       "actions": [
-        {"name": "Dark Devotion", "category": "trait", "description": "Advantage on saving throws against being charmed or frightened."},
-        {"name": "Scimitar", "category": "action", "dice": "1d6+1", "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 1d6+1 slashing damage."}
+        {
+          "name": "Dark Devotion",
+          "category": "trait",
+          "description": "Advantage on saving throws against being charmed or frightened."
+        },
+        {
+          "name": "Scimitar",
+          "category": "action",
+          "dice": "1d6+1",
+          "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 1d6+1 slashing damage."
+        }
       ]
     },
     {
-      "slug": "guard", "name": "Guard", "kind": "monster", "avatar": "💂",
-      "cr": 0.125, "armor_class": 16, "max_hp": 11, "speed": 30,
-      "strength": 13, "dexterity": 12, "constitution": 12, "intelligence": 10, "wisdom": 11, "charisma": 10,
-      "alignment": "TN", "disposition": "neutral", "languages": "any one language (usually Common)",
+      "slug": "guard",
+      "name": "Guard",
+      "kind": "monster",
+      "avatar": "💂",
+      "cr": 0.125,
+      "armor_class": 16,
+      "max_hp": 11,
+      "speed": 30,
+      "strength": 13,
+      "dexterity": 12,
+      "constitution": 12,
+      "intelligence": 10,
+      "wisdom": 11,
+      "charisma": 10,
+      "alignment": "TN",
+      "disposition": "neutral",
+      "languages": "any one language (usually Common)",
       "notes": "Medium humanoid. A town watch member, sentry, or bodyguard (chain shirt + shield).",
       "actions": [
-        {"name": "Spear", "category": "action", "dice": "1d6+1", "description": "Melee or Ranged Weapon Attack: +3 to hit, reach 5 ft. or range 20/60 ft., one target. Hit: 1d6+1 piercing damage, or 1d8+1 if used with two hands to make a melee attack."}
+        {
+          "name": "Spear",
+          "category": "action",
+          "dice": "1d6+1",
+          "description": "Melee or Ranged Weapon Attack: +3 to hit, reach 5 ft. or range 20/60 ft., one target. Hit: 1d6+1 piercing damage, or 1d8+1 if used with two hands to make a melee attack."
+        }
       ]
     },
     {
-      "slug": "goblin", "name": "Goblin", "kind": "monster", "avatar": "👺",
-      "cr": 0.25, "armor_class": 15, "max_hp": 7, "speed": 30,
-      "strength": 8, "dexterity": 14, "constitution": 10, "intelligence": 10, "wisdom": 8, "charisma": 8,
-      "alignment": "NE", "disposition": "hostile", "languages": "Common, Goblin",
+      "slug": "goblin",
+      "name": "Goblin",
+      "kind": "monster",
+      "avatar": "👺",
+      "cr": 0.25,
+      "armor_class": 15,
+      "max_hp": 7,
+      "speed": 30,
+      "strength": 8,
+      "dexterity": 14,
+      "constitution": 10,
+      "intelligence": 10,
+      "wisdom": 8,
+      "charisma": 8,
+      "alignment": "NE",
+      "disposition": "hostile",
+      "languages": "Common, Goblin",
       "notes": "Small humanoid. Darkvision 60 ft. Leather armor + shield.",
       "actions": [
-        {"name": "Nimble Escape", "category": "bonus", "description": "The goblin can take the Disengage or Hide action as a bonus action on each of its turns."},
-        {"name": "Scimitar", "category": "action", "dice": "1d6+2", "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d6+2 slashing damage."},
-        {"name": "Shortbow", "category": "action", "dice": "1d6+2", "description": "Ranged Weapon Attack: +4 to hit, range 80/320 ft., one target. Hit: 1d6+2 piercing damage."}
+        {
+          "name": "Nimble Escape",
+          "category": "bonus",
+          "description": "The goblin can take the Disengage or Hide action as a bonus action on each of its turns."
+        },
+        {
+          "name": "Scimitar",
+          "category": "action",
+          "dice": "1d6+2",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d6+2 slashing damage."
+        },
+        {
+          "name": "Shortbow",
+          "category": "action",
+          "dice": "1d6+2",
+          "description": "Ranged Weapon Attack: +4 to hit, range 80/320 ft., one target. Hit: 1d6+2 piercing damage."
+        }
       ]
     },
     {
-      "slug": "skeleton", "name": "Skeleton", "kind": "monster", "avatar": "💀",
-      "cr": 0.25, "armor_class": 13, "max_hp": 13, "speed": 30,
-      "strength": 10, "dexterity": 14, "constitution": 15, "intelligence": 6, "wisdom": 8, "charisma": 5,
-      "alignment": "LE", "disposition": "hostile", "languages": "understands the languages it knew in life but can't speak",
-      "vulnerabilities": "bludgeoning", "immunities": "poison",
+      "slug": "skeleton",
+      "name": "Skeleton",
+      "kind": "monster",
+      "avatar": "💀",
+      "cr": 0.25,
+      "armor_class": 13,
+      "max_hp": 13,
+      "speed": 30,
+      "strength": 10,
+      "dexterity": 14,
+      "constitution": 15,
+      "intelligence": 6,
+      "wisdom": 8,
+      "charisma": 5,
+      "alignment": "LE",
+      "disposition": "hostile",
+      "languages": "understands the languages it knew in life but can't speak",
+      "vulnerabilities": "bludgeoning",
+      "immunities": "poison",
       "notes": "Medium undead. Darkvision 60 ft. Condition immunities: exhaustion, poisoned.",
       "actions": [
-        {"name": "Shortsword", "category": "action", "dice": "1d6+2", "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d6+2 piercing damage."},
-        {"name": "Shortbow", "category": "action", "dice": "1d6+2", "description": "Ranged Weapon Attack: +4 to hit, range 80/320 ft., one target. Hit: 1d6+2 piercing damage."}
+        {
+          "name": "Shortsword",
+          "category": "action",
+          "dice": "1d6+2",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d6+2 piercing damage."
+        },
+        {
+          "name": "Shortbow",
+          "category": "action",
+          "dice": "1d6+2",
+          "description": "Ranged Weapon Attack: +4 to hit, range 80/320 ft., one target. Hit: 1d6+2 piercing damage."
+        }
       ]
     },
     {
-      "slug": "zombie", "name": "Zombie", "kind": "monster", "avatar": "🧟",
-      "cr": 0.25, "armor_class": 8, "max_hp": 22, "speed": 20,
-      "strength": 13, "dexterity": 6, "constitution": 16, "intelligence": 3, "wisdom": 6, "charisma": 5,
-      "alignment": "NE", "disposition": "hostile", "languages": "understands the languages it knew in life but can't speak",
+      "slug": "zombie",
+      "name": "Zombie",
+      "kind": "monster",
+      "avatar": "🧟",
+      "cr": 0.25,
+      "armor_class": 8,
+      "max_hp": 22,
+      "speed": 20,
+      "strength": 13,
+      "dexterity": 6,
+      "constitution": 16,
+      "intelligence": 3,
+      "wisdom": 6,
+      "charisma": 5,
+      "alignment": "NE",
+      "disposition": "hostile",
+      "languages": "understands the languages it knew in life but can't speak",
       "immunities": "poison",
       "notes": "Medium undead. Darkvision 60 ft. Condition immunities: poisoned.",
       "actions": [
-        {"name": "Undead Fortitude", "category": "trait", "description": "If damage reduces the zombie to 0 HP, it makes a Constitution save (DC 5 + the damage taken) unless the damage is radiant or from a critical hit. On a success, it drops to 1 HP instead."},
-        {"name": "Slam", "category": "action", "dice": "1d6+1", "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 1d6+1 bludgeoning damage."}
+        {
+          "name": "Undead Fortitude",
+          "category": "trait",
+          "description": "If damage reduces the zombie to 0 HP, it makes a Constitution save (DC 5 + the damage taken) unless the damage is radiant or from a critical hit. On a success, it drops to 1 HP instead."
+        },
+        {
+          "name": "Slam",
+          "category": "action",
+          "dice": "1d6+1",
+          "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 1d6+1 bludgeoning damage."
+        }
       ]
     },
     {
-      "slug": "wolf", "name": "Wolf", "kind": "monster", "avatar": "🐺",
-      "cr": 0.25, "armor_class": 13, "max_hp": 11, "speed": 40,
-      "strength": 12, "dexterity": 15, "constitution": 12, "intelligence": 3, "wisdom": 12, "charisma": 6,
-      "alignment": "", "disposition": "hostile", "languages": "—",
+      "slug": "wolf",
+      "name": "Wolf",
+      "kind": "monster",
+      "avatar": "🐺",
+      "cr": 0.25,
+      "armor_class": 13,
+      "max_hp": 11,
+      "speed": 40,
+      "strength": 12,
+      "dexterity": 15,
+      "constitution": 12,
+      "intelligence": 3,
+      "wisdom": 12,
+      "charisma": 6,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
       "notes": "Medium beast.",
       "actions": [
-        {"name": "Keen Hearing and Smell", "category": "trait", "description": "Advantage on Wisdom (Perception) checks that rely on hearing or smell."},
-        {"name": "Pack Tactics", "category": "trait", "description": "Advantage on an attack roll against a creature if at least one of the wolf's allies is within 5 ft. of it and isn't incapacitated."},
-        {"name": "Bite", "category": "action", "dice": "2d4+2", "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 2d4+2 piercing damage. If the target is a creature, it must succeed on a DC 11 Strength save or be knocked prone."}
+        {
+          "name": "Keen Hearing and Smell",
+          "category": "trait",
+          "description": "Advantage on Wisdom (Perception) checks that rely on hearing or smell."
+        },
+        {
+          "name": "Pack Tactics",
+          "category": "trait",
+          "description": "Advantage on an attack roll against a creature if at least one of the wolf's allies is within 5 ft. of it and isn't incapacitated."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "dice": "2d4+2",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 2d4+2 piercing damage. If the target is a creature, it must succeed on a DC 11 Strength save or be knocked prone."
+        }
       ]
     },
     {
-      "slug": "orc", "name": "Orc", "kind": "monster", "avatar": "👹",
-      "cr": 0.5, "armor_class": 13, "max_hp": 15, "speed": 30,
-      "strength": 16, "dexterity": 12, "constitution": 16, "intelligence": 7, "wisdom": 11, "charisma": 10,
-      "alignment": "CE", "disposition": "hostile", "languages": "Common, Orc",
+      "slug": "orc",
+      "name": "Orc",
+      "kind": "monster",
+      "avatar": "👹",
+      "cr": 0.5,
+      "armor_class": 13,
+      "max_hp": 15,
+      "speed": 30,
+      "strength": 16,
+      "dexterity": 12,
+      "constitution": 16,
+      "intelligence": 7,
+      "wisdom": 11,
+      "charisma": 10,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Common, Orc",
       "notes": "Medium humanoid. Darkvision 60 ft. Hide armor.",
       "actions": [
-        {"name": "Aggressive", "category": "bonus", "description": "As a bonus action, the orc can move up to its speed toward a hostile creature it can see."},
-        {"name": "Greataxe", "category": "action", "dice": "1d12+3", "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d12+3 slashing damage."},
-        {"name": "Javelin", "category": "action", "dice": "1d6+3", "description": "Melee or Ranged Weapon Attack: +5 to hit, reach 5 ft. or range 30/120 ft., one target. Hit: 1d6+3 piercing damage."}
+        {
+          "name": "Aggressive",
+          "category": "bonus",
+          "description": "As a bonus action, the orc can move up to its speed toward a hostile creature it can see."
+        },
+        {
+          "name": "Greataxe",
+          "category": "action",
+          "dice": "1d12+3",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d12+3 slashing damage."
+        },
+        {
+          "name": "Javelin",
+          "category": "action",
+          "dice": "1d6+3",
+          "description": "Melee or Ranged Weapon Attack: +5 to hit, reach 5 ft. or range 30/120 ft., one target. Hit: 1d6+3 piercing damage."
+        }
       ]
     },
     {
-      "slug": "hobgoblin", "name": "Hobgoblin", "kind": "monster", "avatar": "👺",
-      "cr": 0.5, "armor_class": 18, "max_hp": 11, "speed": 30,
-      "strength": 13, "dexterity": 12, "constitution": 12, "intelligence": 10, "wisdom": 10, "charisma": 9,
-      "alignment": "LE", "disposition": "hostile", "languages": "Common, Goblin",
+      "slug": "hobgoblin",
+      "name": "Hobgoblin",
+      "kind": "monster",
+      "avatar": "👺",
+      "cr": 0.5,
+      "armor_class": 18,
+      "max_hp": 11,
+      "speed": 30,
+      "strength": 13,
+      "dexterity": 12,
+      "constitution": 12,
+      "intelligence": 10,
+      "wisdom": 10,
+      "charisma": 9,
+      "alignment": "LE",
+      "disposition": "hostile",
+      "languages": "Common, Goblin",
       "notes": "Medium humanoid. Darkvision 60 ft. Chain mail + shield.",
       "actions": [
-        {"name": "Martial Advantage", "category": "trait", "dice": "2d6", "description": "Once per turn, deal an extra 2d6 damage to a creature it hits with a weapon attack if that creature is within 5 ft. of an ally of the hobgoblin that isn't incapacitated."},
-        {"name": "Longsword", "category": "action", "dice": "1d8+1", "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 1d8+1 slashing damage, or 1d10+1 if used with two hands."},
-        {"name": "Longbow", "category": "action", "dice": "1d8+1", "description": "Ranged Weapon Attack: +3 to hit, range 150/600 ft., one target. Hit: 1d8+1 piercing damage."}
+        {
+          "name": "Martial Advantage",
+          "category": "trait",
+          "dice": "2d6",
+          "description": "Once per turn, deal an extra 2d6 damage to a creature it hits with a weapon attack if that creature is within 5 ft. of an ally of the hobgoblin that isn't incapacitated."
+        },
+        {
+          "name": "Longsword",
+          "category": "action",
+          "dice": "1d8+1",
+          "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 1d8+1 slashing damage, or 1d10+1 if used with two hands."
+        },
+        {
+          "name": "Longbow",
+          "category": "action",
+          "dice": "1d8+1",
+          "description": "Ranged Weapon Attack: +3 to hit, range 150/600 ft., one target. Hit: 1d8+1 piercing damage."
+        }
       ]
     },
     {
-      "slug": "gnoll", "name": "Gnoll", "kind": "monster", "avatar": "🐾",
-      "cr": 0.5, "armor_class": 15, "max_hp": 22, "speed": 30,
-      "strength": 14, "dexterity": 12, "constitution": 11, "intelligence": 6, "wisdom": 10, "charisma": 7,
-      "alignment": "CE", "disposition": "hostile", "languages": "Gnoll",
+      "slug": "gnoll",
+      "name": "Gnoll",
+      "kind": "monster",
+      "avatar": "🐾",
+      "cr": 0.5,
+      "armor_class": 15,
+      "max_hp": 22,
+      "speed": 30,
+      "strength": 14,
+      "dexterity": 12,
+      "constitution": 11,
+      "intelligence": 6,
+      "wisdom": 10,
+      "charisma": 7,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Gnoll",
       "notes": "Medium humanoid. Darkvision 60 ft. Hide armor + shield.",
       "actions": [
-        {"name": "Rampage", "category": "bonus", "description": "When the gnoll reduces a creature to 0 HP with a melee attack on its turn, it can take a bonus action to move up to half its speed and make a bite attack."},
-        {"name": "Bite", "category": "action", "dice": "1d4+2", "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 1d4+2 piercing damage."},
-        {"name": "Spear", "category": "action", "dice": "1d6+2", "description": "Melee or Ranged Weapon Attack: +4 to hit, reach 5 ft. or range 20/60 ft., one target. Hit: 1d6+2 piercing damage, or 1d8+2 if used with two hands to make a melee attack."}
+        {
+          "name": "Rampage",
+          "category": "bonus",
+          "description": "When the gnoll reduces a creature to 0 HP with a melee attack on its turn, it can take a bonus action to move up to half its speed and make a bite attack."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "dice": "1d4+2",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 1d4+2 piercing damage."
+        },
+        {
+          "name": "Spear",
+          "category": "action",
+          "dice": "1d6+2",
+          "description": "Melee or Ranged Weapon Attack: +4 to hit, reach 5 ft. or range 20/60 ft., one target. Hit: 1d6+2 piercing damage, or 1d8+2 if used with two hands to make a melee attack."
+        }
       ]
     },
     {
-      "slug": "black-bear", "name": "Black Bear", "kind": "monster", "avatar": "🐻",
-      "cr": 0.5, "armor_class": 11, "max_hp": 19, "speed": 40,
-      "strength": 15, "dexterity": 10, "constitution": 14, "intelligence": 2, "wisdom": 12, "charisma": 7,
-      "alignment": "", "disposition": "neutral", "languages": "—",
+      "slug": "black-bear",
+      "name": "Black Bear",
+      "kind": "monster",
+      "avatar": "🐻",
+      "cr": 0.5,
+      "armor_class": 11,
+      "max_hp": 19,
+      "speed": 40,
+      "strength": 15,
+      "dexterity": 10,
+      "constitution": 14,
+      "intelligence": 2,
+      "wisdom": 12,
+      "charisma": 7,
+      "alignment": "",
+      "disposition": "neutral",
+      "languages": "—",
       "notes": "Medium beast. Climb 30 ft.",
       "actions": [
-        {"name": "Keen Smell", "category": "trait", "description": "Advantage on Wisdom (Perception) checks that rely on smell."},
-        {"name": "Multiattack", "category": "action", "description": "The bear makes two attacks: one with its bite and one with its claws."},
-        {"name": "Bite", "category": "action", "dice": "1d6+2", "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 1d6+2 piercing damage."},
-        {"name": "Claws", "category": "action", "dice": "2d4+2", "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 2d4+2 slashing damage."}
+        {
+          "name": "Keen Smell",
+          "category": "trait",
+          "description": "Advantage on Wisdom (Perception) checks that rely on smell."
+        },
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The bear makes two attacks: one with its bite and one with its claws."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "dice": "1d6+2",
+          "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 1d6+2 piercing damage."
+        },
+        {
+          "name": "Claws",
+          "category": "action",
+          "dice": "2d4+2",
+          "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 2d4+2 slashing damage."
+        }
       ]
     },
     {
-      "slug": "worg", "name": "Worg", "kind": "monster", "avatar": "👺",
-      "cr": 0.5, "armor_class": 13, "max_hp": 26, "speed": 50,
-      "strength": 16, "dexterity": 13, "constitution": 13, "intelligence": 7, "wisdom": 11, "charisma": 8,
-      "alignment": "NE", "disposition": "hostile", "languages": "Goblin, Worg",
+      "slug": "worg",
+      "name": "Worg",
+      "kind": "monster",
+      "avatar": "👺",
+      "cr": 0.5,
+      "armor_class": 13,
+      "max_hp": 26,
+      "speed": 50,
+      "strength": 16,
+      "dexterity": 13,
+      "constitution": 13,
+      "intelligence": 7,
+      "wisdom": 11,
+      "charisma": 8,
+      "alignment": "NE",
+      "disposition": "hostile",
+      "languages": "Goblin, Worg",
       "notes": "Large monstrosity. Darkvision 60 ft.",
       "actions": [
-        {"name": "Keen Hearing and Smell", "category": "trait", "description": "Advantage on Wisdom (Perception) checks that rely on hearing or smell."},
-        {"name": "Bite", "category": "action", "dice": "2d6+3", "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 2d6+3 piercing damage. If the target is a creature, it must succeed on a DC 13 Strength save or be knocked prone."}
+        {
+          "name": "Keen Hearing and Smell",
+          "category": "trait",
+          "description": "Advantage on Wisdom (Perception) checks that rely on hearing or smell."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "dice": "2d6+3",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 2d6+3 piercing damage. If the target is a creature, it must succeed on a DC 13 Strength save or be knocked prone."
+        }
       ]
     },
     {
-      "slug": "bugbear", "name": "Bugbear", "kind": "monster", "avatar": "👹",
-      "cr": 1, "armor_class": 16, "max_hp": 27, "speed": 30,
-      "strength": 15, "dexterity": 14, "constitution": 13, "intelligence": 8, "wisdom": 11, "charisma": 9,
-      "alignment": "CE", "disposition": "hostile", "languages": "Common, Goblin",
+      "slug": "bugbear",
+      "name": "Bugbear",
+      "kind": "monster",
+      "avatar": "👹",
+      "cr": 1,
+      "armor_class": 16,
+      "max_hp": 27,
+      "speed": 30,
+      "strength": 15,
+      "dexterity": 14,
+      "constitution": 13,
+      "intelligence": 8,
+      "wisdom": 11,
+      "charisma": 9,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Common, Goblin",
       "notes": "Medium humanoid. Darkvision 60 ft. Hide armor + shield.",
       "actions": [
-        {"name": "Brute", "category": "trait", "description": "A melee weapon deals one extra die of its damage when the bugbear hits with it (included in the attacks below)."},
-        {"name": "Surprise Attack", "category": "trait", "dice": "2d6", "description": "If the bugbear surprises a creature and hits it with an attack during the first round of combat, the target takes an extra 2d6 damage from the attack."},
-        {"name": "Morningstar", "category": "action", "dice": "2d8+2", "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 2d8+2 piercing damage."},
-        {"name": "Javelin", "category": "action", "dice": "1d6+2", "description": "Melee or Ranged Weapon Attack: +4 to hit, reach 5 ft. or range 30/120 ft., one target. Hit: 1d6+2 (melee) or 1d6+2 (ranged) piercing damage."}
+        {
+          "name": "Brute",
+          "category": "trait",
+          "description": "A melee weapon deals one extra die of its damage when the bugbear hits with it (included in the attacks below)."
+        },
+        {
+          "name": "Surprise Attack",
+          "category": "trait",
+          "dice": "2d6",
+          "description": "If the bugbear surprises a creature and hits it with an attack during the first round of combat, the target takes an extra 2d6 damage from the attack."
+        },
+        {
+          "name": "Morningstar",
+          "category": "action",
+          "dice": "2d8+2",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 2d8+2 piercing damage."
+        },
+        {
+          "name": "Javelin",
+          "category": "action",
+          "dice": "1d6+2",
+          "description": "Melee or Ranged Weapon Attack: +4 to hit, reach 5 ft. or range 30/120 ft., one target. Hit: 1d6+2 (melee) or 1d6+2 (ranged) piercing damage."
+        }
       ]
     },
     {
-      "slug": "dire-wolf", "name": "Dire Wolf", "kind": "monster", "avatar": "🐺",
-      "cr": 1, "armor_class": 14, "max_hp": 37, "speed": 50,
-      "strength": 17, "dexterity": 15, "constitution": 15, "intelligence": 3, "wisdom": 12, "charisma": 7,
-      "alignment": "", "disposition": "hostile", "languages": "—",
+      "slug": "dire-wolf",
+      "name": "Dire Wolf",
+      "kind": "monster",
+      "avatar": "🐺",
+      "cr": 1,
+      "armor_class": 14,
+      "max_hp": 37,
+      "speed": 50,
+      "strength": 17,
+      "dexterity": 15,
+      "constitution": 15,
+      "intelligence": 3,
+      "wisdom": 12,
+      "charisma": 7,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
       "notes": "Large beast.",
       "actions": [
-        {"name": "Keen Hearing and Smell", "category": "trait", "description": "Advantage on Wisdom (Perception) checks that rely on hearing or smell."},
-        {"name": "Pack Tactics", "category": "trait", "description": "Advantage on an attack roll against a creature if at least one of the wolf's allies is within 5 ft. of it and isn't incapacitated."},
-        {"name": "Bite", "category": "action", "dice": "2d6+3", "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 2d6+3 piercing damage. If the target is a creature, it must succeed on a DC 13 Strength save or be knocked prone."}
+        {
+          "name": "Keen Hearing and Smell",
+          "category": "trait",
+          "description": "Advantage on Wisdom (Perception) checks that rely on hearing or smell."
+        },
+        {
+          "name": "Pack Tactics",
+          "category": "trait",
+          "description": "Advantage on an attack roll against a creature if at least one of the wolf's allies is within 5 ft. of it and isn't incapacitated."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "dice": "2d6+3",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 2d6+3 piercing damage. If the target is a creature, it must succeed on a DC 13 Strength save or be knocked prone."
+        }
       ]
     },
     {
-      "slug": "giant-spider", "name": "Giant Spider", "kind": "monster", "avatar": "🕷️",
-      "cr": 1, "armor_class": 14, "max_hp": 26, "speed": 30,
-      "strength": 14, "dexterity": 16, "constitution": 12, "intelligence": 2, "wisdom": 11, "charisma": 4,
-      "alignment": "", "disposition": "hostile", "languages": "—",
+      "slug": "giant-spider",
+      "name": "Giant Spider",
+      "kind": "monster",
+      "avatar": "🕷️",
+      "cr": 1,
+      "armor_class": 14,
+      "max_hp": 26,
+      "speed": 30,
+      "strength": 14,
+      "dexterity": 16,
+      "constitution": 12,
+      "intelligence": 2,
+      "wisdom": 11,
+      "charisma": 4,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
       "notes": "Large beast. Climb 30 ft. Blindsight 10 ft., darkvision 60 ft. Spider Climb; Web Walker (ignores movement restrictions from webbing).",
       "actions": [
-        {"name": "Web Sense", "category": "trait", "description": "While in contact with a web, the spider knows the exact location of any other creature in contact with the same web."},
-        {"name": "Bite", "category": "action", "dice": "1d8+3", "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one creature. Hit: 1d8+3 piercing damage, and the target must make a DC 11 Constitution save, taking 2d8 poison damage on a failure, or half as much on a success. If poison damage reduces it to 0 HP, the target is stable but poisoned for 1 hour, even after regaining HP, and paralyzed while poisoned this way."},
-        {"name": "Web (Recharge 5-6)", "category": "action", "description": "Ranged Weapon Attack: +5 to hit, range 30/60 ft., one creature. Hit: the target is restrained by webbing. As an action, the restrained target can make a DC 12 Strength check, bursting the webbing on a success. (AC 10; 5 HP; vulnerable to fire; immune to bludgeoning, poison, psychic.)"}
+        {
+          "name": "Web Sense",
+          "category": "trait",
+          "description": "While in contact with a web, the spider knows the exact location of any other creature in contact with the same web."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "dice": "1d8+3",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one creature. Hit: 1d8+3 piercing damage, and the target must make a DC 11 Constitution save, taking 2d8 poison damage on a failure, or half as much on a success. If poison damage reduces it to 0 HP, the target is stable but poisoned for 1 hour, even after regaining HP, and paralyzed while poisoned this way."
+        },
+        {
+          "name": "Web (Recharge 5-6)",
+          "category": "action",
+          "description": "Ranged Weapon Attack: +5 to hit, range 30/60 ft., one creature. Hit: the target is restrained by webbing. As an action, the restrained target can make a DC 12 Strength check, bursting the webbing on a success. (AC 10; 5 HP; vulnerable to fire; immune to bludgeoning, poison, psychic.)"
+        }
       ]
     },
     {
-      "slug": "brown-bear", "name": "Brown Bear", "kind": "monster", "avatar": "🐻",
-      "cr": 1, "armor_class": 11, "max_hp": 34, "speed": 40,
-      "strength": 19, "dexterity": 10, "constitution": 16, "intelligence": 2, "wisdom": 13, "charisma": 7,
-      "alignment": "", "disposition": "neutral", "languages": "—",
+      "slug": "brown-bear",
+      "name": "Brown Bear",
+      "kind": "monster",
+      "avatar": "🐻",
+      "cr": 1,
+      "armor_class": 11,
+      "max_hp": 34,
+      "speed": 40,
+      "strength": 19,
+      "dexterity": 10,
+      "constitution": 16,
+      "intelligence": 2,
+      "wisdom": 13,
+      "charisma": 7,
+      "alignment": "",
+      "disposition": "neutral",
+      "languages": "—",
       "notes": "Large beast. Climb 30 ft.",
       "actions": [
-        {"name": "Keen Smell", "category": "trait", "description": "Advantage on Wisdom (Perception) checks that rely on smell."},
-        {"name": "Multiattack", "category": "action", "description": "The bear makes two attacks: one with its bite and one with its claws."},
-        {"name": "Bite", "category": "action", "dice": "1d8+4", "description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 1d8+4 piercing damage."},
-        {"name": "Claws", "category": "action", "dice": "2d6+4", "description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 2d6+4 slashing damage."}
+        {
+          "name": "Keen Smell",
+          "category": "trait",
+          "description": "Advantage on Wisdom (Perception) checks that rely on smell."
+        },
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The bear makes two attacks: one with its bite and one with its claws."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "dice": "1d8+4",
+          "description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 1d8+4 piercing damage."
+        },
+        {
+          "name": "Claws",
+          "category": "action",
+          "dice": "2d6+4",
+          "description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 2d6+4 slashing damage."
+        }
       ]
     },
     {
-      "slug": "ghoul", "name": "Ghoul", "kind": "monster", "avatar": "🧟",
-      "cr": 1, "armor_class": 12, "max_hp": 22, "speed": 30,
-      "strength": 13, "dexterity": 15, "constitution": 10, "intelligence": 7, "wisdom": 10, "charisma": 6,
-      "alignment": "CE", "disposition": "hostile", "languages": "Common",
+      "slug": "ghoul",
+      "name": "Ghoul",
+      "kind": "monster",
+      "avatar": "🧟",
+      "cr": 1,
+      "armor_class": 12,
+      "max_hp": 22,
+      "speed": 30,
+      "strength": 13,
+      "dexterity": 15,
+      "constitution": 10,
+      "intelligence": 7,
+      "wisdom": 10,
+      "charisma": 6,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Common",
       "immunities": "poison",
       "notes": "Medium undead. Darkvision 60 ft. Condition immunities: charmed, exhaustion, poisoned.",
       "actions": [
-        {"name": "Bite", "category": "action", "dice": "2d6+2", "description": "Melee Weapon Attack: +2 to hit, reach 5 ft., one creature. Hit: 2d6+2 piercing damage."},
-        {"name": "Claws", "category": "action", "dice": "2d4+2", "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 2d4+2 slashing damage. If the target is a creature other than an elf or undead, it must succeed on a DC 10 Constitution save or be paralyzed for 1 minute (repeat the save at the end of each of its turns)."}
+        {
+          "name": "Bite",
+          "category": "action",
+          "dice": "2d6+2",
+          "description": "Melee Weapon Attack: +2 to hit, reach 5 ft., one creature. Hit: 2d6+2 piercing damage."
+        },
+        {
+          "name": "Claws",
+          "category": "action",
+          "dice": "2d4+2",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 2d4+2 slashing damage. If the target is a creature other than an elf or undead, it must succeed on a DC 10 Constitution save or be paralyzed for 1 minute (repeat the save at the end of each of its turns)."
+        }
       ]
     },
     {
-      "slug": "lion", "name": "Lion", "kind": "monster", "avatar": "🦁",
-      "cr": 1, "armor_class": 12, "max_hp": 26, "speed": 50,
-      "strength": 17, "dexterity": 15, "constitution": 13, "intelligence": 3, "wisdom": 12, "charisma": 8,
-      "alignment": "", "disposition": "hostile", "languages": "—",
+      "slug": "lion",
+      "name": "Lion",
+      "kind": "monster",
+      "avatar": "🦁",
+      "cr": 1,
+      "armor_class": 12,
+      "max_hp": 26,
+      "speed": 50,
+      "strength": 17,
+      "dexterity": 15,
+      "constitution": 13,
+      "intelligence": 3,
+      "wisdom": 12,
+      "charisma": 8,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
       "notes": "Large beast.",
       "actions": [
-        {"name": "Pack Tactics", "category": "trait", "description": "Advantage on an attack roll against a creature if at least one of the lion's allies is within 5 ft. of it and isn't incapacitated."},
-        {"name": "Pounce", "category": "trait", "description": "If the lion moves at least 20 ft. straight toward a creature and then hits it with a claw attack on the same turn, the target must succeed on a DC 13 Strength save or be knocked prone. If prone, the lion can make one bite attack against it as a bonus action."},
-        {"name": "Bite", "category": "action", "dice": "1d8+3", "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d8+3 piercing damage."},
-        {"name": "Claw", "category": "action", "dice": "1d6+3", "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d6+3 slashing damage."}
+        {
+          "name": "Pack Tactics",
+          "category": "trait",
+          "description": "Advantage on an attack roll against a creature if at least one of the lion's allies is within 5 ft. of it and isn't incapacitated."
+        },
+        {
+          "name": "Pounce",
+          "category": "trait",
+          "description": "If the lion moves at least 20 ft. straight toward a creature and then hits it with a claw attack on the same turn, the target must succeed on a DC 13 Strength save or be knocked prone. If prone, the lion can make one bite attack against it as a bonus action."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "dice": "1d8+3",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d8+3 piercing damage."
+        },
+        {
+          "name": "Claw",
+          "category": "action",
+          "dice": "1d6+3",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d6+3 slashing damage."
+        }
       ]
     },
     {
-      "slug": "bandit-captain", "name": "Bandit Captain", "kind": "monster", "avatar": "🏴‍☠️",
-      "cr": 2, "armor_class": 15, "max_hp": 65, "speed": 30,
-      "strength": 15, "dexterity": 16, "constitution": 14, "intelligence": 14, "wisdom": 11, "charisma": 14,
-      "alignment": "NE", "disposition": "hostile", "languages": "any two languages",
+      "slug": "bandit-captain",
+      "name": "Bandit Captain",
+      "kind": "monster",
+      "avatar": "🏴‍☠️",
+      "cr": 2,
+      "armor_class": 15,
+      "max_hp": 65,
+      "speed": 30,
+      "strength": 15,
+      "dexterity": 16,
+      "constitution": 14,
+      "intelligence": 14,
+      "wisdom": 11,
+      "charisma": 14,
+      "alignment": "NE",
+      "disposition": "hostile",
+      "languages": "any two languages",
       "notes": "Medium humanoid. A cunning leader of brigands or pirates. Studded leather.",
       "actions": [
-        {"name": "Multiattack", "category": "action", "description": "The captain makes three melee attacks: two with its scimitar and one with its dagger. Or it makes two ranged attacks with its daggers."},
-        {"name": "Scimitar", "category": "action", "dice": "1d6+3", "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d6+3 slashing damage."},
-        {"name": "Dagger", "category": "action", "dice": "1d4+3", "description": "Melee or Ranged Weapon Attack: +5 to hit, reach 5 ft. or range 20/60 ft., one target. Hit: 1d4+3 piercing damage."},
-        {"name": "Parry", "category": "reaction", "description": "The captain adds 2 to its AC against one melee attack that would hit it. To do so, it must see the attacker and be wielding a melee weapon."}
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The captain makes three melee attacks: two with its scimitar and one with its dagger. Or it makes two ranged attacks with its daggers."
+        },
+        {
+          "name": "Scimitar",
+          "category": "action",
+          "dice": "1d6+3",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d6+3 slashing damage."
+        },
+        {
+          "name": "Dagger",
+          "category": "action",
+          "dice": "1d4+3",
+          "description": "Melee or Ranged Weapon Attack: +5 to hit, reach 5 ft. or range 20/60 ft., one target. Hit: 1d4+3 piercing damage."
+        },
+        {
+          "name": "Parry",
+          "category": "reaction",
+          "description": "The captain adds 2 to its AC against one melee attack that would hit it. To do so, it must see the attacker and be wielding a melee weapon."
+        }
       ]
     },
     {
-      "slug": "berserker", "name": "Berserker", "kind": "monster", "avatar": "🪓",
-      "cr": 2, "armor_class": 13, "max_hp": 67, "speed": 30,
-      "strength": 16, "dexterity": 12, "constitution": 17, "intelligence": 9, "wisdom": 11, "charisma": 9,
-      "alignment": "CN", "disposition": "hostile", "languages": "any one language (usually Common)",
+      "slug": "berserker",
+      "name": "Berserker",
+      "kind": "monster",
+      "avatar": "🪓",
+      "cr": 2,
+      "armor_class": 13,
+      "max_hp": 67,
+      "speed": 30,
+      "strength": 16,
+      "dexterity": 12,
+      "constitution": 17,
+      "intelligence": 9,
+      "wisdom": 11,
+      "charisma": 9,
+      "alignment": "CN",
+      "disposition": "hostile",
+      "languages": "any one language (usually Common)",
       "notes": "Medium humanoid. A frenzied warrior of a violent tribe or war band.",
       "actions": [
-        {"name": "Reckless", "category": "trait", "description": "At the start of its turn, the berserker can gain advantage on all melee weapon attack rolls during that turn, but attacks against it have advantage until the start of its next turn."},
-        {"name": "Greataxe", "category": "action", "dice": "1d12+3", "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d12+3 slashing damage."}
+        {
+          "name": "Reckless",
+          "category": "trait",
+          "description": "At the start of its turn, the berserker can gain advantage on all melee weapon attack rolls during that turn, but attacks against it have advantage until the start of its next turn."
+        },
+        {
+          "name": "Greataxe",
+          "category": "action",
+          "dice": "1d12+3",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d12+3 slashing damage."
+        }
       ]
     },
     {
-      "slug": "ogre", "name": "Ogre", "kind": "monster", "avatar": "👹",
-      "cr": 2, "armor_class": 11, "max_hp": 59, "speed": 40,
-      "strength": 19, "dexterity": 8, "constitution": 16, "intelligence": 5, "wisdom": 7, "charisma": 7,
-      "alignment": "CE", "disposition": "hostile", "languages": "Common, Giant",
+      "slug": "ogre",
+      "name": "Ogre",
+      "kind": "monster",
+      "avatar": "👹",
+      "cr": 2,
+      "armor_class": 11,
+      "max_hp": 59,
+      "speed": 40,
+      "strength": 19,
+      "dexterity": 8,
+      "constitution": 16,
+      "intelligence": 5,
+      "wisdom": 7,
+      "charisma": 7,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Common, Giant",
       "notes": "Large giant. Darkvision 60 ft. Hide armor.",
       "actions": [
-        {"name": "Greatclub", "category": "action", "dice": "2d8+4", "description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 2d8+4 bludgeoning damage."},
-        {"name": "Javelin", "category": "action", "dice": "2d6+4", "description": "Melee or Ranged Weapon Attack: +6 to hit, reach 5 ft. or range 30/120 ft., one target. Hit: 2d6+4 piercing damage."}
+        {
+          "name": "Greatclub",
+          "category": "action",
+          "dice": "2d8+4",
+          "description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 2d8+4 bludgeoning damage."
+        },
+        {
+          "name": "Javelin",
+          "category": "action",
+          "dice": "2d6+4",
+          "description": "Melee or Ranged Weapon Attack: +6 to hit, reach 5 ft. or range 30/120 ft., one target. Hit: 2d6+4 piercing damage."
+        }
       ]
     },
     {
-      "slug": "mimic", "name": "Mimic", "kind": "monster", "avatar": "📦",
-      "cr": 2, "armor_class": 12, "max_hp": 58, "speed": 15,
-      "strength": 17, "dexterity": 12, "constitution": 15, "intelligence": 5, "wisdom": 13, "charisma": 8,
-      "alignment": "", "disposition": "hostile", "languages": "—",
+      "slug": "mimic",
+      "name": "Mimic",
+      "kind": "monster",
+      "avatar": "📦",
+      "cr": 2,
+      "armor_class": 12,
+      "max_hp": 58,
+      "speed": 15,
+      "strength": 17,
+      "dexterity": 12,
+      "constitution": 15,
+      "intelligence": 5,
+      "wisdom": 13,
+      "charisma": 8,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
       "immunities": "acid",
       "notes": "Medium monstrosity (shapechanger). Darkvision 60 ft. Condition immunities: prone. Shapechanger (can disguise as an object). Adhesive (a creature hitting it with a melee attack while it's an object is grappled, DC 13). False Appearance.",
       "actions": [
-        {"name": "Pseudopod", "category": "action", "dice": "1d8+3", "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d8+3 bludgeoning damage. If the mimic is in object form, the target is subjected to its Adhesive trait."},
-        {"name": "Bite", "category": "action", "dice": "1d8+3", "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d8+3 piercing damage plus 1d8 acid damage."}
+        {
+          "name": "Pseudopod",
+          "category": "action",
+          "dice": "1d8+3",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d8+3 bludgeoning damage. If the mimic is in object form, the target is subjected to its Adhesive trait."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "dice": "1d8+3",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d8+3 piercing damage plus 1d8 acid damage."
+        }
       ]
     },
     {
-      "slug": "white-dragon-wyrmling", "name": "White Dragon Wyrmling", "kind": "monster", "avatar": "🐉",
-      "cr": 2, "armor_class": 16, "max_hp": 32, "speed": 30,
-      "strength": 14, "dexterity": 10, "constitution": 14, "intelligence": 5, "wisdom": 10, "charisma": 11,
-      "alignment": "CE", "disposition": "hostile", "languages": "Draconic",
+      "slug": "white-dragon-wyrmling",
+      "name": "White Dragon Wyrmling",
+      "kind": "monster",
+      "avatar": "🐉",
+      "cr": 2,
+      "armor_class": 16,
+      "max_hp": 32,
+      "speed": 30,
+      "strength": 14,
+      "dexterity": 10,
+      "constitution": 14,
+      "intelligence": 5,
+      "wisdom": 10,
+      "charisma": 11,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Draconic",
       "immunities": "cold",
       "notes": "Medium dragon. Blindsight 10 ft., darkvision 60 ft. Fly 60 ft., swim 30 ft., burrow 15 ft.",
       "actions": [
-        {"name": "Bite", "category": "action", "dice": "1d6+2", "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d6+2 piercing damage plus 1d4 cold damage."},
-        {"name": "Cold Breath (Recharge 5-6)", "category": "action", "dice": "5d8", "description": "The dragon exhales an icy blast in a 15-foot cone. Each creature in that area must make a DC 12 Constitution save, taking 5d8 cold damage on a failure, or half as much on a success."}
+        {
+          "name": "Bite",
+          "category": "action",
+          "dice": "1d6+2",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d6+2 piercing damage plus 1d4 cold damage."
+        },
+        {
+          "name": "Cold Breath (Recharge 5-6)",
+          "category": "action",
+          "dice": "5d8",
+          "description": "The dragon exhales an icy blast in a 15-foot cone. Each creature in that area must make a DC 12 Constitution save, taking 5d8 cold damage on a failure, or half as much on a success."
+        }
       ]
     },
     {
-      "slug": "specter", "name": "Specter", "kind": "monster", "avatar": "👻",
-      "cr": 1, "armor_class": 12, "max_hp": 22, "speed": 50,
-      "strength": 1, "dexterity": 14, "constitution": 11, "intelligence": 10, "wisdom": 10, "charisma": 11,
-      "alignment": "CE", "disposition": "hostile", "languages": "understands the languages it knew in life but can't speak",
+      "slug": "specter",
+      "name": "Specter",
+      "kind": "monster",
+      "avatar": "👻",
+      "cr": 1,
+      "armor_class": 12,
+      "max_hp": 22,
+      "speed": 50,
+      "strength": 1,
+      "dexterity": 14,
+      "constitution": 11,
+      "intelligence": 10,
+      "wisdom": 10,
+      "charisma": 11,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "understands the languages it knew in life but can't speak",
       "resistances": "acid, cold, fire, lightning, thunder; bludgeoning, piercing, and slashing from nonmagical attacks",
       "immunities": "necrotic, poison",
       "notes": "Medium undead. Darkvision 60 ft. Fly 50 ft. (hover); listed speed is its flying speed. Incorporeal Movement (can move through creatures/objects as difficult terrain). Sunlight Sensitivity. Condition immunities: charmed, exhaustion, grappled, paralyzed, petrified, poisoned, prone, restrained, unconscious.",
       "actions": [
-        {"name": "Life Drain", "category": "action", "dice": "3d6", "description": "Melee Spell Attack: +4 to hit, reach 5 ft., one creature. Hit: 3d6 necrotic damage. The target must succeed on a DC 10 Constitution save or its hit point maximum is reduced by an amount equal to the damage taken until it finishes a long rest. The target dies if this reduces its maximum to 0."}
+        {
+          "name": "Life Drain",
+          "category": "action",
+          "dice": "3d6",
+          "description": "Melee Spell Attack: +4 to hit, reach 5 ft., one creature. Hit: 3d6 necrotic damage. The target must succeed on a DC 10 Constitution save or its hit point maximum is reduced by an amount equal to the damage taken until it finishes a long rest. The target dies if this reduces its maximum to 0."
+        }
       ]
     },
     {
-      "slug": "owlbear", "name": "Owlbear", "kind": "monster", "avatar": "🦉",
-      "cr": 3, "armor_class": 13, "max_hp": 59, "speed": 40,
-      "strength": 20, "dexterity": 12, "constitution": 17, "intelligence": 3, "wisdom": 12, "charisma": 7,
-      "alignment": "", "disposition": "hostile", "languages": "—",
+      "slug": "owlbear",
+      "name": "Owlbear",
+      "kind": "monster",
+      "avatar": "🦉",
+      "cr": 3,
+      "armor_class": 13,
+      "max_hp": 59,
+      "speed": 40,
+      "strength": 20,
+      "dexterity": 12,
+      "constitution": 17,
+      "intelligence": 3,
+      "wisdom": 12,
+      "charisma": 7,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
       "notes": "Large monstrosity. Darkvision 60 ft.",
       "actions": [
-        {"name": "Keen Sight and Smell", "category": "trait", "description": "Advantage on Wisdom (Perception) checks that rely on sight or smell."},
-        {"name": "Multiattack", "category": "action", "description": "The owlbear makes two attacks: one with its beak and one with its claws."},
-        {"name": "Beak", "category": "action", "dice": "1d10+5", "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one creature. Hit: 1d10+5 piercing damage."},
-        {"name": "Claws", "category": "action", "dice": "2d8+5", "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 2d8+5 slashing damage."}
+        {
+          "name": "Keen Sight and Smell",
+          "category": "trait",
+          "description": "Advantage on Wisdom (Perception) checks that rely on sight or smell."
+        },
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The owlbear makes two attacks: one with its beak and one with its claws."
+        },
+        {
+          "name": "Beak",
+          "category": "action",
+          "dice": "1d10+5",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one creature. Hit: 1d10+5 piercing damage."
+        },
+        {
+          "name": "Claws",
+          "category": "action",
+          "dice": "2d8+5",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 2d8+5 slashing damage."
+        }
       ]
     },
     {
-      "slug": "wight", "name": "Wight", "kind": "monster", "avatar": "👻",
-      "cr": 3, "armor_class": 14, "max_hp": 45, "speed": 30,
-      "strength": 15, "dexterity": 14, "constitution": 16, "intelligence": 10, "wisdom": 13, "charisma": 15,
-      "alignment": "NE", "disposition": "hostile", "languages": "the languages it knew in life",
+      "slug": "wight",
+      "name": "Wight",
+      "kind": "monster",
+      "avatar": "👻",
+      "cr": 3,
+      "armor_class": 14,
+      "max_hp": 45,
+      "speed": 30,
+      "strength": 15,
+      "dexterity": 14,
+      "constitution": 16,
+      "intelligence": 10,
+      "wisdom": 13,
+      "charisma": 15,
+      "alignment": "NE",
+      "disposition": "hostile",
+      "languages": "the languages it knew in life",
       "resistances": "necrotic; bludgeoning, piercing, and slashing from nonmagical attacks that aren't silvered",
       "immunities": "poison",
       "notes": "Medium undead. Darkvision 60 ft. Condition immunities: exhaustion, poisoned. Sunlight Sensitivity.",
       "actions": [
-        {"name": "Multiattack", "category": "action", "description": "The wight makes two longsword attacks or two longbow attacks. It can use its Life Drain in place of one longsword attack."},
-        {"name": "Life Drain", "category": "action", "dice": "1d6+2", "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 1d6+2 necrotic damage. The target must succeed on a DC 13 Constitution save or its hit point maximum is reduced by an amount equal to the damage taken until it finishes a long rest. A humanoid slain this way rises as a zombie at the next midnight under the wight's control."},
-        {"name": "Longsword", "category": "action", "dice": "1d8+2", "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d8+2 slashing damage, or 1d10+2 if used with two hands."},
-        {"name": "Longbow", "category": "action", "dice": "1d8+2", "description": "Ranged Weapon Attack: +4 to hit, range 150/600 ft., one target. Hit: 1d8+2 piercing damage."}
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The wight makes two longsword attacks or two longbow attacks. It can use its Life Drain in place of one longsword attack."
+        },
+        {
+          "name": "Life Drain",
+          "category": "action",
+          "dice": "1d6+2",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 1d6+2 necrotic damage. The target must succeed on a DC 13 Constitution save or its hit point maximum is reduced by an amount equal to the damage taken until it finishes a long rest. A humanoid slain this way rises as a zombie at the next midnight under the wight's control."
+        },
+        {
+          "name": "Longsword",
+          "category": "action",
+          "dice": "1d8+2",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d8+2 slashing damage, or 1d10+2 if used with two hands."
+        },
+        {
+          "name": "Longbow",
+          "category": "action",
+          "dice": "1d8+2",
+          "description": "Ranged Weapon Attack: +4 to hit, range 150/600 ft., one target. Hit: 1d8+2 piercing damage."
+        }
       ]
     },
     {
-      "slug": "knight", "name": "Knight", "kind": "monster", "avatar": "🛡️",
-      "cr": 3, "armor_class": 18, "max_hp": 52, "speed": 30,
-      "strength": 16, "dexterity": 11, "constitution": 14, "intelligence": 11, "wisdom": 11, "charisma": 15,
-      "alignment": "LN", "disposition": "neutral", "languages": "any one language (usually Common)",
+      "slug": "knight",
+      "name": "Knight",
+      "kind": "monster",
+      "avatar": "🛡️",
+      "cr": 3,
+      "armor_class": 18,
+      "max_hp": 52,
+      "speed": 30,
+      "strength": 16,
+      "dexterity": 11,
+      "constitution": 14,
+      "intelligence": 11,
+      "wisdom": 11,
+      "charisma": 15,
+      "alignment": "LN",
+      "disposition": "neutral",
+      "languages": "any one language (usually Common)",
       "notes": "Medium humanoid. Plate armor. A trained warrior, captain, or sworn protector.",
       "actions": [
-        {"name": "Brave", "category": "trait", "description": "Advantage on saving throws against being frightened."},
-        {"name": "Multiattack", "category": "action", "description": "The knight makes two melee attacks."},
-        {"name": "Greatsword", "category": "action", "dice": "2d6+3", "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 2d6+3 slashing damage."},
-        {"name": "Heavy Crossbow", "category": "action", "dice": "1d10", "description": "Ranged Weapon Attack: +2 to hit, range 100/400 ft., one target. Hit: 1d10 piercing damage."},
-        {"name": "Leadership (Recharge after a Short or Long Rest)", "category": "bonus", "description": "For 1 minute, the knight can utter a special command whenever a nonhostile creature it can see within 30 ft. makes an attack roll or save. That creature adds a d4 to its roll, provided it can hear and understand the knight."},
-        {"name": "Parry", "category": "reaction", "description": "The knight adds 2 to its AC against one melee attack that would hit it. To do so, it must see the attacker and be wielding a melee weapon."}
+        {
+          "name": "Brave",
+          "category": "trait",
+          "description": "Advantage on saving throws against being frightened."
+        },
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The knight makes two melee attacks."
+        },
+        {
+          "name": "Greatsword",
+          "category": "action",
+          "dice": "2d6+3",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 2d6+3 slashing damage."
+        },
+        {
+          "name": "Heavy Crossbow",
+          "category": "action",
+          "dice": "1d10",
+          "description": "Ranged Weapon Attack: +2 to hit, range 100/400 ft., one target. Hit: 1d10 piercing damage."
+        },
+        {
+          "name": "Leadership (Recharge after a Short or Long Rest)",
+          "category": "bonus",
+          "description": "For 1 minute, the knight can utter a special command whenever a nonhostile creature it can see within 30 ft. makes an attack roll or save. That creature adds a d4 to its roll, provided it can hear and understand the knight."
+        },
+        {
+          "name": "Parry",
+          "category": "reaction",
+          "description": "The knight adds 2 to its AC against one melee attack that would hit it. To do so, it must see the attacker and be wielding a melee weapon."
+        }
       ]
     },
     {
-      "slug": "troll", "name": "Troll", "kind": "monster", "avatar": "🧌",
-      "cr": 5, "armor_class": 15, "max_hp": 84, "speed": 30,
-      "strength": 18, "dexterity": 13, "constitution": 20, "intelligence": 7, "wisdom": 9, "charisma": 7,
-      "alignment": "CE", "disposition": "hostile", "languages": "Giant",
+      "slug": "troll",
+      "name": "Troll",
+      "kind": "monster",
+      "avatar": "🧌",
+      "cr": 5,
+      "armor_class": 15,
+      "max_hp": 84,
+      "speed": 30,
+      "strength": 18,
+      "dexterity": 13,
+      "constitution": 20,
+      "intelligence": 7,
+      "wisdom": 9,
+      "charisma": 7,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Giant",
       "notes": "Large giant. Darkvision 60 ft. Regeneration 10 (regains 10 HP at the start of its turn; if it took acid or fire damage this trait doesn't function at the start of its next turn; dies only if it starts its turn with 0 HP and doesn't regenerate). Keen Smell.",
       "actions": [
-        {"name": "Multiattack", "category": "action", "description": "The troll makes three attacks: one with its bite and two with its claws."},
-        {"name": "Bite", "category": "action", "dice": "1d6+4", "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 1d6+4 piercing damage."},
-        {"name": "Claw", "category": "action", "dice": "2d6+4", "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 2d6+4 slashing damage."}
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The troll makes three attacks: one with its bite and two with its claws."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "dice": "1d6+4",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 1d6+4 piercing damage."
+        },
+        {
+          "name": "Claw",
+          "category": "action",
+          "dice": "2d6+4",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 2d6+4 slashing damage."
+        }
       ]
     },
     {
-      "slug": "wraith", "name": "Wraith", "kind": "monster", "avatar": "👻",
-      "cr": 5, "armor_class": 13, "max_hp": 67, "speed": 60,
-      "strength": 6, "dexterity": 16, "constitution": 16, "intelligence": 12, "wisdom": 14, "charisma": 15,
-      "alignment": "NE", "disposition": "hostile", "languages": "the languages it knew in life",
+      "slug": "wraith",
+      "name": "Wraith",
+      "kind": "monster",
+      "avatar": "👻",
+      "cr": 5,
+      "armor_class": 13,
+      "max_hp": 67,
+      "speed": 60,
+      "strength": 6,
+      "dexterity": 16,
+      "constitution": 16,
+      "intelligence": 12,
+      "wisdom": 14,
+      "charisma": 15,
+      "alignment": "NE",
+      "disposition": "hostile",
+      "languages": "the languages it knew in life",
       "resistances": "acid, cold, fire, lightning, thunder; bludgeoning, piercing, and slashing from nonmagical attacks that aren't silvered",
       "immunities": "necrotic, poison",
       "notes": "Medium undead. Darkvision 60 ft. Fly 60 ft. (hover); listed speed is its flying speed. Incorporeal Movement. Sunlight Sensitivity. Condition immunities: charmed, exhaustion, grappled, paralyzed, petrified, poisoned, prone, restrained.",
       "actions": [
-        {"name": "Life Drain", "category": "action", "dice": "4d8+3", "description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one creature. Hit: 4d8+3 necrotic damage. The target must succeed on a DC 14 Constitution save or its hit point maximum is reduced by an amount equal to the damage taken until it finishes a long rest. The target dies if this reduces its maximum to 0."},
-        {"name": "Create Specter", "category": "action", "description": "The wraith targets a humanoid within 10 ft. that has been dead for no longer than 1 minute and died violently. The target's spirit rises as a specter under the wraith's control (up to seven at a time)."}
+        {
+          "name": "Life Drain",
+          "category": "action",
+          "dice": "4d8+3",
+          "description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one creature. Hit: 4d8+3 necrotic damage. The target must succeed on a DC 14 Constitution save or its hit point maximum is reduced by an amount equal to the damage taken until it finishes a long rest. The target dies if this reduces its maximum to 0."
+        },
+        {
+          "name": "Create Specter",
+          "category": "action",
+          "description": "The wraith targets a humanoid within 10 ft. that has been dead for no longer than 1 minute and died violently. The target's spirit rises as a specter under the wraith's control (up to seven at a time)."
+        }
       ]
+    },
+    {
+      "slug": "stirge",
+      "name": "Stirge",
+      "avatar": "🦟",
+      "cr": 0.125,
+      "armor_class": 14,
+      "max_hp": 2,
+      "speed": 10,
+      "strength": 4,
+      "dexterity": 16,
+      "constitution": 11,
+      "intelligence": 2,
+      "wisdom": 8,
+      "charisma": 6,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "notes": "Tiny beast. Fly 40 ft. Darkvision 60 ft.",
+      "actions": [
+        {
+          "name": "Blood Drain",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one creature. Hit: 1d4+3 piercing damage, and the stirge attaches to the target. While attached it doesn't attack; instead, at the start of each of its turns the target loses 1d4+3 hit points due to blood loss.",
+          "dice": "1d4+3"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "acolyte",
+      "name": "Acolyte",
+      "avatar": "⛪",
+      "cr": 0.25,
+      "armor_class": 10,
+      "max_hp": 9,
+      "speed": 30,
+      "strength": 10,
+      "dexterity": 10,
+      "constitution": 10,
+      "intelligence": 10,
+      "wisdom": 14,
+      "charisma": 11,
+      "alignment": "",
+      "disposition": "neutral",
+      "languages": "any one language (usually Common)",
+      "notes": "Medium humanoid. A junior priest. Spell save DC 12, +4 to hit with spell attacks.",
+      "actions": [
+        {
+          "name": "Spellcasting",
+          "category": "trait",
+          "description": "1st-level cleric. Cantrips (at will): light, sacred flame, thaumaturgy. 1st level (3 slots): bless, cure wounds, sanctuary."
+        },
+        {
+          "name": "Club",
+          "category": "action",
+          "description": "Melee Weapon Attack: +2 to hit, reach 5 ft., one target. Hit: 1d4 bludgeoning damage.",
+          "dice": "1d4"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "crocodile",
+      "name": "Crocodile",
+      "avatar": "🐊",
+      "cr": 0.5,
+      "armor_class": 12,
+      "max_hp": 19,
+      "speed": 20,
+      "strength": 15,
+      "dexterity": 10,
+      "constitution": 13,
+      "intelligence": 2,
+      "wisdom": 10,
+      "charisma": 5,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "notes": "Large beast. Swim 30 ft. Hold Breath (15 min).",
+      "actions": [
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 1d10+2 piercing damage, and the target is grappled (escape DC 12). Until this grapple ends, the target is restrained and the crocodile can't bite another target.",
+          "dice": "1d10+2"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "scout",
+      "name": "Scout",
+      "avatar": "🏹",
+      "cr": 0.5,
+      "armor_class": 13,
+      "max_hp": 16,
+      "speed": 30,
+      "strength": 11,
+      "dexterity": 14,
+      "constitution": 12,
+      "intelligence": 11,
+      "wisdom": 13,
+      "charisma": 11,
+      "alignment": "",
+      "disposition": "neutral",
+      "languages": "any one language (usually Common)",
+      "notes": "Medium humanoid. A skilled tracker and hunter. Keen Hearing and Sight.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The scout makes two melee attacks or two ranged attacks."
+        },
+        {
+          "name": "Shortsword",
+          "category": "action",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d6+2 piercing damage.",
+          "dice": "1d6+2"
+        },
+        {
+          "name": "Longbow",
+          "category": "action",
+          "description": "Ranged Weapon Attack: +4 to hit, range 150/600 ft., one target. Hit: 1d8+2 piercing damage.",
+          "dice": "1d8+2"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "thug",
+      "name": "Thug",
+      "avatar": "🤜",
+      "cr": 0.5,
+      "armor_class": 11,
+      "max_hp": 32,
+      "speed": 30,
+      "strength": 15,
+      "dexterity": 11,
+      "constitution": 14,
+      "intelligence": 10,
+      "wisdom": 10,
+      "charisma": 11,
+      "alignment": "NE",
+      "disposition": "hostile",
+      "languages": "any one language (usually Common)",
+      "notes": "Medium humanoid. A ruthless enforcer. Pack Tactics.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The thug makes two melee attacks."
+        },
+        {
+          "name": "Mace",
+          "category": "action",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 1d6+2 bludgeoning damage.",
+          "dice": "1d6+2"
+        },
+        {
+          "name": "Heavy Crossbow",
+          "category": "action",
+          "description": "Ranged Weapon Attack: +2 to hit, range 100/400 ft., one target. Hit: 1d10 piercing damage.",
+          "dice": "1d10"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "sahuagin",
+      "name": "Sahuagin",
+      "avatar": "🐟",
+      "cr": 0.5,
+      "armor_class": 12,
+      "max_hp": 22,
+      "speed": 30,
+      "strength": 13,
+      "dexterity": 11,
+      "constitution": 12,
+      "intelligence": 12,
+      "wisdom": 13,
+      "charisma": 9,
+      "alignment": "LE",
+      "disposition": "hostile",
+      "languages": "Sahuagin",
+      "notes": "Medium humanoid. Swim 40 ft. Darkvision 120 ft. Blood Frenzy (advantage vs. creatures missing HP). Limited Amphibiousness.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The sahuagin makes two melee attacks: one with its bite and one with its claws or spear."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 1d4+1 piercing damage.",
+          "dice": "1d4+1"
+        },
+        {
+          "name": "Claws",
+          "category": "action",
+          "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 1d4+1 slashing damage.",
+          "dice": "1d4+1"
+        },
+        {
+          "name": "Spear",
+          "category": "action",
+          "description": "Melee or Ranged Weapon Attack: +3 to hit, reach 5 ft. or range 20/60 ft., one target. Hit: 1d6+1 piercing (melee, two hands 1d8+1).",
+          "dice": "1d6+1"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "animated-armor",
+      "name": "Animated Armor",
+      "avatar": "🥋",
+      "cr": 1,
+      "armor_class": 18,
+      "max_hp": 33,
+      "speed": 25,
+      "strength": 14,
+      "dexterity": 11,
+      "constitution": 13,
+      "intelligence": 1,
+      "wisdom": 3,
+      "charisma": 1,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "immunities": "poison, psychic",
+      "notes": "Medium construct. Blindsight 60 ft. (blind beyond). Condition immunities: blinded, charmed, deafened, exhaustion, frightened, paralyzed, petrified, poisoned. Antimagic Susceptibility. False Appearance (looks like an ordinary suit of armor).",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The armor makes two melee attacks."
+        },
+        {
+          "name": "Slam",
+          "category": "action",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d6+2 bludgeoning damage.",
+          "dice": "1d6+2"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "giant-eagle",
+      "name": "Giant Eagle",
+      "avatar": "🦅",
+      "cr": 1,
+      "armor_class": 13,
+      "max_hp": 26,
+      "speed": 10,
+      "strength": 16,
+      "dexterity": 17,
+      "constitution": 13,
+      "intelligence": 8,
+      "wisdom": 14,
+      "charisma": 10,
+      "alignment": "NG",
+      "disposition": "neutral",
+      "languages": "Giant Eagle, understands Common and Auran",
+      "notes": "Large beast. Fly 80 ft. Keen Sight.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The eagle makes two attacks: one with its beak and one with its talons."
+        },
+        {
+          "name": "Beak",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d6+3 piercing damage.",
+          "dice": "1d6+3"
+        },
+        {
+          "name": "Talons",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 2d6+3 slashing damage.",
+          "dice": "2d6+3"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "harpy",
+      "name": "Harpy",
+      "avatar": "🪶",
+      "cr": 1,
+      "armor_class": 11,
+      "max_hp": 38,
+      "speed": 20,
+      "strength": 12,
+      "dexterity": 13,
+      "constitution": 12,
+      "intelligence": 7,
+      "wisdom": 10,
+      "charisma": 13,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Common",
+      "notes": "Medium monstrosity. Fly 40 ft.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The harpy makes two attacks: one with its claws and one with its club."
+        },
+        {
+          "name": "Claws",
+          "category": "action",
+          "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 2d4+1 slashing damage.",
+          "dice": "2d4+1"
+        },
+        {
+          "name": "Club",
+          "category": "action",
+          "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 1d4+1 bludgeoning damage.",
+          "dice": "1d4+1"
+        },
+        {
+          "name": "Luring Song",
+          "category": "action",
+          "description": "The harpy sings a magical melody. Each humanoid and giant within 300 ft. that can hear it must succeed on a DC 11 Wisdom save or be charmed until the song ends, drawn toward the harpy (repeat the save at the end of each turn, and if it takes damage)."
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "imp",
+      "name": "Imp",
+      "avatar": "😈",
+      "cr": 1,
+      "armor_class": 13,
+      "max_hp": 10,
+      "speed": 20,
+      "strength": 6,
+      "dexterity": 17,
+      "constitution": 13,
+      "intelligence": 11,
+      "wisdom": 12,
+      "charisma": 14,
+      "alignment": "LE",
+      "disposition": "hostile",
+      "languages": "Infernal, Common",
+      "resistances": "cold; bludgeoning, piercing, and slashing from nonmagical attacks that aren't silvered",
+      "immunities": "fire, poison",
+      "notes": "Tiny fiend (devil, shapechanger). Fly 40 ft. Darkvision 120 ft. (sees in magical darkness). Condition immunities: poisoned. Shapechanger; Magic Resistance.",
+      "actions": [
+        {
+          "name": "Sting (Bite in Beast Form)",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d4+3 piercing damage, and the target must make a DC 11 Constitution save, taking 3d6 poison damage on a failure, or half as much on a success.",
+          "dice": "1d4+3"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "goblin-boss",
+      "name": "Goblin Boss",
+      "avatar": "👺",
+      "cr": 1,
+      "armor_class": 17,
+      "max_hp": 21,
+      "speed": 30,
+      "strength": 10,
+      "dexterity": 14,
+      "constitution": 10,
+      "intelligence": 10,
+      "wisdom": 8,
+      "charisma": 10,
+      "alignment": "NE",
+      "disposition": "hostile",
+      "languages": "Common, Goblin",
+      "notes": "Small humanoid. Darkvision 60 ft. Chain shirt + shield.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The goblin makes two attacks with its scimitar. The second has disadvantage."
+        },
+        {
+          "name": "Scimitar",
+          "category": "action",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d6+2 slashing damage.",
+          "dice": "1d6+2"
+        },
+        {
+          "name": "Nimble Escape",
+          "category": "bonus",
+          "description": "The goblin takes the Disengage or Hide action as a bonus action on each of its turns."
+        },
+        {
+          "name": "Redirect Attack",
+          "category": "reaction",
+          "description": "When a creature the boss can see targets it with an attack, the boss chooses another goblin within 5 ft.; the two swap places and that goblin becomes the target instead."
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "tiger",
+      "name": "Tiger",
+      "avatar": "🐅",
+      "cr": 1,
+      "armor_class": 12,
+      "max_hp": 37,
+      "speed": 40,
+      "strength": 17,
+      "dexterity": 15,
+      "constitution": 14,
+      "intelligence": 3,
+      "wisdom": 12,
+      "charisma": 8,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "notes": "Large beast. Darkvision 60 ft. Keen Smell. Pounce.",
+      "actions": [
+        {
+          "name": "Pounce",
+          "category": "trait",
+          "description": "If the tiger moves at least 20 ft. straight toward a creature and hits it with a claw on the same turn, the target must succeed on a DC 13 Strength save or be knocked prone; if prone, the tiger can make one bite attack as a bonus action."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d10+3 piercing damage.",
+          "dice": "1d10+3"
+        },
+        {
+          "name": "Claw",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d8+3 slashing damage.",
+          "dice": "1d8+3"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "spy",
+      "name": "Spy",
+      "avatar": "🕵️",
+      "cr": 1,
+      "armor_class": 12,
+      "max_hp": 27,
+      "speed": 30,
+      "strength": 10,
+      "dexterity": 15,
+      "constitution": 10,
+      "intelligence": 12,
+      "wisdom": 14,
+      "charisma": 16,
+      "alignment": "",
+      "disposition": "neutral",
+      "languages": "any two languages",
+      "notes": "Medium humanoid. Cunning Action; Sneak Attack (2d6).",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The spy makes two melee attacks."
+        },
+        {
+          "name": "Shortsword",
+          "category": "action",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d6+2 piercing damage.",
+          "dice": "1d6+2"
+        },
+        {
+          "name": "Hand Crossbow",
+          "category": "action",
+          "description": "Ranged Weapon Attack: +4 to hit, range 30/120 ft., one target. Hit: 1d6+2 piercing damage.",
+          "dice": "1d6+2"
+        },
+        {
+          "name": "Sneak Attack",
+          "category": "trait",
+          "description": "Once per turn, deal an extra 2d6 damage to a creature it hits with a weapon attack if it has advantage, or if another enemy of the target is within 5 ft. of it and the spy doesn't have disadvantage.",
+          "dice": "2d6"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "gargoyle",
+      "name": "Gargoyle",
+      "avatar": "🗿",
+      "cr": 2,
+      "armor_class": 15,
+      "max_hp": 52,
+      "speed": 30,
+      "strength": 15,
+      "dexterity": 11,
+      "constitution": 16,
+      "intelligence": 6,
+      "wisdom": 11,
+      "charisma": 7,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Terran",
+      "resistances": "bludgeoning, piercing, and slashing from nonmagical attacks that aren't adamantine",
+      "immunities": "poison",
+      "notes": "Medium elemental. Fly 60 ft. Darkvision 60 ft. Condition immunities: exhaustion, petrified, poisoned. False Appearance (looks like an inanimate statue).",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The gargoyle makes two attacks: one with its bite and one with its claws."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d6+2 piercing damage.",
+          "dice": "1d6+2"
+        },
+        {
+          "name": "Claws",
+          "category": "action",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d6+2 slashing damage.",
+          "dice": "1d6+2"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "ghast",
+      "name": "Ghast",
+      "avatar": "🧟",
+      "cr": 2,
+      "armor_class": 13,
+      "max_hp": 36,
+      "speed": 30,
+      "strength": 16,
+      "dexterity": 17,
+      "constitution": 10,
+      "intelligence": 11,
+      "wisdom": 10,
+      "charisma": 8,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Common",
+      "resistances": "necrotic",
+      "immunities": "poison",
+      "notes": "Medium undead. Darkvision 60 ft. Condition immunities: charmed, exhaustion, poisoned. Stench (DC 10 CON nearby or poisoned). Turn Defiance (allies within 30 ft. have advantage vs. Turn Undead).",
+      "actions": [
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one creature. Hit: 2d8+3 piercing damage.",
+          "dice": "2d8+3"
+        },
+        {
+          "name": "Claws",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 2d6+3 slashing damage. If the target isn't an undead, DC 10 Constitution save or be paralyzed for 1 minute (repeat save at end of each turn).",
+          "dice": "2d6+3"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "polar-bear",
+      "name": "Polar Bear",
+      "avatar": "🐻‍❄️",
+      "cr": 2,
+      "armor_class": 12,
+      "max_hp": 42,
+      "speed": 40,
+      "strength": 20,
+      "dexterity": 10,
+      "constitution": 16,
+      "intelligence": 2,
+      "wisdom": 13,
+      "charisma": 7,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "notes": "Large beast. Swim 30 ft. Keen Smell.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The bear makes two attacks: one with its bite and one with its claws."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 1d8+5 piercing damage.",
+          "dice": "1d8+5"
+        },
+        {
+          "name": "Claws",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 2d6+5 slashing damage.",
+          "dice": "2d6+5"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "will-o-wisp",
+      "name": "Will-o'-Wisp",
+      "avatar": "🔥",
+      "cr": 2,
+      "armor_class": 19,
+      "max_hp": 22,
+      "speed": 0,
+      "strength": 1,
+      "dexterity": 28,
+      "constitution": 10,
+      "intelligence": 13,
+      "wisdom": 14,
+      "charisma": 11,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "the languages it knew in life",
+      "resistances": "acid, cold, fire, necrotic, thunder; bludgeoning, piercing, and slashing from nonmagical attacks",
+      "immunities": "lightning, poison",
+      "notes": "Tiny undead. Fly 50 ft. (hover); listed speed is its flying speed. Condition immunities: exhaustion, grappled, paralyzed, petrified, poisoned, prone, restrained, unconscious. Variable Illumination; Ephemeral; Incorporeal Movement.",
+      "actions": [
+        {
+          "name": "Shock",
+          "category": "action",
+          "description": "Melee Spell Attack: +4 to hit, reach 5 ft., one creature. Hit: 2d8 lightning damage.",
+          "dice": "2d8"
+        },
+        {
+          "name": "Invisibility",
+          "category": "action",
+          "description": "The wisp and its light turn invisible until it attacks or uses Consume Life (it can't attack while invisible)."
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "werewolf",
+      "name": "Werewolf",
+      "avatar": "🐺",
+      "cr": 3,
+      "armor_class": 11,
+      "max_hp": 58,
+      "speed": 30,
+      "strength": 15,
+      "dexterity": 13,
+      "constitution": 14,
+      "intelligence": 10,
+      "wisdom": 11,
+      "charisma": 10,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Common (can't speak in wolf form)",
+      "immunities": "bludgeoning, piercing, and slashing from nonmagical attacks that aren't silvered",
+      "notes": "Medium humanoid (shapechanger). Hybrid/wolf form speed 40 ft. Shapechanger; Keen Hearing and Smell.",
+      "actions": [
+        {
+          "name": "Multiattack (Humanoid/Hybrid)",
+          "category": "action",
+          "description": "The werewolf makes two attacks: one bite (hybrid only) and one claws or spear."
+        },
+        {
+          "name": "Bite (Wolf/Hybrid Only)",
+          "category": "action",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1d8+2 piercing damage. If the target is humanoid, DC 12 Constitution save or be cursed with werewolf lycanthropy.",
+          "dice": "1d8+2"
+        },
+        {
+          "name": "Claws (Hybrid Only)",
+          "category": "action",
+          "description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 2d4+2 slashing damage.",
+          "dice": "2d4+2"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "minotaur",
+      "name": "Minotaur",
+      "avatar": "🐂",
+      "cr": 3,
+      "armor_class": 14,
+      "max_hp": 76,
+      "speed": 40,
+      "strength": 18,
+      "dexterity": 11,
+      "constitution": 16,
+      "intelligence": 6,
+      "wisdom": 16,
+      "charisma": 9,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Abyssal",
+      "notes": "Large monstrosity. Darkvision 60 ft. Charge; Labyrinthine Recall; Reckless.",
+      "actions": [
+        {
+          "name": "Charge",
+          "category": "trait",
+          "description": "If the minotaur moves at least 10 ft. straight toward a target and hits it with a gore on the same turn, the target takes an extra 2d8 piercing damage and, on a failed DC 14 Strength save, is pushed up to 10 ft. and knocked prone.",
+          "dice": "2d8"
+        },
+        {
+          "name": "Greataxe",
+          "category": "action",
+          "description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 2d12+4 slashing damage.",
+          "dice": "2d12+4"
+        },
+        {
+          "name": "Gore",
+          "category": "action",
+          "description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 2d8+4 piercing damage.",
+          "dice": "2d8+4"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "basilisk",
+      "name": "Basilisk",
+      "avatar": "🦎",
+      "cr": 3,
+      "armor_class": 15,
+      "max_hp": 52,
+      "speed": 20,
+      "strength": 16,
+      "dexterity": 8,
+      "constitution": 15,
+      "intelligence": 2,
+      "wisdom": 8,
+      "charisma": 7,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "notes": "Medium monstrosity. Darkvision 60 ft. Petrifying Gaze (a creature starting its turn within 30 ft. that meets the basilisk's eyes makes a DC 12 Constitution save or begins to turn to stone; on a second failure it is petrified).",
+      "actions": [
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 2d6+3 piercing damage plus 2d8 poison damage.",
+          "dice": "2d6+3"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "manticore",
+      "name": "Manticore",
+      "avatar": "🦁",
+      "cr": 3,
+      "armor_class": 14,
+      "max_hp": 68,
+      "speed": 30,
+      "strength": 17,
+      "dexterity": 16,
+      "constitution": 17,
+      "intelligence": 7,
+      "wisdom": 12,
+      "charisma": 8,
+      "alignment": "LE",
+      "disposition": "hostile",
+      "languages": "Common",
+      "notes": "Large monstrosity. Fly 50 ft. Tail Spike Regrowth (24 spikes, regrow after a long rest).",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The manticore makes three attacks: one with its bite and two with its claws, or three with its tail spikes."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d8+3 piercing damage.",
+          "dice": "1d8+3"
+        },
+        {
+          "name": "Claw",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d6+3 slashing damage.",
+          "dice": "1d6+3"
+        },
+        {
+          "name": "Tail Spike",
+          "category": "action",
+          "description": "Ranged Weapon Attack: +5 to hit, range 100/200 ft., one target. Hit: 1d8+3 piercing damage.",
+          "dice": "1d8+3"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "hell-hound",
+      "name": "Hell Hound",
+      "avatar": "🐕",
+      "cr": 3,
+      "armor_class": 15,
+      "max_hp": 45,
+      "speed": 50,
+      "strength": 17,
+      "dexterity": 12,
+      "constitution": 14,
+      "intelligence": 6,
+      "wisdom": 13,
+      "charisma": 6,
+      "alignment": "LE",
+      "disposition": "hostile",
+      "languages": "understands Infernal but can't speak",
+      "immunities": "fire",
+      "notes": "Medium fiend. Darkvision 60 ft. Keen Hearing and Smell; Pack Tactics.",
+      "actions": [
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d8+3 piercing damage plus 2d6 fire damage.",
+          "dice": "1d8+3"
+        },
+        {
+          "name": "Fire Breath (Recharge 5-6)",
+          "category": "action",
+          "description": "The hound exhales fire in a 15-foot cone. Each creature there makes a DC 12 Dexterity save, taking 6d6 fire damage on a failure, or half as much on a success.",
+          "dice": "6d6"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "mummy",
+      "name": "Mummy",
+      "avatar": "🧻",
+      "cr": 3,
+      "armor_class": 11,
+      "max_hp": 58,
+      "speed": 20,
+      "strength": 16,
+      "dexterity": 8,
+      "constitution": 15,
+      "intelligence": 6,
+      "wisdom": 10,
+      "charisma": 12,
+      "alignment": "LE",
+      "disposition": "hostile",
+      "languages": "the languages it knew in life",
+      "vulnerabilities": "fire",
+      "resistances": "bludgeoning, piercing, and slashing from nonmagical attacks",
+      "immunities": "necrotic, poison",
+      "notes": "Medium undead. Darkvision 60 ft. Condition immunities: charmed, exhaustion, frightened, paralyzed, poisoned.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The mummy uses Dreadful Glare and makes one attack with its rotting fist."
+        },
+        {
+          "name": "Rotting Fist",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 2d6+3 bludgeoning damage plus 3d6 necrotic damage. On a hit the target must succeed on a DC 12 Constitution save or be cursed with mummy rot (can't regain HP and max HP drops by 3d6 each day).",
+          "dice": "2d6+3"
+        },
+        {
+          "name": "Dreadful Glare",
+          "category": "action",
+          "description": "The mummy targets one creature it can see within 60 ft. DC 11 Wisdom save or be frightened until the end of the mummy's next turn (if it fails by 5+, also paralyzed for the same duration)."
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "doppelganger",
+      "name": "Doppelganger",
+      "avatar": "🎭",
+      "cr": 3,
+      "armor_class": 14,
+      "max_hp": 52,
+      "speed": 30,
+      "strength": 11,
+      "dexterity": 18,
+      "constitution": 14,
+      "intelligence": 11,
+      "wisdom": 12,
+      "charisma": 14,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "Common",
+      "notes": "Medium monstrosity (shapechanger). Condition immunities: charmed. Shapechanger; Ambusher; Surprise Attack (extra 3d6 on round 1). Read Thoughts.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The doppelganger makes two melee attacks."
+        },
+        {
+          "name": "Slam",
+          "category": "action",
+          "description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 1d6+4 bludgeoning damage.",
+          "dice": "1d6+4"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "veteran",
+      "name": "Veteran",
+      "avatar": "⚔️",
+      "cr": 3,
+      "armor_class": 17,
+      "max_hp": 58,
+      "speed": 30,
+      "strength": 16,
+      "dexterity": 13,
+      "constitution": 14,
+      "intelligence": 10,
+      "wisdom": 11,
+      "charisma": 10,
+      "alignment": "",
+      "disposition": "neutral",
+      "languages": "any one language (usually Common)",
+      "notes": "Medium humanoid. A hardened soldier or mercenary. Splint armor.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The veteran makes two longsword attacks. If it has a shortsword drawn, it can also make a shortsword attack."
+        },
+        {
+          "name": "Longsword",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d8+3 slashing (1d10+3 two-handed).",
+          "dice": "1d8+3"
+        },
+        {
+          "name": "Shortsword",
+          "category": "action",
+          "description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1d6+3 piercing damage.",
+          "dice": "1d6+3"
+        },
+        {
+          "name": "Heavy Crossbow",
+          "category": "action",
+          "description": "Ranged Weapon Attack: +3 to hit, range 100/400 ft., one target. Hit: 1d10+1 piercing damage.",
+          "dice": "1d10+1"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "ettin",
+      "name": "Ettin",
+      "avatar": "👹",
+      "cr": 4,
+      "armor_class": 12,
+      "max_hp": 85,
+      "speed": 40,
+      "strength": 21,
+      "dexterity": 8,
+      "constitution": 17,
+      "intelligence": 6,
+      "wisdom": 10,
+      "charisma": 8,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Giant, Orc",
+      "notes": "Large giant. Darkvision 60 ft. Two Heads (advantage vs. blinded/charmed/deafened/frightened/stunned/knocked unconscious); Wakeful.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The ettin makes two attacks: one with its battleaxe and one with its morningstar."
+        },
+        {
+          "name": "Battleaxe",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 2d8+5 slashing damage.",
+          "dice": "2d8+5"
+        },
+        {
+          "name": "Morningstar",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 2d8+5 piercing damage.",
+          "dice": "2d8+5"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "banshee",
+      "name": "Banshee",
+      "avatar": "👻",
+      "cr": 4,
+      "armor_class": 12,
+      "max_hp": 58,
+      "speed": 0,
+      "strength": 1,
+      "dexterity": 14,
+      "constitution": 10,
+      "intelligence": 12,
+      "wisdom": 11,
+      "charisma": 17,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Common, Elvish",
+      "resistances": "acid, fire, lightning, thunder; bludgeoning, piercing, and slashing from nonmagical attacks",
+      "immunities": "cold, necrotic, poison",
+      "notes": "Medium undead. Fly 40 ft. (hover); listed speed is its flying speed. Condition immunities: charmed, exhaustion, frightened, grappled, paralyzed, petrified, poisoned, prone, restrained. Detect Life; Incorporeal Movement.",
+      "actions": [
+        {
+          "name": "Corrupting Touch",
+          "category": "action",
+          "description": "Melee Spell Attack: +4 to hit, reach 5 ft., one target. Hit: 3d6 necrotic damage.",
+          "dice": "3d6"
+        },
+        {
+          "name": "Wail (1/Day)",
+          "category": "action",
+          "description": "The banshee releases a mournful wail (no effect on constructs and undead). Each creature within 30 ft. that can hear makes a DC 13 Constitution save or drops to 0 hit points; on a success it takes 3d6 psychic damage.",
+          "dice": "3d6"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "hill-giant",
+      "name": "Hill Giant",
+      "avatar": "🗻",
+      "cr": 5,
+      "armor_class": 13,
+      "max_hp": 105,
+      "speed": 40,
+      "strength": 21,
+      "dexterity": 8,
+      "constitution": 19,
+      "intelligence": 5,
+      "wisdom": 9,
+      "charisma": 6,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Giant",
+      "notes": "Huge giant.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The giant makes two greatclub attacks."
+        },
+        {
+          "name": "Greatclub",
+          "category": "action",
+          "description": "Melee Weapon Attack: +8 to hit, reach 10 ft., one target. Hit: 3d8+5 bludgeoning damage.",
+          "dice": "3d8+5"
+        },
+        {
+          "name": "Rock",
+          "category": "action",
+          "description": "Ranged Weapon Attack: +8 to hit, range 60/240 ft., one target. Hit: 3d10+5 bludgeoning damage.",
+          "dice": "3d10+5"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "gladiator",
+      "name": "Gladiator",
+      "avatar": "🛡️",
+      "cr": 5,
+      "armor_class": 16,
+      "max_hp": 112,
+      "speed": 30,
+      "strength": 18,
+      "dexterity": 15,
+      "constitution": 16,
+      "intelligence": 10,
+      "wisdom": 12,
+      "charisma": 15,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "any one language (usually Common)",
+      "notes": "Medium humanoid. A champion arena fighter. Brave.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The gladiator makes three melee attacks or two ranged attacks."
+        },
+        {
+          "name": "Spear",
+          "category": "action",
+          "description": "Melee or Ranged Weapon Attack: +7 to hit, reach 5 ft. or range 20/60 ft., one target. Hit: 2d6+4 piercing damage (melee two-handed).",
+          "dice": "2d6+4"
+        },
+        {
+          "name": "Shield Bash",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one creature. Hit: 2d4+4 bludgeoning damage. If the target is Medium or smaller, DC 15 Strength save or be knocked prone.",
+          "dice": "2d4+4"
+        },
+        {
+          "name": "Parry",
+          "category": "reaction",
+          "description": "The gladiator adds 3 to its AC against one melee attack that would hit it (must see the attacker and wield a melee weapon)."
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "wyvern",
+      "name": "Wyvern",
+      "avatar": "🐲",
+      "cr": 6,
+      "armor_class": 13,
+      "max_hp": 110,
+      "speed": 20,
+      "strength": 19,
+      "dexterity": 10,
+      "constitution": 16,
+      "intelligence": 5,
+      "wisdom": 12,
+      "charisma": 6,
+      "alignment": "",
+      "disposition": "hostile",
+      "languages": "—",
+      "notes": "Large dragon. Fly 80 ft. Darkvision 60 ft.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The wyvern makes two attacks: one with its bite and one with its claws or stinger. While flying it can use claws in place of one other attack."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 10 ft., one creature. Hit: 2d6+4 piercing damage.",
+          "dice": "2d6+4"
+        },
+        {
+          "name": "Claws",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 2d8+4 slashing damage.",
+          "dice": "2d8+4"
+        },
+        {
+          "name": "Stinger",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 10 ft., one creature. Hit: 2d6+4 piercing damage, and DC 15 Constitution save or take 7d6 poison damage (half on success).",
+          "dice": "2d6+4"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "chimera",
+      "name": "Chimera",
+      "avatar": "🦁",
+      "cr": 6,
+      "armor_class": 14,
+      "max_hp": 114,
+      "speed": 30,
+      "strength": 19,
+      "dexterity": 11,
+      "constitution": 19,
+      "intelligence": 3,
+      "wisdom": 14,
+      "charisma": 10,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "understands Draconic but can't speak",
+      "notes": "Large monstrosity. Fly 60 ft. Darkvision 60 ft.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The chimera makes three attacks: one with its bite, one with its horns, and one with its claws. When its fire breath is available, it can use it in place of its bite."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 2d6+4 piercing damage.",
+          "dice": "2d6+4"
+        },
+        {
+          "name": "Horns",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 1d12+4 bludgeoning damage.",
+          "dice": "1d12+4"
+        },
+        {
+          "name": "Claws",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 2d6+4 slashing damage.",
+          "dice": "2d6+4"
+        },
+        {
+          "name": "Fire Breath (Recharge 5-6)",
+          "category": "action",
+          "description": "The dragon head exhales fire in a 15-foot cone. Each creature there makes a DC 15 Dexterity save, taking 7d8 fire damage on a failure, or half as much on a success.",
+          "dice": "7d8"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "young-green-dragon",
+      "name": "Young Green Dragon",
+      "avatar": "🐉",
+      "cr": 8,
+      "armor_class": 18,
+      "max_hp": 136,
+      "speed": 40,
+      "strength": 19,
+      "dexterity": 12,
+      "constitution": 21,
+      "intelligence": 16,
+      "wisdom": 13,
+      "charisma": 15,
+      "alignment": "LE",
+      "disposition": "hostile",
+      "languages": "Common, Draconic",
+      "immunities": "poison",
+      "notes": "Large dragon. Fly 80 ft., swim 40 ft. Blindsight 30 ft., darkvision 120 ft. Condition immunities: poisoned. Amphibious.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The dragon makes three attacks: one with its bite and two with its claws."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 10 ft., one target. Hit: 2d10+4 piercing damage plus 2d6 poison damage.",
+          "dice": "2d10+4"
+        },
+        {
+          "name": "Claw",
+          "category": "action",
+          "description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 2d6+4 slashing damage.",
+          "dice": "2d6+4"
+        },
+        {
+          "name": "Poison Breath (Recharge 5-6)",
+          "category": "action",
+          "description": "The dragon exhales poisonous gas in a 30-foot cone. Each creature there makes a DC 14 Constitution save, taking 12d6 poison damage on a failure, or half as much on a success.",
+          "dice": "12d6"
+        }
+      ],
+      "kind": "monster"
+    },
+    {
+      "slug": "young-red-dragon",
+      "name": "Young Red Dragon",
+      "avatar": "🐉",
+      "cr": 10,
+      "armor_class": 18,
+      "max_hp": 178,
+      "speed": 40,
+      "strength": 23,
+      "dexterity": 10,
+      "constitution": 21,
+      "intelligence": 14,
+      "wisdom": 11,
+      "charisma": 19,
+      "alignment": "CE",
+      "disposition": "hostile",
+      "languages": "Common, Draconic",
+      "immunities": "fire",
+      "notes": "Large dragon. Climb 40 ft., fly 80 ft. Blindsight 30 ft., darkvision 120 ft.",
+      "actions": [
+        {
+          "name": "Multiattack",
+          "category": "action",
+          "description": "The dragon makes three attacks: one with its bite and two with its claws."
+        },
+        {
+          "name": "Bite",
+          "category": "action",
+          "description": "Melee Weapon Attack: +10 to hit, reach 10 ft., one target. Hit: 2d10+6 piercing damage plus 1d6 fire damage.",
+          "dice": "2d10+6"
+        },
+        {
+          "name": "Claw",
+          "category": "action",
+          "description": "Melee Weapon Attack: +10 to hit, reach 5 ft., one target. Hit: 2d6+6 slashing damage.",
+          "dice": "2d6+6"
+        },
+        {
+          "name": "Fire Breath (Recharge 5-6)",
+          "category": "action",
+          "description": "The dragon exhales fire in a 30-foot cone. Each creature there makes a DC 17 Dexterity save, taking 16d6 fire damage on a failure, or half as much on a success.",
+          "dice": "16d6"
+        }
+      ],
+      "kind": "monster"
     }
   ]
 }
