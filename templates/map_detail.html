@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head">
+    <div>
+      <p class="muted breadcrumb"><a href="{{ url_for('map') }}">Maps</a></p>
+      <h1 class="sheet-name">🗺️ {{ map['name'] }}</h1>
+      <p class="sheet-sub muted">
+        {% if location %}📍 <a href="{{ url_for('location_detail', location_id=location['id']) }}">{{ location['name'] }}</a>{% endif %}
+        {% if map['visibility'] == 'hidden' %}{% if location %} · {% endif %}<span class="badge-dm">Hidden from players</span>{% endif %}
+      </p>
+    </div>
+    {% if is_dm %}
+      <div class="area-actions">
+        <form method="post" action="{{ url_for('map_visibility', map_id=map['id']) }}" class="inline">
+          <input type="hidden" name="next" value="{{ request.path }}">
+          {% if map['visibility'] == 'visible' %}
+            <input type="hidden" name="visibility" value="hidden">
+            <button type="submit" class="btn-ghost" title="Hide from players">🙈 Hide</button>
+          {% else %}
+            <input type="hidden" name="visibility" value="visible">
+            <button type="submit" class="btn" title="Reveal to players">👁 Reveal</button>
+          {% endif %}
+        </form>
+        <a class="btn-ghost" href="{{ url_for('map_edit', map_id=map['id']) }}">Edit</a>
+        <form method="post" action="{{ url_for('map_delete', map_id=map['id']) }}" class="inline"
+              onsubmit="return confirm('Delete this map?');">
+          <button type="submit" class="btn-danger">Delete</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if map['description'] %}
+    <section class="sheet-section"><p class="prose">{{ map['description'] }}</p></section>
+  {% endif %}
+
+  {% if map['image'] %}
+    <div class="map-stage">
+      <img class="map-image" src="{{ map['image'] }}" alt="{{ map['name'] }}">
+    </div>
+  {% else %}
+    <section class="sheet-section">
+      <p class="muted">No background image yet.</p>
+      {% if is_dm %}<p class="placeholder-note"><a href="{{ url_for('map_edit', map_id=map['id']) }}">Upload one</a> to start mapping.</p>{% endif %}
+    </section>
+  {% endif %}
+{% endblock %}

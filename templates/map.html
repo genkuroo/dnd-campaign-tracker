@@ -1,8 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
-  <h1>Map</h1>
+  <div class="page-head">
+    <h1>Maps</h1>
+    {% if is_dm %}<a class="btn" href="{{ url_for('map_new') }}">+ New Map</a>{% endif %}
+  </div>
   <p class="muted">
-    Global and local maps, with overlay markers for positions and interactables.
+    {% if is_dm %}World and local maps. New maps start hidden — reveal one once the party has explored it. (Overlay markers arrive next.){% else %}Maps you've discovered. Open one to explore.{% endif %}
   </p>
-  <p class="placeholder-note">Phase 10 — the most ambitious tab, built last.</p>
+
+  {% if maps %}
+    <div class="card-grid">
+      {% for m in maps %}
+        <a class="char-card map-card" href="{{ url_for('map_detail', map_id=m['id']) }}">
+          {% if m['image'] %}
+            <div class="map-thumb" style="background-image: url('{{ m['image'] }}');"></div>
+          {% else %}
+            <div class="map-thumb map-thumb-empty">🗺️</div>
+          {% endif %}
+          <div class="char-card-head">
+            <span class="char-card-title"><span class="char-name">🗺️ {{ m['name'] }}</span></span>
+            {% if m['visibility'] == 'hidden' %}<span class="badge-dm">Hidden</span>{% endif %}
+          </div>
+          {% if m['description'] %}<div class="char-loc muted">{{ m['description'] | truncate(90) }}</div>{% endif %}
+        </a>
+      {% endfor %}
+    </div>
+  {% elif is_dm %}
+    <p class="muted">No maps yet.</p>
+    <p class="placeholder-note">Upload a world map, a city, or a dungeon for your party to explore…</p>
+  {% else %}
+    <p class="muted">You haven't discovered any maps yet.</p>
+    <p class="placeholder-note">Maps your DM reveals will show up here.</p>
+  {% endif %}
 {% endblock %}

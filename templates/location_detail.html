@@ -57,6 +57,27 @@
     </section>
   {% endif %}
 
+  {% if maps %}
+    <section class="sheet-section">
+      <h2>Maps</h2>
+      <div class="card-grid">
+        {% for m in maps %}
+          <a class="char-card map-card" href="{{ url_for('map_detail', map_id=m['id']) }}">
+            {% if m['image'] %}
+              <div class="map-thumb" style="background-image: url('{{ m['image'] }}');"></div>
+            {% else %}
+              <div class="map-thumb map-thumb-empty">🗺️</div>
+            {% endif %}
+            <div class="char-card-head">
+              <span class="char-card-title"><span class="char-name">🗺️ {{ m['name'] }}</span></span>
+              {% if m['visibility'] == 'hidden' %}<span class="badge-dm">Hidden</span>{% endif %}
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
   <section class="sheet-section">
     <h2>Who's here</h2>
     {% if here %}

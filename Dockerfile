@@ -19,6 +19,7 @@ COPY . .
 # deploys and existing /static/avatars/... URLs keep working unchanged. The
 # target is created on demand (os.makedirs) when the first avatar is uploaded.
 RUN rm -rf static/avatars && ln -s /data/avatars static/avatars
+RUN rm -rf static/maps && ln -s /data/maps static/maps
 
 EXPOSE 8080
 

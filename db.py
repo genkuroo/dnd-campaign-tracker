@@ -34,7 +34,7 @@ LEGACY_DB_PATH = os.path.join(DATA_DIR, "campaign.db")
 # Unset in normal app runs, which then use the multi-campaign layout above.
 DB_PATH = os.environ.get("DND_DB_PATH")
 
-SCHEMA_VERSION = 48
+SCHEMA_VERSION = 49
 
 # Each migration brings the schema from version N-1 to N. Keep them append-only:
 # never edit a shipped migration, add a new one.
@@ -609,6 +609,23 @@ MIGRATIONS = {
         status      TEXT    NOT NULL DEFAULT 'open',      -- 'open' | 'done' | 'failed'
         visibility  TEXT    NOT NULL DEFAULT 'visible',   -- 'visible' | 'hidden'
         position    INTEGER NOT NULL DEFAULT 0,
+        created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    """,
+    49: """
+    -- Phase 10a — maps. A map is an uploaded background image the DM can place
+    -- overlay markers on (markers arrive in 10b). It carries the same `visibility`
+    -- fog-of-war spine as locations/factions (default hidden — revealed once the
+    -- party has explored it). `location_id` optionally ties a map to a place
+    -- (0 = none, orphan-on-delete, resolved as "none" on read — like the existing
+    -- creature.location_id pattern), so a Location detail can link to its map.
+    CREATE TABLE maps (
+        id          INTEGER PRIMARY KEY,
+        name        TEXT    NOT NULL,
+        image       TEXT    NOT NULL DEFAULT '',     -- uploaded background URL ('' = none yet)
+        description TEXT    NOT NULL DEFAULT '',
+        location_id INTEGER NOT NULL DEFAULT 0,       -- linked place (0 = none)
+        visibility  TEXT    NOT NULL DEFAULT 'hidden',-- 'visible' | 'hidden'
         created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
     );
     """,

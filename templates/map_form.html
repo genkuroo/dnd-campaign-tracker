@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-head"><h1>{{ title }}</h1></div>
+
+  <form method="post" class="entity-form" enctype="multipart/form-data"
+        action="{{ url_for('map_edit', map_id=map['id']) if map else url_for('map_new') }}">
+    <fieldset>
+      <label class="field grow">
+        <span>Name</span>
+        <input type="text" name="name" value="{{ map['name'] if map else '' }}" required autofocus>
+      </label>
+
+      <label class="field">
+        <span>Of <span class="muted">(linked location, optional)</span></span>
+        <select name="location_id">
+          <option value="0">— none —</option>
+          {% for loc in locations %}
+            <option value="{{ loc['id'] }}" {{ 'selected' if map and map['location_id'] == loc['id'] else '' }}>{{ loc['name'] }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <div class="field">
+        <span>Background image</span>
+        {% if map and map['image'] %}
+          <div class="map-thumb" style="background-image: url('{{ map['image'] }}'); max-width: 220px;"></div>
+        {% endif %}
+        <input type="file" name="image_file" accept="image/*">
+        {% if map and map['image'] %}
+          <label class="checkbox"><input type="checkbox" name="remove_image"> <span>Remove current image</span></label>
+        {% endif %}
+        <span class="muted">PNG/JPG/GIF/WebP, up to 12 MB.</span>
+      </div>
+
+      <label class="field grow">
+        <span>Description</span>
+        <textarea name="description" rows="5" placeholder="What the party knows about this map…">{{ map['description'] if map else '' }}</textarea>
+      </label>
+
+      <div class="field">
+        <span>Visibility</span>
+        <div class="radio-row">
+          <label class="radio"><input type="radio" name="visibility" value="hidden"
+            {{ 'checked' if not map or map['visibility'] != 'visible' else '' }}> Hidden <span class="muted">(until explored)</span></label>
+          <label class="radio"><input type="radio" name="visibility" value="visible"
+            {{ 'checked' if map and map['visibility'] == 'visible' else '' }}> Visible to players</label>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <button type="submit" class="btn">{{ 'Save' if map else 'Create map' }}</button>
+      <a class="btn-ghost" href="{{ url_for('map_detail', map_id=map['id']) if map else url_for('map') }}">Cancel</a>
+    </div>
+  </form>
+{% endblock %}

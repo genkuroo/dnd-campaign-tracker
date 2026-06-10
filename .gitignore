@@ -19,8 +19,9 @@ env/
 campaigns/
 active_campaign
 
-# Uploaded character portraits (local user data)
+# Uploaded character portraits + map backgrounds (local user data)
 static/avatars/
+static/maps/
 
 # macOS
 .DS_Store

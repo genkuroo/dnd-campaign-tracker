@@ -173,6 +173,17 @@ from models.locations import (
     update_location,
     visible_locations,
 )
+from models.maps import (
+    create_map,
+    delete_map,
+    get_map,
+    list_maps,
+    maps_for_location,
+    set_map_image,
+    set_map_visibility,
+    update_map,
+    visible_maps,
+)
 from models.factions import (
     create_faction,
     delete_faction,
@@ -280,12 +291,17 @@ app = Flask(__name__)
 # In production the secret is supplied via the SECRET_KEY env var (e.g.
 # `fly secrets set SECRET_KEY=...`); the fallback is for local dev only.
 app.secret_key = os.environ.get("SECRET_KEY", "dnd-campaign-tracker-local-only")
-app.config["MAX_CONTENT_LENGTH"] = 3 * 1024 * 1024  # cap uploads (avatars) at 3 MB
+app.config["MAX_CONTENT_LENGTH"] = 12 * 1024 * 1024  # cap uploads at 12 MB (map backgrounds run large)
 
 # Uploaded character portraits live under static/avatars (served by Flask's
 # static route). Kept out of git; the dir is created on demand.
 AVATAR_DIR = os.path.join(app.static_folder, "avatars")
 ALLOWED_AVATAR_EXT = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
+
+# Uploaded map backgrounds live under static/maps (same pattern as avatars:
+# symlinked onto the Fly volume in the Dockerfile so they persist across deploys).
+MAP_DIR = os.path.join(app.static_folder, "maps")
+ALLOWED_MAP_EXT = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 
 # Apply any pending schema migrations at import time. This covers BOTH ways the
 # app boots: `python app.py` locally and a WSGI server (gunicorn) in production,
@@ -400,6 +416,9 @@ _DM_ONLY_ENDPOINTS = {
     "quest_new", "quest_edit", "quest_delete", "quest_status", "quest_visibility",
     "objective_new", "objective_status", "objective_edit", "objective_visibility",
     "objective_delete",
+    # Maps (Phase 10): list/detail views are shared (visibility-gated); only
+    # authoring mutations are DM-only.
+    "map_new", "map_edit", "map_delete", "map_visibility",
 }
 
 
@@ -2599,10 +2618,11 @@ def location_detail(location_id):
         abort(404)
     here = [c for c in creatures_at(location_id) if can_view_creature(c)]
     subs = [s for s in children_of(location_id) if can_view_entity(s)]
+    maps = [m for m in maps_for_location(location_id) if can_view_entity(m)]
     return render_template(
         "location_detail.html", active="locations", title=loc["name"],
         loc=loc, parent=get_location(loc["parent_id"]),
-        here=here, subs=subs, kind_label=location_kind_label,
+        here=here, subs=subs, maps=maps, kind_label=location_kind_label,
         mentioned_in=_mentioned_in("location", location_id),
     )
 
@@ -2843,9 +2863,87 @@ def objective_delete(objective_id):
     return redirect(url_for("quest_detail", quest_id=quest_id))
 
 
+# --- Maps (Phase 10) -------------------------------------------------------
+
+def _apply_map_image(map_id):
+    """Apply a background-image change from the map form, if any. Mirrors
+    `_apply_avatar`: an uploaded file wins; else an explicit 'remove' clears it;
+    otherwise the existing image is left untouched (a plain save never wipes it).
+    """
+    file = request.files.get("image_file")
+    if file and file.filename:
+        ext = os.path.splitext(file.filename)[1].lower()
+        if ext in ALLOWED_MAP_EXT:
+            os.makedirs(MAP_DIR, exist_ok=True)
+            fname = secure_filename(f"{map_id}{ext}")
+            file.save(os.path.join(MAP_DIR, fname))
+            set_map_image(map_id, url_for("static", filename=f"maps/{fname}"))
+            return
+    if request.form.get("remove_image"):
+        set_map_image(map_id, "")
+
+
 @app.route("/map")
 def map():
-    return render_template("map.html", active="map", title="Map")
+    """The maps list. The DM manages all; players see only revealed maps
+    (visibility='visible'), mirroring the location fog of war."""
+    maps = list_maps() if is_dm() else visible_maps()
+    return render_template("map.html", active="map", title="Map", maps=maps)
+
+
+@app.route("/map/<int:map_id>")
+def map_detail(map_id):
+    m = get_map(map_id)
+    if not can_view_entity(m):
+        abort(404)
+    return render_template(
+        "map_detail.html", active="map", title=m["name"],
+        map=m, location=get_location(m["location_id"]),
+    )
+
+
+@app.route("/map/new", methods=["GET", "POST"])
+def map_new():
+    if request.method == "POST":
+        new_id = create_map(request.form)
+        if new_id:
+            _apply_map_image(new_id)
+        flash("Map created." if new_id else "A map needs a name.")
+        return redirect(url_for("map_detail", map_id=new_id) if new_id
+                        else url_for("map_new"))
+    return render_template(
+        "map_form.html", active="map", title="New Map",
+        map=None, locations=list_locations(),
+    )
+
+
+@app.route("/map/<int:map_id>/edit", methods=["GET", "POST"])
+def map_edit(map_id):
+    m = get_map(map_id)
+    if m is None:
+        abort(404)
+    if request.method == "POST":
+        update_map(map_id, request.form)
+        _apply_map_image(map_id)
+        flash("Map updated.")
+        return redirect(url_for("map_detail", map_id=map_id))
+    return render_template(
+        "map_form.html", active="map", title="Edit Map",
+        map=m, locations=list_locations(),
+    )
+
+
+@app.route("/map/<int:map_id>/visibility", methods=["POST"])
+def map_visibility(map_id):
+    set_map_visibility(map_id, request.form.get("visibility"))
+    return redirect(_safe_next_or(url_for("map_detail", map_id=map_id)))
+
+
+@app.route("/map/<int:map_id>/delete", methods=["POST"])
+def map_delete(map_id):
+    delete_map(map_id)
+    flash("Map deleted.")
+    return redirect(url_for("map"))
 
 
 # --- Campaign journal (Phase 9b) -------------------------------------------
