@@ -2249,7 +2249,9 @@ def _apply_avatar(creature_id):
     if file and file.filename:
         ext = os.path.splitext(file.filename)[1].lower()
         if ext in ALLOWED_AVATAR_EXT:
-            os.makedirs(AVATAR_DIR, exist_ok=True)
+            # realpath so a dangling symlink onto the Fly volume self-heals (see
+            # the maps upload note); makedirs on the symlink itself can raise.
+            os.makedirs(os.path.realpath(AVATAR_DIR), exist_ok=True)
             fname = secure_filename(f"{creature_id}{ext}")
             file.save(os.path.join(AVATAR_DIR, fname))
             update_creature(creature_id, {"avatar": url_for("static", filename=f"avatars/{fname}")})
@@ -3356,7 +3358,10 @@ def _apply_map_image(map_id):
     if file and file.filename:
         ext = os.path.splitext(file.filename)[1].lower()
         if ext in ALLOWED_MAP_EXT:
-            os.makedirs(MAP_DIR, exist_ok=True)
+            # realpath so a dangling symlink (static/maps -> /data/maps on the Fly
+            # volume) is created at its target; makedirs(exist_ok=True) on the
+            # symlink itself raises FileExistsError when the target doesn't exist.
+            os.makedirs(os.path.realpath(MAP_DIR), exist_ok=True)
             fname = secure_filename(f"{map_id}{ext}")
             file.save(os.path.join(MAP_DIR, fname))
             set_map_image(map_id, url_for("static", filename=f"maps/{fname}"))
