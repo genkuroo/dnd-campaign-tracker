@@ -134,6 +134,9 @@ sidebar) · maps with markers + fog · companions & summons.
   Party tab's "half missing HP" fudge).
 - **Session scheduling** + optional AI assists (NPC gen, session summaries) —
   "near the end."
+- **LAN / local-hosting convenience** (pinned 2026-06-10) — env-driven
+  host/port/debug so `HOST=0.0.0.0 python app.py` serves an in-person game on
+  the local network. Low priority (the Fly URL already works in-room).
 - **Phase 11 — ambient/media embeds** — **decided against** (better solved
   outside the app; in-page player stutters on the full-page-reload nav).
 - **Phase 13 — blank-slate / homebrew mode** (DM-editable, DB-backed content
@@ -154,7 +157,8 @@ dnd-campaign-tracker/
 ├── templates/          # tab views, sidebar, sheet + AJAX fragments, macros
 ├── static/             # css/js; map canvas; avatars/ + maps/ (gitignored)
 ├── data/               # bundled SRD reference (CC-BY-4.0): spells, classes,
-│                       #   races, backgrounds, feats, items, actions, summons
+│                       #   races, backgrounds, feats, items, actions, summons,
+│                       #   monsters (bestiary import catalog)
 ├── docs/BUILD_LOG.md   # detailed build history (this file's companion)
 ├── campaigns/          # per-campaign SQLite DBs (gitignored)
 ├── requirements.txt

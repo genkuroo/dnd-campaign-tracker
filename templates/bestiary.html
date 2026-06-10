@@ -3,7 +3,15 @@
 {% block content %}
   <div class="page-head">
     <h1>Bestiary</h1>
-    {% if is_dm %}<a class="btn" href="{{ url_for('monster_new') }}">+ New Monster</a>{% endif %}
+    {% if is_dm %}
+      <div class="area-actions">
+        <form method="post" action="{{ url_for('bestiary_import') }}" class="inline"
+              onsubmit="return confirm('Add the {{ srd_catalog_size }} bundled SRD monsters to your Bestiary? Ones you already have are skipped. They start hidden from players.');">
+          <button type="submit" class="btn-ghost" title="Bulk-add standard SRD monsters">📥 Add SRD monsters</button>
+        </form>
+        <a class="btn" href="{{ url_for('monster_new') }}">+ New Monster</a>
+      </div>
+    {% endif %}
   </div>
   <p class="muted">{% if is_dm %}Every monster in the database. Toggle <strong>Show/Hide</strong> to control which appear in players' bestiary; reveal a monster's stats from its inspector.{% else %}Creatures you've encountered. Open one to inspect what you know — your DM reveals more over time.{% endif %}</p>
 

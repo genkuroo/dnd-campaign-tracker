@@ -209,6 +209,10 @@ from models.summons import (
     is_summon as creature_is_summon,
     spawn as spawn_summon,
 )
+from models.monster_catalog import (
+    catalog_size as monster_catalog_size,
+    import_missing as import_srd_monsters,
+)
 from models.map_markers import (
     create_marker,
     delete_marker,
@@ -440,7 +444,7 @@ _PUBLIC_ENDPOINTS = {"login", "logout", "register", "setup", "static"}
 _DM_ONLY_ENDPOINTS = {
     "character_new", "character_delete",
     "character_lay_to_rest", "character_restore",
-    "monster_new", "monster_reveal", "monster_visibility",
+    "monster_new", "monster_reveal", "monster_visibility", "bestiary_import",
     "encounter_detail", "encounter_new", "encounter_rename", "encounter_delete",
     "encounter_add_member", "encounter_member_quantity", "encounter_member_remove",
     "encounter_start_combat",
@@ -1709,7 +1713,23 @@ def bestiary():
         title="Bestiary",
         monsters=monsters,
         encounters=list_encounters() if is_dm() else [],
+        srd_catalog_size=monster_catalog_size() if is_dm() else 0,
     )
+
+
+@app.route("/bestiary/import", methods=["POST"])
+def bestiary_import():
+    """Bulk-import the bundled SRD monster catalog into the Bestiary (DM only).
+    Idempotent — monsters already present (by name) are skipped, so re-running is
+    safe. Imported monsters start hidden from players (reveal them per-monster)."""
+    result = import_srd_monsters()
+    if result["added"]:
+        flash(f"Added {result['added']} SRD monster(s) to the Bestiary"
+              + (f" ({result['skipped']} already present)." if result["skipped"] else ".")
+              + " They're hidden from players until you reveal them.")
+    else:
+        flash("All SRD monsters are already in your Bestiary.")
+    return redirect(url_for("bestiary"))
 
 
 @app.route("/bestiary/new", methods=["GET", "POST"])
