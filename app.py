@@ -341,6 +341,29 @@ ALLOWED_AVATAR_EXT = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 MAP_DIR = os.path.join(app.static_folder, "maps")
 ALLOWED_MAP_EXT = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 
+
+def _campaign_upload_slug():
+    """A filesystem-safe namespace for uploads, unique per campaign DB. Creature
+    and map IDs restart per campaign, so uploads MUST be namespaced or two
+    campaigns collide on the same `<id>.png` (and overwrite each other). Derived
+    from the active campaign's DB filename; falls back to 'default' (single-DB
+    test mode)."""
+    base = os.path.splitext(os.path.basename(db.current_db_path()))[0]
+    return secure_filename(base) or "default"
+
+
+def _save_upload(file, base_dir, sub_url, stem, ext):
+    """Save an uploaded file under <base_dir>/<campaign>/<stem><ext> and return
+    its static URL. realpath resolves the volume symlink (and creates the dir,
+    self-healing a dangling link); the campaign sub-folder prevents cross-campaign
+    id collisions."""
+    slug = _campaign_upload_slug()
+    dest_dir = os.path.realpath(os.path.join(base_dir, slug))
+    os.makedirs(dest_dir, exist_ok=True)
+    fname = secure_filename(f"{stem}{ext}")
+    file.save(os.path.join(dest_dir, fname))
+    return url_for("static", filename=f"{sub_url}/{slug}/{fname}")
+
 # Apply any pending schema migrations at import time. This covers BOTH ways the
 # app boots: `python app.py` locally and a WSGI server (gunicorn) in production,
 # where the `__main__` block never runs. init_db() is idempotent. Under gunicorn
@@ -2249,12 +2272,8 @@ def _apply_avatar(creature_id):
     if file and file.filename:
         ext = os.path.splitext(file.filename)[1].lower()
         if ext in ALLOWED_AVATAR_EXT:
-            # realpath so a dangling symlink onto the Fly volume self-heals (see
-            # the maps upload note); makedirs on the symlink itself can raise.
-            os.makedirs(os.path.realpath(AVATAR_DIR), exist_ok=True)
-            fname = secure_filename(f"{creature_id}{ext}")
-            file.save(os.path.join(AVATAR_DIR, fname))
-            update_creature(creature_id, {"avatar": url_for("static", filename=f"avatars/{fname}")})
+            url = _save_upload(file, AVATAR_DIR, "avatars", creature_id, ext)
+            update_creature(creature_id, {"avatar": url})
             return
     if request.form.get("remove_avatar"):
         update_creature(creature_id, {"avatar": ""})
@@ -3358,13 +3377,8 @@ def _apply_map_image(map_id):
     if file and file.filename:
         ext = os.path.splitext(file.filename)[1].lower()
         if ext in ALLOWED_MAP_EXT:
-            # realpath so a dangling symlink (static/maps -> /data/maps on the Fly
-            # volume) is created at its target; makedirs(exist_ok=True) on the
-            # symlink itself raises FileExistsError when the target doesn't exist.
-            os.makedirs(os.path.realpath(MAP_DIR), exist_ok=True)
-            fname = secure_filename(f"{map_id}{ext}")
-            file.save(os.path.join(MAP_DIR, fname))
-            set_map_image(map_id, url_for("static", filename=f"maps/{fname}"))
+            url = _save_upload(file, MAP_DIR, "maps", map_id, ext)
+            set_map_image(map_id, url)
             return
     if request.form.get("remove_image"):
         set_map_image(map_id, "")
