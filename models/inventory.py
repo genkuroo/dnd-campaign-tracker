@@ -158,7 +158,8 @@ def item_effects(item):
     from models.weapons import parse_weapon  # local: avoid import cycle
     w = parse_weapon(item)
     if w:
-        out.append("⚔ " + w["damage"] + (f" {w['type']}" if w["type"] else ""))
+        bonus = f" ({w['bonus']:+d})" if w.get("bonus") else ""
+        out.append("⚔ " + w["damage"] + (f" {w['type']}" if w["type"] else "") + bonus)
     if item["armor_type"] and item["armor_base"] > 0:
         out.append(f"{item['armor_type'].title()} armor: AC {item['armor_base']} "
                    f"({_ARMOR_DEX_LABEL.get(item['armor_type'], '')})")

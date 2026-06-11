@@ -2632,7 +2632,8 @@ def _magic_fields_from_form():
         "weapon": pack_weapon(request.form.get("weapon_damage", ""),
                               request.form.get("weapon_type", ""),
                               request.form.get("weapon_ability", "str"),
-                              request.form.get("weapon_category", "")),
+                              request.form.get("weapon_category", ""),
+                              request.form.get("weapon_bonus", 0, type=int) or 0),
         "attunement_required": 1 if request.form.get("attune_required") else 0,
     }
 

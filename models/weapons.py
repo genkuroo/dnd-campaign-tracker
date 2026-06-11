@@ -1,13 +1,16 @@
 """Weapon attacks — turn an equipped weapon item into an attack + damage roll.
 
 A weapon's stats are packed into the item's `weapon` text column (migration 34) as
-**"damage|type|ability|category"** — e.g. `"1d8|slashing|str|martial"` — mirroring
-how `stat_bonuses` packs its data. An empty column means the item isn't a weapon.
+**"damage|type|ability|category[|bonus]"** — e.g. `"1d8|slashing|str|martial"` or
+`"1d8|slashing|str|martial|1"` for a +1 magic weapon — mirroring how `stat_bonuses`
+packs its data. The 5th `bonus` field is optional (absent = +0), so older 4-field
+strings keep parsing. An empty column means the item isn't a weapon.
 
 Computed on read (nothing stored beyond the weapon stats themselves):
   - **To-hit** = d20 + ability mod + **proficiency bonus when proficient** (finally
-    consuming the weapon-proficiency layer in models/proficiency).
-  - **Damage** = the weapon's dice + the same ability mod.
+    consuming the weapon-proficiency layer in models/proficiency) + the magic bonus.
+  - **Damage** = the weapon's dice + the same ability mod + the magic bonus (a flat
+    add, applied once — it is NOT doubled on a critical hit).
   - **ability** is `str` (melee), `dex` (ranged), or `finesse` (best of STR/DEX).
 """
 import re
@@ -20,14 +23,23 @@ _ABILITY_COL = {"str": "strength", "dex": "dexterity"}
 _ABILITY_LABEL = {"str": "STR", "dex": "DEX", "finesse": "finesse"}
 
 
-def pack_weapon(damage, dtype="", ability="str", category=""):
-    """Build the packed `weapon` string; '' when there's no damage (not a weapon)."""
+def pack_weapon(damage, dtype="", ability="str", category="", bonus=0):
+    """Build the packed `weapon` string; '' when there's no damage (not a weapon).
+    The magic `bonus` (5th field) is appended only when nonzero, so mundane weapons
+    stay 4-field strings."""
     damage = (damage or "").strip()
     if not damage:
         return ""
     ability = ability if ability in _VALID_ABILITY else "str"
     category = category if category in ("simple", "martial") else ""
-    return "|".join([damage, (dtype or "").strip(), ability, category])
+    try:
+        bonus = int(bonus or 0)
+    except (TypeError, ValueError):
+        bonus = 0
+    fields = [damage, (dtype or "").strip(), ability, category]
+    if bonus:
+        fields.append(str(bonus))
+    return "|".join(fields)
 
 
 def _raw_weapon(item):
@@ -43,13 +55,17 @@ def parse_weapon(item):
     raw = _raw_weapon(item)
     if not raw:
         return None
-    parts = (raw.split("|") + ["", "str", ""])[:4]
-    damage, dtype, ability, category = parts
+    parts = (raw.split("|") + ["", "str", "", "0"])[:5]
+    damage, dtype, ability, category, bonus = parts
     if not damage:
         return None
+    try:
+        bonus = int(bonus or 0)
+    except (TypeError, ValueError):
+        bonus = 0
     return {"damage": damage, "type": dtype,
             "ability": ability if ability in _VALID_ABILITY else "str",
-            "category": category}
+            "category": category, "bonus": bonus}
 
 
 def _double_dice(damage):
@@ -105,13 +121,15 @@ def weapon_attacks(creature, eff_abilities):
             continue
         mod = _ability_mod(weapon, eff_abilities)
         prof = weapon_is_proficient(creature, item, weapon)
-        atk = mod + (pb if prof else 0)
+        bonus = weapon["bonus"]
+        atk = mod + (pb if prof else 0) + bonus
+        flat = mod + bonus   # the magic bonus adds to damage too, but isn't doubled on a crit
         out.append({
             "name": item["name"], "type": weapon["type"],
             "ability": _ABILITY_LABEL.get(weapon["ability"], "STR"),
-            "proficient": prof, "mod": mod, "attack": atk,
+            "proficient": prof, "mod": mod, "attack": atk, "bonus": bonus,
             "to_hit": f"1d20{atk:+d}",
-            "damage": weapon["damage"] + (f"{mod:+d}" if mod else ""),
-            "crit": _double_dice(weapon["damage"]) + (f"{mod:+d}" if mod else ""),
+            "damage": weapon["damage"] + (f"{flat:+d}" if flat else ""),
+            "crit": _double_dice(weapon["damage"]) + (f"{flat:+d}" if flat else ""),
         })
     return out

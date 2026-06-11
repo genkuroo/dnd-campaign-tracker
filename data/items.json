@@ -1007,5 +1007,105 @@
     "hands": 1,
     "description": "A 60-ft. rope that moves, knots, and anchors itself on command. AC 20, 20 HP, regains 1 HP per 5 min.",
     "attunement_required": 0
+  },
+  {
+    "slug": "longsword-plus-1",
+    "name": "+1 Longsword",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d8|slashing|str|martial|1",
+    "attunement_required": 0,
+    "description": "+1 to hit and damage. 1d8 slashing (1d10 versatile)."
+  },
+  {
+    "slug": "shortsword-plus-1",
+    "name": "+1 Shortsword",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d6|piercing|finesse|martial|1",
+    "attunement_required": 0,
+    "description": "+1 to hit and damage. 1d6 piercing, finesse."
+  },
+  {
+    "slug": "dagger-plus-1",
+    "name": "+1 Dagger",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d4|piercing|finesse|simple|1",
+    "attunement_required": 0,
+    "description": "+1 to hit and damage. 1d4 piercing, finesse, thrown."
+  },
+  {
+    "slug": "mace-plus-1",
+    "name": "+1 Mace",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d6|bludgeoning|str|simple|1",
+    "attunement_required": 0,
+    "description": "+1 to hit and damage. 1d6 bludgeoning."
+  },
+  {
+    "slug": "battleaxe-plus-1",
+    "name": "+1 Battleaxe",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d8|slashing|str|martial|1",
+    "attunement_required": 0,
+    "description": "+1 to hit and damage. 1d8 slashing (1d10 versatile)."
+  },
+  {
+    "slug": "greatsword-plus-1",
+    "name": "+1 Greatsword",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 2,
+    "weapon": "2d6|slashing|str|martial|1",
+    "attunement_required": 0,
+    "description": "+1 to hit and damage. 2d6 slashing, two-handed."
+  },
+  {
+    "slug": "longbow-plus-1",
+    "name": "+1 Longbow",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 2,
+    "weapon": "1d8|piercing|dex|martial|1",
+    "attunement_required": 0,
+    "description": "+1 to hit and damage. 1d8 piercing, two-handed, range 150/600."
+  },
+  {
+    "slug": "warhammer-plus-2",
+    "name": "+2 Warhammer",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d8|bludgeoning|str|martial|2",
+    "attunement_required": 0,
+    "description": "+2 to hit and damage. 1d8 bludgeoning (1d10 versatile)."
+  },
+  {
+    "slug": "rapier-plus-2",
+    "name": "+2 Rapier",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d8|piercing|finesse|martial|2",
+    "attunement_required": 0,
+    "description": "+2 to hit and damage. 1d8 piercing, finesse."
+  },
+  {
+    "slug": "longsword-plus-3",
+    "name": "+3 Longsword",
+    "category": "Weapon",
+    "slot": "main_hand",
+    "hands": 1,
+    "weapon": "1d8|slashing|str|martial|3",
+    "attunement_required": 0,
+    "description": "+3 to hit and damage. A very rare blade. 1d8 slashing (1d10 versatile)."
   }
 ]
