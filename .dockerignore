@@ -1,5 +1,12 @@
 # Keep the image lean and free of local/host-only state. Real campaign data
-# (the SQLite DB + uploaded avatars) lives on the Fly volume, never in the image.
+# (the SQLite DBs + uploaded avatars/maps) lives on the mounted volume at /data,
+# never in the image.
+#
+# NOTE ON PATTERNS: Docker matches .dockerignore entries with Go's
+# filepath.Match, which is NOT recursive. A bare `*.db` matches only files in
+# the build-context root — it does *not* match `campaigns/campaign.db` or
+# `dev_backup/campaign.db`. Nested matches need the `**/` prefix. Getting this
+# wrong silently bakes real campaign data into the image.
 .git
 .gitignore
 .venv
@@ -9,11 +16,19 @@ __pycache__
 *.pyc
 *.pyo
 
-# Local databases — prod uses /data/campaign.db on the persistent volume.
+# Databases, at any depth. Prod uses /data on the persistent volume.
 *.db
+**/*.db
 
-# Local uploads — prod stores avatars on the volume (/data/avatars).
+# Per-campaign storage and the active-campaign pointer — host state only.
+campaigns/
+active_campaign
+dev_backup/
+
+# Local uploads — prod stores these on the volume (/data/avatars, /data/maps).
+# The Dockerfile also symlinks both onto the volume.
 static/avatars/
+static/maps/
 
 # Dev/test artifacts
 seed_test_db.py
@@ -23,3 +38,7 @@ scripts/
 .DS_Store
 .vscode
 .idea
+
+# Fly.io deployment config — the Pi deployment uses homelab-pi/docker-compose.yml.
+# Kept in the repo for reference, but it has no meaning inside the image.
+fly.toml
