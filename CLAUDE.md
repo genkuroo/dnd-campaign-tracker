@@ -178,6 +178,13 @@ python app.py          # serves at http://127.0.0.1:5002 (init_db runs on startu
 **Testing hygiene:** never run against the live campaign DB — use a temp DB via
 `DND_DB_PATH` (forces single-DB/test mode; tests/seed unaffected).
 
+**Automated tests:** `pip install -r requirements-dev.txt && pytest` — covers
+login/setup/registration, the visibility spine (DM-sees-everything vs.
+player-sees-revealed-only, view vs. edit), character creation (DM authoring vs.
+player self-service), and combat basics (snapshot-on-add, initiative, damage,
+DM-only gating). Each test gets its own throwaway SQLite file via `db.DB_PATH`
+(same trick as `seed_test_db.py`), so nothing touches real campaign data.
+
 ## Conventions
 
 - **Two spines first** (reuse the creature engine; respect visibility).

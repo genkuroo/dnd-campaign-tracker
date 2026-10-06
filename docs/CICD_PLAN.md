@@ -54,12 +54,17 @@ vs. `promote.yml` (manual `workflow_dispatch`).
 
 ## What needs to be built
 
-1. **A real (if small) automated test suite.** There's nothing to gate on
-   today. Doesn't need to be exhaustive — a focused set covering login,
-   visibility rules (the DM-sees-everything / players-see-revealed-only
-   spine), creating a character, and combat basics would give the pipeline
-   something genuine to check, and is worthwhile on its own regardless of
-   this plan.
+1. ~~**A real (if small) automated test suite.**~~ **Done (2026-10-05).** 27
+   pytest tests in `tests/` — `requirements-dev.txt` + `pytest`. Covers
+   login/setup/registration, the visibility spine (DM-sees-everything vs.
+   player-sees-revealed-only, view vs. edit, 404-not-403 for hidden), character
+   creation (DM authoring vs. player self-service), and combat basics
+   (snapshot-on-add independence, initiative, damage, DM-only gating). Each
+   test runs against its own throwaway SQLite file via `DND_DB_PATH`. Verified
+   the suite has teeth, not just green checkmarks, by deliberately breaking
+   `can_view_creature` and confirming the right test failed, then reverting.
+   Not exhaustive by design (no spellcasting/inventory/world-layer coverage
+   yet) — enough to give the pipeline below something genuine to gate on.
 2. **A staging environment.** Three real options, tradeoffs below — **not
    decided yet, pick this when the work actually starts:**
 
@@ -80,22 +85,28 @@ vs. `promote.yml` (manual `workflow_dispatch`).
      the mechanics meaningfully (this app isn't containerized through a
      registry today, it builds in place from source on the host).
 
-## Open decisions, to resolve before building
+## Open decisions
 
-- [ ] Which staging option (table above) — needs a headroom check on the Pi
-      before ruling option A in or out.
-- [ ] Scope of the initial test suite — how much is "enough" to gate on
-      without it becoming its own multi-week project.
-- [ ] Exact promotion mechanism to prod, once staging's location is decided
-      (SSH+`docker compose` vs. a registry-based image bump).
+- [x] **Which staging option — Option A, a second container on the Pi.**
+      Resolved 2026-10-05: checked the Pi directly over SSH. 2.7GB RAM free,
+      and while `df` showed only 4.7GB disk free, 2.2GB of that is reclaimable
+      Docker build cache, not real usage — the `dnd` volume itself is 700KB
+      and the container runs near-0% CPU at idle. Same pattern as the existing
+      `stock-demo`/`fitness-demo` sibling services.
+- [x] **Scope of the initial test suite — resolved 2026-10-05,** see above.
+- [ ] Exact promotion mechanism to prod, now that staging is on-Pi (likely
+      SSH-triggered `git pull` + `docker compose up -d --build`, not a
+      registry-based image bump — this app isn't containerized through a
+      registry today).
 - [ ] Whether to also close the R2 off-site backup gap for `dnd` while touching
       this area of the stack, since it's related infrastructure work.
 
 ## Rough build order, whenever this gets picked back up
 
-1. Check Pi headroom; decide the staging option.
-2. Write the initial test suite (enough to be meaningful, not exhaustive).
-3. Stand up the staging environment (whichever option), seeded with fake data.
+1. ~~Check Pi headroom; decide the staging option.~~ **Done** — Option A.
+2. ~~Write the initial test suite.~~ **Done** — see above.
+3. Stand up the staging environment (`dnd-staging` service in homelab-pi's
+   compose file, own subdomain/volume), seeded with fake data.
 4. Build the auto-deploy-to-staging GitHub Actions workflow.
 5. Build the manual promote-to-prod workflow.
 6. Do one full real cycle end to end with an actual small feature, to prove
