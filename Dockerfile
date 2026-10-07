@@ -13,6 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # App code.
 COPY . .
+RUN chmod +x docker-entrypoint.sh
 
 # The Fly volume mounts at /data and holds the SQLite DB + uploaded avatars.
 # Symlink the static avatars dir onto the volume so uploads persist across
@@ -22,6 +23,10 @@ RUN rm -rf static/avatars && ln -s /data/avatars static/avatars
 RUN rm -rf static/maps && ln -s /data/maps static/maps
 
 EXPOSE 8080
+
+# Seeds synthetic data when DEMO=1 and no database exists yet (see
+# docker-entrypoint.sh), then always hands off to the CMD below unchanged.
+ENTRYPOINT ["./docker-entrypoint.sh"]
 
 # gunicorn serves the WSGI app. --preload imports the app once in the master
 # (running init_db migrations exactly once) before forking workers, avoiding a

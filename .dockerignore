@@ -30,8 +30,10 @@ dev_backup/
 static/avatars/
 static/maps/
 
-# Dev/test artifacts
-seed_test_db.py
+# Dev/test artifacts. seed_test_db.py is NOT excluded (removed 2026-10-07,
+# was here before the DEMO=1 entrypoint existed) — docker-entrypoint.sh runs
+# it inside the image on a DEMO=1 staging container with an empty volume. It
+# builds data only, so shipping it in the image is harmless.
 seed_demo.py
 scripts/
 .playwright-mcp/
