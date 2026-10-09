@@ -50,10 +50,27 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           printf '%s\n' "$PI_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
+
+          # Temporary diagnostics: the previous run's plain SSH connection to
+          # the Pi's Tailscale IP timed out after several minutes (no
+          # ConnectTimeout was set, so it hit the OS default) even though the
+          # Pi's firewall accepts all tailscale0 traffic unconditionally and
+          # Tailscale SSH is off. Narrowing down where it actually breaks
+          # before guessing further.
+          echo "--- tailscale status ---"
+          tailscale status || true
+          echo "--- tailscale ping (Tailscale-layer reachability) ---"
+          timeout 15 tailscale ping -c 3 100.67.117.118 || true
+          echo "--- raw TCP reachability to port 22 ---"
+          timeout 10 bash -c 'cat < /dev/null > /dev/tcp/100.67.117.118/22' && echo "TCP port 22 reachable" || echo "TCP port 22 NOT reachable"
+
           # By IP, not the MagicDNS name -- the ephemeral runner's resolver
           # doesn't pick up Tailscale's DNS, so the hostname won't resolve
-          # here even though the tailnet connection itself is fine.
+          # here even though the tailnet connection itself is fine. Short
+          # ConnectTimeout so a real failure fails fast instead of hanging.
           ssh -i ~/.ssh/deploy_key \
               -o UserKnownHostsFile=~/.ssh/known_hosts \
               -o StrictHostKeyChecking=yes \
+              -o ConnectTimeout=15 \
+              -vvv \
               genkuro@100.67.117.118
