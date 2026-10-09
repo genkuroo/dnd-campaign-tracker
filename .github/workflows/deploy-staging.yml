@@ -1,0 +1,56 @@
+name: Deploy to staging
+
+# On every push to main: run the test suite, and only on success, redeploy
+# dnd-staging on the Pi. See docs/CICD_PLAN.md for the full pipeline plan
+# this is step 4 of (promotion to prod is still a manual, separate step).
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      - run: pytest
+
+  deploy-staging:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      # Temporarily joins this runner to the tailnet for the job only
+      # (ephemeral) -- the Pi has no public SSH and no port-forwarding, so
+      # this is the only way a GitHub-hosted runner can reach it at all.
+      # The OAuth client is scoped to tag:ci-deploy (see the tailnet policy
+      # file); the real access boundary, though, is the deploy key below.
+      - name: Connect to tailnet
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-client-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
+          tags: tag:ci-deploy
+
+      # DEPLOY_SSH_KEY is restricted server-side (authorized_keys forced
+      # command) to running scripts/deploy-staging.sh and nothing else --
+      # even a fully leaked key can't open an interactive shell on the Pi.
+      # PI_KNOWN_HOSTS is the Pi's public host key (not sensitive), pinned
+      # so this connects to a verified host rather than disabling the check.
+      - name: Deploy dnd-staging
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          PI_KNOWN_HOSTS: ${{ vars.PI_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$PI_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy_key \
+              -o UserKnownHostsFile=~/.ssh/known_hosts \
+              -o StrictHostKeyChecking=yes \
+              genkuro@homelab.tail357655.ts.net
