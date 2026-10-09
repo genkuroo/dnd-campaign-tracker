@@ -50,7 +50,10 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           printf '%s\n' "$PI_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
+          # By IP, not the MagicDNS name -- the ephemeral runner's resolver
+          # doesn't pick up Tailscale's DNS, so the hostname won't resolve
+          # here even though the tailnet connection itself is fine.
           ssh -i ~/.ssh/deploy_key \
               -o UserKnownHostsFile=~/.ssh/known_hosts \
               -o StrictHostKeyChecking=yes \
-              genkuro@homelab.tail357655.ts.net
+              genkuro@100.67.117.118
