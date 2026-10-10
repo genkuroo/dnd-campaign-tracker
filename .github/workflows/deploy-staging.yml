@@ -33,6 +33,13 @@ jobs:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
           tags: tag:ci-deploy
+          # Peer propagation across the tailnet is eventually consistent --
+          # without this, the Pi's tailscaled hasn't learned about this brand
+          # new ephemeral node yet and silently drops the SSH attempt (looks
+          # like a TCP-level connection timeout, not an auth/routing bug).
+          # This makes the action itself wait for the Pi to actually accept
+          # a connection before the step finishes.
+          targets: 100.67.117.118
 
       # DEPLOY_SSH_KEY is restricted server-side (authorized_keys forced
       # command) to running scripts/deploy-staging.sh and nothing else --
