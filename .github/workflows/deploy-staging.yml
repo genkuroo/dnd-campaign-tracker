@@ -57,10 +57,10 @@ jobs:
           # Pi's firewall accepts all tailscale0 traffic unconditionally and
           # Tailscale SSH is off. Narrowing down where it actually breaks
           # before guessing further.
-          echo "--- tailscale status ---"
-          tailscale status || true
+          echo "--- tailscale status (sudo -- the CLI needs root for the daemon socket) ---"
+          sudo tailscale status || true
           echo "--- tailscale ping (Tailscale-layer reachability) ---"
-          timeout 15 tailscale ping -c 3 100.67.117.118 || true
+          sudo timeout 15 tailscale ping -c 3 100.67.117.118 || true
           echo "--- raw TCP reachability to port 22 ---"
           timeout 10 bash -c 'cat < /dev/null > /dev/tcp/100.67.117.118/22' && echo "TCP port 22 reachable" || echo "TCP port 22 NOT reachable"
 
