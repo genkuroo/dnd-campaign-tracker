@@ -33,6 +33,13 @@ jobs:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
           tags: tag:ci-deploy
+          # Without this the daemon uses in-memory state (the action's
+          # default), and the later Deploy step's plain `tailscale` CLI
+          # calls reported "Logged out" even though this step itself
+          # succeeded -- an explicit statedir is what the README's own
+          # Tailnet Lock example uses for the same reason: state needing
+          # to be visible beyond the exact process that created it.
+          statedir: /tmp/tailscale-state
 
       # DEPLOY_SSH_KEY is restricted server-side (authorized_keys forced
       # command) to running scripts/deploy-staging.sh and nothing else --
