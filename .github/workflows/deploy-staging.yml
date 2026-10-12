@@ -33,13 +33,6 @@ jobs:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
           tags: tag:ci-deploy
-          # Peer propagation across the tailnet is eventually consistent --
-          # without this, the Pi's tailscaled hasn't learned about this brand
-          # new ephemeral node yet and silently drops the SSH attempt (looks
-          # like a TCP-level connection timeout, not an auth/routing bug).
-          # This makes the action itself wait for the Pi to actually accept
-          # a connection before the step finishes.
-          targets: 100.67.117.118
 
       # DEPLOY_SSH_KEY is restricted server-side (authorized_keys forced
       # command) to running scripts/deploy-staging.sh and nothing else --
@@ -58,26 +51,22 @@ jobs:
           printf '%s\n' "$PI_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
-          # Temporary diagnostics: the previous run's plain SSH connection to
-          # the Pi's Tailscale IP timed out after several minutes (no
-          # ConnectTimeout was set, so it hit the OS default) even though the
-          # Pi's firewall accepts all tailscale0 traffic unconditionally and
-          # Tailscale SSH is off. Narrowing down where it actually breaks
-          # before guessing further.
-          echo "--- tailscale status (sudo -- the CLI needs root for the daemon socket) ---"
-          sudo tailscale status || true
-          echo "--- tailscale ping (Tailscale-layer reachability) ---"
-          sudo timeout 15 tailscale ping -c 3 100.67.117.118 || true
-          echo "--- raw TCP reachability to port 22 ---"
-          timeout 10 bash -c 'cat < /dev/null > /dev/tcp/100.67.117.118/22' && echo "TCP port 22 reachable" || echo "TCP port 22 NOT reachable"
-
-          # By IP, not the MagicDNS name -- the ephemeral runner's resolver
-          # doesn't pick up Tailscale's DNS, so the hostname won't resolve
-          # here even though the tailnet connection itself is fine. Short
-          # ConnectTimeout so a real failure fails fast instead of hanging.
-          ssh -i ~/.ssh/deploy_key \
-              -o UserKnownHostsFile=~/.ssh/known_hosts \
-              -o StrictHostKeyChecking=yes \
-              -o ConnectTimeout=15 \
-              -vvv \
-              genkuro@100.67.117.118
+          # Peer propagation across the tailnet is eventually consistent --
+          # the Pi's tailscaled may not have learned about this brand new
+          # ephemeral node yet (Tailscale's own docs say to expect up to
+          # ~3 minutes). Retry with backoff rather than assume the first
+          # attempt lands; by IP, not the MagicDNS name, since the runner's
+          # resolver doesn't pick up Tailscale's DNS even once connected.
+          for i in 1 2 3 4 5 6; do
+            if ssh -i ~/.ssh/deploy_key \
+                   -o UserKnownHostsFile=~/.ssh/known_hosts \
+                   -o StrictHostKeyChecking=yes \
+                   -o ConnectTimeout=15 \
+                   genkuro@100.67.117.118; then
+              exit 0
+            fi
+            echo "SSH attempt $i failed, retrying in $((i * 5))s..."
+            sleep $((i * 5))
+          done
+          echo "::error::Could not reach the Pi after 6 attempts"
+          exit 1
