@@ -51,6 +51,16 @@ jobs:
           printf '%s\n' "$PI_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
+          # Diagnostic: the last run's SSH timed out identically across all 6
+          # retries over 3+ minutes, which rules out simple eventual-
+          # consistency delay (that should clear within that window per
+          # Tailscale's own docs). tailscale ping reports direct-vs-DERP-vs-
+          # unreachable, which a plain TCP timeout can't tell us.
+          echo "--- tailscale status ---"
+          sudo tailscale status || true
+          echo "--- tailscale ping ---"
+          sudo timeout 30 tailscale ping -c 4 100.67.117.118 || true
+
           # Peer propagation across the tailnet is eventually consistent --
           # the Pi's tailscaled may not have learned about this brand new
           # ephemeral node yet (Tailscale's own docs say to expect up to
