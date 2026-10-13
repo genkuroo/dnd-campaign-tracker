@@ -28,18 +28,26 @@ jobs:
       # The OAuth client is scoped to tag:ci-deploy (see the tailnet policy
       # file); the real access boundary, though, is the deploy key below.
       - name: Connect to tailnet
-        uses: tailscale/github-action@v3
+        # v3 (what this used to be pinned to) passes the OAuth secret
+        # directly as a raw `tailscale up --authkey=` value, which returned
+        # a 404 from Tailscale's backend on every single attempt -- silently,
+        # because v3's retry loop has no exit-1 on exhausting retries, so the
+        # step reported success regardless. Confirmed the credential itself
+        # is valid (a raw OAuth client_credentials token request against
+        # api.tailscale.com returned 200) before concluding this was the
+        # action's mechanism, not our secret. v4 does a proper OAuth token
+        # exchange instead of this shortcut.
+        uses: tailscale/github-action@v4
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
           tags: tag:ci-deploy
-          # Without this the daemon uses in-memory state (the action's
-          # default), and the later Deploy step's plain `tailscale` CLI
-          # calls reported "Logged out" even though this step itself
-          # succeeded -- an explicit statedir is what the README's own
-          # Tailnet Lock example uses for the same reason: state needing
-          # to be visible beyond the exact process that created it.
           statedir: /tmp/tailscale-state
+          # Peer propagation across the tailnet is eventually consistent --
+          # this makes the action itself wait for the Pi to actually accept
+          # a connection before the step finishes, rather than assuming the
+          # first attempt lands.
+          ping: 100.67.117.118
 
       # DEPLOY_SSH_KEY is restricted server-side (authorized_keys forced
       # command) to running scripts/deploy-staging.sh and nothing else --
