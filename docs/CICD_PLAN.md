@@ -1,9 +1,12 @@
 # Plan: a real dev → test → staging → prod pipeline
 
-**Status: planned, not yet built.** This is a design doc to pick back up later,
-not a runbook for something that exists yet. Written 2026-09-30, after
-verifying the project's actual current state directly (see below) rather than
-trusting older notes about it.
+**Status: staging half is live and proven (2026-10-13).** Test suite, staging
+environment, and auto-deploy-to-staging are all built and working end to end
+against the real Pi. What's left is the prod-promotion workflow (step 5 below)
+— a smaller, well-understood piece of work now that its mechanism has already
+been built and proven once. Written 2026-09-30, after verifying the project's
+actual current state directly (see below) rather than trusting older notes
+about it.
 
 ## Why
 
@@ -65,25 +68,32 @@ vs. `promote.yml` (manual `workflow_dispatch`).
    `can_view_creature` and confirming the right test failed, then reverting.
    Not exhaustive by design (no spellcasting/inventory/world-layer coverage
    yet) — enough to give the pipeline below something genuine to gate on.
-2. **A staging environment.** Three real options, tradeoffs below — **not
-   decided yet, pick this when the work actually starts:**
+2. ~~**A staging environment.**~~ **Done (2026-10-09).** Went with Option A
+   below (a second container on the Pi) after confirming real headroom —
+   see the "Open decisions" entry for the verification detail. The other
+   two options were considered but not built:
 
    | Option | Cost | Notes |
    |---|---|---|
-   | A second container on the same Pi (`dnd-staging` service in `homelab-pi`'s compose file, own subdomain, own volume seeded with fake campaign data) | Free | Consistent with the rest of the homelab's self-hosted philosophy. Shares the Pi's limited resources (4GB total, ~7 services already running) and shares its fate — if the Pi goes down, staging does too. **Check actual headroom on the Pi before committing to this** — not verified as of this writing. |
+   | A second container on the same Pi (`dnd-staging` service in `homelab-pi`'s compose file, own subdomain, own volume seeded with fake campaign data) — **chosen** | Free | Consistent with the rest of the homelab's self-hosted philosophy. Shares the Pi's limited resources and shares its fate — if the Pi goes down, staging does too. |
    | A small environment elsewhere (e.g. Fly.io's free tier, now used purely as disposable staging rather than as prod) | Likely free at this scale | Doesn't compete with the Pi's resources. Mirrors a real, common pattern: durable prod on owned hardware, disposable staging in the cloud. |
    | Local-only testing (Docker Compose on a dev machine) before deploying straight to the Pi | Free | Simplest, but not a "real live pre-prod environment" — weaker simulation of the actual workflow this plan exists to practice. |
 
 3. **Two GitHub Actions workflows**, same shape as `url-shortener-k8s`:
-   - On every push to `main`: run the test suite, then (if staging is a
-     remote environment) deploy to staging automatically.
+   - ~~On every push to `main`: run the test suite, then... deploy to staging
+     automatically.~~ **Done (2026-10-13).** `.github/workflows/deploy-staging.yml`:
+     runs pytest, and on success, joins the tailnet (ephemeral, scoped to
+     `tag:ci-deploy`) and SSHes into the Pi with a key restricted
+     server-side (`authorized_keys` forced command) to running exactly one
+     script — `homelab-pi/scripts/deploy-staging.sh` — and nothing else.
+     Verified end-to-end for real multiple times, including confirming zero
+     impact on `dnd`/`stocks`/`fitness`/`fantasy` after each deploy.
    - A separate, manual `workflow_dispatch` workflow: promotes the exact
-     tested commit to prod. If staging is a container on the Pi itself, this
-     step is likely an SSH-triggered `git pull` + `docker compose up -d
-     --build` on the Pi, not a GHCR-based image bump like `url-shortener-k8s`
-     — worth deciding once the staging option is picked, since it changes
-     the mechanics meaningfully (this app isn't containerized through a
-     registry today, it builds in place from source on the host).
+     tested commit to prod. Now a known, proven pattern to extend (the
+     staging workflow above *is* this mechanism, just targeting
+     `dnd-staging` instead of `dnd`) — mainly needs a human-approval gate
+     added (e.g. a GitHub Environment with required reviewers) since
+     promoting to prod shouldn't be as automatic as staging.
 
 ## Open decisions
 
@@ -94,10 +104,21 @@ vs. `promote.yml` (manual `workflow_dispatch`).
       and the container runs near-0% CPU at idle. Same pattern as the existing
       `stock-demo`/`fitness-demo` sibling services.
 - [x] **Scope of the initial test suite — resolved 2026-10-05,** see above.
-- [ ] Exact promotion mechanism to prod, now that staging is on-Pi (likely
-      SSH-triggered `git pull` + `docker compose up -d --build`, not a
-      registry-based image bump — this app isn't containerized through a
-      registry today).
+- [x] **Exact promotion mechanism to prod — resolved 2026-10-13** by building
+      and proving it for staging first: SSH-triggered `git pull` +
+      `docker compose build` + `up -d`, via a GitHub Actions runner joined
+      to the tailnet (ephemeral, OAuth-scoped) and a deploy key restricted
+      server-side to one script. Promoting to prod reuses this exact
+      mechanism, targeting `dnd` instead of `dnd-staging`, plus a
+      human-approval gate (see step 5 below).
+      
+      **Non-obvious gotcha worth remembering:** minting a Tailscale auth
+      key via an OAuth client needs the `Auth Keys: Write` scope —
+      `Devices: Core Write` alone (which looks like the obvious/sufficient
+      scope) 404s silently. Caught via `tailscale/github-action`'s own
+      retry loop swallowing the real failure (a bug in `v3`'s bash script —
+      no `exit 1` when retries exhaust, so the step reported success
+      regardless) — `v4` surfaces it properly.
 - [ ] Whether to also close the R2 off-site backup gap for `dnd` while touching
       this area of the stack, since it's related infrastructure work.
 
@@ -105,9 +126,16 @@ vs. `promote.yml` (manual `workflow_dispatch`).
 
 1. ~~Check Pi headroom; decide the staging option.~~ **Done** — Option A.
 2. ~~Write the initial test suite.~~ **Done** — see above.
-3. Stand up the staging environment (`dnd-staging` service in homelab-pi's
-   compose file, own subdomain/volume), seeded with fake data.
-4. Build the auto-deploy-to-staging GitHub Actions workflow.
-5. Build the manual promote-to-prod workflow.
+3. ~~Stand up the staging environment.~~ **Done (2026-10-09).** `dnd-staging`
+   service live on the Pi, own volume, own secret key, seeded with fake
+   data via `DEMO=1`, routed at `dnd-staging.gen-kuro.com`.
+4. ~~Build the auto-deploy-to-staging GitHub Actions workflow.~~
+   **Done (2026-10-13).** See above.
+5. Build the manual promote-to-prod workflow — the remaining real work.
+   Reuses the staging workflow's proven mechanism; needs a
+   `workflow_dispatch` trigger (manual, not on push) and a human-approval
+   gate (a GitHub Environment with required reviewers is the standard way),
+   targeting `dnd`'s `authorized_keys`/deploy script instead of
+   `dnd-staging`'s.
 6. Do one full real cycle end to end with an actual small feature, to prove
    the pipeline before trusting it for real work.
