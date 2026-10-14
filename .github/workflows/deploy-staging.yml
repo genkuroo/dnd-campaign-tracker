@@ -29,15 +29,10 @@ jobs:
       # The OAuth client is scoped to tag:ci-deploy (see the tailnet policy
       # file); the real access boundary, though, is the deploy key below.
       - name: Connect to tailnet
-        # v3 (what this used to be pinned to) passes the OAuth secret
-        # directly as a raw `tailscale up --authkey=` value, which returned
-        # a 404 from Tailscale's backend on every single attempt -- silently,
-        # because v3's retry loop has no exit-1 on exhausting retries, so the
-        # step reported success regardless. Confirmed the credential itself
-        # is valid (a raw OAuth client_credentials token request against
-        # api.tailscale.com returned 200) before concluding this was the
-        # action's mechanism, not our secret. v4 does a proper OAuth token
-        # exchange instead of this shortcut.
+        # Pinned to v4, not v3: v3 passes the OAuth secret directly as a raw
+        # `tailscale up --authkey=` value, which silently never worked (its
+        # retry loop has no exit-1 on exhausting retries, so the step
+        # reported success regardless). v4 does a proper OAuth token exchange.
         uses: tailscale/github-action@v4
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
@@ -67,32 +62,13 @@ jobs:
           printf '%s\n' "$PI_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
-          # Diagnostic: the last run's SSH timed out identically across all 6
-          # retries over 3+ minutes, which rules out simple eventual-
-          # consistency delay (that should clear within that window per
-          # Tailscale's own docs). tailscale ping reports direct-vs-DERP-vs-
-          # unreachable, which a plain TCP timeout can't tell us.
-          echo "--- tailscale status ---"
-          sudo tailscale status || true
-          echo "--- tailscale ping ---"
-          sudo timeout 30 tailscale ping -c 4 100.67.117.118 || true
-
-          # Peer propagation across the tailnet is eventually consistent --
-          # the Pi's tailscaled may not have learned about this brand new
-          # ephemeral node yet (Tailscale's own docs say to expect up to
-          # ~3 minutes). Retry with backoff rather than assume the first
-          # attempt lands; by IP, not the MagicDNS name, since the runner's
-          # resolver doesn't pick up Tailscale's DNS even once connected.
-          for i in 1 2 3 4 5 6; do
-            if ssh -i ~/.ssh/deploy_key \
-                   -o UserKnownHostsFile=~/.ssh/known_hosts \
-                   -o StrictHostKeyChecking=yes \
-                   -o ConnectTimeout=15 \
-                   genkuro@100.67.117.118; then
-              exit 0
-            fi
-            echo "SSH attempt $i failed, retrying in $((i * 5))s..."
-            sleep $((i * 5))
-          done
-          echo "::error::Could not reach the Pi after 6 attempts"
-          exit 1
+          # By IP, not the MagicDNS name -- the runner's resolver doesn't
+          # pick up Tailscale's DNS even once connected. No retry loop
+          # needed here: Connect to tailnet's own `ping` input already
+          # blocks until the Pi is confirmed reachable, so by this point
+          # the eventual-consistency race is already resolved.
+          ssh -i ~/.ssh/deploy_key \
+              -o UserKnownHostsFile=~/.ssh/known_hosts \
+              -o StrictHostKeyChecking=yes \
+              -o ConnectTimeout=15 \
+              genkuro@100.67.117.118
