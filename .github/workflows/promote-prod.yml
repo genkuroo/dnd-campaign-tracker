@@ -1,0 +1,60 @@
+name: Promote to prod
+
+# Manual only -- this is step 5 of docs/CICD_PLAN.md: the deliberate
+# promotion step, as opposed to deploy-staging.yml's automatic-on-every-push.
+# Runs the test suite, then waits on the `production` GitHub Environment's
+# required-reviewer approval before touching the real dnd service.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      - run: pytest
+
+  deploy-prod:
+    needs: test
+    runs-on: ubuntu-latest
+    # The approval gate: this job can't start until a required reviewer on
+    # the `production` environment approves it, and only that environment's
+    # secret (DEPLOY_SSH_KEY_PROD) is visible to this job.
+    environment: production
+    steps:
+      # Same tailnet join as deploy-staging.yml -- see that workflow for why
+      # this is needed and why it's pinned to tailscale/github-action@v4.
+      - name: Connect to tailnet
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
+          tags: tag:ci-deploy
+          statedir: /tmp/tailscale-state
+          ping: 100.67.117.118
+
+      # DEPLOY_SSH_KEY_PROD is restricted server-side (authorized_keys
+      # forced command) to running scripts/deploy-prod.sh and nothing else --
+      # a separate key from staging's, scoped to this environment, so it's
+      # only ever usable after the approval gate above.
+      - name: Deploy dnd (prod)
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY_PROD }}
+          PI_KNOWN_HOSTS: ${{ vars.PI_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$PI_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+          ssh -i ~/.ssh/deploy_key \
+              -o UserKnownHostsFile=~/.ssh/known_hosts \
+              -o StrictHostKeyChecking=yes \
+              -o ConnectTimeout=15 \
+              genkuro@100.67.117.118

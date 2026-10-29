@@ -1,12 +1,11 @@
 # Plan: a real dev → test → staging → prod pipeline
 
-**Status: staging half is live and proven (2026-10-13).** Test suite, staging
-environment, and auto-deploy-to-staging are all built and working end to end
-against the real Pi. What's left is the prod-promotion workflow (step 5 below)
-— a smaller, well-understood piece of work now that its mechanism has already
-been built and proven once. Written 2026-09-30, after verifying the project's
-actual current state directly (see below) rather than trusting older notes
-about it.
+**Status: both halves built (2026-10-19).** Test suite, staging environment,
+auto-deploy-to-staging, and the manual promote-to-prod workflow are all in
+place. What's left is step 6 — one full real cycle end to end, to prove the
+whole pipeline before trusting it for real work. Written 2026-09-30, after
+verifying the project's actual current state directly (see below) rather than
+trusting older notes about it.
 
 ## Why
 
@@ -88,12 +87,24 @@ vs. `promote.yml` (manual `workflow_dispatch`).
      script — `homelab-pi/scripts/deploy-staging.sh` — and nothing else.
      Verified end-to-end for real multiple times, including confirming zero
      impact on `dnd`/`stocks`/`fitness`/`fantasy` after each deploy.
-   - A separate, manual `workflow_dispatch` workflow: promotes the exact
-     tested commit to prod. Now a known, proven pattern to extend (the
-     staging workflow above *is* this mechanism, just targeting
-     `dnd-staging` instead of `dnd`) — mainly needs a human-approval gate
-     added (e.g. a GitHub Environment with required reviewers) since
-     promoting to prod shouldn't be as automatic as staging.
+   - ~~A separate, manual `workflow_dispatch` workflow: promotes the exact
+     tested commit to prod.~~ **Done (2026-10-19).**
+     `.github/workflows/promote-prod.yml`: manual-trigger only, runs pytest,
+     then a `production` GitHub Environment (you as required reviewer) gates
+     the deploy job — nothing touches the Pi until that approval lands. The
+     deploy step reuses the staging mechanism exactly (tailnet join, SSH to
+     a forced-command key), pointed at `dnd` instead of `dnd-staging`, via a
+     separate key (`github-actions-deploy-prod`) stored as an
+     environment-scoped secret so it's only ever reachable post-approval.
+     `homelab-pi/scripts/deploy-prod.sh` is the forced command on the Pi
+     side. **Gotcha hit building this:** the `authorized_keys` forced-command
+     syntax (`command="...",no-pty,...`) needs the quotes — appending the
+     line through a nested SSH call let the shell strip them, which didn't
+     error, it just made sshd silently fail to parse that one line and fall
+     through to password auth (which then correctly failed). Caught by
+     testing the new key end-to-end with `-o IdentitiesOnly=yes` (without it,
+     the admin's own agent-loaded key silently covered for the broken one,
+     masking the bug) before trusting it in CI.
 
 ## Open decisions
 
@@ -131,11 +142,7 @@ vs. `promote.yml` (manual `workflow_dispatch`).
    data via `DEMO=1`, routed at `dnd-staging.gen-kuro.com`.
 4. ~~Build the auto-deploy-to-staging GitHub Actions workflow.~~
    **Done (2026-10-13).** See above.
-5. Build the manual promote-to-prod workflow — the remaining real work.
-   Reuses the staging workflow's proven mechanism; needs a
-   `workflow_dispatch` trigger (manual, not on push) and a human-approval
-   gate (a GitHub Environment with required reviewers is the standard way),
-   targeting `dnd`'s `authorized_keys`/deploy script instead of
-   `dnd-staging`'s.
+5. ~~Build the manual promote-to-prod workflow.~~ **Done (2026-10-19).** See
+   above.
 6. Do one full real cycle end to end with an actual small feature, to prove
-   the pipeline before trusting it for real work.
+   the pipeline before trusting it for real work. **Not done yet.**
