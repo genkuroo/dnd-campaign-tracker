@@ -1,11 +1,11 @@
 # Plan: a real dev → test → staging → prod pipeline
 
-**Status: both halves built (2026-10-19).** Test suite, staging environment,
-auto-deploy-to-staging, and the manual promote-to-prod workflow are all in
-place. What's left is step 6 — one full real cycle end to end, to prove the
-whole pipeline before trusting it for real work. Written 2026-09-30, after
-verifying the project's actual current state directly (see below) rather than
-trusting older notes about it.
+**Status: DONE (2026-10-31).** Test suite, staging environment,
+auto-deploy-to-staging, the manual promote-to-prod workflow, and one full
+real end-to-end cycle (a real small feature, pushed to `main`, auto-deployed
+to staging, manually promoted and approved, verified live on prod) are all
+built and proven. Written 2026-09-30, after verifying the project's actual
+current state directly (see below) rather than trusting older notes about it.
 
 ## Why
 
@@ -144,5 +144,15 @@ vs. `promote.yml` (manual `workflow_dispatch`).
    **Done (2026-10-13).** See above.
 5. ~~Build the manual promote-to-prod workflow.~~ **Done (2026-10-19).** See
    above.
-6. Do one full real cycle end to end with an actual small feature, to prove
-   the pipeline before trusting it for real work. **Not done yet.**
+6. ~~Do one full real cycle end to end with an actual small feature.~~ **Done
+   (2026-10-31).** The feature: env-driven `HOST`/`PORT`/`DEBUG` for local
+   dev (the previously-deferred LAN-hosting convenience), touching only the
+   `if __name__ == "__main__"` dev entrypoint that gunicorn/prod never
+   reaches. Pushed to `main` → `deploy-staging.yml` ran tests and redeployed
+   `dnd-staging` automatically, no human action. Then `promote-prod.yml` was
+   triggered manually, tests ran again, the `production` environment's
+   required-reviewer gate paused the `deploy-prod` job, approval was given,
+   and it deployed clean: `dnd-campaign-tracker at fd6689f`, image rebuilt,
+   `homelab-dnd-1` restarted. Verified both `dnd.gen-kuro.com` and
+   `dnd-staging.gen-kuro.com` healthy afterward. **The pipeline is proven —
+   this plan is complete.**
