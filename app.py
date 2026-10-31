@@ -3677,4 +3677,8 @@ def _not_found(_e):
 if __name__ == "__main__":
     # Local dev only. Migrations already ran at import (see init_db() above).
     # Production is served by gunicorn (see Dockerfile), which never reaches here.
-    app.run(debug=True, port=5002)
+    # HOST=0.0.0.0 serves an in-person game to other devices on the LAN.
+    host = os.environ.get("HOST", "127.0.0.1")
+    port = int(os.environ.get("PORT", 5002))
+    debug = os.environ.get("DEBUG", "1") != "0"
+    app.run(host=host, port=port, debug=debug)

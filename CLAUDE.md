@@ -127,16 +127,14 @@ subclasses, features, resources, scaling, ASI/feats, proficiency, spellcasting,
 expertise) · race/background/weapons/death-saves/speed/concentration/exhaustion ·
 attunement + combat damage types + inspiration + adv/dis + crits + CR · hosting +
 multi-campaign · world layer (locations/factions/journal/quests/known-entities
-sidebar) · maps with markers + fog · companions & summons.
+sidebar) · maps with markers + fog · companions & summons · LAN local-hosting
+convenience (env-driven host/port/debug).
 
 **Not done / deferred:**
 - **Hit dice as a real short-rest resource** — skipped (owner is happy with the
   Party tab's "half missing HP" fudge).
 - **Session scheduling** + optional AI assists (NPC gen, session summaries) —
   "near the end."
-- **LAN / local-hosting convenience** (pinned 2026-06-10) — env-driven
-  host/port/debug so `HOST=0.0.0.0 python app.py` serves an in-person game on
-  the local network. Low priority (the Fly URL already works in-room).
 - **Phase 11 — ambient/media embeds** — **decided against** (better solved
   outside the app; in-page player stutters on the full-page-reload nav).
 - **Phase 13 — blank-slate / homebrew mode** (DM-editable, DB-backed content
